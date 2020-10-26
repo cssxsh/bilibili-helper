@@ -14,6 +14,7 @@ import net.mamoe.mirai.contact.Friend
 import net.mamoe.mirai.contact.Group
 import net.mamoe.mirai.message.MessageEvent
 import net.mamoe.mirai.message.sendImage
+import net.mamoe.mirai.utils.minutesToMillis
 import net.mamoe.mirai.utils.secondsToMillis
 import kotlin.coroutines.CoroutineContext
 
@@ -48,7 +49,7 @@ object BiliBiliCommand : CompositeCommand(
     fun onInit() = launch {
         while (Bot.botInstances.isEmpty()) {
             logger.verbose("等待机器人登录...")
-            delay((10).secondsToMillis)
+            delay((1).minutesToMillis)
         }
         logger.info("开始初始化联系人列表")
         BilibiliTaskData.video.toMap().forEach { (uid, info) ->
