@@ -52,12 +52,10 @@ object BiliBiliCommand : CompositeCommand(
         BilibiliTaskData.video.toMap().forEach { (uid, info) ->
             videoContact[uid] = info.getContacts()
             addVideoListener(uid)
-            logger.info("VideoContact: $videoContact")
         }
         BilibiliTaskData.live.toMap().forEach { (uid, info) ->
             liveContact[uid] = info.getContacts()
             addLiveListener(uid)
-            logger.info("LiveContact: $liveContact")
         }
     }
 
