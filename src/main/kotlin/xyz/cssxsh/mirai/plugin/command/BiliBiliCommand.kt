@@ -6,7 +6,6 @@ import xyz.cssxsh.mirai.plugin.data.BilibiliTaskData.maxIntervalMillis
 import xyz.cssxsh.mirai.plugin.data.BilibiliTaskData.minIntervalMillis
 import xyz.cssxsh.mirai.plugin.BilibiliHelperPlugin
 import net.mamoe.mirai.Bot
-import net.mamoe.mirai.console.MiraiConsole
 import net.mamoe.mirai.console.command.CommandSenderOnMessage
 import net.mamoe.mirai.console.command.CompositeCommand
 import net.mamoe.mirai.console.util.ConsoleExperimentalApi
@@ -181,6 +180,25 @@ object BiliBiliCommand : CompositeCommand(
         }
     }.onSuccess { job ->
         quoteReply("添加对${uid}的直播监听任务, 添加完成${job}")
+    }.onFailure {
+        quoteReply(it.toString())
+    }.isSuccess
+
+    @SubCommand("list", "列表")
+    @Suppress("unused")
+    suspend fun CommandSenderOnMessage<MessageEvent>.list() = runCatching {
+        buildString {
+            appendLine("视频监听:")
+            BilibiliTaskData.video.toMap().forEach { (uid, info) ->
+                if (fromEvent.subject.id in info.groups + info.friends) appendLine(uid)
+            }
+            appendLine("直播监听:")
+            BilibiliTaskData.live.toMap().forEach { (uid, info) ->
+                if (fromEvent.subject.id in info.groups + info.friends) appendLine(uid)
+            }
+        }
+    }.onSuccess { text ->
+        quoteReply(text)
     }.onFailure {
         quoteReply(it.toString())
     }.isSuccess
