@@ -47,8 +47,10 @@ object BiliBiliCommand : CompositeCommand(
 
     fun onInit() = launch {
         while (Bot.botInstances.isEmpty()) {
+            logger.verbose("等待机器人登录...")
             delay((3).secondsToMillis)
         }
+        logger.info("开始初始化联系人列表")
         BilibiliTaskData.video.toMap().forEach { (uid, info) ->
             videoContact[uid] = info.getContacts()
             addVideoListener(uid)
