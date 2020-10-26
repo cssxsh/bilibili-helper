@@ -140,9 +140,16 @@ tasks {
                     appendln("mirai.RunMirai")
                 }
             )
+            File(testConsoleDir, "start.sh").writeText(
+                buildString {
+                    appendln("cd ${testConsoleDir.absolutePath}")
+                    appendln("java -classpath ${sourceSets["test"].runtimeClasspath.asPath} ^")
+                    appendln("-Dfile.encoding=UTF-8 ^")
+                    appendln("mirai.RunMirai")
+                }
+            )
         }
     }
-
 
     create("runMiraiConsole", JavaExec::class.java) {
         group = "mirai"
