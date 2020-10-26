@@ -46,9 +46,9 @@ object BiliBiliCommand : CompositeCommand(
     }.toSet()
 
     fun onInit() = launch {
-        while (Bot.botInstances.none { it.isOnline }) {
+        while (Bot.botInstances.isEmpty()) {
             logger.verbose("等待机器人登录...")
-            delay((3).secondsToMillis)
+            delay((10).secondsToMillis)
         }
         logger.info("开始初始化联系人列表")
         BilibiliTaskData.video.toMap().forEach { (uid, info) ->
