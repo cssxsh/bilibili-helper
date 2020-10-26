@@ -14,6 +14,7 @@ import net.mamoe.mirai.contact.Friend
 import net.mamoe.mirai.contact.Group
 import net.mamoe.mirai.message.MessageEvent
 import net.mamoe.mirai.message.sendImage
+import net.mamoe.mirai.utils.secondsToMillis
 import kotlin.coroutines.CoroutineContext
 
 @ConsoleExperimentalApi
@@ -44,7 +45,10 @@ object BiliBiliCommand : CompositeCommand(
         bot.groups.filter { it.id in groups } + bot.friends.filter { it.id in friends }
     }.toSet()
 
-    fun onInit() {
+    fun onInit() = launch {
+        while (Bot.botInstances.isEmpty()) {
+            delay((3).secondsToMillis)
+        }
         BilibiliTaskData.video.toMap().forEach { (uid, info) ->
             videoContact[uid] = info.getContacts()
             addVideoListener(uid)
