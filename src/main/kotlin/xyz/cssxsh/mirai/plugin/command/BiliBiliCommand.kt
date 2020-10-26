@@ -88,7 +88,7 @@ object BiliBiliCommand : CompositeCommand(
                 }
             }.onSuccess { list ->
                 (intervalMillis.random()).let {
-                    logger.verbose("(${uid})视频监听任务完成一次, 目前时间戳为${BilibiliTaskData.video.getValue(uid).last}, 共有${list.size}个视频更新, 即将进入延时delay(${it}ms)。")
+                    logger.verbose("(${uid})[${videoContact.getValue(uid)}]视频监听任务完成一次, 目前时间戳为${BilibiliTaskData.video.getValue(uid).last}, 共有${list.size}个视频更新, 即将进入延时delay(${it}ms)。")
                     delay(it)
                 }
             }.onFailure {
@@ -124,7 +124,7 @@ object BiliBiliCommand : CompositeCommand(
                 }
             }.onSuccess { user ->
                 (intervalMillis.random()).let {
-                    logger.verbose("(${uid})[${user.name}]直播监听任务完成一次, 目前开播状态为${user.liveRoom.liveStatus}, 即将进入延时delay(${it}ms)。")
+                    logger.verbose("(${uid})[${user.name}][${liveContact.getValue(uid)}]直播监听任务完成一次, 目前开播状态为${user.liveRoom.liveStatus}, 即将进入延时delay(${it}ms)。")
                     delay(it)
                 }
             }.onFailure {
@@ -138,12 +138,12 @@ object BiliBiliCommand : CompositeCommand(
     @Suppress("unused")
     suspend fun CommandSenderOnMessage<MessageEvent>.video(uid: Long) = runCatching {
         videoContact.compute(uid) { _, list ->
-            (list ?: emptySet()) + fromEvent.subject.also {
+            (list ?: emptySet()) + fromEvent.subject.also { contact ->
                 BilibiliTaskData.video.compute(uid) { _, info ->
                     (info ?: BilibiliTaskData.TaskInfo()).run {
-                        when (fromEvent.subject) {
-                            is Friend -> copy(friends = friends + fromEvent.subject.id)
-                            is Group -> copy(groups = groups + fromEvent.subject.id)
+                        when (contact) {
+                            is Friend -> copy(friends = friends + contact.id)
+                            is Group -> copy(groups = groups + contact.id)
                             else -> this
                         }
                     }
@@ -163,12 +163,12 @@ object BiliBiliCommand : CompositeCommand(
     @Suppress("unused")
     suspend fun CommandSenderOnMessage<MessageEvent>.live(uid: Long) = runCatching {
         liveContact.compute(uid) { _, list ->
-            (list ?: emptySet()) + fromEvent.subject.also {
+            (list ?: emptySet()) + fromEvent.subject.also { contact ->
                 BilibiliTaskData.live.compute(uid) { _, info ->
                     (info ?: BilibiliTaskData.TaskInfo()).run {
-                        when (fromEvent.subject) {
-                            is Friend -> copy(friends = friends + fromEvent.subject.id)
-                            is Group -> copy(groups = groups + fromEvent.subject.id)
+                        when (contact) {
+                            is Friend -> copy(friends = friends + contact.id)
+                            is Group -> copy(groups = groups + contact.id)
                             else -> this
                         }
                     }
