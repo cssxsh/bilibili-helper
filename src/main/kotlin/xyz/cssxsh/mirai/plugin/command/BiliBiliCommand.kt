@@ -46,7 +46,7 @@ object BiliBiliCommand : CompositeCommand(
     }.toSet()
 
     fun onInit() = launch {
-        while (Bot.botInstances.isEmpty() && Bot.botInstances.all { it.isOnline }) {
+        while (Bot.botInstances.isEmpty() && Bot.botInstances.none { it.isOnline }) {
             logger.verbose("等待机器人登录...")
             delay((3).secondsToMillis)
         }
