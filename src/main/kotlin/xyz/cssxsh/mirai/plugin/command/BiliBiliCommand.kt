@@ -60,7 +60,7 @@ object BiliBiliCommand : CompositeCommand(
             runCatching {
                 BilibiliHelperPlugin.searchVideo(uid).searchData.list.vList.apply {
                     maxByOrNull { it.created }?.let { video ->
-                        logger.verbose("(${uid})最新视频为[${video.title}](${video.bvId})")
+                        logger.verbose("(${uid})最新视频为[${video.title}](${video.bvId})<${video.created}>")
                     }
                 }.filter {
                     it.created >= BilibiliTaskData.video.getOrPut(uid) { BilibiliTaskData.TaskInfo() }.last
