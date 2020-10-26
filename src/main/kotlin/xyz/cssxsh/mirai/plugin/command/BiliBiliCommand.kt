@@ -6,16 +6,17 @@ import xyz.cssxsh.mirai.plugin.data.BilibiliTaskData.maxIntervalMillis
 import xyz.cssxsh.mirai.plugin.data.BilibiliTaskData.minIntervalMillis
 import xyz.cssxsh.mirai.plugin.BilibiliHelperPlugin
 import net.mamoe.mirai.Bot
+import net.mamoe.mirai.console.MiraiConsole
 import net.mamoe.mirai.console.command.CommandSenderOnMessage
 import net.mamoe.mirai.console.command.CompositeCommand
 import net.mamoe.mirai.console.util.ConsoleExperimentalApi
 import net.mamoe.mirai.contact.Contact
 import net.mamoe.mirai.contact.Friend
 import net.mamoe.mirai.contact.Group
+import net.mamoe.mirai.event.events.BotOnlineEvent
+import net.mamoe.mirai.event.subscribeAlways
 import net.mamoe.mirai.message.MessageEvent
 import net.mamoe.mirai.message.sendImage
-import net.mamoe.mirai.utils.minutesToMillis
-import net.mamoe.mirai.utils.secondsToMillis
 import kotlin.coroutines.CoroutineContext
 
 @ConsoleExperimentalApi
@@ -42,22 +43,17 @@ object BiliBiliCommand : CompositeCommand(
 
     private val intervalMillis = minIntervalMillis..maxIntervalMillis
 
-    private fun BilibiliTaskData.TaskInfo.getContacts(): Set<Contact> = Bot.botInstances.flatMap { bot ->
-        bot.groups.filter { it.id in groups } + bot.friends.filter { it.id in friends }
-    }.toSet()
+    private fun BilibiliTaskData.TaskInfo.getContacts(bot: Bot): Set<Contact> =
+        (bot.groups.filter { it.id in groups } + bot.friends.filter { it.id in friends }).toSet()
 
-    fun onInit() = launch {
-        while (Bot.botInstances.isEmpty()) {
-            logger.verbose("等待机器人登录...")
-            delay((1).minutesToMillis)
-        }
-        logger.info("开始初始化联系人列表")
+    fun onInit() = BilibiliHelperPlugin.subscribeAlways<BotOnlineEvent> {
+        logger.info("开始初始化${bot}联系人列表")
         BilibiliTaskData.video.toMap().forEach { (uid, info) ->
-            videoContact[uid] = info.getContacts()
+            videoContact[uid] = info.getContacts(bot)
             addVideoListener(uid)
         }
         BilibiliTaskData.live.toMap().forEach { (uid, info) ->
-            liveContact[uid] = info.getContacts()
+            liveContact[uid] = info.getContacts(bot)
             addLiveListener(uid)
         }
     }
