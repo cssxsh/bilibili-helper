@@ -90,8 +90,8 @@ object BilibiliHelperPlugin : KotlinPlugin(
     @ConsoleExperimentalApi
     override fun onEnable() {
         BilibiliTaskData.reload()
-        BiliBiliCommand.onInit()
         BiliBiliCommand.register()
+        BiliBiliCommand.onInit()
     }
 
     @ConsoleExperimentalApi

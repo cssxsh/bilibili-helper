@@ -30,28 +30,30 @@ object BiliBiliCommand : CompositeCommand(
 
     private val videoJobs = mutableMapOf<Long, Job>()
 
-    private val videoContact = mutableMapOf<Long, List<Contact>>()
+    private val videoContact = mutableMapOf<Long, Set<Contact>>()
 
     private val liveJobs = mutableMapOf<Long, Job>()
 
     private val liveState = mutableMapOf<Long, Boolean>()
 
-    private val liveContact = mutableMapOf<Long, List<Contact>>()
+    private val liveContact = mutableMapOf<Long, Set<Contact>>()
 
     private val intervalMillis = minIntervalMillis..maxIntervalMillis
 
-    private fun BilibiliTaskData.TaskInfo.getContacts(): List<Contact> = Bot.botInstances.flatMap { bot ->
+    private fun BilibiliTaskData.TaskInfo.getContacts(): Set<Contact> = Bot.botInstances.flatMap { bot ->
         bot.groups.filter { it.id in groups } + bot.friends.filter { it.id in friends }
-    }
+    }.toSet()
 
     fun onInit() {
         BilibiliTaskData.video.toMap().forEach { (uid, info) ->
             videoContact[uid] = info.getContacts()
             addVideoListener(uid)
+            logger.info("VideoContact: $videoContact")
         }
         BilibiliTaskData.live.toMap().forEach { (uid, info) ->
             liveContact[uid] = info.getContacts()
             addLiveListener(uid)
+            logger.info("LiveContact: $liveContact")
         }
     }
 
@@ -88,7 +90,7 @@ object BiliBiliCommand : CompositeCommand(
                 }
             }.onSuccess { list ->
                 (intervalMillis.random()).let {
-                    logger.verbose("(${uid})[${videoContact.getValue(uid)}]视频监听任务完成一次, 目前时间戳为${BilibiliTaskData.video.getValue(uid).last}, 共有${list.size}个视频更新, 即将进入延时delay(${it}ms)。")
+                    logger.verbose("(${uid})视频监听任务完成一次, 目前时间戳为${BilibiliTaskData.video.getValue(uid).last}, 共有${list.size}个视频更新, 即将进入延时delay(${it}ms)。")
                     delay(it)
                 }
             }.onFailure {
@@ -124,7 +126,7 @@ object BiliBiliCommand : CompositeCommand(
                 }
             }.onSuccess { user ->
                 (intervalMillis.random()).let {
-                    logger.verbose("(${uid})[${user.name}][${liveContact.getValue(uid)}]直播监听任务完成一次, 目前开播状态为${user.liveRoom.liveStatus}, 即将进入延时delay(${it}ms)。")
+                    logger.verbose("(${uid})[${user.name}]直播监听任务完成一次, 目前开播状态为${user.liveRoom.liveStatus}, 即将进入延时delay(${it}ms)。")
                     delay(it)
                 }
             }.onFailure {
