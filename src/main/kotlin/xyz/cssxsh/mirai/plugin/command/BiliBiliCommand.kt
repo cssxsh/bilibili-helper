@@ -30,19 +30,19 @@ object BiliBiliCommand : CompositeCommand(
 
     private val videoJobs = mutableMapOf<Long, Job>()
 
-    private val videoContact = mutableMapOf<Long, Set<Contact>>()
+    private val videoContact = mutableMapOf<Long, List<Contact>>()
 
     private val liveJobs = mutableMapOf<Long, Job>()
 
     private val liveState = mutableMapOf<Long, Boolean>()
 
-    private val liveContact = mutableMapOf<Long, Set<Contact>>()
+    private val liveContact = mutableMapOf<Long, List<Contact>>()
 
     private val intervalMillis = minIntervalMillis..maxIntervalMillis
 
-    private fun BilibiliTaskData.TaskInfo.getContacts(): Set<Contact> = Bot.botInstances.flatMap { bot ->
+    private fun BilibiliTaskData.TaskInfo.getContacts(): List<Contact> = Bot.botInstances.flatMap { bot ->
         bot.groups.filter { it.id in groups } + bot.friends.filter { it.id in friends }
-    }.toSet()
+    }
 
     fun onInit() {
         BilibiliTaskData.video.toMap().forEach { (uid, info) ->
