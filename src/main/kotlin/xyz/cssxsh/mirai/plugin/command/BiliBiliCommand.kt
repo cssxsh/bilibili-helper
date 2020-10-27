@@ -16,12 +16,12 @@ import net.mamoe.mirai.contact.Group
 import net.mamoe.mirai.event.events.BotOnlineEvent
 import net.mamoe.mirai.event.subscribeAlways
 import net.mamoe.mirai.message.MessageEvent
-import net.mamoe.mirai.message.data.Image
 import net.mamoe.mirai.message.data.Message
 import net.mamoe.mirai.message.data.PlainText
 import net.mamoe.mirai.message.sendImage
 import xyz.cssxsh.mirai.plugin.data.BiliPicCard
 import xyz.cssxsh.mirai.plugin.data.BiliReplyCard
+import xyz.cssxsh.mirai.plugin.data.BiliTextCard
 import kotlin.coroutines.CoroutineContext
 
 @ConsoleExperimentalApi
@@ -131,7 +131,7 @@ object BiliBiliCommand : CompositeCommand(
                         }
                     }
                     2 -> buildList {
-                        Json.decodeFromJsonElement(BiliPicCard.serializer(), dynamic.card).let {  card ->
+                        Json.decodeFromJsonElement(BiliPicCard.serializer(), dynamic.card).let { card ->
                             add(PlainText("${card.user.name}: ${card.item.description}"))
                             addAll(card.item.pictures.map {
                                 BilibiliHelperPlugin.getPic(it.imgSrc)
@@ -139,8 +139,8 @@ object BiliBiliCommand : CompositeCommand(
                         }
                     }
                     4 -> buildList {
-                        Json.decodeFromJsonElement(BiliPicCard.serializer(), dynamic.card).let { card ->
-                            add(PlainText("${card.user.name}: ${card.item.description}"))
+                        Json.decodeFromJsonElement(BiliTextCard.serializer(), dynamic.card).let { card ->
+                            add(PlainText("${card.user.uname}: ${card.item. content}"))
                         }
                     }
                     else -> listOf("${dynamic.desc.userProfile.info.uname} 有新动态")
