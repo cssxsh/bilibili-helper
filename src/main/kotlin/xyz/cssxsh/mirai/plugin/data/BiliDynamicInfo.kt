@@ -25,7 +25,7 @@ data class BiliDynamicInfo(
     @Serializable
     data class DynamicData(
         @SerialName("attentions")
-        val attentions: Attentions,
+        val attentions: Attentions? = null,
         @SerialName("cards")
         val cards: List<Card>,
         @SerialName("_gt_")
@@ -54,7 +54,11 @@ data class BiliDynamicInfo(
             @Serializable(JsonTextSerializer::class)
             val extendJson: JsonElement,
             @SerialName("extra")
-            val extra: Extra
+            val extra: Extra,
+            @SerialName("activity_infos")
+            val activityInfos: JsonElement? = null,
+            @SerialName("extension")
+            val extension: JsonElement? = null
         ) {
             companion object {
                 object JsonTextSerializer : KSerializer<JsonElement> {
@@ -122,7 +126,11 @@ data class BiliDynamicInfo(
                 @SerialName("user_profile")
                 val userProfile: UserProfile,
                 @SerialName("view")
-                val view: Int
+                val view: Int,
+                @SerialName("bvid")
+                val bvId: String? = null,
+                @SerialName("previous")
+                val previous: JsonElement? = null
             ) {
 
                 @Serializable
