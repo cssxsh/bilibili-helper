@@ -82,9 +82,7 @@ object BiliBiliCommand : CompositeCommand(
                 }
             }
         }
-    }.onFailure {
-        logger.warning("($uid)获取视频失败", it)
-    }.isSuccess
+    }.onFailure { logger.warning("($uid)获取视频失败", it) }.isSuccess
 
     private suspend fun buildLiveMessage(uid: Long) = runCatching {
         liveState[uid] = false
@@ -108,9 +106,7 @@ object BiliBiliCommand : CompositeCommand(
                 }
             }
         }
-    }.onFailure {
-        logger.warning("($uid)获取直播失败", it)
-    }.isSuccess
+    }.onFailure { logger.warning("($uid)获取直播失败", it) }.isSuccess
 
     private suspend fun buildDynamicMessage(uid: Long) = runCatching {
         BilibiliHelperPlugin.dynamicInfo(uid).dynamicData.cards.apply {
@@ -163,9 +159,7 @@ object BiliBiliCommand : CompositeCommand(
                 }
             }
         }
-    }.onFailure {
-        logger.warning("($uid)获取动态失败", it)
-    }.isSuccess
+    }.onFailure { logger.warning("($uid)获取动态失败", it) }.isSuccess
 
     private fun addListener(uid: Long): Job = launch {
         while (isActive) {
@@ -175,7 +169,7 @@ object BiliBiliCommand : CompositeCommand(
                 buildDynamicMessage(uid)
             }.onSuccess {
                 (intervalMillis.random()).let {
-                    logger.verbose("(${uid}): ${BilibiliTaskData.tasks[uid]}监听任务完成一次, 即将进入延时delay(${it}ms)。")
+                    logger.info("(${uid}): ${BilibiliTaskData.tasks[uid]}监听任务完成一次, 即将进入延时delay(${it}ms)。")
                     delay(it)
                 }
             }.onFailure {
@@ -183,7 +177,7 @@ object BiliBiliCommand : CompositeCommand(
                 delay(minIntervalMillis)
             }
         }
-    }.also { logger.verbose("添加对${uid}的监听任务, 添加完成${it}") }
+    }.also { logger.info("添加对${uid}的监听任务, 添加完成${it}") }
 
     private fun MutableMap<Long, Set<Contact>>.addUid(uid: Long, subject: Contact) = compute(uid) { _, list ->
         (list ?: emptySet()) + subject.also { contact ->
