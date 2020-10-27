@@ -7,11 +7,7 @@ import net.mamoe.mirai.utils.minutesToMillis
 import java.util.*
 
 object BilibiliTaskData : AutoSavePluginConfig("BilibiliTaskData") {
-    val video: MutableMap<Long, TaskInfo> by value()
-
-    val live: MutableMap<Long, TaskInfo> by value()
-
-    val dynamic: MutableMap<Long, TaskInfo> by value()
+    val tasks: MutableMap<Long, TaskInfo> by value()
 
     val minIntervalMillis: Long by value(5.minutesToMillis)
 
@@ -19,7 +15,8 @@ object BilibiliTaskData : AutoSavePluginConfig("BilibiliTaskData") {
 
     @Serializable
     data class TaskInfo(
-        val last: Long = Date().time,
+        val videoLast: Long = Date().time,
+        val dynamicLast: Long = Date().time,
         val friends: Set<Long> = emptySet(),
         val groups: Set<Long> = emptySet()
     )

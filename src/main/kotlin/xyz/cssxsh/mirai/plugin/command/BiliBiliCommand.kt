@@ -30,19 +30,11 @@ object BiliBiliCommand : CompositeCommand(
 
     override val coroutineContext: CoroutineContext = CoroutineName("Bilibili-Listener")
 
-    private val videoJobs = mutableMapOf<Long, Job>()
-
-    private val videoContact = mutableMapOf<Long, Set<Contact>>()
-
-    private val liveJobs = mutableMapOf<Long, Job>()
+    private val taskJobs = mutableMapOf<Long, Job>()
 
     private val liveState = mutableMapOf<Long, Boolean>()
 
-    private val liveContact = mutableMapOf<Long, Set<Contact>>()
-
-    private val dynamicJobs = mutableMapOf<Long, Job>()
-
-    private val dynamicContact = mutableMapOf<Long, Set<Contact>>()
+    private val taskContacts = mutableMapOf<Long, Set<Contact>>()
 
     private val intervalMillis = minIntervalMillis..maxIntervalMillis
 
@@ -51,137 +43,125 @@ object BiliBiliCommand : CompositeCommand(
 
     fun onInit() = BilibiliHelperPlugin.subscribeAlways<BotOnlineEvent> {
         logger.info("开始初始化${bot}联系人列表")
-        BilibiliTaskData.video.toMap().forEach { (uid, info) ->
-            videoContact[uid] = info.getContacts(bot)
-            addVideoListener(uid)
-        }
-        BilibiliTaskData.live.toMap().forEach { (uid, info) ->
-            liveContact[uid] = info.getContacts(bot)
-            addLiveListener(uid)
+        BilibiliTaskData.tasks.toMap().forEach { (uid, info) ->
+            taskContacts[uid] = info.getContacts(bot).also {
+                if (it.isNotEmpty()) addListener(uid)
+            }
         }
     }
 
-    private fun addVideoListener(uid: Long): Job = launch {
-        while (isActive) {
-            runCatching {
-                BilibiliHelperPlugin.searchVideo(uid).searchData.list.vList.filter {
-                    it.created >= BilibiliTaskData.video.getOrPut(uid) { BilibiliTaskData.TaskInfo() }.last
-                }.apply {
-                    maxByOrNull { it.created }?.let { video ->
-                        logger.verbose("(${uid})最新视频为[${video.title}](${video.bvId})<${video.created}>")
-                        BilibiliTaskData.video.compute(uid) { _, info ->
-                            info?.copy(last = video.created)
+    private suspend fun buildVideoMessage(uid: Long) {
+        runCatching {
+            BilibiliHelperPlugin.searchVideo(uid).searchData.list.vList.filter {
+                it.created >= BilibiliTaskData.tasks.getOrPut(uid) { BilibiliTaskData.TaskInfo() }.videoLast
+            }.apply {
+                maxByOrNull { it.created }?.let { video ->
+                    logger.verbose("(${uid})[${video.author}]>最新视频为[${video.title}](${video.bvId})<${video.created}>")
+                    BilibiliTaskData.tasks.compute(uid) { _, info ->
+                        info?.copy(videoLast = video.created)
+                    }
+                }
+                forEach { video ->
+                    buildString {
+                        appendLine("标题: ${video.title}")
+                        appendLine("作者: ${video.author}")
+                        appendLine("时长: ${video.length}")
+                        appendLine("链接: https://www.bilibili.com/video/${video.bvId}")
+                    }.let { info ->
+                        taskContacts.getValue(uid).forEach { contact ->
+                            contact.runCatching {
+                                sendMessage(info)
+                                sendImage(BilibiliHelperPlugin.getPic(video.pic).inputStream())
+                            }
                         }
                     }
-                    forEach { video ->
+                }
+            }
+        }
+    }
+
+    private suspend fun buildLiveMessage(uid: Long) {
+        runCatching {
+            BilibiliHelperPlugin.accInfo(uid).userData.also { user ->
+                logger.verbose("(${uid})[${user.name}][${user.liveRoom.title}]最新开播状态为${user.liveRoom.liveStatus == 1}")
+                liveState.put(uid, user.liveRoom.liveStatus == 1).let {
+                    if (it != true && user.liveRoom.liveStatus == 1) {
                         buildString {
-                            appendLine("标题: ${video.title}")
-                            appendLine("作者: ${video.author}")
-                            appendLine("时长: ${video.length}")
-                            appendLine("链接: https://www.bilibili.com/video/${video.bvId}")
+                            appendLine("主播: ${user.name}")
+                            appendLine("标题: ${user.liveRoom.title}")
+                            appendLine("人气: ${user.liveRoom.online}")
+                            appendLine("链接: ${user.liveRoom.url}")
                         }.let { info ->
-                            videoContact.getValue(uid).forEach { contact ->
+                            taskContacts.getValue(uid).forEach { contact ->
                                 contact.runCatching {
                                     sendMessage(info)
-                                    sendImage(BilibiliHelperPlugin.getPic(video.pic).inputStream())
+                                    sendImage(BilibiliHelperPlugin.getPic(user.liveRoom.cover).inputStream())
                                 }
                             }
                         }
                     }
                 }
-            }.onSuccess { list ->
-                (intervalMillis.random()).let {
-                    logger.verbose("(${uid})视频监听任务完成一次, 目前时间戳为${BilibiliTaskData.video.getValue(uid).last}, 共有${list.size}个视频更新, 即将进入延时delay(${it}ms)。")
-                    delay(it)
-                }
-            }.onFailure {
-                logger.warning("(${uid})视频监听任务执行失败", it)
-                delay(minIntervalMillis)
             }
         }
-    }.also { logger.verbose("添加对${uid}的视频监听任务, 添加完成${it}") }
+    }
 
-    private fun addLiveListener(uid: Long): Job = launch {
+    private suspend fun buildDynamicMessage(uid: Long) {
+        runCatching {
+            BilibiliHelperPlugin.dynamicInfo(uid).dynamicData.cards.map {
+                it.card
+            }.filter {
+                it.item.uploadTime >= BilibiliTaskData.tasks.getOrPut(uid) { BilibiliTaskData.TaskInfo() }.dynamicLast
+            }.apply {
+                maxByOrNull { it.item.uploadTime }?.let { dynamic ->
+                    logger.verbose("(${uid})[${dynamic.user.name}]最新动态为[${dynamic.item.description}]<${dynamic.item.uploadTime}>")
+                    BilibiliTaskData.tasks.compute(uid) { _, info ->
+                        info?.copy(dynamicLast = dynamic.item.uploadTime)
+                    }
+                }
+                forEach { dynamic ->
+                    buildString {
+                        appendLine("作者: ${dynamic.user.name}")
+                        appendLine("内容: ${dynamic.item.description}")
+                    }.let { info ->
+                        taskContacts.getValue(uid).forEach { contact ->
+                            contact.runCatching {
+                                sendMessage(info)
+                                dynamic.item.pictures.forEach {
+                                    sendImage(BilibiliHelperPlugin.getPic(it.imgSrc).inputStream())
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun addListener(uid: Long): Job = launch {
         liveState[uid] = false
         while (isActive) {
             runCatching {
-                BilibiliHelperPlugin.accInfo(uid).userData.also { user ->
-                    logger.verbose("(${uid})[${user.name}][${user.liveRoom.title}]最新开播状态为${user.liveRoom.liveStatus == 1}")
-                    liveState.put(uid, user.liveRoom.liveStatus == 1).let {
-                        if (it != true && user.liveRoom.liveStatus == 1) {
-                            buildString {
-                                appendLine("主播: ${user.name}")
-                                appendLine("标题: ${user.liveRoom.title}")
-                                appendLine("人气: ${user.liveRoom.online}")
-                                appendLine("链接: ${user.liveRoom.url}")
-                            }.let { info ->
-                                liveContact.getValue(uid).forEach { contact ->
-                                    contact.runCatching {
-                                        sendMessage(info)
-                                        sendImage(BilibiliHelperPlugin.getPic(user.liveRoom.cover).inputStream())
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }.onSuccess { user ->
+                buildVideoMessage(uid)
+                buildLiveMessage(uid)
+                buildDynamicMessage(uid)
+            }.onSuccess {
                 (intervalMillis.random()).let {
-                    logger.verbose("(${uid})[${user.name}]直播监听任务完成一次, 目前开播状态为${user.liveRoom.liveStatus}, 即将进入延时delay(${it}ms)。")
+                    logger.verbose("(${uid})监听任务完成一次, 即将进入延时delay(${it}ms)。")
                     delay(it)
                 }
             }.onFailure {
-                logger.warning("(${uid})直播监听任务执行失败", it)
+                logger.warning("(${uid})监听任务执行失败", it)
                 delay(minIntervalMillis)
             }
-        }
-    }.also { logger.verbose("添加对${uid}的直播监听任务, 添加完成${it}") }
-
-    private fun addDynamicListener(uid: Long): Job = launch {
-        while (isActive) {
             runCatching {
-                BilibiliHelperPlugin.dynamicInfo(uid).dynamicData.cards.map {
-                    it.card
-                }.filter {
-                    it.item.uploadTime >= BilibiliTaskData.dynamic.getOrPut(uid) { BilibiliTaskData.TaskInfo() }.last
-                }.apply {
-                    maxByOrNull { it.item.uploadTime }?.let { dynamic ->
-                        logger.verbose("(${uid})[${dynamic.user.name}]最新动态为[${dynamic.item.description}]<${dynamic.item.uploadTime}>")
-                        BilibiliTaskData.video.compute(uid) { _, info ->
-                            info?.copy(last = dynamic.item.uploadTime)
-                        }
-                    }
-                    forEach { dynamic ->
-                        buildString {
-                            appendLine("作者: ${dynamic.user.name}")
-                            appendLine("内容: ${dynamic.item.description}")
-                        }.let { info ->
-                            videoContact.getValue(uid).forEach { contact ->
-                                contact.runCatching {
-                                    sendMessage(info)
-                                    dynamic.item.pictures.forEach {
-                                        sendImage(BilibiliHelperPlugin.getPic(it.imgSrc).inputStream())
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }.onSuccess { list ->
-                (intervalMillis.random()).let {
-                    logger.verbose("(${uid})视频监听任务完成一次, 目前时间戳为${BilibiliTaskData.video.getValue(uid).last}, 共有${list.size}个视频更新, 即将进入延时delay(${it}ms)。")
-                    delay(it)
-                }
-            }.onFailure {
-                logger.warning("(${uid})视频监听任务执行失败", it)
-                delay(minIntervalMillis)
+
             }
         }
-    }.also { logger.verbose("添加对${uid}的直播监听任务, 添加完成${it}") }
+    }.also { logger.verbose("添加对${uid}的监听任务, 添加完成${it}") }
 
-    private fun MutableMap<Long, Set<Contact>>.addUid(uid: Long, subject: Contact, data: MutableMap<Long, BilibiliTaskData.TaskInfo>) = compute(uid) { _, list ->
+    private fun MutableMap<Long, Set<Contact>>.addUid(uid: Long, subject: Contact) = compute(uid) { _, list ->
         (list ?: emptySet()) + subject.also { contact ->
-            data.compute(uid) { _, info ->
+            BilibiliTaskData.tasks.compute(uid) { _, info ->
                 (info ?: BilibiliTaskData.TaskInfo()).run {
                     when (contact) {
                         is Friend -> copy(friends = friends + contact.id)
@@ -193,57 +173,53 @@ object BiliBiliCommand : CompositeCommand(
         }
     }
 
-    @SubCommand("video", "视频")
+    private fun MutableMap<Long, Set<Contact>>.removeUid(uid: Long, subject: Contact) = compute(uid) { _, list ->
+        (list ?: emptySet()) - subject.also {
+            BilibiliTaskData.tasks.remove(uid)
+        }
+    }
+
+    @SubCommand("task", "订阅")
     @Suppress("unused")
-    suspend fun CommandSenderOnMessage<MessageEvent>.video(uid: Long) = runCatching {
-        videoContact.addUid(uid, fromEvent.subject, BilibiliTaskData.video)
-        videoJobs.compute(uid) { _, job ->
-            job?.takeIf { it.isActive } ?: addVideoListener(uid)
+    suspend fun CommandSenderOnMessage<MessageEvent>.task(uid: Long) = runCatching {
+        taskContacts.addUid(uid, fromEvent.subject)
+        taskJobs.compute(uid) { _, job ->
+            job?.takeIf { it.isActive } ?: addListener(uid)
         }
     }.onSuccess { job ->
-        quoteReply("添加对${uid}的视频监听任务, 添加完成${job}")
+        quoteReply("添加对${uid}的监听任务, 添加完成${job}")
     }.onFailure {
         quoteReply(it.toString())
     }.isSuccess
 
-    @SubCommand("live", "直播")
+    @SubCommand("stop", "停止")
     @Suppress("unused")
-    suspend fun CommandSenderOnMessage<MessageEvent>.live(uid: Long) = runCatching {
-        liveContact.addUid(uid, fromEvent.subject, BilibiliTaskData.live)
-        liveJobs.compute(uid) { _, job ->
-            job?.takeIf { it.isActive } ?: addLiveListener(uid)
+    suspend fun CommandSenderOnMessage<MessageEvent>.stop(uid: Long) = runCatching {
+        taskContacts.removeUid(uid, fromEvent.subject)
+        taskJobs.compute(uid) { _, job ->
+            if (taskContacts[uid].isNullOrEmpty()) {
+                job?.cancel()
+                BilibiliTaskData.tasks.remove(uid)
+                null
+            } else {
+                job
+            }
         }
     }.onSuccess { job ->
-        quoteReply("添加对${uid}的直播监听任务, 添加完成${job}")
+        quoteReply("添加对${uid}的监听任务, 添加完成${job}")
     }.onFailure {
         quoteReply(it.toString())
     }.isSuccess
-
-    @SubCommand("dynamic", "动态")
-    @Suppress("unused")
-    suspend fun CommandSenderOnMessage<MessageEvent>.dynamic(uid: Long) = runCatching {
-        dynamicContact.addUid(uid, fromEvent.subject, BilibiliTaskData.dynamic)
-        dynamicJobs.compute(uid) { _, job ->
-            job?.takeIf { it.isActive } ?: addDynamicListener(uid)
-        }
-    }.onSuccess { job ->
-        quoteReply("添加对${uid}的直播监听任务, 添加完成${job}")
-    }.onFailure {
-        quoteReply(it.toString())
-    }.isSuccess
-
 
     @SubCommand("list", "列表")
     @Suppress("unused")
     suspend fun CommandSenderOnMessage<MessageEvent>.list() = runCatching {
         buildString {
-            appendLine("视频监听:")
-            BilibiliTaskData.video.toMap().forEach { (uid, info) ->
-                if (fromEvent.subject.id in info.groups + info.friends) appendLine(uid)
-            }
-            appendLine("直播监听:")
-            BilibiliTaskData.live.toMap().forEach { (uid, info) ->
-                if (fromEvent.subject.id in info.groups + info.friends) appendLine(uid)
+            appendLine("监听状态:")
+            BilibiliTaskData.tasks.toMap().forEach { (uid, info) ->
+                if (fromEvent.subject.id in info.groups + info.friends) {
+                    appendLine("$uid -> ${taskJobs.getValue(uid)}")
+                }
             }
         }
     }.onSuccess { text ->
