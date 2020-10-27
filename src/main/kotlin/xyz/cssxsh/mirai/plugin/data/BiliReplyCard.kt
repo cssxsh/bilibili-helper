@@ -20,7 +20,9 @@ data class BiliReplyCard(
     @SerialName("activity_infos")
     val activityInfos: JsonElement? = null,
     @SerialName("extension")
-    val extension: JsonElement? = null
+    val extension: JsonElement? = null,
+    @SerialName("origin_extension")
+    val originExtension: JsonElement? = null
 ) {
     companion object {
         const val TYPE = 1
