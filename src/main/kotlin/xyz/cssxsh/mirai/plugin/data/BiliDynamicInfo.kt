@@ -9,6 +9,7 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonElement
 
 @Serializable
 data class BiliDynamicInfo(
@@ -43,42 +44,29 @@ data class BiliDynamicInfo(
         @Serializable
         data class Card(
             @SerialName("card")
-            @Serializable(BiliCardJsonSerializer::class)
-            val card: BiliCardInfo,
+            @Serializable(JsonTextSerializer::class)
+            val card: JsonElement,
             @SerialName("desc")
             val desc: Desc,
             @SerialName("display")
-            val display: Display,
+            val display: JsonElement,
             @SerialName("extend_json")
-            @Serializable(BiliExtendJsonSerializer::class)
-            val extendJson: BiliExtendJson,
+            @Serializable(JsonTextSerializer::class)
+            val extendJson: JsonElement,
             @SerialName("extra")
             val extra: Extra
         ) {
             companion object {
-                object BiliCardJsonSerializer : KSerializer<BiliCardInfo> {
-                    override fun deserialize(decoder: Decoder): BiliCardInfo =
-                        Json.decodeFromString(BiliCardInfo.serializer(), decoder.decodeString())
+                object JsonTextSerializer : KSerializer<JsonElement> {
+                    override fun deserialize(decoder: Decoder): JsonElement =
+                        Json.decodeFromString(JsonElement.serializer(), decoder.decodeString())
 
 
                     override val descriptor: SerialDescriptor
-                        get() = PrimitiveSerialDescriptor("BiliCardJsonSerializer", PrimitiveKind.STRING)
+                        get() = PrimitiveSerialDescriptor("JsonTextSerializer", PrimitiveKind.STRING)
 
-                    override fun serialize(encoder: Encoder, value: BiliCardInfo) {
-                        encoder.encodeString(Json.encodeToString(BiliCardInfo.serializer(), value))
-                    }
-                }
-
-                object BiliExtendJsonSerializer : KSerializer<BiliExtendJson> {
-                    override fun deserialize(decoder: Decoder): BiliExtendJson =
-                        Json.decodeFromString(BiliExtendJson.serializer(), decoder.decodeString())
-
-
-                    override val descriptor: SerialDescriptor
-                        get() = PrimitiveSerialDescriptor("BiliExtendJsonSerializer", PrimitiveKind.STRING)
-
-                    override fun serialize(encoder: Encoder, value: BiliExtendJson) {
-                        encoder.encodeString(Json.encodeToString(BiliExtendJson.serializer(), value))
+                    override fun serialize(encoder: Encoder, value: JsonElement) {
+                        encoder.encodeString(Json.encodeToString(JsonElement.serializer(), value))
                     }
                 }
             }
@@ -88,27 +76,27 @@ data class BiliDynamicInfo(
                 @SerialName("acl")
                 val acl: Int,
                 @SerialName("comment")
-                val comment: Int,
+                val comment: Int? = null,
                 @SerialName("dynamic_id")
                 val dynamicId: Long,
                 @SerialName("dynamic_id_str")
                 val dynamicIdStr: String,
                 @SerialName("inner_id")
-                val innerId: Int,
+                val innerId: Long,
                 @SerialName("is_liked")
                 val isLiked: Int,
                 @SerialName("like")
                 val like: Int,
                 @SerialName("orig_dy_id")
-                val origDyId: Int,
+                val origDyId: Long,
                 @SerialName("orig_dy_id_str")
                 val origDyIdStr: String,
                 @SerialName("orig_type")
                 val origType: Int,
                 @SerialName("origin")
-                val origin: Origin,
+                val origin: Origin? = null,
                 @SerialName("pre_dy_id")
-                val preDyId: Int,
+                val preDyId: Long,
                 @SerialName("pre_dy_id_str")
                 val preDyIdStr: String,
                 @SerialName("r_type")
@@ -116,15 +104,15 @@ data class BiliDynamicInfo(
                 @SerialName("repost")
                 val repost: Int,
                 @SerialName("rid")
-                val rid: Int,
+                val rid: Long,
                 @SerialName("rid_str")
                 val ridStr: String,
                 @SerialName("status")
                 val status: Int,
                 @SerialName("stype")
-                val stype: Int,
+                val sType: Int,
                 @SerialName("timestamp")
-                val timestamp: Int,
+                val timestamp: Long,
                 @SerialName("type")
                 val type: Int,
                 @SerialName("uid")
@@ -145,15 +133,15 @@ data class BiliDynamicInfo(
                     @SerialName("dynamic_id_str")
                     val dynamicIdStr: String,
                     @SerialName("inner_id")
-                    val innerId: Int,
+                    val innerId: Long,
                     @SerialName("like")
                     val like: Int,
                     @SerialName("orig_dy_id")
-                    val origDyId: Int,
+                    val origDyId: Long,
                     @SerialName("orig_dy_id_str")
                     val origDyIdStr: String,
                     @SerialName("pre_dy_id")
-                    val preDyId: Int,
+                    val preDyId: Long,
                     @SerialName("pre_dy_id_str")
                     val preDyIdStr: String,
                     @SerialName("r_type")
@@ -173,11 +161,13 @@ data class BiliDynamicInfo(
                     @SerialName("type")
                     val type: Int,
                     @SerialName("uid")
-                    val uid: Int,
+                    val uid: Long,
                     @SerialName("uid_type")
                     val uidType: Int,
                     @SerialName("view")
-                    val view: Int
+                    val view: Int,
+                    @SerialName("bvid")
+                    val bvId: String? = null
                 )
 
                 @Serializable
@@ -195,7 +185,9 @@ data class BiliDynamicInfo(
                     @SerialName("sign")
                     val sign: String,
                     @SerialName("vip")
-                    val vip: Vip
+                    val vip: Vip,
+                    @SerialName("decorate_card")
+                    val decorate_card: JsonElement? = null
                 ) {
                     @Serializable
                     data class Card(
@@ -216,7 +208,7 @@ data class BiliDynamicInfo(
                         @SerialName("face")
                         val face: String,
                         @SerialName("uid")
-                        val uid: Int,
+                        val uid: Long,
                         @SerialName("uname")
                         val uname: String
                     )
@@ -244,7 +236,7 @@ data class BiliDynamicInfo(
                         @SerialName("name")
                         val name: String,
                         @SerialName("pid")
-                        val pid: Int
+                        val pid: Long
                     )
 
                     @Serializable
@@ -272,226 +264,6 @@ data class BiliDynamicInfo(
                             val path: String
                         )
                     }
-                }
-            }
-
-            @Serializable
-            data class Display(
-                @SerialName("comment_info")
-                val commentInfo: CommentInfo,
-                @SerialName("emoji_info")
-                val emojiInfo: EmojiInfo,
-                @SerialName("origin")
-                val origin: Origin,
-                @SerialName("relation")
-                val relation: Relation,
-                @SerialName("show_tip")
-                val showTip: ShowTip,
-                @SerialName("topic_info")
-                val topicInfo: TopicInfo
-            ) {
-                @Serializable
-                data class CommentInfo(
-                    @SerialName("comments")
-                    val comments: List<Comment>,
-                    @SerialName("emojis")
-                    val emojis: List<Emoji>
-                ) {
-                    @Serializable
-                    data class Comment(
-                        @SerialName("content")
-                        val content: String,
-                        @SerialName("name")
-                        val name: String,
-                        @SerialName("uid")
-                        val uid: Int
-                    )
-
-                    @Serializable
-                    data class Emoji(
-                        @SerialName("emoji_name")
-                        val emojiName: String,
-                        @SerialName("meta")
-                        val meta: Meta,
-                        @SerialName("url")
-                        val url: String
-                    ) {
-                        @Serializable
-                        data class Meta(
-                            @SerialName("size")
-                            val size: Int
-                        )
-                    }
-                }
-
-                @Serializable
-                data class EmojiInfo(
-                    @SerialName("emoji_details")
-                    val emojiDetails: List<EmojiDetail>
-                ) {
-                    @Serializable
-                    data class EmojiDetail(
-                        @SerialName("attr")
-                        val attr: Int,
-                        @SerialName("emoji_name")
-                        val emojiName: String,
-                        @SerialName("id")
-                        val id: Int,
-                        @SerialName("meta")
-                        val meta: Meta,
-                        @SerialName("mtime")
-                        val mtime: Int,
-                        @SerialName("package_id")
-                        val packageId: Int,
-                        @SerialName("state")
-                        val state: Int,
-                        @SerialName("text")
-                        val text: String,
-                        @SerialName("type")
-                        val type: Int,
-                        @SerialName("url")
-                        val url: String
-                    ) {
-                        @Serializable
-                        data class Meta(
-                            @SerialName("size")
-                            val size: Int
-                        )
-                    }
-                }
-
-                @Serializable
-                data class Origin(
-                    @SerialName("emoji_info")
-                    val emojiInfo: EmojiInfo,
-                    @SerialName("like_info")
-                    val likeInfo: LikeInfo,
-                    @SerialName("relation")
-                    val relation: Relation,
-                    @SerialName("show_tip")
-                    val showTip: ShowTip,
-                    @SerialName("topic_info")
-                    val topicInfo: TopicInfo
-                ) {
-                    @Serializable
-                    data class EmojiInfo(
-                        @SerialName("emoji_details")
-                        val emojiDetails: List<EmojiDetail>
-                    ) {
-                        @Serializable
-                        data class EmojiDetail(
-                            @SerialName("attr")
-                            val attr: Int,
-                            @SerialName("emoji_name")
-                            val emojiName: String,
-                            @SerialName("id")
-                            val id: Int,
-                            @SerialName("meta")
-                            val meta: Meta,
-                            @SerialName("mtime")
-                            val mtime: Int,
-                            @SerialName("package_id")
-                            val packageId: Int,
-                            @SerialName("state")
-                            val state: Int,
-                            @SerialName("text")
-                            val text: String,
-                            @SerialName("type")
-                            val type: Int,
-                            @SerialName("url")
-                            val url: String
-                        ) {
-                            @Serializable
-                            data class Meta(
-                                @SerialName("size")
-                                val size: Int
-                            )
-                        }
-                    }
-
-                    @Serializable
-                    data class LikeInfo(
-                        @SerialName("display_text")
-                        val displayText: String,
-                        @SerialName("like_users")
-                        val likeUsers: List<LikeUser>
-                    ) {
-                        @Serializable
-                        data class LikeUser(
-                            @SerialName("uid")
-                            val uid: Int,
-                            @SerialName("uname")
-                            val uname: String
-                        )
-                    }
-
-                    @Serializable
-                    data class Relation(
-                        @SerialName("is_follow")
-                        val isFollow: Int,
-                        @SerialName("is_followed")
-                        val isFollowed: Int,
-                        @SerialName("status")
-                        val status: Int
-                    )
-
-                    @Serializable
-                    data class ShowTip(
-                        @SerialName("del_tip")
-                        val delTip: String
-                    )
-
-                    @Serializable
-                    data class TopicInfo(
-                        @SerialName("topic_details")
-                        val topicDetails: List<TopicDetail>
-                    ) {
-                        @Serializable
-                        data class TopicDetail(
-                            @SerialName("is_activity")
-                            val isActivity: Int,
-                            @SerialName("topic_id")
-                            val topicId: Int,
-                            @SerialName("topic_link")
-                            val topicLink: String,
-                            @SerialName("topic_name")
-                            val topicName: String
-                        )
-                    }
-                }
-
-                @Serializable
-                data class Relation(
-                    @SerialName("is_follow")
-                    val isFollow: Int,
-                    @SerialName("is_followed")
-                    val isFollowed: Int,
-                    @SerialName("status")
-                    val status: Int
-                )
-
-                @Serializable
-                data class ShowTip(
-                    @SerialName("del_tip")
-                    val delTip: String
-                )
-
-                @Serializable
-                data class TopicInfo(
-                    @SerialName("topic_details")
-                    val topicDetails: List<TopicDetail>
-                ) {
-                    @Serializable
-                    data class TopicDetail(
-                        @SerialName("is_activity")
-                        val isActivity: Int,
-                        @SerialName("topic_id")
-                        val topicId: Int,
-                        @SerialName("topic_link")
-                        val topicLink: String,
-                        @SerialName("topic_name")
-                        val topicName: String
-                    )
                 }
             }
 

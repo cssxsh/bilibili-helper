@@ -5,12 +5,16 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
 
 @Serializable
-data class BiliCardInfo(
+data class BiliPicCard(
     @SerialName("item")
     val item: Item,
     @SerialName("user")
     val user: User
 ) {
+    companion object {
+        const val TYPE = 2
+    }
+
     @Serializable
     data class Item(
         @SerialName("at_control")
@@ -38,7 +42,7 @@ data class BiliCardInfo(
         @SerialName("title")
         val title: String,
         @SerialName("upload_time")
-        val uploadTime: Long
+        val uploadTime: Int
     ) {
         @Serializable
         data class Picture(
