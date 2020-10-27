@@ -65,7 +65,7 @@ object BiliBiliCommand : CompositeCommand(
                 }
             }
             filter {
-                it.created >= BilibiliTaskData.tasks.getOrPut(uid) { BilibiliTaskData.TaskInfo() }.videoLast
+                it.created > BilibiliTaskData.tasks.getOrPut(uid) { BilibiliTaskData.TaskInfo() }.videoLast
             }.forEach { video ->
                 buildString {
                     appendLine("标题: ${video.title}")
@@ -115,14 +115,13 @@ object BiliBiliCommand : CompositeCommand(
     private suspend fun buildDynamicMessage(uid: Long) = runCatching {
         BilibiliHelperPlugin.dynamicInfo(uid).dynamicData.cards.apply {
             maxByOrNull { it.desc.timestamp }?.let { dynamic ->
-                logger.verbose("(${uid})[${dynamic.desc.userProfile.info.uname}]最新动态为[${dynamic.card}>")
+                logger.verbose("(${uid})[${dynamic.desc.userProfile.info.uname}]最新动态时间为<${dynamic.desc.timestamp}>")
                 BilibiliTaskData.tasks.compute(uid) { _, info ->
                     info?.copy(dynamicLast = dynamic.desc.timestamp)
                 }
             }
             filter {
-                it.desc.timestamp >= BilibiliTaskData.tasks.getOrPut(uid) { BilibiliTaskData.TaskInfo() }.dynamicLast
-                    && it.desc.type in listOf(1, 2, 4)
+                it.desc.timestamp > BilibiliTaskData.tasks.getOrPut(uid) { BilibiliTaskData.TaskInfo() }.dynamicLast
             }.forEach { dynamic ->
                 when(dynamic.desc.type) {
                     1 -> buildList {
@@ -147,12 +146,16 @@ object BiliBiliCommand : CompositeCommand(
                 }.let { list ->
                     taskContacts.getValue(uid).forEach { contact ->
                         list.forEach {
-                            contact.runCatching {
-                                when(it) {
-                                    is String -> sendMessage(it)
-                                    is Message -> sendMessage(it)
-                                    is ByteArray -> sendImage(it.inputStream())
-                                    else -> sendMessage(it.toString())
+                            synchronized(contact) {
+                                contact.runCatching {
+                                    runBlocking {
+                                        when(it) {
+                                            is String -> sendMessage(it)
+                                            is Message -> sendMessage(it)
+                                            is ByteArray -> sendImage(it.inputStream())
+                                            else -> sendMessage(it.toString())
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -172,15 +175,12 @@ object BiliBiliCommand : CompositeCommand(
                 buildDynamicMessage(uid)
             }.onSuccess {
                 (intervalMillis.random()).let {
-                    logger.verbose("(${uid})监听任务完成一次, 即将进入延时delay(${it}ms)。")
+                    logger.verbose("(${uid}): ${BilibiliTaskData.tasks[uid]}监听任务完成一次, 即将进入延时delay(${it}ms)。")
                     delay(it)
                 }
             }.onFailure {
                 logger.warning("(${uid})监听任务执行失败", it)
                 delay(minIntervalMillis)
-            }
-            runCatching {
-
             }
         }
     }.also { logger.verbose("添加对${uid}的监听任务, 添加完成${it}") }
