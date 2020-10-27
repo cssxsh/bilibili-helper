@@ -18,6 +18,8 @@ import net.mamoe.mirai.console.util.ConsoleExperimentalApi
 import xyz.cssxsh.mirai.plugin.command.BiliBiliCommand
 import xyz.cssxsh.mirai.plugin.data.*
 import kotlinx.serialization.json.Json
+import net.mamoe.mirai.utils.hoursToMillis
+import net.mamoe.mirai.utils.minutesToMillis
 
 @AutoService(JvmPlugin::class)
 object BilibiliHelperPlugin : KotlinPlugin(
@@ -103,6 +105,10 @@ object BilibiliHelperPlugin : KotlinPlugin(
     suspend fun getPic(url: String): ByteArray = useHttpClient { client ->
         client.get(url)
     }
+
+    @ConsoleExperimentalApi
+    override val autoSaveIntervalMillis: LongRange
+        get() = (1).minutesToMillis..(30).hoursToMillis
 
     @ConsoleExperimentalApi
     override fun onEnable() {
