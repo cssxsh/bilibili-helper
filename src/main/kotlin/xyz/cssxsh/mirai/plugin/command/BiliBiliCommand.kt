@@ -6,7 +6,6 @@ import xyz.cssxsh.mirai.plugin.data.BilibiliTaskData.maxIntervalMillis
 import xyz.cssxsh.mirai.plugin.data.BilibiliTaskData.minIntervalMillis
 import xyz.cssxsh.mirai.plugin.BilibiliHelperPlugin
 import net.mamoe.mirai.Bot
-import net.mamoe.mirai.console.MiraiConsole
 import net.mamoe.mirai.console.command.CommandSenderOnMessage
 import net.mamoe.mirai.console.command.CompositeCommand
 import net.mamoe.mirai.console.util.ConsoleExperimentalApi
@@ -41,6 +40,10 @@ object BiliBiliCommand : CompositeCommand(
 
     private val liveContact = mutableMapOf<Long, Set<Contact>>()
 
+    private val dynamicJobs = mutableMapOf<Long, Job>()
+
+    private val dynamicContact = mutableMapOf<Long, Set<Contact>>()
+
     private val intervalMillis = minIntervalMillis..maxIntervalMillis
 
     private fun BilibiliTaskData.TaskInfo.getContacts(bot: Bot): Set<Contact> =
@@ -61,14 +64,11 @@ object BiliBiliCommand : CompositeCommand(
     private fun addVideoListener(uid: Long): Job = launch {
         while (isActive) {
             runCatching {
-                BilibiliHelperPlugin.searchVideo(uid).searchData.list.vList.apply {
-                    maxByOrNull { it.created }?.let { video ->
-                        logger.verbose("(${uid})最新视频为[${video.title}](${video.bvId})<${video.created}>")
-                    }
-                }.filter {
+                BilibiliHelperPlugin.searchVideo(uid).searchData.list.vList.filter {
                     it.created >= BilibiliTaskData.video.getOrPut(uid) { BilibiliTaskData.TaskInfo() }.last
                 }.apply {
                     maxByOrNull { it.created }?.let { video ->
+                        logger.verbose("(${uid})最新视频为[${video.title}](${video.bvId})<${video.created}>")
                         BilibiliTaskData.video.compute(uid) { _, info ->
                             info?.copy(last = video.created)
                         }
@@ -137,22 +137,66 @@ object BiliBiliCommand : CompositeCommand(
         }
     }.also { logger.verbose("添加对${uid}的直播监听任务, 添加完成${it}") }
 
-    @SubCommand("video", "视频")
-    @Suppress("unused")
-    suspend fun CommandSenderOnMessage<MessageEvent>.video(uid: Long) = runCatching {
-        videoContact.compute(uid) { _, list ->
-            (list ?: emptySet()) + fromEvent.subject.also { contact ->
-                BilibiliTaskData.video.compute(uid) { _, info ->
-                    (info ?: BilibiliTaskData.TaskInfo()).run {
-                        when (contact) {
-                            is Friend -> copy(friends = friends + contact.id)
-                            is Group -> copy(groups = groups + contact.id)
-                            else -> this
+    private fun addDynamicListener(uid: Long): Job = launch {
+        while (isActive) {
+            runCatching {
+                BilibiliHelperPlugin.dynamicInfo(uid).dynamicData.cards.map {
+                    it.card
+                }.filter {
+                    it.item.uploadTime >= BilibiliTaskData.dynamic.getOrPut(uid) { BilibiliTaskData.TaskInfo() }.last
+                }.apply {
+                    maxByOrNull { it.item.uploadTime }?.let { dynamic ->
+                        logger.verbose("(${uid})[${dynamic.user.name}]最新动态为[${dynamic.item.description}]<${dynamic.item.uploadTime}>")
+                        BilibiliTaskData.video.compute(uid) { _, info ->
+                            info?.copy(last = dynamic.item.uploadTime)
                         }
+                    }
+                    forEach { dynamic ->
+                        buildString {
+                            appendLine("作者: ${dynamic.user.name}")
+                            appendLine("内容: ${dynamic.item.description}")
+                        }.let { info ->
+                            videoContact.getValue(uid).forEach { contact ->
+                                contact.runCatching {
+                                    sendMessage(info)
+                                    dynamic.item.pictures.forEach {
+                                        sendImage(BilibiliHelperPlugin.getPic(it.imgSrc).inputStream())
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }.onSuccess { list ->
+                (intervalMillis.random()).let {
+                    logger.verbose("(${uid})视频监听任务完成一次, 目前时间戳为${BilibiliTaskData.video.getValue(uid).last}, 共有${list.size}个视频更新, 即将进入延时delay(${it}ms)。")
+                    delay(it)
+                }
+            }.onFailure {
+                logger.warning("(${uid})视频监听任务执行失败", it)
+                delay(minIntervalMillis)
+            }
+        }
+    }.also { logger.verbose("添加对${uid}的直播监听任务, 添加完成${it}") }
+
+    private fun MutableMap<Long, Set<Contact>>.addUid(uid: Long, subject: Contact, data: MutableMap<Long, BilibiliTaskData.TaskInfo>) = compute(uid) { _, list ->
+        (list ?: emptySet()) + subject.also { contact ->
+            data.compute(uid) { _, info ->
+                (info ?: BilibiliTaskData.TaskInfo()).run {
+                    when (contact) {
+                        is Friend -> copy(friends = friends + contact.id)
+                        is Group -> copy(groups = groups + contact.id)
+                        else -> this
                     }
                 }
             }
         }
+    }
+
+    @SubCommand("video", "视频")
+    @Suppress("unused")
+    suspend fun CommandSenderOnMessage<MessageEvent>.video(uid: Long) = runCatching {
+        videoContact.addUid(uid, fromEvent.subject, BilibiliTaskData.video)
         videoJobs.compute(uid) { _, job ->
             job?.takeIf { it.isActive } ?: addVideoListener(uid)
         }
@@ -165,19 +209,7 @@ object BiliBiliCommand : CompositeCommand(
     @SubCommand("live", "直播")
     @Suppress("unused")
     suspend fun CommandSenderOnMessage<MessageEvent>.live(uid: Long) = runCatching {
-        liveContact.compute(uid) { _, list ->
-            (list ?: emptySet()) + fromEvent.subject.also { contact ->
-                BilibiliTaskData.live.compute(uid) { _, info ->
-                    (info ?: BilibiliTaskData.TaskInfo()).run {
-                        when (contact) {
-                            is Friend -> copy(friends = friends + contact.id)
-                            is Group -> copy(groups = groups + contact.id)
-                            else -> this
-                        }
-                    }
-                }
-            }
-        }
+        liveContact.addUid(uid, fromEvent.subject, BilibiliTaskData.live)
         liveJobs.compute(uid) { _, job ->
             job?.takeIf { it.isActive } ?: addLiveListener(uid)
         }
@@ -186,6 +218,20 @@ object BiliBiliCommand : CompositeCommand(
     }.onFailure {
         quoteReply(it.toString())
     }.isSuccess
+
+    @SubCommand("dynamic", "动态")
+    @Suppress("unused")
+    suspend fun CommandSenderOnMessage<MessageEvent>.dynamic(uid: Long) = runCatching {
+        dynamicContact.addUid(uid, fromEvent.subject, BilibiliTaskData.dynamic)
+        dynamicJobs.compute(uid) { _, job ->
+            job?.takeIf { it.isActive } ?: addDynamicListener(uid)
+        }
+    }.onSuccess { job ->
+        quoteReply("添加对${uid}的直播监听任务, 添加完成${job}")
+    }.onFailure {
+        quoteReply(it.toString())
+    }.isSuccess
+
 
     @SubCommand("list", "列表")
     @Suppress("unused")

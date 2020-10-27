@@ -11,6 +11,8 @@ object BilibiliTaskData : AutoSavePluginConfig("BilibiliTaskData") {
 
     val live: MutableMap<Long, TaskInfo> by value()
 
+    val dynamic: MutableMap<Long, TaskInfo> by value()
+
     val minIntervalMillis: Long by value(5.minutesToMillis)
 
     val maxIntervalMillis: Long by value(10.minutesToMillis)

@@ -16,10 +16,7 @@ import net.mamoe.mirai.console.plugin.jvm.JvmPluginDescription
 import net.mamoe.mirai.console.plugin.jvm.KotlinPlugin
 import net.mamoe.mirai.console.util.ConsoleExperimentalApi
 import xyz.cssxsh.mirai.plugin.command.BiliBiliCommand
-import xyz.cssxsh.mirai.plugin.data.BiliAccInfo
-import xyz.cssxsh.mirai.plugin.data.BiliRoomInfo
-import xyz.cssxsh.mirai.plugin.data.BiliSearchResult
-import xyz.cssxsh.mirai.plugin.data.BilibiliTaskData
+import xyz.cssxsh.mirai.plugin.data.*
 
 @AutoService(JvmPlugin::class)
 object BilibiliHelperPlugin : KotlinPlugin(
@@ -31,6 +28,7 @@ object BilibiliHelperPlugin : KotlinPlugin(
     private const val SEARCH_URL = "https://api.bilibili.com/x/space/arc/search"
     private const val ROOM_INIT = "http://api.live.bilibili.com/room/v1/Room/room_init"
     private const val ACC_INFO = "https://api.bilibili.com/x/space/acc/info"
+    private const val DYNAMIC_SVR = "https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/space_history"
 
     private suspend fun <T> useHttpClient(block: suspend (HttpClient) -> T): T = HttpClient(OkHttp) {
         install(JsonFeature) {
@@ -80,6 +78,17 @@ object BilibiliHelperPlugin : KotlinPlugin(
     ): BiliRoomInfo = useHttpClient { client ->
         client.get(ROOM_INIT) {
             parameter("id", id)
+        }
+    }
+
+    suspend fun dynamicInfo(
+        uid: Long,
+    ): BiliDynamicInfo = useHttpClient {  client ->
+        client.get(DYNAMIC_SVR) {
+            parameter("visitor_uid", uid)
+            parameter("host_uid", uid)
+            parameter("offset_dynamic_id", 0)
+            parameter("need_top", 0)
         }
     }
 
