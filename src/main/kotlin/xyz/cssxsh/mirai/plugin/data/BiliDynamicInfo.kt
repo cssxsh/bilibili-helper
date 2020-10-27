@@ -94,7 +94,7 @@ data class BiliDynamicInfo(
                 @SerialName("orig_type")
                 val origType: Int,
                 @SerialName("origin")
-                val origin: Origin? = null,
+                val origin: JsonElement? = null,
                 @SerialName("pre_dy_id")
                 val preDyId: Long,
                 @SerialName("pre_dy_id_str")
@@ -124,51 +124,6 @@ data class BiliDynamicInfo(
                 @SerialName("view")
                 val view: Int
             ) {
-                @Serializable
-                data class Origin(
-                    @SerialName("acl")
-                    val acl: Int,
-                    @SerialName("dynamic_id")
-                    val dynamicId: Long,
-                    @SerialName("dynamic_id_str")
-                    val dynamicIdStr: String,
-                    @SerialName("inner_id")
-                    val innerId: Long,
-                    @SerialName("like")
-                    val like: Int,
-                    @SerialName("orig_dy_id")
-                    val origDyId: Long,
-                    @SerialName("orig_dy_id_str")
-                    val origDyIdStr: String,
-                    @SerialName("pre_dy_id")
-                    val preDyId: Long,
-                    @SerialName("pre_dy_id_str")
-                    val preDyIdStr: String,
-                    @SerialName("r_type")
-                    val rType: Int,
-                    @SerialName("repost")
-                    val repost: Int,
-                    @SerialName("rid")
-                    val rid: Long,
-                    @SerialName("rid_str")
-                    val ridStr: String,
-                    @SerialName("status")
-                    val status: Int,
-                    @SerialName("stype")
-                    val stype: Int,
-                    @SerialName("timestamp")
-                    val timestamp: Int,
-                    @SerialName("type")
-                    val type: Int,
-                    @SerialName("uid")
-                    val uid: Long,
-                    @SerialName("uid_type")
-                    val uidType: Int,
-                    @SerialName("view")
-                    val view: Int,
-                    @SerialName("bvid")
-                    val bvId: String? = null
-                )
 
                 @Serializable
                 data class UserProfile(
