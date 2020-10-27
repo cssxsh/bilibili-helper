@@ -17,6 +17,7 @@ import net.mamoe.mirai.console.plugin.jvm.KotlinPlugin
 import net.mamoe.mirai.console.util.ConsoleExperimentalApi
 import xyz.cssxsh.mirai.plugin.command.BiliBiliCommand
 import xyz.cssxsh.mirai.plugin.data.*
+import kotlinx.serialization.json.Json
 
 @AutoService(JvmPlugin::class)
 object BilibiliHelperPlugin : KotlinPlugin(
@@ -30,9 +31,16 @@ object BilibiliHelperPlugin : KotlinPlugin(
     private const val ACC_INFO = "https://api.bilibili.com/x/space/acc/info"
     private const val DYNAMIC_SVR = "https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/space_history"
 
+    private val KOTLINX_SERIALIZER = KotlinxSerializer(Json {
+        prettyPrint = true
+        ignoreUnknownKeys = true
+        isLenient = true
+        allowStructuredMapKeys = true
+    })
+
     private suspend fun <T> useHttpClient(block: suspend (HttpClient) -> T): T = HttpClient(OkHttp) {
         install(JsonFeature) {
-            serializer = KotlinxSerializer()
+            serializer = KOTLINX_SERIALIZER
         }
         install(HttpTimeout) {
             socketTimeoutMillis = 60_000
