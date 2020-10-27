@@ -187,7 +187,7 @@ object BiliBiliCommand : CompositeCommand(
             job?.takeIf { it.isActive } ?: addListener(uid)
         }
     }.onSuccess { job ->
-        quoteReply("添加对${uid}的监听任务, 添加完成${job}")
+        quoteReply("对${uid}的监听任务, 添加完成${job}")
     }.onFailure {
         quoteReply(it.toString())
     }.isSuccess
@@ -206,7 +206,7 @@ object BiliBiliCommand : CompositeCommand(
             }
         }
     }.onSuccess { job ->
-        quoteReply("添加对${uid}的监听任务, 添加完成${job}")
+        quoteReply("对${uid}的监听任务, 取消完成${job}")
     }.onFailure {
         quoteReply(it.toString())
     }.isSuccess
