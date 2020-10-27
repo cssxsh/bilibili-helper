@@ -85,7 +85,6 @@ object BiliBiliCommand : CompositeCommand(
     }.onFailure { logger.warning("($uid)获取视频失败", it) }.isSuccess
 
     private suspend fun buildLiveMessage(uid: Long) = runCatching {
-        liveState[uid] = false
         BilibiliHelperPlugin.accInfo(uid).userData.also { user ->
             logger.verbose("(${uid})[${user.name}][${user.liveRoom.title}]最新开播状态为${user.liveRoom.liveStatus == 1}")
             liveState.put(uid, user.liveRoom.liveStatus == 1).let {
