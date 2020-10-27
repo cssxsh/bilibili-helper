@@ -115,12 +115,12 @@ object BiliBiliCommand : CompositeCommand(
                 when(dynamic.desc.type) {
                     1 -> buildList {
                         Json.decodeFromJsonElement(BiliReplyCard.serializer(), dynamic.card).let { card ->
-                            add(PlainText("${card.user.uname} -> ${card.originUser.info.uname}: ${card.item.content}"))
+                            add(PlainText("${card.user.uname} -> ${card.originUser.info.uname}: \n${card.item.content}"))
                         }
                     }
                     2 -> buildList {
                         Json.decodeFromJsonElement(BiliPicCard.serializer(), dynamic.card).let { card ->
-                            add(PlainText("${card.user.name}: ${card.item.description}"))
+                            add(PlainText("${card.user.name}: \n${card.item.description}"))
                             addAll(card.item.pictures.map {
                                 BilibiliHelperPlugin.getPic(it.imgSrc)
                             })
@@ -128,7 +128,7 @@ object BiliBiliCommand : CompositeCommand(
                     }
                     4 -> buildList {
                         Json.decodeFromJsonElement(BiliTextCard.serializer(), dynamic.card).let { card ->
-                            add(PlainText("${card.user.uname}: ${card.item. content}"))
+                            add(PlainText("${card.user.uname}: \n${card.item. content}"))
                         }
                     }
                     else -> listOf("${dynamic.desc.userProfile.info.uname} 有新动态")
