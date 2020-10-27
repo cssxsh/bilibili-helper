@@ -9,7 +9,11 @@ data class BiliPicCard(
     @SerialName("item")
     val item: Item,
     @SerialName("user")
-    val user: User
+    val user: User,
+    @SerialName("activity_infos")
+    val activityInfos: JsonElement? = null,
+    @SerialName("extension")
+    val extension: JsonElement? = null
 ) {
     companion object {
         const val TYPE = 2
@@ -21,6 +25,8 @@ data class BiliPicCard(
         val atControl: String,
         @SerialName("category")
         val category: String,
+        @SerialName("ctrl")
+        val ctrl: String = "",
         @SerialName("description")
         val description: String,
         @SerialName("id")

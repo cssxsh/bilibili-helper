@@ -3,6 +3,7 @@ package xyz.cssxsh.mirai.plugin.data
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonElement
 
 @Serializable
 data class BiliReplyCard(
@@ -15,7 +16,11 @@ data class BiliReplyCard(
     @SerialName("origin_user")
     val originUser: OriginUser,
     @SerialName("user")
-    val user: User
+    val user: User,
+    @SerialName("activity_infos")
+    val activityInfos: JsonElement? = null,
+    @SerialName("extension")
+    val extension: JsonElement? = null
 ) {
     companion object {
         const val TYPE = 1
@@ -25,6 +30,8 @@ data class BiliReplyCard(
     data class Item(
         @SerialName("content")
         val content: String,
+        @SerialName("ctrl")
+        val ctrl: String = "",
         @SerialName("orig_dy_id")
         val origDyId: Long,
         @SerialName("orig_type")
