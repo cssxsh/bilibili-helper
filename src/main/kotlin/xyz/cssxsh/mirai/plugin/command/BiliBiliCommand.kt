@@ -58,12 +58,6 @@ object BiliBiliCommand : CompositeCommand(
 
     private suspend fun buildVideoMessage(uid: Long) = runCatching {
         BilibiliHelperPlugin.searchVideo(uid).searchData.list.vList.apply {
-            maxByOrNull { it.created }?.let { video ->
-                logger.verbose("(${uid})[${video.author}]>最新视频为[${video.title}](${video.bvId})<${video.created}>")
-                BilibiliTaskData.tasks.compute(uid) { _, info ->
-                    info?.copy(videoLast = video.created)
-                }
-            }
             filter {
                 it.created > BilibiliTaskData.tasks.getOrPut(uid) { BilibiliTaskData.TaskInfo() }.videoLast
             }.forEach { video ->
@@ -79,6 +73,12 @@ object BiliBiliCommand : CompositeCommand(
                             sendImage(BilibiliHelperPlugin.getPic(video.pic).inputStream())
                         }
                     }
+                }
+            }
+            maxByOrNull { it.created }?.let { video ->
+                logger.verbose("(${uid})[${video.author}]>最新视频为[${video.title}](${video.bvId})<${video.created}>")
+                BilibiliTaskData.tasks.compute(uid) { _, info ->
+                    info?.copy(videoLast = video.created)
                 }
             }
         }
@@ -110,12 +110,6 @@ object BiliBiliCommand : CompositeCommand(
 
     private suspend fun buildDynamicMessage(uid: Long) = runCatching {
         BilibiliHelperPlugin.dynamicInfo(uid).dynamicData.cards.apply {
-            maxByOrNull { it.desc.timestamp }?.let { dynamic ->
-                logger.verbose("(${uid})[${dynamic.desc.userProfile.info.uname}]最新动态时间为<${dynamic.desc.timestamp}>")
-                BilibiliTaskData.tasks.compute(uid) { _, info ->
-                    info?.copy(dynamicLast = dynamic.desc.timestamp)
-                }
-            }
             filter {
                 it.desc.timestamp > BilibiliTaskData.tasks.getOrPut(uid) { BilibiliTaskData.TaskInfo() }.dynamicLast
             }.forEach { dynamic ->
@@ -156,6 +150,12 @@ object BiliBiliCommand : CompositeCommand(
                             }
                         }
                     }
+                }
+            }
+            maxByOrNull { it.desc.timestamp }?.let { dynamic ->
+                logger.verbose("(${uid})[${dynamic.desc.userProfile.info.uname}]最新动态时间为<${dynamic.desc.timestamp}>")
+                BilibiliTaskData.tasks.compute(uid) { _, info ->
+                    info?.copy(dynamicLast = dynamic.desc.timestamp)
                 }
             }
         }
