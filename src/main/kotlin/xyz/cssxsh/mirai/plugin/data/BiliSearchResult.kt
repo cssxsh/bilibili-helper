@@ -14,13 +14,6 @@ data class BiliSearchResult(
     @SerialName("ttl")
     val ttl: Int
 ) {
-    @Serializable
-    data class EpisodicButton(
-        @SerialName("text")
-        val text: String,
-        @SerialName("uri")
-        val uri: String
-    )
 
     @Serializable
     data class TInfo(
@@ -94,8 +87,6 @@ data class BiliSearchResult(
 
     @Serializable
     data class SearchData(
-        @SerialName("episodic_button")
-        val episodicButton: EpisodicButton,
         @SerialName("list")
         val list: InfoList,
         @SerialName("page")
