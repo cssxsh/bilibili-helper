@@ -47,7 +47,9 @@ data class BiliReplyCard(
         @SerialName("timestamp")
         val timestamp: Int,
         @SerialName("uid")
-        val uid: Int
+        val uid: Int,
+        @SerialName("at_uids")
+        val atUIDs: List<Long> = emptyList()
     )
 
     @Serializable
