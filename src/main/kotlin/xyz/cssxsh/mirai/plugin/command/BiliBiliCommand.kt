@@ -9,6 +9,7 @@ import xyz.cssxsh.mirai.plugin.BilibiliHelperPlugin
 import net.mamoe.mirai.Bot
 import net.mamoe.mirai.console.command.CommandSenderOnMessage
 import net.mamoe.mirai.console.command.CompositeCommand
+import net.mamoe.mirai.console.command.descriptor.ExperimentalCommandDescriptors
 import net.mamoe.mirai.console.util.ConsoleExperimentalApi
 import net.mamoe.mirai.contact.Contact
 import net.mamoe.mirai.contact.Friend
@@ -17,7 +18,6 @@ import net.mamoe.mirai.event.events.BotOnlineEvent
 import net.mamoe.mirai.event.subscribeAlways
 import net.mamoe.mirai.message.MessageEvent
 import net.mamoe.mirai.message.data.Message
-import net.mamoe.mirai.message.data.PlainText
 import net.mamoe.mirai.message.sendImage
 import xyz.cssxsh.mirai.plugin.data.BiliPicCard
 import xyz.cssxsh.mirai.plugin.data.BiliReplyCard
@@ -28,9 +28,11 @@ import kotlin.coroutines.CoroutineContext
 object BiliBiliCommand : CompositeCommand(
     owner = BilibiliHelperPlugin,
     "bilibili", "B站",
-    description = "缓存指令",
-    prefixOptional = true
+    description = "缓存指令"
 ), CoroutineScope {
+
+    @ExperimentalCommandDescriptors
+    override val prefixOptional: Boolean = true
 
     private val logger get() = BilibiliHelperPlugin.logger
 
@@ -61,17 +63,15 @@ object BiliBiliCommand : CompositeCommand(
             filter {
                 it.created > BilibiliTaskData.tasks.getOrPut(uid) { BilibiliTaskData.TaskInfo() }.videoLast
             }.forEach { video ->
-                buildString {
-                    appendLine("标题: ${video.title}")
-                    appendLine("作者: ${video.author}")
-                    appendLine("时长: ${video.length}")
-                    appendLine("链接: https://www.bilibili.com/video/${video.bvId}")
-                }.let { info ->
-                    taskContacts.getValue(uid).forEach { contact ->
-                        contact.runCatching {
-                            sendMessage(info)
-                            sendImage(BilibiliHelperPlugin.getPic(video.pic).inputStream())
-                        }
+                taskContacts.getValue(uid).forEach { contact ->
+                    contact.runCatching {
+                        sendMessage(buildString {
+                            appendLine("标题: ${video.title}")
+                            appendLine("作者: ${video.author}")
+                            appendLine("时长: ${video.length}")
+                            appendLine("链接: https://www.bilibili.com/video/${video.bvId}")
+                        })
+                        sendImage(BilibiliHelperPlugin.getPic(video.pic).inputStream())
                     }
                 }
             }
@@ -89,17 +89,15 @@ object BiliBiliCommand : CompositeCommand(
             logger.verbose("(${uid})[${user.name}][${user.liveRoom.title}]最新开播状态为${user.liveRoom.liveStatus == 1}")
             liveState.put(uid, user.liveRoom.liveStatus == 1).let {
                 if (it != true && user.liveRoom.liveStatus == 1) {
-                    buildString {
-                        appendLine("主播: ${user.name}")
-                        appendLine("标题: ${user.liveRoom.title}")
-                        appendLine("人气: ${user.liveRoom.online}")
-                        appendLine("链接: ${user.liveRoom.url}")
-                    }.let { info ->
-                        taskContacts.getValue(uid).forEach { contact ->
-                            contact.runCatching {
-                                sendMessage(info)
-                                sendImage(BilibiliHelperPlugin.getPic(user.liveRoom.cover).inputStream())
-                            }
+                    taskContacts.getValue(uid).forEach { contact ->
+                        contact.runCatching {
+                            sendMessage(buildString {
+                                appendLine("主播: ${user.name}")
+                                appendLine("标题: ${user.liveRoom.title}")
+                                appendLine("人气: ${user.liveRoom.online}")
+                                appendLine("链接: ${user.liveRoom.url}")
+                            })
+                            sendImage(BilibiliHelperPlugin.getPic(user.liveRoom.cover).inputStream())
                         }
                     }
                 }
@@ -138,16 +136,12 @@ object BiliBiliCommand : CompositeCommand(
                 }.let { list ->
                     taskContacts.getValue(uid).forEach { contact ->
                         list.forEach {
-                            synchronized(contact) {
-                                contact.runCatching {
-                                    runBlocking {
-                                        when(it) {
-                                            is String -> sendMessage(it)
-                                            is Message -> sendMessage(it)
-                                            is ByteArray -> sendImage(it.inputStream())
-                                            else -> sendMessage(it.toString())
-                                        }
-                                    }
+                            contact.runCatching {
+                                when(it) {
+                                    is String -> sendMessage(it)
+                                    is Message -> sendMessage(it)
+                                    is ByteArray -> sendImage(it.inputStream())
+                                    else -> sendMessage(it.toString())
                                 }
                             }
                         }
