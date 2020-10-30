@@ -1,3 +1,4 @@
+
 plugins {
     kotlin("jvm") version Versions.kotlin
     kotlin("plugin.serialization") version Versions.kotlin
@@ -62,7 +63,6 @@ tasks {
     test {
         useJUnitPlatform()
     }
-
 
     shadowJar {
         val block: com.github.jengelman.gradle.plugins.shadow.internal.DependencyFilter.() -> Unit = {

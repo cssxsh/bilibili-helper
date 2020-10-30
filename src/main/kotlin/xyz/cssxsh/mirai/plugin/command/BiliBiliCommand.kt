@@ -9,7 +9,6 @@ import xyz.cssxsh.mirai.plugin.BilibiliHelperPlugin
 import net.mamoe.mirai.Bot
 import net.mamoe.mirai.console.command.CommandSenderOnMessage
 import net.mamoe.mirai.console.command.CompositeCommand
-import net.mamoe.mirai.console.command.descriptor.ExperimentalCommandDescriptors
 import net.mamoe.mirai.console.util.ConsoleExperimentalApi
 import net.mamoe.mirai.contact.Contact
 import net.mamoe.mirai.contact.Friend
@@ -31,7 +30,6 @@ object BiliBiliCommand : CompositeCommand(
     description = "缓存指令"
 ), CoroutineScope {
 
-    @ExperimentalCommandDescriptors
     override val prefixOptional: Boolean = true
 
     private val logger get() = BilibiliHelperPlugin.logger

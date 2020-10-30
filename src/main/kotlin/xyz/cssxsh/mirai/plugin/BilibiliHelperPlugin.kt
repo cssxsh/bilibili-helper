@@ -107,6 +107,10 @@ object BilibiliHelperPlugin : KotlinPlugin(
     }
 
     @ConsoleExperimentalApi
+    override val autoSaveIntervalMillis: LongRange
+        get() = 3.minutesToMillis..30.hoursToMillis
+
+    @ConsoleExperimentalApi
     override fun onEnable() {
         BilibiliTaskData.reload()
         BiliBiliCommand.register()
