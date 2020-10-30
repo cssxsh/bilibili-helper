@@ -169,7 +169,7 @@ data class BiliDynamicInfo(
                     @Serializable
                     data class Info(
                         @SerialName("face")
-                        val face: String,
+                        val face: String? = null,
                         @SerialName("uid")
                         val uid: Long,
                         @SerialName("uname")
