@@ -40,6 +40,11 @@ class BilibiliClient(initCookies: Map<String, String> = emptyMap()) {
             connectTimeoutMillis = 60_000
             requestTimeoutMillis = 180_000
         }
+        install(HttpCookies) {
+            default {
+                storage = cookiesStorage
+            }
+        }
         BrowserUserAgent()
         ContentEncoding {
             gzip()
