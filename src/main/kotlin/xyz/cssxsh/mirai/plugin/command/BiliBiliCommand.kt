@@ -32,7 +32,13 @@ object BiliBiliCommand : CompositeCommand(
 
     override val prefixOptional: Boolean = true
 
+    const val DYNAMIC_DETAIL = "https://t.bilibili.com/h5/dynamic/detail/"
+
+    const val SCREENSHOT = "https://www.screenshotmaster.com/api/screenshot"
+
     private val logger get() = BilibiliHelperPlugin.logger
+
+    private val bilibiliClient = BilibiliClient()
 
     override val coroutineContext: CoroutineContext = CoroutineName("Bilibili-Listener")
 
@@ -56,22 +62,40 @@ object BiliBiliCommand : CompositeCommand(
         }
     }
 
+    private suspend fun List<Any>.sendMessageToTaskContacts(uid: Long) = taskContacts.getValue(uid).forEach { contact ->
+        contact.runCatching {
+            sendMessage(map {
+                when(it) {
+                    is String -> PlainText(it)
+                    is Message -> it
+                    is ByteArray -> it.inputStream().uploadAsImage(contact)
+                    else -> PlainText(it.toString())
+                }
+            }.asMessageChain())
+        }
+    }
+
+
     private suspend fun buildVideoMessage(uid: Long) = runCatching {
-        BilibiliHelperPlugin.searchVideo(uid).searchData.list.vList.apply {
+        bilibiliClient.searchVideo(uid).searchData.list.vList.apply {
             filter {
                 it.created > BilibiliTaskData.tasks.getOrPut(uid) { BilibiliTaskData.TaskInfo() }.videoLast
             }.forEach { video ->
-                taskContacts.getValue(uid).forEach { contact ->
-                    contact.runCatching {
-                        sendMessage(buildString {
-                            appendLine("标题: ${video.title}")
-                            appendLine("作者: ${video.author}")
-                            appendLine("时长: ${video.length}")
-                            appendLine("链接: https://www.bilibili.com/video/${video.bvId}")
-                        })
-                        sendImage(BilibiliHelperPlugin.getPic(video.pic).inputStream())
+                buildList<Any> {
+                    add(buildString {
+                        appendLine("标题: ${video.title}")
+                        appendLine("作者: ${video.author}")
+                        appendLine("时长: ${video.length}")
+                        appendLine("链接: https://www.bilibili.com/video/${video.bvId}")
+                    })
+                    runCatching {
+                        bilibiliClient.useHttpClient<ByteArray> {
+                            it.get(video.pic)
+                        }
+                    }.onSuccess {
+                        add(it)
                     }
-                }
+                }.sendMessageToTaskContacts(uid)
             }
             maxByOrNull { it.created }?.let { video ->
                 logger.verbose("(${uid})[${video.author}]>最新视频为[${video.title}](${video.bvId})<${video.created}>")
@@ -83,37 +107,51 @@ object BiliBiliCommand : CompositeCommand(
     }.onFailure { logger.warning("($uid)获取视频失败", it) }.isSuccess
 
     private suspend fun buildLiveMessage(uid: Long) = runCatching {
-        BilibiliHelperPlugin.accInfo(uid).userData.also { user ->
+        bilibiliClient.accInfo(uid).userData.also { user ->
             logger.verbose("(${uid})[${user.name}][${user.liveRoom.title}]最新开播状态为${user.liveRoom.liveStatus == 1}")
-            liveState.put(uid, user.liveRoom.liveStatus == 1).let {
-                if (it != true && user.liveRoom.liveStatus == 1) {
-                    taskContacts.getValue(uid).forEach { contact ->
-                        contact.runCatching {
-                            sendMessage(buildString {
-                                appendLine("主播: ${user.name}")
-                                appendLine("标题: ${user.liveRoom.title}")
-                                appendLine("人气: ${user.liveRoom.online}")
-                                appendLine("链接: ${user.liveRoom.url}")
-                            })
-                            sendImage(BilibiliHelperPlugin.getPic(user.liveRoom.cover).inputStream())
+            liveState.put(uid, user.liveRoom.liveStatus == 1).let { old ->
+                if (old != true && user.liveRoom.liveStatus == 1) {
+                    buildList<Any> {
+                        add(buildString {
+                            appendLine("主播: ${user.name}")
+                            appendLine("标题: ${user.liveRoom.title}")
+                            appendLine("人气: ${user.liveRoom.online}")
+                            appendLine("链接: ${user.liveRoom.url}")
+                        })
+                        runCatching {
+                            bilibiliClient.useHttpClient<ByteArray> {
+                                it.get(user.liveRoom.cover)
+                            }
+                        }.onSuccess {
+                            add(it)
                         }
-                    }
+                    }.sendMessageToTaskContacts(uid)
                 }
             }
         }
     }.onFailure { logger.warning("($uid)获取直播失败", it) }.isSuccess
 
     private suspend fun buildDynamicMessage(uid: Long) = runCatching {
-        BilibiliHelperPlugin.dynamicInfo(uid).dynamicData.cards.apply {
+        bilibiliClient.dynamicInfo(uid).dynamicData.cards.apply {
             filter {
                 it.desc.timestamp > BilibiliTaskData.tasks.getOrPut(uid) { BilibiliTaskData.TaskInfo() }.dynamicLast
             }.forEach { dynamic ->
                 buildList<Any> {
-                    add("${dynamic.desc.userProfile.info.uname} 有新动态")
+                    add(buildString {
+                        appendLine("${dynamic.desc.userProfile.info.uname} 有新动态")
+                        appendLine("链接: https://t.bilibili.com/${dynamic.desc.dynamicId}")
+                    })
                     runCatching {
-                        add(BilibiliHelperPlugin.getScreenshot(dynamic.desc.dynamicId))
-                    }.onSuccess {
-                        add("链接: https://t.bilibili.com/${dynamic.desc.dynamicId}")
+                        add(bilibiliClient.useHttpClient<ByteArray> {
+                            it.get(SCREENSHOT) {
+                                parameter("url", DYNAMIC_DETAIL + dynamic.desc.dynamicId)
+                                parameter("width", 768)
+                                parameter("height", 1024)
+                                parameter("zone", "gz")
+                                parameter("device", "table")
+                                parameter("delay", 500)
+                            }
+                        })
                     }.onFailure {
                         logger.warning("获取${dynamic.desc.dynamicId}快照失败")
                         when(dynamic.desc.type) {
@@ -136,24 +174,15 @@ object BiliBiliCommand : CompositeCommand(
                         }
                     }
                     if (dynamic.desc.type == 2) {
-                        addAll(Json.decodeFromJsonElement(BiliPicCard.serializer(), dynamic.card).item.pictures.map {
-                            BilibiliHelperPlugin.getPic(it.imgSrc)
+                        addAll(Json.decodeFromJsonElement(BiliPicCard.serializer(), dynamic.card).item.pictures.mapNotNull { picture ->
+                            runCatching {
+                                bilibiliClient.useHttpClient<ByteArray> {
+                                    it.get(picture.imgSrc)
+                                }
+                            }.getOrNull()
                         })
                     }
-                }.let { list ->
-                    taskContacts.getValue(uid).forEach { contact ->
-                        list.forEach {
-                            contact.runCatching {
-                                when(it) {
-                                    is String -> sendMessage(it)
-                                    is Message -> sendMessage(it)
-                                    is ByteArray -> sendImage(it.inputStream())
-                                    else -> sendMessage(it.toString())
-                                }
-                            }
-                        }
-                    }
-                }
+                }.sendMessageToTaskContacts(uid)
             }
             maxByOrNull { it.desc.timestamp }?.let { dynamic ->
                 logger.verbose("(${uid})[${dynamic.desc.userProfile.info.uname}]最新动态时间为<${dynamic.desc.timestamp}>")

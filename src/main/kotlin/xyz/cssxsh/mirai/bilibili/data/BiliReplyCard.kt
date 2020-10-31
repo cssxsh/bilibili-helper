@@ -1,4 +1,4 @@
-package xyz.cssxsh.mirai.plugin.data
+package xyz.cssxsh.mirai.bilibili.data
 
 
 import kotlinx.serialization.SerialName

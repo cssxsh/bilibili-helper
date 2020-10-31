@@ -1,14 +1,6 @@
 package xyz.cssxsh.mirai.plugin
 
 import com.google.auto.service.AutoService
-import io.ktor.client.*
-import io.ktor.client.engine.okhttp.*
-import io.ktor.client.features.*
-import io.ktor.client.features.compression.*
-import io.ktor.client.features.json.*
-import io.ktor.client.features.json.serializer.*
-import io.ktor.client.request.*
-import io.ktor.utils.io.core.*
 import net.mamoe.mirai.console.command.CommandManager.INSTANCE.register
 import net.mamoe.mirai.console.command.CommandManager.INSTANCE.unregister
 import net.mamoe.mirai.console.plugin.jvm.JvmPlugin
@@ -17,7 +9,6 @@ import net.mamoe.mirai.console.plugin.jvm.KotlinPlugin
 import net.mamoe.mirai.console.util.ConsoleExperimentalApi
 import xyz.cssxsh.mirai.plugin.command.BiliBiliCommand
 import xyz.cssxsh.mirai.plugin.data.*
-import kotlinx.serialization.json.Json
 import net.mamoe.mirai.utils.hoursToMillis
 import net.mamoe.mirai.utils.minutesToMillis
 
@@ -28,96 +19,6 @@ object BilibiliHelperPlugin : KotlinPlugin(
         author("cssxsh")
     }
 )  {
-    private const val SEARCH_URL = "https://api.bilibili.com/x/space/arc/search"
-    private const val ROOM_INIT = "http://api.live.bilibili.com/room/v1/Room/room_init"
-    private const val ACC_INFO = "https://api.bilibili.com/x/space/acc/info"
-    private const val DYNAMIC_SVR = "https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/space_history"
-    private const val DYNAMIC_DETAIL = "https://t.bilibili.com/h5/dynamic/detail/"
-    private const val SCREENSHOT = "https://www.screenshotmaster.com/api/screenshot"
-
-    private val KOTLINX_SERIALIZER = KotlinxSerializer(Json {
-        prettyPrint = true
-        ignoreUnknownKeys = true
-        isLenient = true
-        allowStructuredMapKeys = true
-    })
-
-    private suspend fun <T> useHttpClient(block: suspend (HttpClient) -> T): T = HttpClient(OkHttp) {
-        install(JsonFeature) {
-            serializer = KOTLINX_SERIALIZER
-        }
-        install(HttpTimeout) {
-            socketTimeoutMillis = 60_000
-            connectTimeoutMillis = 60_000
-            requestTimeoutMillis = 180_000
-        }
-        BrowserUserAgent()
-        ContentEncoding {
-            gzip()
-            deflate()
-            identity()
-        }
-    }.use { block(it) }
-
-    suspend fun searchVideo(
-        uid: Long,
-        pageSize: Int = 30,
-        pageNum: Int = 1
-    ): BiliSearchResult = useHttpClient { client ->
-        client.get(SEARCH_URL) {
-            parameter("mid", uid)
-            parameter("keyword", "")
-            parameter("order", "pubdate")
-            parameter("jsonp", "jsonp")
-            parameter("ps", pageSize)
-            parameter("pn", pageNum)
-            parameter("tid", 0)
-        }
-    }
-
-    suspend fun accInfo(
-        uid: Long
-    ): BiliAccInfo = useHttpClient { client ->
-        client.get(ACC_INFO) {
-            parameter("mid", uid)
-            parameter("jsonp", "jsonp")
-            parameter("tid", 0)
-        }
-    }
-
-    suspend fun roomInfo(
-        id: Long
-    ): BiliRoomInfo = useHttpClient { client ->
-        client.get(ROOM_INIT) {
-            parameter("id", id)
-        }
-    }
-
-    suspend fun dynamicInfo(
-        uid: Long,
-    ): BiliDynamicInfo = useHttpClient {  client ->
-        client.get(DYNAMIC_SVR) {
-            parameter("visitor_uid", uid)
-            parameter("host_uid", uid)
-            parameter("offset_dynamic_id", 0)
-            parameter("need_top", 0)
-        }
-    }
-
-    suspend fun getPic(url: String): ByteArray = useHttpClient { client ->
-        client.get(url)
-    }
-
-    suspend fun getScreenshot(dynamicId: Long): ByteArray = useHttpClient { client ->
-        client.get(SCREENSHOT) {
-            parameter("url", DYNAMIC_DETAIL + dynamicId)
-            parameter("width", 768)
-            parameter("height", 1024)
-            parameter("zone", "gz")
-            parameter("device", "table")
-            parameter("delay", 500)
-        }
-    }
 
     @ConsoleExperimentalApi
     override val autoSaveIntervalMillis: LongRange
