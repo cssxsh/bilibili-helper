@@ -98,11 +98,9 @@ object BiliBiliCommand : CompositeCommand(
                         appendLine("链接: https://www.bilibili.com/video/${video.bvId}")
                     })
                     runCatching {
-                        bilibiliClient.useHttpClient<ByteArray> {
+                        add(bilibiliClient.useHttpClient<ByteArray> {
                             it.get(video.pic)
-                        }
-                    }.onSuccess {
-                        add(it)
+                        })
                     }
                 }.sendMessageToTaskContacts(uid)
             }
@@ -128,11 +126,9 @@ object BiliBiliCommand : CompositeCommand(
                             appendLine("链接: ${user.liveRoom.url}")
                         })
                         runCatching {
-                            bilibiliClient.useHttpClient<ByteArray> {
+                            add(bilibiliClient.useHttpClient<ByteArray> {
                                 it.get(user.liveRoom.cover)
-                            }
-                        }.onSuccess {
-                            add(it)
+                            })
                         }
                     }.sendMessageToTaskContacts(uid)
                 }
