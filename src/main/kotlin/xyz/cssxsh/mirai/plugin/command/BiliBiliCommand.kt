@@ -41,9 +41,9 @@ object BiliBiliCommand : CompositeCommand(
     @ConsoleExperimentalApi
     override val prefixOptional: Boolean = true
 
-    const val DYNAMIC_DETAIL = "https://t.bilibili.com/h5/dynamic/detail/"
+    private const val DYNAMIC_DETAIL = "https://t.bilibili.com/h5/dynamic/detail/"
 
-    const val SCREENSHOT = "https://www.screenshotmaster.com/api/screenshot"
+    private const val SCREENSHOT = "https://www.screenshotmaster.com/api/screenshot"
 
     private val logger get() = BilibiliHelperPlugin.logger
 
