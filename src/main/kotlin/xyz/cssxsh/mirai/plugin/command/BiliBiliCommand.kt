@@ -10,6 +10,7 @@ import xyz.cssxsh.mirai.plugin.BilibiliHelperPlugin
 import net.mamoe.mirai.Bot
 import net.mamoe.mirai.console.command.CommandSenderOnMessage
 import net.mamoe.mirai.console.command.CompositeCommand
+import net.mamoe.mirai.console.command.descriptor.ExperimentalCommandDescriptors
 import net.mamoe.mirai.console.util.ConsoleExperimentalApi
 import net.mamoe.mirai.contact.Contact
 import net.mamoe.mirai.contact.Friend
@@ -30,13 +31,14 @@ import xyz.cssxsh.mirai.bilibili.data.BiliReplyCard
 import xyz.cssxsh.mirai.bilibili.data.BiliTextCard
 import kotlin.coroutines.CoroutineContext
 
-@ConsoleExperimentalApi
 object BiliBiliCommand : CompositeCommand(
     owner = BilibiliHelperPlugin,
     "bilibili", "B站",
     description = "缓存指令"
 ), CoroutineScope {
 
+    @ExperimentalCommandDescriptors
+    @ConsoleExperimentalApi
     override val prefixOptional: Boolean = true
 
     const val DYNAMIC_DETAIL = "https://t.bilibili.com/h5/dynamic/detail/"
