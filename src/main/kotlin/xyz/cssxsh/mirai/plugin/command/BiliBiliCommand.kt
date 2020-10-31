@@ -162,7 +162,7 @@ object BiliBiliCommand : CompositeCommand(
                             }
                         })
                     }.onFailure {
-                        logger.warning("获取${dynamic.desc.dynamicId}快照失败")
+                        logger.warning("获取动态${dynamic.desc.dynamicId}快照失败")
                         when(dynamic.desc.type) {
                             1 -> buildList {
                                 Json.decodeFromJsonElement(BiliReplyCard.serializer(), dynamic.card).let { card ->
