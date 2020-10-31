@@ -108,29 +108,38 @@ object BiliBiliCommand : CompositeCommand(
             filter {
                 it.desc.timestamp > BilibiliTaskData.tasks.getOrPut(uid) { BilibiliTaskData.TaskInfo() }.dynamicLast
             }.forEach { dynamic ->
-                when(dynamic.desc.type) {
-                    1 -> buildList {
-                        Json.decodeFromJsonElement(BiliReplyCard.serializer(), dynamic.card).let { card ->
-                            add("${dynamic.desc.userProfile.info.uname} 有新动态")
-                            add("${card.user.uname} -> ${card.originUser.info.uname}: \n${card.item.content}")
+                buildList<Any> {
+                    add("${dynamic.desc.userProfile.info.uname} 有新动态")
+                    runCatching {
+                        add(BilibiliHelperPlugin.getScreenshot(dynamic.desc.dynamicId))
+                    }.onSuccess {
+                        add("链接: https://t.bilibili.com/${dynamic.desc.dynamicId}")
+                    }.onFailure {
+                        logger.warning("获取${dynamic.desc.dynamicId}快照失败")
+                        when(dynamic.desc.type) {
+                            1 -> buildList {
+                                Json.decodeFromJsonElement(BiliReplyCard.serializer(), dynamic.card).let { card ->
+                                    add("${card.user.uname} -> ${card.originUser.info.uname}: \n${card.item.content}")
+                                }
+                            }
+                            2 -> buildList {
+                                Json.decodeFromJsonElement(BiliPicCard.serializer(), dynamic.card).let { card ->
+                                    add("${card.user.name}: \n${card.item.description}")
+                                }
+                            }
+                            4 -> buildList {
+                                Json.decodeFromJsonElement(BiliTextCard.serializer(), dynamic.card).let { card ->
+                                    add("${card.user.uname}: \n${card.item. content}")
+                                }
+                            }
+                            else -> {}
                         }
                     }
-                    2 -> buildList {
-                        Json.decodeFromJsonElement(BiliPicCard.serializer(), dynamic.card).let { card ->
-                            add("${dynamic.desc.userProfile.info.uname} 有新动态")
-                            add("${card.user.name}: \n${card.item.description}")
-                            addAll(card.item.pictures.map {
-                                BilibiliHelperPlugin.getPic(it.imgSrc)
-                            })
-                        }
+                    if (dynamic.desc.type == 2) {
+                        addAll(Json.decodeFromJsonElement(BiliPicCard.serializer(), dynamic.card).item.pictures.map {
+                            BilibiliHelperPlugin.getPic(it.imgSrc)
+                        })
                     }
-                    4 -> buildList {
-                        Json.decodeFromJsonElement(BiliTextCard.serializer(), dynamic.card).let { card ->
-                            add("${dynamic.desc.userProfile.info.uname} 有新动态")
-                            add("${card.user.uname}: \n${card.item. content}")
-                        }
-                    }
-                    else -> listOf("${dynamic.desc.userProfile.info.uname} 有新动态")
                 }.let { list ->
                     taskContacts.getValue(uid).forEach { contact ->
                         list.forEach {

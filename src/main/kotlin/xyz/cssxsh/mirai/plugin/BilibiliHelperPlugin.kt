@@ -32,6 +32,8 @@ object BilibiliHelperPlugin : KotlinPlugin(
     private const val ROOM_INIT = "http://api.live.bilibili.com/room/v1/Room/room_init"
     private const val ACC_INFO = "https://api.bilibili.com/x/space/acc/info"
     private const val DYNAMIC_SVR = "https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/space_history"
+    private const val DYNAMIC_DETAIL = "https://t.bilibili.com/h5/dynamic/detail/"
+    private const val SCREENSHOT = "https://www.screenshotmaster.com/api/screenshot"
 
     private val KOTLINX_SERIALIZER = KotlinxSerializer(Json {
         prettyPrint = true
@@ -104,6 +106,17 @@ object BilibiliHelperPlugin : KotlinPlugin(
 
     suspend fun getPic(url: String): ByteArray = useHttpClient { client ->
         client.get(url)
+    }
+
+    suspend fun getScreenshot(dynamicId: Long): ByteArray = useHttpClient { client ->
+        client.get(SCREENSHOT) {
+            parameter("url", DYNAMIC_DETAIL + dynamicId)
+            parameter("width", 768)
+            parameter("height", 1024)
+            parameter("zone", "gz")
+            parameter("device", "table")
+            parameter("delay", 500)
+        }
     }
 
     @ConsoleExperimentalApi
