@@ -17,10 +17,16 @@ import net.mamoe.mirai.event.events.BotOnlineEvent
 import net.mamoe.mirai.event.subscribeAlways
 import net.mamoe.mirai.message.MessageEvent
 import net.mamoe.mirai.message.data.Message
-import net.mamoe.mirai.message.sendImage
-import xyz.cssxsh.mirai.plugin.data.BiliPicCard
-import xyz.cssxsh.mirai.plugin.data.BiliReplyCard
-import xyz.cssxsh.mirai.plugin.data.BiliTextCard
+import net.mamoe.mirai.message.data.PlainText
+import net.mamoe.mirai.message.data.asMessageChain
+import net.mamoe.mirai.message.uploadAsImage
+import xyz.cssxsh.mirai.bilibili.BilibiliClient
+import xyz.cssxsh.mirai.bilibili.api.accInfo
+import xyz.cssxsh.mirai.bilibili.api.dynamicInfo
+import xyz.cssxsh.mirai.bilibili.api.searchVideo
+import xyz.cssxsh.mirai.bilibili.data.BiliPicCard
+import xyz.cssxsh.mirai.bilibili.data.BiliReplyCard
+import xyz.cssxsh.mirai.bilibili.data.BiliTextCard
 import kotlin.coroutines.CoroutineContext
 
 @ConsoleExperimentalApi
