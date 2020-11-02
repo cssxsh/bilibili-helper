@@ -12,12 +12,12 @@ import io.ktor.utils.io.core.*
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 
-class BilibiliClient(initCookies: Map<String, String> = emptyMap()) {
+class BilibiliClient(initCookies: Map<String, String>) {
 
     private val cookiesStorage = AcceptAllCookiesStorage().apply {
         runBlocking {
             initCookies.forEach { (name, value) ->
-                addCookie("https://www.bilibili.com/", Cookie(name = name, value = value))
+                addCookie("https://www.bilibili.com/", Cookie(name = name, value = value, domain = ".bilibili.com"))
             }
         }
     }
@@ -41,9 +41,7 @@ class BilibiliClient(initCookies: Map<String, String> = emptyMap()) {
             requestTimeoutMillis = 180_000
         }
         install(HttpCookies) {
-            default {
-                storage = cookiesStorage
-            }
+            storage = cookiesStorage
         }
         BrowserUserAgent()
         ContentEncoding {

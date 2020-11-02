@@ -47,7 +47,7 @@ object BiliBiliCommand : CompositeCommand(
 
     private val logger get() = BilibiliHelperPlugin.logger
 
-    private val bilibiliClient = BilibiliClient()
+    private val bilibiliClient = BilibiliClient(emptyMap())
 
     override val coroutineContext: CoroutineContext = CoroutineName("Bilibili-Listener")
 
