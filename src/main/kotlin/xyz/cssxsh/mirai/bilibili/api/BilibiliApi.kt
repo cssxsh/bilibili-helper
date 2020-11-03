@@ -1,6 +1,7 @@
 package xyz.cssxsh.mirai.bilibili.api
 
 object BilibiliApi {
+    const val SPACE = "https://space.bilibili.com"
     const val SEARCH_URL = "https://api.bilibili.com/x/space/arc/search"
     const val ROOM_INIT = "http://api.live.bilibili.com/room/v1/Room/room_init"
     const val ACC_INFO = "https://api.bilibili.com/x/space/acc/info"

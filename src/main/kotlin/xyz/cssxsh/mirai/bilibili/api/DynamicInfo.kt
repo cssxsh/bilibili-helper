@@ -1,13 +1,18 @@
 package xyz.cssxsh.mirai.bilibili.api
 
 import io.ktor.client.request.*
+import io.ktor.http.*
 import xyz.cssxsh.mirai.bilibili.BilibiliClient
 import xyz.cssxsh.mirai.bilibili.data.BiliDynamicInfo
 
 suspend fun BilibiliClient.dynamicInfo(
     uid: Long,
+    url: String = BilibiliApi.DYNAMIC_SVR
 ): BiliDynamicInfo = useHttpClient { client ->
-    client.get(BilibiliApi.DYNAMIC_SVR) {
+    client.get(url) {
+        header(HttpHeaders.Origin, BilibiliApi.SPACE)
+        header(HttpHeaders.Referrer, BilibiliApi.SPACE)
+
         parameter("visitor_uid", uid)
         parameter("host_uid", uid)
         parameter("offset_dynamic_id", 0)
