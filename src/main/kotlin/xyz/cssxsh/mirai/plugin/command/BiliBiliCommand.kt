@@ -4,8 +4,6 @@ import io.ktor.client.request.*
 import kotlinx.coroutines.*
 import kotlinx.serialization.json.Json
 import xyz.cssxsh.mirai.plugin.data.BilibiliTaskData
-import xyz.cssxsh.mirai.plugin.data.BilibiliTaskData.maxIntervalMillis
-import xyz.cssxsh.mirai.plugin.data.BilibiliTaskData.minIntervalMillis
 import xyz.cssxsh.mirai.plugin.BilibiliHelperPlugin
 import net.mamoe.mirai.Bot
 import net.mamoe.mirai.console.command.CommandSenderOnMessage
@@ -56,8 +54,6 @@ object BiliBiliCommand : CompositeCommand(
     private val liveState = mutableMapOf<Long, Boolean>()
 
     private val taskContacts = mutableMapOf<Long, Set<Contact>>()
-
-    private val intervalMillis = minIntervalMillis..maxIntervalMillis
 
     private fun BilibiliTaskData.TaskInfo.getContacts(bot: Bot): Set<Contact> =
         (bot.groups.filter { it.id in groups } + bot.friends.filter { it.id in friends }).toSet()
@@ -199,6 +195,9 @@ object BiliBiliCommand : CompositeCommand(
     }.onFailure { logger.warning("($uid)获取动态失败", it) }.isSuccess
 
     private fun addListener(uid: Long): Job = launch {
+        val intervalMillis = BilibiliTaskData.tasks.getValue(uid).run {
+            minIntervalMillis..maxIntervalMillis
+        }
         while (isActive) {
             runCatching {
                 buildVideoMessage(uid)
@@ -211,7 +210,7 @@ object BiliBiliCommand : CompositeCommand(
                 }
             }.onFailure {
                 logger.warning("(${uid})监听任务执行失败", it)
-                delay(minIntervalMillis)
+                delay(intervalMillis.last)
             }
         }
     }.also { logger.info("添加对${uid}的监听任务, 添加完成${it}") }
