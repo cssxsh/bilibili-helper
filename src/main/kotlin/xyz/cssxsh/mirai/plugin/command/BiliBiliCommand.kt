@@ -198,16 +198,15 @@ object BiliBiliCommand : CompositeCommand(
         val intervalMillis = BilibiliTaskData.tasks.getValue(uid).run {
             minIntervalMillis..maxIntervalMillis
         }
-        while (isActive) {
+        while (isActive && taskContacts[uid].isNullOrEmpty().not()) {
             runCatching {
                 buildVideoMessage(uid)
                 buildLiveMessage(uid)
                 buildDynamicMessage(uid)
             }.onSuccess {
-                (intervalMillis.random()).let {
+                delay(intervalMillis.random().also {
                     logger.info("(${uid}): ${BilibiliTaskData.tasks[uid]}监听任务完成一次, 即将进入延时delay(${it}ms)。")
-                    delay(it)
-                }
+                })
             }.onFailure {
                 logger.warning("(${uid})监听任务执行失败", it)
                 delay(intervalMillis.last)
@@ -254,7 +253,6 @@ object BiliBiliCommand : CompositeCommand(
         taskContacts.removeUid(uid, fromEvent.subject)
         taskJobs.compute(uid) { _, job ->
             if (taskContacts[uid].isNullOrEmpty()) {
-                job?.cancel()
                 BilibiliTaskData.tasks.remove(uid)
                 null
             } else {
