@@ -97,6 +97,8 @@ object BiliBiliCommand : CompositeCommand(
                         add(bilibiliClient.useHttpClient<ByteArray> {
                             it.get(video.pic)
                         })
+                    }.onFailure {
+                        logger.warning("获取[${video.title}](${video.bvId})}视频封面失败", it)
                     }
                 }.sendMessageToTaskContacts(uid)
             }
@@ -125,6 +127,8 @@ object BiliBiliCommand : CompositeCommand(
                             add(bilibiliClient.useHttpClient<ByteArray> {
                                 it.get(user.liveRoom.cover)
                             })
+                        }.onFailure {
+                            logger.warning("获取[${uid}]直播间封面封面失败", it)
                         }
                     }.sendMessageToTaskContacts(uid)
                 }
@@ -154,7 +158,7 @@ object BiliBiliCommand : CompositeCommand(
                             }
                         })
                     }.onFailure {
-                        logger.warning("获取动态${dynamic.desc.dynamicId}快照失败")
+                        logger.warning("获取动态${dynamic.desc.dynamicId}快照失败", it)
                         when(dynamic.desc.type) {
                             1 -> buildList {
                                 Json.decodeFromJsonElement(BiliReplyCard.serializer(), dynamic.card).let { card ->
