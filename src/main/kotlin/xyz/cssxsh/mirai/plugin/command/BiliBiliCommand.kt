@@ -61,9 +61,8 @@ object BiliBiliCommand : CompositeCommand(
     fun onInit() = BilibiliHelperPlugin.subscribeAlways<BotOnlineEvent> {
         logger.info("开始初始化${bot}联系人列表")
         BilibiliTaskData.tasks.toMap().forEach { (uid, info) ->
-            taskContacts[uid] = info.getContacts(bot).also {
-                if (it.isNotEmpty()) addListener(uid)
-            }
+            taskContacts[uid] = info.getContacts(bot)
+            addListener(uid)
         }
     }
 
@@ -79,7 +78,6 @@ object BiliBiliCommand : CompositeCommand(
             }.asMessageChain())
         }
     }
-
 
     private suspend fun buildVideoMessage(uid: Long) = runCatching {
         bilibiliClient.searchVideo(uid).searchData.list.vList.apply {
