@@ -4,8 +4,6 @@ plugins {
     kotlin("plugin.serialization") version Versions.kotlin
     kotlin("kapt") version Versions.kotlin
     id("com.github.johnrengelman.shadow") version Versions.shadow
-
-    //id("net.mamoe.mirai-console") version "1.0-RC-dev-28"
 }
 
 group = "xyz.cssxsh.mirai.plugin"
@@ -55,7 +53,6 @@ dependencies {
     testImplementation(mirai("core-qqandroid", Versions.core))
     testImplementation(mirai("console-terminal", Versions.console))
     testImplementation(group = "org.junit.jupiter", name = "junit-jupiter", version = Versions.junit)
-    // testImplementation(kotlinx("coroutines-test", Versions.coroutines))
 }
 
 tasks {
@@ -65,11 +62,10 @@ tasks {
     }
 
     shadowJar {
-        val block: com.github.jengelman.gradle.plugins.shadow.internal.DependencyFilter.() -> Unit = {
+        dependencies {
             exclude { "org.jetbrains" in it.moduleGroup }
             exclude { "net.mamoe" in it.moduleGroup }
         }
-        dependencies(block)
     }
 
     compileKotlin {
