@@ -8,6 +8,7 @@ import net.mamoe.mirai.utils.minutesToMillis
 import java.util.*
 
 object BilibiliTaskData : AutoSavePluginConfig("BilibiliTaskData") {
+
     val tasks: MutableMap<Long, TaskInfo> by value(mutableMapOf())
 
     @Serializable

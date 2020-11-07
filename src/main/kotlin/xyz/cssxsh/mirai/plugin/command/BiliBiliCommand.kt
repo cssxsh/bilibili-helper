@@ -27,6 +27,8 @@ import xyz.cssxsh.bilibili.api.searchVideo
 import xyz.cssxsh.bilibili.data.BiliPicCard
 import xyz.cssxsh.bilibili.data.BiliReplyCard
 import xyz.cssxsh.bilibili.data.BiliTextCard
+import xyz.cssxsh.mirai.plugin.data.ScreenShotToolConfig
+import xyz.cssxsh.mirai.plugin.tools.ScreenShotTool
 import kotlin.coroutines.CoroutineContext
 
 object BiliBiliCommand : CompositeCommand(
@@ -42,6 +44,14 @@ object BiliBiliCommand : CompositeCommand(
     private const val DYNAMIC_DETAIL = "https://t.bilibili.com/h5/dynamic/detail/"
 
     private const val SCREENSHOT = "https://www.screenshotmaster.com/api/screenshot"
+
+    private val screenShotTool: ScreenShotTool? by lazy {
+        ScreenShotToolConfig.run {
+            driverPath?.let {
+                ScreenShotTool(it, chromePath, deviceName)
+            }
+        }
+    }
 
     private val logger get() = BilibiliHelperPlugin.logger
 
@@ -145,7 +155,10 @@ object BiliBiliCommand : CompositeCommand(
                         appendLine("链接: https://t.bilibili.com/${dynamic.desc.dynamicId}")
                     })
                     runCatching {
-                        add(bilibiliClient.useHttpClient<ByteArray> {
+                        add(screenShotTool?.getScreenShot(
+                            url = DYNAMIC_DETAIL + dynamic.desc.dynamicId,
+                            delayMillis = ScreenShotToolConfig.delayMillis
+                        ) ?: bilibiliClient.useHttpClient<ByteArray> {
                             it.get(SCREENSHOT) {
                                 parameter("url", DYNAMIC_DETAIL + dynamic.desc.dynamicId)
                                 parameter("width", 768)

@@ -27,6 +27,7 @@ object BilibiliHelperPlugin : KotlinPlugin(
     @ConsoleExperimentalApi
     override fun onEnable() {
         BilibiliTaskData.reload()
+        ScreenShotToolConfig.reload()
         BiliBiliCommand.register()
         BiliBiliCommand.onInit()
     }
