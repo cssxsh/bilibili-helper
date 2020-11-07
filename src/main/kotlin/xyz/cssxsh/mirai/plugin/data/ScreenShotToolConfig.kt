@@ -11,13 +11,13 @@ object ScreenShotToolConfig : AutoSavePluginConfig("HelperConfig") {
     override fun shouldPerformAutoSaveWheneverChanged(): Boolean = false
 
     @ValueName("driver_path")
-    val driverPath: String? by value(null)
+    val driverPath: String by value("")
 
-    @ValueName("driver_path")
-    val chromePath: String? by value(null)
+    @ValueName("chrome_path")
+    val chromePath: String by value("")
 
     @ValueName("device_name")
-    val deviceName: String? by value("iPad")
+    val deviceName: String by value("iPad")
 
     @ValueName("delay_millis")
     val delayMillis: Long by value(1_000L)

@@ -47,8 +47,10 @@ object BiliBiliCommand : CompositeCommand(
 
     private val screenShotTool: ScreenShotTool? by lazy {
         ScreenShotToolConfig.run {
-            driverPath?.let {
-                ScreenShotTool(it, chromePath, deviceName)
+            driverPath.takeIf {
+                it.isNotBlank()
+            }?.let {
+                ScreenShotTool(driverPath, chromePath, deviceName)
             }
         }
     }

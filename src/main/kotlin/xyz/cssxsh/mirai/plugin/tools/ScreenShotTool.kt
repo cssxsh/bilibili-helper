@@ -13,14 +13,17 @@ class ScreenShotTool(driverPath: String, chromePath: String? = null, deviceName:
 
     private val driver = ChromeDriver(ChromeOptions().apply {
         addArguments("--headless")
-        chromePath?.let {
+        chromePath.takeUnless {
+            it.isNullOrEmpty()
+        }?.let {
             setBinary(it)
         }
-        deviceName?.let {
-            setExperimentalOption("mobileEmulation", mapOf(
-                "deviceName" to deviceName
-            ))
+        deviceName.takeUnless {
+            it.isNullOrEmpty()
+        }?.let {
+            setExperimentalOption("mobileEmulation", mapOf("deviceName" to deviceName))
         }
+        setExperimentalOption("excludeSwitches", listOf("enable-logging"))
     })
 
     suspend fun getScreenShot(url: String, delayMillis: Long = 10_000): ByteArray = driver.run {
