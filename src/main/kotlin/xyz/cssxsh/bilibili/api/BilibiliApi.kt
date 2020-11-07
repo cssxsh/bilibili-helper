@@ -1,4 +1,4 @@
-package xyz.cssxsh.mirai.bilibili.api
+package xyz.cssxsh.bilibili.api
 
 object BilibiliApi {
     const val SPACE = "https://space.bilibili.com"

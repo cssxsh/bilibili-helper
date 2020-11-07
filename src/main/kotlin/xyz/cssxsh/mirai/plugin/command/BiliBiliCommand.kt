@@ -20,13 +20,13 @@ import net.mamoe.mirai.message.data.Message
 import net.mamoe.mirai.message.data.PlainText
 import net.mamoe.mirai.message.data.asMessageChain
 import net.mamoe.mirai.message.uploadAsImage
-import xyz.cssxsh.mirai.bilibili.BilibiliClient
-import xyz.cssxsh.mirai.bilibili.api.accInfo
-import xyz.cssxsh.mirai.bilibili.api.dynamicInfo
-import xyz.cssxsh.mirai.bilibili.api.searchVideo
-import xyz.cssxsh.mirai.bilibili.data.BiliPicCard
-import xyz.cssxsh.mirai.bilibili.data.BiliReplyCard
-import xyz.cssxsh.mirai.bilibili.data.BiliTextCard
+import xyz.cssxsh.bilibili.BilibiliClient
+import xyz.cssxsh.bilibili.api.accInfo
+import xyz.cssxsh.bilibili.api.dynamicInfo
+import xyz.cssxsh.bilibili.api.searchVideo
+import xyz.cssxsh.bilibili.data.BiliPicCard
+import xyz.cssxsh.bilibili.data.BiliReplyCard
+import xyz.cssxsh.bilibili.data.BiliTextCard
 import kotlin.coroutines.CoroutineContext
 
 object BiliBiliCommand : CompositeCommand(

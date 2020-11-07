@@ -1,4 +1,4 @@
-package xyz.cssxsh.mirai.bilibili
+package xyz.cssxsh.bilibili
 
 import io.ktor.client.*
 import io.ktor.client.engine.okhttp.*

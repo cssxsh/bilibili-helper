@@ -1,9 +1,9 @@
-package xyz.cssxsh.mirai.bilibili.api
+package xyz.cssxsh.bilibili.api
 
 import io.ktor.client.request.*
 import io.ktor.http.*
-import xyz.cssxsh.mirai.bilibili.BilibiliClient
-import xyz.cssxsh.mirai.bilibili.data.BiliAccInfo
+import xyz.cssxsh.bilibili.BilibiliClient
+import xyz.cssxsh.bilibili.data.BiliAccInfo
 
 suspend fun BilibiliClient.accInfo(
     uid: Long,
