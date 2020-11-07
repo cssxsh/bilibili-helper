@@ -49,6 +49,7 @@ dependencies {
     implementation(ktor("client-serialization", Versions.ktor))
     implementation(ktor("client-encoding", Versions.ktor))
     implementation(ktor("client-okhttp", Versions.ktor))
+    implementation(selenium("java", Versions.selenium))
     // test
     testImplementation(mirai("core-qqandroid", Versions.core))
     testImplementation(mirai("console-terminal", Versions.console))
