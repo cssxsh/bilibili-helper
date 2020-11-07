@@ -28,7 +28,7 @@ import xyz.cssxsh.bilibili.data.BiliPicCard
 import xyz.cssxsh.bilibili.data.BiliReplyCard
 import xyz.cssxsh.bilibili.data.BiliTextCard
 import xyz.cssxsh.mirai.plugin.data.ScreenShotToolConfig
-import xyz.cssxsh.mirai.plugin.tools.ScreenShotTool
+import xyz.cssxsh.mirai.plugin.tools.BilibiliScreenShotTool
 import kotlin.coroutines.CoroutineContext
 
 object BiliBiliCommand : CompositeCommand(
@@ -43,14 +43,12 @@ object BiliBiliCommand : CompositeCommand(
 
     private const val DYNAMIC_DETAIL = "https://t.bilibili.com/h5/dynamic/detail/"
 
-    private const val SCREENSHOT = "https://www.screenshotmaster.com/api/screenshot"
-
-    private val screenShotTool: ScreenShotTool? by lazy {
+    private val screenShotTool: BilibiliScreenShotTool? by lazy {
         ScreenShotToolConfig.run {
             driverPath.takeIf {
                 it.isNotBlank()
             }?.let {
-                ScreenShotTool(driverPath, chromePath, deviceName)
+                BilibiliScreenShotTool(driverPath, chromePath, deviceName)
             }
         }
     }
@@ -88,6 +86,22 @@ object BiliBiliCommand : CompositeCommand(
                     else -> PlainText(it.toString())
                 }
             }.asMessageChain())
+        }
+    }
+
+    private suspend fun getScreenShot(url: String): ByteArray = run {
+        screenShotTool?.getScreenShot(
+            url = url,
+            delayMillis = ScreenShotToolConfig.delayMillis
+        ) ?: bilibiliClient.useHttpClient {
+            it.get("https://www.screenshotmaster.com/api/screenshot") {
+                parameter("url", url)
+                parameter("width", 768)
+                parameter("height", 1024)
+                parameter("zone", "gz")
+                parameter("device", "table")
+                parameter("delay", 500)
+            }
         }
     }
 
@@ -157,33 +171,21 @@ object BiliBiliCommand : CompositeCommand(
                         appendLine("链接: https://t.bilibili.com/${dynamic.desc.dynamicId}")
                     })
                     runCatching {
-                        add(screenShotTool?.getScreenShot(
-                            url = DYNAMIC_DETAIL + dynamic.desc.dynamicId,
-                            delayMillis = ScreenShotToolConfig.delayMillis
-                        ) ?: bilibiliClient.useHttpClient<ByteArray> {
-                            it.get(SCREENSHOT) {
-                                parameter("url", DYNAMIC_DETAIL + dynamic.desc.dynamicId)
-                                parameter("width", 768)
-                                parameter("height", 1024)
-                                parameter("zone", "gz")
-                                parameter("device", "table")
-                                parameter("delay", 500)
-                            }
-                        })
+                        add(getScreenShot(url = DYNAMIC_DETAIL + dynamic.desc.dynamicId))
                     }.onFailure {
                         logger.warning("获取动态${dynamic.desc.dynamicId}快照失败", it)
                         when(dynamic.desc.type) {
-                            1 -> buildList {
+                            1 -> {
                                 Json.decodeFromJsonElement(BiliReplyCard.serializer(), dynamic.card).let { card ->
                                     add("${card.user.uname} -> ${card.originUser.info.uname}: \n${card.item.content}")
                                 }
                             }
-                            2 -> buildList {
+                            2 -> {
                                 Json.decodeFromJsonElement(BiliPicCard.serializer(), dynamic.card).let { card ->
                                     add("${card.user.name}: \n${card.item.description}")
                                 }
                             }
-                            4 -> buildList {
+                            4 -> {
                                 Json.decodeFromJsonElement(BiliTextCard.serializer(), dynamic.card).let { card ->
                                     add("${card.user.uname}: \n${card.item. content}")
                                 }

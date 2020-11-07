@@ -23,6 +23,8 @@ data class BiliTextCard(
 
     @Serializable
     data class Item(
+        @SerialName("at_uids")
+        val atUids: List<Long> = emptyList(),
         @SerialName("content")
         val content: String,
         @SerialName("ctrl")
