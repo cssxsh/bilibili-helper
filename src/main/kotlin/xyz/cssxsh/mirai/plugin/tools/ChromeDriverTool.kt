@@ -1,19 +1,27 @@
 package xyz.cssxsh.mirai.plugin.tools
 
 import kotlinx.coroutines.delay
+import kotlinx.io.core.Closeable
 import org.openqa.selenium.OutputType
-import org.openqa.selenium.chrome.ChromeDriver
 import org.openqa.selenium.chrome.ChromeDriverService
 import org.openqa.selenium.chrome.ChromeOptions
+import org.openqa.selenium.remote.RemoteWebDriver
 import java.io.File
 
-class BilibiliScreenShotTool(private val driverPath: String, chromePath: String? = null, deviceName: String? = null) {
+class ChromeDriverTool(
+    private val driverPath: String,
+    chromePath: String? = null,
+    deviceName: String? = null
+): Closeable {
 
     private val service = ChromeDriverService.Builder().apply {
         usingDriverExecutable(File(driverPath))
         withVerbose(false)
         withSilent(true)
-    }.build()
+    }.build().apply {
+        // sendOutputTo()
+        start()
+    }
 
     private val options = ChromeOptions().apply {
         setHeadless(true)
@@ -33,12 +41,16 @@ class BilibiliScreenShotTool(private val driverPath: String, chromePath: String?
     suspend fun getScreenShot(
         url: String,
         delayMillis: Long = 10_000
-    ): ByteArray = ChromeDriver(service, options).run {
+    ): ByteArray = RemoteWebDriver(service.url, options).run {
         manage().window()
         get(url)
         delay(delayMillis)
         getScreenshotAs(OutputType.BYTES).also {
             quit()
         }
+    }
+
+    override fun close() {
+        service.stop()
     }
 }

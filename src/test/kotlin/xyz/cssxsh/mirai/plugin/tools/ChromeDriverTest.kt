@@ -3,9 +3,9 @@ package xyz.cssxsh.mirai.plugin.tools
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 
-internal class ScreenShotToolTest {
+internal class ChromeDriverTest {
 
-    private val tool = BilibiliScreenShotTool(
+    private val tool = ChromeDriverTool(
         driverPath = "D:\\Users\\CSSXSH\\IdeaProjects\\bilibili-helper\\test\\chromedriver.exe",
         chromePath = null,
         deviceName = "iPad"

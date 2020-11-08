@@ -28,13 +28,13 @@ import xyz.cssxsh.bilibili.data.BiliPicCard
 import xyz.cssxsh.bilibili.data.BiliReplyCard
 import xyz.cssxsh.bilibili.data.BiliTextCard
 import xyz.cssxsh.mirai.plugin.data.ScreenShotToolConfig
-import xyz.cssxsh.mirai.plugin.tools.BilibiliScreenShotTool
+import xyz.cssxsh.mirai.plugin.tools.ChromeDriverTool
 import kotlin.coroutines.CoroutineContext
 
 object BiliBiliCommand : CompositeCommand(
     owner = BilibiliHelperPlugin,
     "bilibili", "B站",
-    description = "缓存指令"
+    description = "B站指令"
 ), CoroutineScope {
 
     @ExperimentalCommandDescriptors
@@ -43,12 +43,12 @@ object BiliBiliCommand : CompositeCommand(
 
     private const val DYNAMIC_DETAIL = "https://t.bilibili.com/h5/dynamic/detail/"
 
-    private val screenShotTool: BilibiliScreenShotTool? by lazy {
+    private val tool: ChromeDriverTool? by lazy {
         ScreenShotToolConfig.run {
             driverPath.takeIf {
                 it.isNotBlank()
             }?.let {
-                BilibiliScreenShotTool(driverPath, chromePath, deviceName)
+                ChromeDriverTool(driverPath, chromePath, deviceName)
             }
         }
     }
@@ -90,7 +90,7 @@ object BiliBiliCommand : CompositeCommand(
     }
 
     private suspend fun getScreenShot(url: String): ByteArray = run {
-        screenShotTool?.getScreenShot(
+        tool?.getScreenShot(
             url = url,
             delayMillis = ScreenShotToolConfig.delayMillis
         ) ?: bilibiliClient.useHttpClient {
