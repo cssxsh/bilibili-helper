@@ -11,8 +11,8 @@ import java.time.Duration
 
 class ChromeDriverTool(
     private val driverPath: String,
-    chromePath: String? = null,
-    deviceName: String? = null
+    chromePath: String = "",
+    deviceName: String = ""
 ) : Closeable {
 
     private val service = ChromeDriverService.Builder().apply {
@@ -23,14 +23,10 @@ class ChromeDriverTool(
 
     private val options = ChromeOptions().apply {
         setHeadless(true)
-        chromePath.takeUnless {
-            it.isNullOrEmpty()
-        }?.let {
-            setBinary(it)
+        if (chromePath.isNotBlank()) {
+            setBinary(chromePath)
         }
-        deviceName.takeUnless {
-            it.isNullOrEmpty()
-        }?.let {
+        if (deviceName.isNotBlank()) {
             setExperimentalOption("mobileEmulation", mapOf("deviceName" to deviceName))
         }
     }
