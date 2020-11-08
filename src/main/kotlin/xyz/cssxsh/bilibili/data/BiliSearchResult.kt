@@ -70,7 +70,7 @@ data class BiliSearchResult(
     @Serializable
     data class InfoList(
         @SerialName("tlist")
-        val tList: Map<Int, TInfo>,
+        val tList: Map<Int, TInfo>? = null,
         @SerialName("vlist")
         val vList: List<VideoInfo>
     )
