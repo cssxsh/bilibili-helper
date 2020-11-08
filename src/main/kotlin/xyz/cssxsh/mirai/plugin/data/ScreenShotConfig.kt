@@ -5,7 +5,7 @@ import net.mamoe.mirai.console.data.ValueName
 import net.mamoe.mirai.console.data.value
 import net.mamoe.mirai.console.util.ConsoleExperimentalApi
 
-object ScreenShotToolConfig : AutoSavePluginConfig("HelperConfig") {
+object ScreenShotConfig : AutoSavePluginConfig("ScreenShotConfig") {
 
     @ConsoleExperimentalApi
     override fun shouldPerformAutoSaveWheneverChanged(): Boolean = false

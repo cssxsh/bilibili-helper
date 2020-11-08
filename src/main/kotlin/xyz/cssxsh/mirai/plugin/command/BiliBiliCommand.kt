@@ -27,7 +27,7 @@ import xyz.cssxsh.bilibili.api.searchVideo
 import xyz.cssxsh.bilibili.data.BiliPicCard
 import xyz.cssxsh.bilibili.data.BiliReplyCard
 import xyz.cssxsh.bilibili.data.BiliTextCard
-import xyz.cssxsh.mirai.plugin.data.ScreenShotToolConfig
+import xyz.cssxsh.mirai.plugin.data.ScreenShotConfig
 import xyz.cssxsh.mirai.plugin.tools.ChromeDriverTool
 import kotlin.coroutines.CoroutineContext
 
@@ -44,7 +44,7 @@ object BiliBiliCommand : CompositeCommand(
     private const val DYNAMIC_DETAIL = "https://t.bilibili.com/h5/dynamic/detail/"
 
     private val tool: ChromeDriverTool? by lazy {
-        ScreenShotToolConfig.run {
+        ScreenShotConfig.run {
             driverPath.takeIf {
                 it.isNotBlank()
             }?.let {
@@ -99,7 +99,7 @@ object BiliBiliCommand : CompositeCommand(
     private suspend fun getScreenShot(url: String): ByteArray = run {
         tool?.getScreenShot(
             url = url,
-            delayMillis = ScreenShotToolConfig.delayMillis
+            delayMillis = ScreenShotConfig.delayMillis
         ) ?: bilibiliClient.useHttpClient {
             it.get("https://www.screenshotmaster.com/api/screenshot") {
                 parameter("url", url)
