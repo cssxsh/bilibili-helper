@@ -27,7 +27,7 @@ object BilibiliHelperPlugin : KotlinPlugin(
     @ConsoleExperimentalApi
     override fun onEnable() {
         BilibiliTaskData.reload()
-        ScreenShotConfig.reload()
+        ChromeDriverConfig.reload()
         BiliBiliCommand.register()
         BiliBiliCommand.onInit()
     }
