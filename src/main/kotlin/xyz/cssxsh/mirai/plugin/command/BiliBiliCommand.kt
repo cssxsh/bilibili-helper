@@ -55,6 +55,13 @@ object BiliBiliCommand : CompositeCommand(
 
     private val logger get() = BilibiliHelperPlugin.logger
 
+    private val json = Json {
+        prettyPrint = true
+        ignoreUnknownKeys = true
+        isLenient = true
+        allowStructuredMapKeys = true
+    }
+
     private val bilibiliClient = BilibiliClient(emptyMap())
 
     override val coroutineContext: CoroutineContext = CoroutineName("Bilibili-Listener")
@@ -79,7 +86,7 @@ object BiliBiliCommand : CompositeCommand(
     private suspend fun List<Any>.sendMessageToTaskContacts(uid: Long) = taskContacts.getValue(uid).forEach { contact ->
         contact.runCatching {
             sendMessage(map {
-                when(it) {
+                when (it) {
                     is String -> PlainText(it)
                     is Message -> it
                     is ByteArray -> it.inputStream().uploadAsImage(contact)
@@ -174,33 +181,39 @@ object BiliBiliCommand : CompositeCommand(
                         add(getScreenShot(url = DYNAMIC_DETAIL + dynamic.desc.dynamicId))
                     }.onFailure {
                         logger.warning("获取动态${dynamic.desc.dynamicId}快照失败", it)
-                        when(dynamic.desc.type) {
+                        when (dynamic.desc.type) {
                             1 -> {
-                                Json.decodeFromJsonElement(BiliReplyCard.serializer(), dynamic.card).let { card ->
+                                json.decodeFromJsonElement(BiliReplyCard.serializer(), dynamic.card).let { card ->
                                     add("${card.user.uname} -> ${card.originUser.info.uname}: \n${card.item.content}")
                                 }
                             }
                             2 -> {
-                                Json.decodeFromJsonElement(BiliPicCard.serializer(), dynamic.card).let { card ->
+                                json.decodeFromJsonElement(BiliPicCard.serializer(), dynamic.card).let { card ->
                                     add("${card.user.name}: \n${card.item.description}")
                                 }
                             }
                             4 -> {
-                                Json.decodeFromJsonElement(BiliTextCard.serializer(), dynamic.card).let { card ->
-                                    add("${card.user.uname}: \n${card.item. content}")
+                                json.decodeFromJsonElement(BiliTextCard.serializer(), dynamic.card).let { card ->
+                                    add("${card.user.uname}: \n${card.item.content}")
                                 }
                             }
-                            else -> {}
+                            else -> {
+                            }
                         }
                     }
                     if (dynamic.desc.type == 2) {
-                        addAll(Json.decodeFromJsonElement(BiliPicCard.serializer(), dynamic.card).item.pictures.mapNotNull { picture ->
+                        json.decodeFromJsonElement(
+                            BiliPicCard.serializer(),
+                            dynamic.card
+                        ).item.pictures.forEach { picture ->
                             runCatching {
                                 bilibiliClient.useHttpClient<ByteArray> {
                                     it.get(picture.imgSrc)
                                 }
-                            }.getOrNull()
-                        })
+                            }.onSuccess {
+                                add(it)
+                            }
+                        }
                     }
                 }.sendMessageToTaskContacts(uid)
             }
