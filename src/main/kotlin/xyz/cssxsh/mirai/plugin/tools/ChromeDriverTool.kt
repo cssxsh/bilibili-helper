@@ -1,27 +1,25 @@
 package xyz.cssxsh.mirai.plugin.tools
 
-import kotlinx.coroutines.delay
 import kotlinx.io.core.Closeable
 import org.openqa.selenium.OutputType
 import org.openqa.selenium.chrome.ChromeDriverService
 import org.openqa.selenium.chrome.ChromeOptions
 import org.openqa.selenium.remote.RemoteWebDriver
+import org.openqa.selenium.support.ui.FluentWait
 import java.io.File
+import java.time.Duration
 
 class ChromeDriverTool(
     private val driverPath: String,
     chromePath: String? = null,
     deviceName: String? = null
-): Closeable {
+) : Closeable {
 
     private val service = ChromeDriverService.Builder().apply {
         usingDriverExecutable(File(driverPath))
         withVerbose(false)
         withSilent(true)
-    }.build().apply {
-        // sendOutputTo()
-        start()
-    }
+    }.build().apply { start() }
 
     private val options = ChromeOptions().apply {
         setHeadless(true)
@@ -35,18 +33,14 @@ class ChromeDriverTool(
         }?.let {
             setExperimentalOption("mobileEmulation", mapOf("deviceName" to deviceName))
         }
-        setExperimentalOption("excludeSwitches", listOf("enable-logging"))
     }
 
-    suspend fun getScreenShot(
+    fun getScreenShot(
         url: String,
-        delayMillis: Long = 10_000
-    ): ByteArray = RemoteWebDriver(service.url, options).run {
-        manage().window()
-        get(url)
-        delay(delayMillis)
-        getScreenshotAs(OutputType.BYTES).also {
-            quit()
+        timeoutMillis: Long = 10_000
+    ): ByteArray = FluentWait(RemoteWebDriver(service.url, options).apply { get(url) }).withTimeout(Duration.ofMillis(timeoutMillis)).until { driver ->
+        driver.getScreenshotAs(OutputType.BYTES).also {
+            driver.quit()
         }
     }
 

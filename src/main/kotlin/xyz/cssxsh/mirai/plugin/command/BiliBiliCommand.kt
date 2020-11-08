@@ -99,7 +99,7 @@ object BiliBiliCommand : CompositeCommand(
     private suspend fun getScreenShot(url: String): ByteArray = run {
         tool?.getScreenShot(
             url = url,
-            delayMillis = ScreenShotConfig.delayMillis
+            timeoutMillis = ScreenShotConfig.timeoutMillis
         ) ?: bilibiliClient.useHttpClient {
             it.get("https://www.screenshotmaster.com/api/screenshot") {
                 parameter("url", url)

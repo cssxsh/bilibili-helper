@@ -4,6 +4,7 @@ import net.mamoe.mirai.console.data.AutoSavePluginConfig
 import net.mamoe.mirai.console.data.ValueName
 import net.mamoe.mirai.console.data.value
 import net.mamoe.mirai.console.util.ConsoleExperimentalApi
+import net.mamoe.mirai.utils.minutesToMillis
 
 object ScreenShotConfig : AutoSavePluginConfig("ScreenShotConfig") {
 
@@ -19,6 +20,6 @@ object ScreenShotConfig : AutoSavePluginConfig("ScreenShotConfig") {
     @ValueName("device_name")
     val deviceName: String by value("iPad")
 
-    @ValueName("delay_millis")
-    val delayMillis: Long by value(1_000L)
+    @ValueName("timeout_millis")
+    val timeoutMillis: Long by value(1.minutesToMillis)
 }
