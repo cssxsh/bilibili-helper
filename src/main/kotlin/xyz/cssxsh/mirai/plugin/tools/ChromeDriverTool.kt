@@ -35,13 +35,15 @@ class ChromeDriverTool(
         }
     }
 
-    fun getScreenShot(
-        url: String,
-        timeoutMillis: Long = 10_000
-    ): ByteArray = FluentWait(RemoteWebDriver(service.url, options).apply { get(url) }).withTimeout(Duration.ofMillis(timeoutMillis)).until { driver ->
-        driver.getScreenshotAs(OutputType.BYTES).also {
-            driver.quit()
-        }
+    fun <R> useDriver(preBlock: (RemoteWebDriver) -> Unit, timeoutMillis: Long, block: (RemoteWebDriver) -> R) =
+        FluentWait(RemoteWebDriver(service.url, options).also(preBlock)).withTimeout(Duration.ofMillis(timeoutMillis))
+            .until { driver -> block(driver).also { driver.quit() } }
+
+    fun <R> useDriver(url: String, timeoutMillis: Long, block: (RemoteWebDriver) -> R) =
+        useDriver(preBlock = { driver -> driver.get(url) }, timeoutMillis = timeoutMillis, block = block)
+
+    fun getScreenShot(url: String, timeoutMillis: Long = 10_000): ByteArray = useDriver(url, timeoutMillis) { driver ->
+        driver.getScreenshotAs(OutputType.BYTES)
     }
 
     override fun close() {
