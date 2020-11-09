@@ -4,16 +4,28 @@ import kotlinx.io.core.Closeable
 import org.openqa.selenium.OutputType
 import org.openqa.selenium.chrome.ChromeDriverService
 import org.openqa.selenium.chrome.ChromeOptions
+import org.openqa.selenium.remote.ProtocolHandshake
 import org.openqa.selenium.remote.RemoteWebDriver
 import org.openqa.selenium.support.ui.FluentWait
 import java.io.File
 import java.time.Duration
+import java.util.logging.Level
+import java.util.logging.Logger
 
 class ChromeDriverTool(
     private val driverPath: String,
     chromePath: String = "",
     deviceName: String = ""
 ) : Closeable {
+
+    companion object {
+        init {
+            ProtocolHandshake::class.java.getDeclaredField("LOG").apply {
+                isAccessible = true
+                (get(null) as Logger).level = Level.OFF
+            }
+        }
+    }
 
     private val service = ChromeDriverService.Builder().apply {
         usingDriverExecutable(File(driverPath))
