@@ -11,6 +11,10 @@ import xyz.cssxsh.mirai.plugin.command.BiliBiliCommand
 import xyz.cssxsh.mirai.plugin.data.*
 import net.mamoe.mirai.utils.hoursToMillis
 import net.mamoe.mirai.utils.minutesToMillis
+import xyz.cssxsh.mirai.plugin.data.BilibiliChromeDriverConfig.chromePath
+import xyz.cssxsh.mirai.plugin.data.BilibiliChromeDriverConfig.deviceName
+import xyz.cssxsh.mirai.plugin.data.BilibiliChromeDriverConfig.driverPath
+import xyz.cssxsh.mirai.plugin.tools.BilibiliChromeDriverTool
 
 @AutoService(JvmPlugin::class)
 object BilibiliHelperPlugin : KotlinPlugin(
@@ -20,6 +24,9 @@ object BilibiliHelperPlugin : KotlinPlugin(
     }
 )  {
 
+    var driverTool: BilibiliChromeDriverTool? = null
+        private set
+
     @ConsoleExperimentalApi
     override val autoSaveIntervalMillis: LongRange
         get() = 3.minutesToMillis..30.hoursToMillis
@@ -27,13 +34,19 @@ object BilibiliHelperPlugin : KotlinPlugin(
     @ConsoleExperimentalApi
     override fun onEnable() {
         BilibiliTaskData.reload()
-        ChromeDriverConfig.reload()
+        BilibiliChromeDriverConfig.reload()
         BiliBiliCommand.register()
         BiliBiliCommand.onInit()
+
+        driverTool = driverPath.takeIf { it.isNotBlank() }?.let {
+            BilibiliChromeDriverTool(it, chromePath, deviceName)
+        }
     }
 
     @ConsoleExperimentalApi
     override fun onDisable() {
         BiliBiliCommand.unregister()
+
+        driverTool?.close()
     }
 }

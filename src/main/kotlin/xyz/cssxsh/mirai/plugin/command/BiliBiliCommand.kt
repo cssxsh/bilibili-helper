@@ -27,8 +27,10 @@ import xyz.cssxsh.bilibili.api.searchVideo
 import xyz.cssxsh.bilibili.data.BiliPicCard
 import xyz.cssxsh.bilibili.data.BiliReplyCard
 import xyz.cssxsh.bilibili.data.BiliTextCard
-import xyz.cssxsh.mirai.plugin.data.ChromeDriverConfig
-import xyz.cssxsh.mirai.plugin.tools.ChromeDriverTool
+import xyz.cssxsh.mirai.plugin.BilibiliHelperPlugin.driverTool
+import xyz.cssxsh.mirai.plugin.BilibiliHelperPlugin.logger
+import xyz.cssxsh.mirai.plugin.data.BilibiliTaskData.tasks
+import xyz.cssxsh.mirai.plugin.data.BilibiliChromeDriverConfig.timeoutMillis
 import kotlin.coroutines.CoroutineContext
 
 object BiliBiliCommand : CompositeCommand(
@@ -42,18 +44,6 @@ object BiliBiliCommand : CompositeCommand(
     override val prefixOptional: Boolean = true
 
     private const val DYNAMIC_DETAIL = "https://t.bilibili.com/h5/dynamic/detail/"
-
-    private val tool: ChromeDriverTool? by lazy {
-        ChromeDriverConfig.run {
-            driverPath.takeIf {
-                it.isNotBlank()
-            }?.let {
-                ChromeDriverTool(driverPath, chromePath, deviceName)
-            }
-        }
-    }
-
-    private val logger get() = BilibiliHelperPlugin.logger
 
     private val json = Json {
         prettyPrint = true
@@ -77,7 +67,7 @@ object BiliBiliCommand : CompositeCommand(
 
     fun onInit() = BilibiliHelperPlugin.subscribeAlways<BotOnlineEvent> {
         logger.info("开始初始化${bot}联系人列表")
-        BilibiliTaskData.tasks.toMap().forEach { (uid, info) ->
+        tasks.toMap().forEach { (uid, info) ->
             taskContacts[uid] = info.getContacts(bot)
             addListener(uid)
         }
@@ -97,9 +87,9 @@ object BiliBiliCommand : CompositeCommand(
     }
 
     private suspend fun getScreenShot(url: String): ByteArray = run {
-        tool?.getScreenShot(
+        driverTool?.getScreenShot(
             url = url,
-            timeoutMillis = ChromeDriverConfig.timeoutMillis
+            timeoutMillis = timeoutMillis
         ) ?: bilibiliClient.useHttpClient {
             it.get("https://www.screenshotmaster.com/api/screenshot") {
                 parameter("url", url)
@@ -115,7 +105,7 @@ object BiliBiliCommand : CompositeCommand(
     private suspend fun buildVideoMessage(uid: Long) = runCatching {
         bilibiliClient.searchVideo(uid).searchData.list.vList.apply {
             filter {
-                it.created > BilibiliTaskData.tasks.getOrPut(uid) { BilibiliTaskData.TaskInfo() }.videoLast
+                it.created > tasks.getOrPut(uid) { BilibiliTaskData.TaskInfo() }.videoLast
             }.forEach { video ->
                 buildList<Any> {
                     add(buildString {
@@ -135,7 +125,7 @@ object BiliBiliCommand : CompositeCommand(
             }
             maxByOrNull { it.created }?.let { video ->
                 logger.verbose("(${uid})[${video.author}]>最新视频为[${video.title}](${video.bvId})<${video.created}>")
-                BilibiliTaskData.tasks.compute(uid) { _, info ->
+                tasks.compute(uid) { _, info ->
                     info?.copy(videoLast = video.created)
                 }
             }
@@ -170,7 +160,7 @@ object BiliBiliCommand : CompositeCommand(
     private suspend fun buildDynamicMessage(uid: Long) = runCatching {
         bilibiliClient.dynamicInfo(uid).dynamicData.cards.apply {
             filter {
-                it.desc.timestamp > BilibiliTaskData.tasks.getOrPut(uid) { BilibiliTaskData.TaskInfo() }.dynamicLast
+                it.desc.timestamp > tasks.getOrPut(uid) { BilibiliTaskData.TaskInfo() }.dynamicLast
             }.forEach { dynamic ->
                 buildList<Any> {
                     add(buildString {
@@ -219,7 +209,7 @@ object BiliBiliCommand : CompositeCommand(
             }
             maxByOrNull { it.desc.timestamp }?.let { dynamic ->
                 logger.verbose("(${uid})[${dynamic.desc.userProfile.info.uname}]最新动态时间为<${dynamic.desc.timestamp}>")
-                BilibiliTaskData.tasks.compute(uid) { _, info ->
+                tasks.compute(uid) { _, info ->
                     info?.copy(dynamicLast = dynamic.desc.timestamp)
                 }
             }
@@ -227,7 +217,7 @@ object BiliBiliCommand : CompositeCommand(
     }.onFailure { logger.warning("($uid)获取动态失败", it) }.isSuccess
 
     private fun addListener(uid: Long): Job = launch {
-        val intervalMillis = BilibiliTaskData.tasks.getValue(uid).run {
+        val intervalMillis = tasks.getValue(uid).run {
             minIntervalMillis..maxIntervalMillis
         }
         while (isActive && taskContacts[uid].isNullOrEmpty().not()) {
@@ -237,7 +227,7 @@ object BiliBiliCommand : CompositeCommand(
                 buildDynamicMessage(uid)
             }.onSuccess {
                 delay(intervalMillis.random().also {
-                    logger.info("(${uid}): ${BilibiliTaskData.tasks[uid]}监听任务完成一次, 即将进入延时delay(${it}ms)。")
+                    logger.info("(${uid}): ${tasks[uid]}监听任务完成一次, 即将进入延时delay(${it}ms)。")
                 })
             }.onFailure {
                 logger.warning("(${uid})监听任务执行失败", it)
@@ -248,7 +238,7 @@ object BiliBiliCommand : CompositeCommand(
 
     private fun MutableMap<Long, Set<Contact>>.addUid(uid: Long, subject: Contact) = compute(uid) { _, list ->
         (list ?: emptySet()) + subject.also { contact ->
-            BilibiliTaskData.tasks.compute(uid) { _, info ->
+            tasks.compute(uid) { _, info ->
                 (info ?: BilibiliTaskData.TaskInfo()).run {
                     when (contact) {
                         is Friend -> copy(friends = friends + contact.id)
@@ -261,10 +251,8 @@ object BiliBiliCommand : CompositeCommand(
     }
 
     private fun MutableMap<Long, Set<Contact>>.removeUid(uid: Long, subject: Contact) = compute(uid) { _, list ->
-        (list ?: emptySet()) - subject.also {
-            BilibiliTaskData.tasks.remove(uid)
-        }
-    }
+        (list ?: emptySet()) - subject
+    }.also { tasks.remove(uid) }
 
     @SubCommand("task", "订阅")
     @Suppress("unused")
@@ -285,7 +273,7 @@ object BiliBiliCommand : CompositeCommand(
         taskContacts.removeUid(uid, fromEvent.subject)
         taskJobs.compute(uid) { _, job ->
             if (taskContacts[uid].isNullOrEmpty()) {
-                BilibiliTaskData.tasks.remove(uid)
+                tasks.remove(uid)
                 null
             } else {
                 job
@@ -302,7 +290,7 @@ object BiliBiliCommand : CompositeCommand(
     suspend fun CommandSenderOnMessage<MessageEvent>.list() = runCatching {
         buildString {
             appendLine("监听状态:")
-            BilibiliTaskData.tasks.toMap().forEach { (uid, info) ->
+            tasks.toMap().forEach { (uid, info) ->
                 if (fromEvent.subject.id in info.groups + info.friends) {
                     appendLine("$uid -> ${taskJobs.getValue(uid)}")
                 }

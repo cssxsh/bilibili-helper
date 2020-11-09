@@ -6,7 +6,7 @@ import net.mamoe.mirai.console.data.value
 import net.mamoe.mirai.console.util.ConsoleExperimentalApi
 import net.mamoe.mirai.utils.minutesToMillis
 
-object ChromeDriverConfig : AutoSavePluginConfig("ChromeDriverConfig") {
+object BilibiliChromeDriverConfig : AutoSavePluginConfig("BilibiliChromeDriverConfig") {
 
     @ConsoleExperimentalApi
     override fun shouldPerformAutoSaveWheneverChanged(): Boolean = false

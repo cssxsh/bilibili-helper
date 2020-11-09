@@ -7,9 +7,9 @@ import org.junit.jupiter.api.TestInstance
 import java.io.File
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-internal class ChromeDriverToolTest {
+internal class BilibiliChromeDriverToolTest {
 
-    private val tool = ChromeDriverTool(
+    private val tool = BilibiliChromeDriverTool(
         driverPath = "D:\\Users\\CSSXSH\\IdeaProjects\\bilibili-helper\\test\\chromedriver.exe",
         deviceName = "iPad"
     )

@@ -12,7 +12,7 @@ import java.time.Duration
 import java.util.logging.Level
 import java.util.logging.Logger
 
-class ChromeDriverTool(
+class BilibiliChromeDriverTool(
     private val driverPath: String,
     chromePath: String = "",
     deviceName: String = ""
