@@ -3,7 +3,6 @@ package xyz.cssxsh.mirai.plugin.command
 import io.ktor.client.request.*
 import kotlinx.coroutines.*
 import kotlinx.serialization.json.Json
-import xyz.cssxsh.mirai.plugin.data.BilibiliTaskData
 import xyz.cssxsh.mirai.plugin.BilibiliHelperPlugin
 import net.mamoe.mirai.Bot
 import net.mamoe.mirai.console.command.CommandSenderOnMessage
@@ -31,6 +30,7 @@ import xyz.cssxsh.mirai.plugin.BilibiliHelperPlugin.driverTool
 import xyz.cssxsh.mirai.plugin.BilibiliHelperPlugin.logger
 import xyz.cssxsh.mirai.plugin.data.BilibiliTaskData.tasks
 import xyz.cssxsh.mirai.plugin.data.BilibiliChromeDriverConfig.timeoutMillis
+import xyz.cssxsh.mirai.plugin.data.TaskInfo
 import kotlin.coroutines.CoroutineContext
 
 object BiliBiliCommand : CompositeCommand(
@@ -62,7 +62,7 @@ object BiliBiliCommand : CompositeCommand(
 
     private val taskContacts = mutableMapOf<Long, Set<Contact>>()
 
-    private fun BilibiliTaskData.TaskInfo.getContacts(bot: Bot): Set<Contact> =
+    private fun TaskInfo.getContacts(bot: Bot): Set<Contact> =
         (bot.groups.filter { it.id in groups } + bot.friends.filter { it.id in friends }).toSet()
 
     fun onInit() = BilibiliHelperPlugin.subscribeAlways<BotOnlineEvent> {
@@ -105,7 +105,7 @@ object BiliBiliCommand : CompositeCommand(
     private suspend fun buildVideoMessage(uid: Long) = runCatching {
         bilibiliClient.searchVideo(uid).searchData.list.vList.apply {
             filter {
-                it.created > tasks.getOrPut(uid) { BilibiliTaskData.TaskInfo() }.videoLast
+                it.created > tasks.getOrPut(uid) { TaskInfo() }.videoLast
             }.forEach { video ->
                 buildList<Any> {
                     add(buildString {
@@ -160,7 +160,7 @@ object BiliBiliCommand : CompositeCommand(
     private suspend fun buildDynamicMessage(uid: Long) = runCatching {
         bilibiliClient.dynamicInfo(uid).dynamicData.cards.apply {
             filter {
-                it.desc.timestamp > tasks.getOrPut(uid) { BilibiliTaskData.TaskInfo() }.dynamicLast
+                it.desc.timestamp > tasks.getOrPut(uid) { TaskInfo() }.dynamicLast
             }.forEach { dynamic ->
                 buildList<Any> {
                     add(buildString {
@@ -239,7 +239,7 @@ object BiliBiliCommand : CompositeCommand(
     private fun MutableMap<Long, Set<Contact>>.addUid(uid: Long, subject: Contact) = compute(uid) { _, list ->
         (list ?: emptySet()) + subject.also { contact ->
             tasks.compute(uid) { _, info ->
-                (info ?: BilibiliTaskData.TaskInfo()).run {
+                (info ?: TaskInfo()).run {
                     when (contact) {
                         is Friend -> copy(friends = friends + contact.id)
                         is Group -> copy(groups = groups + contact.id)
