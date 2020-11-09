@@ -6,7 +6,7 @@ import net.mamoe.mirai.utils.minutesToMillis
 import java.util.*
 
 @Serializable
-data class TaskInfo(
+data class BilibiliTaskInfo(
     @SerialName("video_last")
     val videoLast: Long = Date().time,
     @SerialName("dynamic_last")
