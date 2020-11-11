@@ -115,9 +115,11 @@ object BiliBiliCommand : CompositeCommand(
                         appendLine("链接: https://www.bilibili.com/video/${video.bvId}")
                     })
                     runCatching {
-                        add(bilibiliClient.useHttpClient<ByteArray> {
+                        bilibiliClient.useHttpClient<ByteArray> {
                             it.get(video.pic)
-                        })
+                        }
+                    }.onSuccess {
+                        add(it)
                     }.onFailure {
                         logger.warning("获取[${video.title}](${video.bvId})}视频封面失败", it)
                     }
@@ -145,9 +147,11 @@ object BiliBiliCommand : CompositeCommand(
                             appendLine("链接: ${user.liveRoom.url}")
                         })
                         runCatching {
-                            add(bilibiliClient.useHttpClient<ByteArray> {
+                            bilibiliClient.useHttpClient<ByteArray> {
                                 it.get(user.liveRoom.cover)
-                            })
+                            }
+                        }.onSuccess {
+                            add(it)
                         }.onFailure {
                             logger.warning("获取[${uid}]直播间封面封面失败", it)
                         }
@@ -202,6 +206,8 @@ object BiliBiliCommand : CompositeCommand(
                                 }
                             }.onSuccess {
                                 add(it)
+                            }.onFailure {
+                                logger.warning("动态图片下载失败: ${picture.imgSrc}", it)
                             }
                         }
                     }
