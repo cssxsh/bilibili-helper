@@ -9,7 +9,6 @@ import net.mamoe.mirai.console.plugin.jvm.KotlinPlugin
 import net.mamoe.mirai.console.util.ConsoleExperimentalApi
 import xyz.cssxsh.mirai.plugin.command.BiliBiliCommand
 import xyz.cssxsh.mirai.plugin.data.*
-import net.mamoe.mirai.utils.hoursToMillis
 import net.mamoe.mirai.utils.minutesToMillis
 import xyz.cssxsh.mirai.plugin.data.BilibiliChromeDriverConfig.chromePath
 import xyz.cssxsh.mirai.plugin.data.BilibiliChromeDriverConfig.deviceName
@@ -29,7 +28,7 @@ object BilibiliHelperPlugin : KotlinPlugin(
 
     @ConsoleExperimentalApi
     override val autoSaveIntervalMillis: LongRange
-        get() = 3.minutesToMillis..30.hoursToMillis
+        get() = 3.minutesToMillis..10.minutesToMillis
 
     @ConsoleExperimentalApi
     override fun onEnable() {
