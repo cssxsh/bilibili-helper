@@ -31,6 +31,9 @@ import xyz.cssxsh.mirai.plugin.BilibiliHelperPlugin.logger
 import xyz.cssxsh.mirai.plugin.data.BilibiliTaskData.tasks
 import xyz.cssxsh.mirai.plugin.data.BilibiliChromeDriverConfig.timeoutMillis
 import xyz.cssxsh.mirai.plugin.data.BilibiliTaskInfo
+import java.time.Instant.ofEpochSecond
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 import kotlin.coroutines.CoroutineContext
 
 object BiliBiliCommand : CompositeCommand(
@@ -61,6 +64,9 @@ object BiliBiliCommand : CompositeCommand(
     private val liveState = mutableMapOf<Long, Boolean>()
 
     private val taskContacts = mutableMapOf<Long, Set<Contact>>()
+
+    private fun timestampToFormatText(timestamp: Long): String =
+        ofEpochSecond(timestamp).atZone(ZoneOffset.systemDefault()).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
 
     private fun BilibiliTaskInfo.getContacts(bot: Bot): Set<Contact> =
         (bot.groups.filter { it.id in groups } + bot.friends.filter { it.id in friends }).toSet()
@@ -111,6 +117,7 @@ object BiliBiliCommand : CompositeCommand(
                     add(buildString {
                         appendLine("标题: ${video.title}")
                         appendLine("作者: ${video.author}")
+                        appendLine("时间: ${timestampToFormatText(video.created)}")
                         appendLine("时长: ${video.length}")
                         appendLine("链接: https://www.bilibili.com/video/${video.bvId}")
                     })
@@ -126,7 +133,7 @@ object BiliBiliCommand : CompositeCommand(
                 }.sendMessageToTaskContacts(uid)
             }
             maxByOrNull { it.created }?.let { video ->
-                logger.verbose("(${uid})[${video.author}]>最新视频为[${video.title}](${video.bvId})<${video.created}>")
+                logger.verbose("(${uid})[${video.author}]>最新视频为[${video.title}](${video.bvId})<${timestampToFormatText(video.created)}>")
                 tasks.compute(uid) { _, info ->
                     info?.copy(videoLast = video.created)
                 }
@@ -169,6 +176,7 @@ object BiliBiliCommand : CompositeCommand(
                 buildList<Any> {
                     add(buildString {
                         appendLine("${dynamic.desc.userProfile.info.uname} 有新动态")
+                        appendLine("时间: ${timestampToFormatText(dynamic.desc.timestamp)}")
                         appendLine("链接: https://t.bilibili.com/${dynamic.desc.dynamicId}")
                     })
                     runCatching {
@@ -214,7 +222,7 @@ object BiliBiliCommand : CompositeCommand(
                 }.sendMessageToTaskContacts(uid)
             }
             maxByOrNull { it.desc.timestamp }?.let { dynamic ->
-                logger.verbose("(${uid})[${dynamic.desc.userProfile.info.uname}]最新动态时间为<${dynamic.desc.timestamp}>")
+                logger.verbose("(${uid})[${dynamic.desc.userProfile.info.uname}]最新动态时间为<${timestampToFormatText(dynamic.desc.timestamp)}>")
                 tasks.compute(uid) { _, info ->
                     info?.copy(dynamicLast = dynamic.desc.timestamp)
                 }
