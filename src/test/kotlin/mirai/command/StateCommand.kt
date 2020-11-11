@@ -5,9 +5,10 @@ import net.mamoe.mirai.console.command.SimpleCommand
 import net.mamoe.mirai.console.command.descriptor.ExperimentalCommandDescriptors
 import net.mamoe.mirai.console.util.ConsoleExperimentalApi
 import net.mamoe.mirai.message.MessageEvent
-import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import xyz.cssxsh.mirai.plugin.data.BilibiliTaskData.tasks
+import java.time.ZoneId
+import java.time.ZonedDateTime
 
 object StateCommand : SimpleCommand(
     owner = TempCommandOwner,
@@ -15,7 +16,7 @@ object StateCommand : SimpleCommand(
     description = "状态指令"
 ) {
 
-    private val startTime = LocalDateTime.now()
+    private val startTime = ZonedDateTime.now(ZoneId.systemDefault())
 
     @ExperimentalCommandDescriptors
     @ConsoleExperimentalApi
