@@ -240,7 +240,7 @@ object BiliBiliCommand : CompositeCommand(
                 delay(intervalMillis.last)
             }
         }
-    }.also { logger.info("添加对${uid}的监听任务, 添加完成${it}") }
+    }.also { logger.info("添加对(${uid})的监听任务, 添加完成${it}") }
 
     private fun MutableMap<Long, Set<Contact>>.addUid(uid: Long, subject: Contact) = compute(uid) { _, list ->
         (list ?: emptySet()) + subject.also { contact ->
