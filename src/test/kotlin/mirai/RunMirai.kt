@@ -2,7 +2,9 @@ package mirai
 
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.runBlocking
+import mirai.command.StateCommand
 import net.mamoe.mirai.console.MiraiConsole
+import net.mamoe.mirai.console.command.CommandManager.INSTANCE.register
 import net.mamoe.mirai.console.terminal.ConsoleTerminalExperimentalApi
 import net.mamoe.mirai.console.terminal.MiraiConsoleImplementationTerminal
 import net.mamoe.mirai.console.terminal.MiraiConsoleTerminalLoader
@@ -23,14 +25,15 @@ object RunMirai {
     )
 
     @JvmStatic
-    fun main(args: Array<String>) {
+    fun main(args: Array<String>): Unit = runBlocking {
         // 默认在 /test 目录下运行
         MiraiConsoleTerminalLoader.parse(args, exitProcess = true)
         MiraiConsoleTerminalLoader.startAsDaemon(miraiConsoleImpl(Paths.get(".").toAbsolutePath()))
+        MiraiConsole.apply {
+            StateCommand.register()
+        }
         try {
-            runBlocking {
-                MiraiConsole.job.join()
-            }
+            MiraiConsole.job.join()
         } catch (e: CancellationException) {
             // ignored
         }
