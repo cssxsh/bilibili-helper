@@ -105,7 +105,7 @@ object BiliBiliCommand : CompositeCommand(
     private suspend fun buildVideoMessage(uid: Long) = runCatching {
         bilibiliClient.searchVideo(uid).searchData.list.vList.apply {
             filter {
-                it.created > tasks.getOrPut(uid) { BilibiliTaskInfo() }.videoLast
+                it.created > tasks.getValue(uid).videoLast
             }.forEach { video ->
                 buildList<Any> {
                     add(buildString {
@@ -164,7 +164,7 @@ object BiliBiliCommand : CompositeCommand(
     private suspend fun buildDynamicMessage(uid: Long) = runCatching {
         bilibiliClient.dynamicInfo(uid).dynamicData.cards.apply {
             filter {
-                it.desc.timestamp > tasks.getOrPut(uid) { BilibiliTaskInfo() }.dynamicLast
+                it.desc.timestamp > tasks.getValue(uid).dynamicLast
             }.forEach { dynamic ->
                 buildList<Any> {
                     add(buildString {
