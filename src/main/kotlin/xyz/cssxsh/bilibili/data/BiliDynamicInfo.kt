@@ -78,7 +78,7 @@ data class BiliDynamicInfo(
             @Serializable
             data class Desc(
                 @SerialName("acl")
-                val acl: Int,
+                val acl: Int? = null,
                 @SerialName("comment")
                 val comment: Int? = null,
                 @SerialName("dynamic_id")
