@@ -89,35 +89,35 @@ tasks {
 
 
         doFirst {
-            File(testConsoleDir, "classes/").walk().forEach {
-                delete(it)
-                println("Deleted ${it.absolutePath}")
-            }
+//            File(testConsoleDir, "classes/").walk().forEach {
+//                delete(it)
+//                println("Deleted ${it.absolutePath}")
+//            }
             File(testConsoleDir, "plugins/").walk().filter {
                 project.name in it.name
             }.forEach {
                 delete(it)
                 println("Deleted ${it.absolutePath}")
             }
-            copy {
-                into(File(testConsoleDir, "classes/"))
-                from(sourceSets["test"].runtimeClasspath.files) {
-                    exclude {
-                        "class" in it.path || it.isDirectory
-                    }
-                    eachFile {
-                        println("Copy ${file.absolutePath}")
-                    }
-                }
-                from(sourceSets["test"].runtimeClasspath.files) {
-                    include {
-                        "run" in it.path || "mirai" in it.path
-                    }
-                    eachFile {
-                        println("Copy ${file.absolutePath}")
-                    }
-                }
-            }
+//            copy {
+//                into(File(testConsoleDir, "classes/"))
+//                from(sourceSets["test"].runtimeClasspath.files) {
+//                    exclude {
+//                        "class" in it.path || it.isDirectory
+//                    }
+//                    eachFile {
+//                        println("Copy ${file.absolutePath}")
+//                    }
+//                }
+//                from(sourceSets["test"].runtimeClasspath.files) {
+//                    include {
+//                        "run" in it.path || "mirai" in it.path
+//                    }
+//                    eachFile {
+//                        println("Copy ${file.absolutePath}")
+//                    }
+//                }
+//            }
             copy {
                 into(File(testConsoleDir, "plugins/"))
                 from(File(project.buildDir, "libs/")) {
@@ -128,15 +128,15 @@ tasks {
                     }
                 }
             }
-            File(testConsoleDir, "start.bat").writeText(
-                buildString {
-                    appendln("cd ${testConsoleDir.absolutePath}")
-                    appendln("@echo off")
-                    appendln("java -classpath ${File(testConsoleDir, "classes/").walk().joinToString(";")} ^")
-                    appendln("-Dfile.encoding=UTF-8 ^")
-                    appendln("mirai.RunMirai")
-                }
-            )
+//            File(testConsoleDir, "start.bat").writeText(
+//                buildString {
+//                    appendln("cd ${testConsoleDir.absolutePath}")
+//                    appendln("@echo off")
+//                    appendln("java -classpath ${File(testConsoleDir, "classes/").walk().joinToString(";")} ^")
+//                    appendln("-Dfile.encoding=UTF-8 ^")
+//                    appendln("mirai.RunMirai")
+//                }
+//            )
             File(testConsoleDir, "start.sh").writeText(
                 buildString {
                     appendln("cd ${testConsoleDir.absolutePath}")
