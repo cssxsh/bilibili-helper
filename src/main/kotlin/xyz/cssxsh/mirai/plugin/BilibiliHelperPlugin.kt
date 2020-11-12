@@ -22,17 +22,7 @@ object BilibiliHelperPlugin : KotlinPlugin(
     }
 )  {
 
-    private val service : ChromeDriverService? by lazy {
-        driverPath.takeIf { it.isNotBlank() }?.runCatching {
-            ChromeDriverService.Builder().apply {
-                usingDriverExecutable(File(driverPath))
-                withVerbose(false)
-                withSilent(true)
-                withWhitelistedIps("")
-                usingPort(9515)
-            }.build().apply { start() }
-        }?.onFailure { logger.warning("启动${driverPath}失败", it) }?.getOrNull()
-    }
+    private var service : ChromeDriverService? = null
 
     @ConsoleExperimentalApi
     override val autoSaveIntervalMillis: LongRange
@@ -44,7 +34,15 @@ object BilibiliHelperPlugin : KotlinPlugin(
         BilibiliChromeDriverConfig.reload()
         BiliBiliCommand.register()
         BiliBiliCommand.onInit()
-        service
+        service = driverPath.takeIf { it.isNotBlank() }?.runCatching {
+            ChromeDriverService.Builder().apply {
+                usingDriverExecutable(File(driverPath))
+                withVerbose(false)
+                withSilent(true)
+                withWhitelistedIps("")
+                usingPort(9515)
+            }.build().apply { start() }
+        }?.onFailure { logger.warning("启动${driverPath}失败", it) }?.getOrNull()
     }
 
     @ConsoleExperimentalApi
