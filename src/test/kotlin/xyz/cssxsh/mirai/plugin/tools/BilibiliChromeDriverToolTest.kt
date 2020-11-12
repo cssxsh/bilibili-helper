@@ -4,19 +4,29 @@ import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
+import org.openqa.selenium.chrome.ChromeDriverService
 import java.io.File
+import java.net.URL
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 internal class BilibiliChromeDriverToolTest {
 
+    private val service : ChromeDriverService = ChromeDriverService.Builder().apply {
+            usingDriverExecutable(File("chromedriver.exe"))
+            withVerbose(false)
+            withSilent(true)
+            withWhitelistedIps("")
+            usingPort(9515)
+    }.build().apply { start() }
+
     private val tool = BilibiliChromeDriverTool(
-        driverPath = "D:\\Users\\CSSXSH\\IdeaProjects\\bilibili-helper\\test\\chromedriver.exe",
+        remoteAddress = service.url,
         deviceName = "iPad"
     )
 
     @AfterAll
     fun tearDown(): Unit = runBlocking {
-        tool.close()
+        service.stop()
     }
 
     @Test
