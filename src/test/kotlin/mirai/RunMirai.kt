@@ -1,6 +1,8 @@
 package mirai
 
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import mirai.command.StateCommand
 import net.mamoe.mirai.console.MiraiConsole
@@ -9,6 +11,9 @@ import net.mamoe.mirai.console.terminal.ConsoleTerminalExperimentalApi
 import net.mamoe.mirai.console.terminal.MiraiConsoleImplementationTerminal
 import net.mamoe.mirai.console.terminal.MiraiConsoleTerminalLoader
 import net.mamoe.mirai.console.util.ConsoleExperimentalApi
+import net.mamoe.mirai.event.events.BotOnlineEvent
+import net.mamoe.mirai.event.subscribeAlways
+import net.mamoe.mirai.utils.minutesToMillis
 import java.nio.file.Path
 import java.nio.file.Paths
 
@@ -31,6 +36,16 @@ object RunMirai {
         MiraiConsoleTerminalLoader.startAsDaemon(miraiConsoleImpl(Paths.get(".").toAbsolutePath()))
         MiraiConsole.apply {
             StateCommand.register()
+            subscribeAlways<BotOnlineEvent> {
+                bot.friends.getOrNull(1438159989L)?.let { friend ->
+                    friend.launch {
+                        while (isActive) {
+                            delay((10).minutesToMillis)
+                            friend.sendMessage("存活！")
+                        }
+                    }
+                }
+            }
         }
         try {
             MiraiConsole.job.join()
