@@ -26,15 +26,43 @@ class BilibiliChromeDriverTool(
         }
 
         val LOADED_SCRIPT = """
-            function findVue() {
-                let Vue = null;
-                document.body.children.forEach((element) => {
-                    Vue = Vue || element.__vue__
-                })
-                return Vue
+            function findVues() {
+                let vues = [];
+                try {
+                    for(const element of document.getElementsByTagName("div")) {
+                        if (element.__vue__) {
+                            vues.push(element.__vue__);
+                        }
+                    }
+                } finally {
+                    //
+                }
+                return vues;
+            };
+            function vuesMounted() {
+                let mounted = true;
+                try {
+                    for (const vue of findVues()) {
+                        mounted = mounted && vue._isMounted;
+                    }
+                } finally {
+                    //
+                }
+                return mounted;
+            };
+            function imgsComplete() {
+                let complete = true
+                try {
+                    for(const element of document.getElementsByTagName("img")) {
+                        complete = complete && element.complete;
+                    }
+                } finally {
+                    //
+                }
+                return complete;
             };
             function isReady() {
-                return document.readyState === 'complete' && findVue()._isMounted
+                return document.readyState === 'complete' && vuesMounted() && imgsComplete();
             };
             return isReady();
         """.trimIndent()
