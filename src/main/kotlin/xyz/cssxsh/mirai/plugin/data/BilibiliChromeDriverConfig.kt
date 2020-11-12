@@ -12,10 +12,10 @@ object BilibiliChromeDriverConfig : AutoSavePluginConfig("BilibiliChromeDriverCo
     override fun shouldPerformAutoSaveWheneverChanged(): Boolean = false
 
     @ValueName("driver_path")
-    val driverPath: String by value("http://127.0.0.1:9515")
+    val driverPath: String by value("")
 
     @ValueName("driver_url")
-    val driverUrl: String by value("")
+    val driverUrl: String by value("http://127.0.0.1:9515")
 
     @ValueName("chrome_path")
     val chromePath: String by value("")
