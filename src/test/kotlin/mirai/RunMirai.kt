@@ -33,8 +33,6 @@ object RunMirai {
     @JvmStatic
     fun main(args: Array<String>): Unit = runBlocking {
         // 默认在 /test 目录下运行
-        MiraiConsoleTerminalLoader.parse(args, exitProcess = true)
-        MiraiConsoleTerminalLoader.startAsDaemon(miraiConsoleImpl(Paths.get(".").toAbsolutePath()))
         MiraiConsole.apply {
             StateCommand.register()
             subscribeAlways<BotOnlineEvent> {
@@ -54,6 +52,8 @@ object RunMirai {
                 }
             }
         }
+        MiraiConsoleTerminalLoader.parse(args, exitProcess = true)
+        MiraiConsoleTerminalLoader.startAsDaemon(miraiConsoleImpl(Paths.get(".").toAbsolutePath()))
         try {
             MiraiConsole.job.join()
         } catch (e: CancellationException) {
