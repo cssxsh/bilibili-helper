@@ -26,11 +26,13 @@ import xyz.cssxsh.bilibili.data.BiliPicCard
 import xyz.cssxsh.bilibili.data.BiliReplyCard
 import xyz.cssxsh.bilibili.data.BiliTextCard
 import xyz.cssxsh.mirai.plugin.BilibiliHelperPlugin
-import xyz.cssxsh.mirai.plugin.BilibiliHelperPlugin.driverTool
 import xyz.cssxsh.mirai.plugin.BilibiliHelperPlugin.logger
+import xyz.cssxsh.mirai.plugin.data.BilibiliChromeDriverConfig.driverUrl
 import xyz.cssxsh.mirai.plugin.data.BilibiliTaskData.tasks
 import xyz.cssxsh.mirai.plugin.data.BilibiliChromeDriverConfig.timeoutMillis
 import xyz.cssxsh.mirai.plugin.data.BilibiliTaskInfo
+import xyz.cssxsh.mirai.plugin.tools.BilibiliChromeDriverTool
+import java.net.URL
 import java.time.Instant.ofEpochSecond
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
@@ -92,11 +94,10 @@ object BiliBiliCommand : CompositeCommand(
         }
     }
 
-    private suspend fun getScreenShot(url: String): ByteArray = run {
-        driverTool?.getScreenShot(
-            url = url,
-            timeoutMillis = timeoutMillis
-        ) ?: bilibiliClient.useHttpClient {
+    private suspend fun getScreenShot(url: String): ByteArray = runCatching {
+        BilibiliChromeDriverTool(URL(driverUrl)).getScreenShot(url = url, timeoutMillis = timeoutMillis)
+    }.getOrElse {
+        bilibiliClient.useHttpClient {
             it.get("https://www.screenshotmaster.com/api/screenshot") {
                 parameter("url", url)
                 parameter("width", 768)
@@ -133,7 +134,13 @@ object BiliBiliCommand : CompositeCommand(
                 }.sendMessageToTaskContacts(uid)
             }
             maxByOrNull { it.created }?.let { video ->
-                logger.verbose("(${uid})[${video.author}]>最新视频为[${video.title}](${video.bvId})<${timestampToFormatText(video.created)}>")
+                logger.verbose(
+                    "(${uid})[${video.author}]>最新视频为[${video.title}](${video.bvId})<${
+                        timestampToFormatText(
+                            video.created
+                        )
+                    }>"
+                )
                 tasks.compute(uid) { _, info ->
                     info?.copy(videoLast = video.created)
                 }

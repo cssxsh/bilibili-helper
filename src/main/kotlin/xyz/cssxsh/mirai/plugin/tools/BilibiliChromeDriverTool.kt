@@ -1,22 +1,21 @@
 package xyz.cssxsh.mirai.plugin.tools
 
-import kotlinx.io.core.Closeable
 import org.openqa.selenium.OutputType
 import org.openqa.selenium.PageLoadStrategy
 import org.openqa.selenium.chrome.ChromeOptions
 import org.openqa.selenium.remote.ProtocolHandshake
 import org.openqa.selenium.remote.RemoteWebDriver
 import org.openqa.selenium.support.ui.FluentWait
-import java.io.File
+import java.net.URL
 import java.time.Duration
 import java.util.logging.Level
 import java.util.logging.Logger
 
 class BilibiliChromeDriverTool(
-    private val driverPath: String,
+    private val remoteAddress: URL,
     chromePath: String = "",
     deviceName: String = ""
-) : Closeable {
+) {
 
     companion object {
         init {
@@ -40,12 +39,6 @@ class BilibiliChromeDriverTool(
             return isReady();
         """.trimIndent()
     }
-
-    private val service = ChromeDriverService.Builder().apply {
-        usingDriverExecutable(File(driverPath))
-        withVerbose(false)
-        withSilent(true)
-    }.build().apply { start() }
 
     private val options = ChromeOptions().apply {
         setHeadless(true)
@@ -71,9 +64,5 @@ class BilibiliChromeDriverTool(
             it.executeScript(LOADED_SCRIPT)
         }
         driver.getScreenshotAs(OutputType.BYTES)
-    }
-
-    override fun close() {
-        service.stop()
     }
 }
