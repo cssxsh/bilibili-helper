@@ -277,7 +277,7 @@ object BiliBiliCommand : CompositeCommand(
 
     private fun MutableMap<Long, Set<Contact>>.removeUid(uid: Long, subject: Contact) = compute(uid) { _, list ->
         (list ?: emptySet()) - subject
-    }.also { tasks.remove(uid) }
+    }
 
     @SubCommand("task", "订阅")
     @Suppress("unused")
