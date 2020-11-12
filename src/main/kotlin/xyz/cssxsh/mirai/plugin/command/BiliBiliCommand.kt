@@ -27,6 +27,8 @@ import xyz.cssxsh.bilibili.data.BiliReplyCard
 import xyz.cssxsh.bilibili.data.BiliTextCard
 import xyz.cssxsh.mirai.plugin.BilibiliHelperPlugin
 import xyz.cssxsh.mirai.plugin.BilibiliHelperPlugin.logger
+import xyz.cssxsh.mirai.plugin.data.BilibiliChromeDriverConfig.chromePath
+import xyz.cssxsh.mirai.plugin.data.BilibiliChromeDriverConfig.deviceName
 import xyz.cssxsh.mirai.plugin.data.BilibiliChromeDriverConfig.driverUrl
 import xyz.cssxsh.mirai.plugin.data.BilibiliTaskData.tasks
 import xyz.cssxsh.mirai.plugin.data.BilibiliChromeDriverConfig.timeoutMillis
@@ -95,7 +97,7 @@ object BiliBiliCommand : CompositeCommand(
     }
 
     private suspend fun getScreenShot(url: String): ByteArray = runCatching {
-        BilibiliChromeDriverTool(URL(driverUrl)).getScreenShot(url = url, timeoutMillis = timeoutMillis)
+        BilibiliChromeDriverTool(URL(driverUrl), chromePath, deviceName).getScreenShot(url = url, timeoutMillis = timeoutMillis)
     }.onFailure {
         logger.warning("使用ChromeDriver(${driverUrl})失败", it)
     }.getOrElse {
