@@ -96,6 +96,8 @@ object BiliBiliCommand : CompositeCommand(
 
     private suspend fun getScreenShot(url: String): ByteArray = runCatching {
         BilibiliChromeDriverTool(URL(driverUrl)).getScreenShot(url = url, timeoutMillis = timeoutMillis)
+    }.onFailure {
+        logger.warning("使用ChromeDriver(${driverUrl})失败", it)
     }.getOrElse {
         bilibiliClient.useHttpClient {
             it.get("https://www.screenshotmaster.com/api/screenshot") {

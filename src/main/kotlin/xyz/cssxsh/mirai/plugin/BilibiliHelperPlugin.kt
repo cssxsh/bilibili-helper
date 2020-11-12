@@ -10,6 +10,8 @@ import net.mamoe.mirai.console.util.ConsoleExperimentalApi
 import xyz.cssxsh.mirai.plugin.command.BiliBiliCommand
 import xyz.cssxsh.mirai.plugin.data.*
 import net.mamoe.mirai.utils.minutesToMillis
+import org.openqa.selenium.chrome.ChromeDriverService
+import java.io.File
 
 @AutoService(JvmPlugin::class)
 object BilibiliHelperPlugin : KotlinPlugin(
@@ -18,6 +20,16 @@ object BilibiliHelperPlugin : KotlinPlugin(
         author("cssxsh")
     }
 )  {
+
+    private val service : ChromeDriverService? = runCatching {
+        ChromeDriverService.Builder().apply {
+            usingDriverExecutable(File("chromedriver.exe"))
+            withVerbose(false)
+            withSilent(true)
+            withWhitelistedIps("")
+            usingPort(9515)
+        }.build().apply { start() }
+    }.getOrNull()
 
     @ConsoleExperimentalApi
     override val autoSaveIntervalMillis: LongRange
@@ -34,5 +46,6 @@ object BilibiliHelperPlugin : KotlinPlugin(
     @ConsoleExperimentalApi
     override fun onDisable() {
         BiliBiliCommand.unregister()
+        service?.stop()
     }
 }

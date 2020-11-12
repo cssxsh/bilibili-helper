@@ -11,6 +11,9 @@ object BilibiliChromeDriverConfig : AutoSavePluginConfig("BilibiliChromeDriverCo
     @ConsoleExperimentalApi
     override fun shouldPerformAutoSaveWheneverChanged(): Boolean = false
 
+    @ValueName("driver_path")
+    val driverPath: String by value("http://127.0.0.1:9515")
+
     @ValueName("driver_url")
     val driverUrl: String by value("")
 
