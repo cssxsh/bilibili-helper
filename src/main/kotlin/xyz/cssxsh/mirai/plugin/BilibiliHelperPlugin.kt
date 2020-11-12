@@ -22,7 +22,7 @@ object BilibiliHelperPlugin : KotlinPlugin(
     }
 )  {
 
-    private val service : ChromeDriverService? = runCatching {
+    private val service : ChromeDriverService? = driverPath.takeIf { it.isNotBlank() }?.runCatching {
         ChromeDriverService.Builder().apply {
             usingDriverExecutable(File(driverPath))
             withVerbose(false)
@@ -30,7 +30,7 @@ object BilibiliHelperPlugin : KotlinPlugin(
             withWhitelistedIps("")
             usingPort(9515)
         }.build().apply { start() }
-    }.getOrNull()
+    }?.onFailure { logger.warning("启动${driverPath}失败", it) }?.getOrNull()
 
     @ConsoleExperimentalApi
     override val autoSaveIntervalMillis: LongRange
