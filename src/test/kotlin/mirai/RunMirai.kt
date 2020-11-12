@@ -14,6 +14,7 @@ import net.mamoe.mirai.console.util.ConsoleExperimentalApi
 import net.mamoe.mirai.event.events.BotOnlineEvent
 import net.mamoe.mirai.event.subscribeAlways
 import net.mamoe.mirai.utils.minutesToMillis
+import xyz.cssxsh.mirai.plugin.data.BilibiliTaskData.tasks
 import java.nio.file.Path
 import java.nio.file.Paths
 
@@ -40,8 +41,13 @@ object RunMirai {
                 bot.friends.getOrNull(1438159989L)?.let { friend ->
                     friend.launch {
                         while (isActive) {
+                            friend.sendMessage(buildString {
+                                appendLine("存活！")
+                                tasks.toMap().forEach { (uid, info) ->
+                                    appendLine("$uid -> $info")
+                                }
+                            })
                             delay((10).minutesToMillis)
-                            friend.sendMessage("存活！")
                         }
                     }
                 }
