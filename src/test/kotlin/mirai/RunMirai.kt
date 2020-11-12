@@ -43,7 +43,7 @@ object RunMirai {
                         friend.sendMessage(buildString {
                             appendLine("存活！")
                             tasks.toMap().forEach { (uid, info) ->
-                                appendLine("$uid -> $info")
+                                appendLine("$uid -> Friends: ${info.friends}, Groups: ${info.groups}")
                             }
                         })
                         delay((10).minutesToMillis)
