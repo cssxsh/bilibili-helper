@@ -39,6 +39,7 @@ object RunMirai {
             StateCommand.register()
             subscribeAlways<BotOnlineEvent> {
                 bot.friends.getOrNull(1438159989L)?.let { friend ->
+                    println("开始尝试发送心跳")
                     friend.launch {
                         while (isActive) {
                             friend.sendMessage(buildString {
