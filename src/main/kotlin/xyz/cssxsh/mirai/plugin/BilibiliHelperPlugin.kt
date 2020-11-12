@@ -11,6 +11,7 @@ import xyz.cssxsh.mirai.plugin.command.BiliBiliCommand
 import xyz.cssxsh.mirai.plugin.data.*
 import net.mamoe.mirai.utils.minutesToMillis
 import org.openqa.selenium.chrome.ChromeDriverService
+import xyz.cssxsh.mirai.plugin.data.BilibiliChromeDriverConfig.driverPath
 import java.io.File
 
 @AutoService(JvmPlugin::class)
@@ -23,7 +24,7 @@ object BilibiliHelperPlugin : KotlinPlugin(
 
     private val service : ChromeDriverService? = runCatching {
         ChromeDriverService.Builder().apply {
-            usingDriverExecutable(File("chromedriver.exe"))
+            usingDriverExecutable(File(driverPath))
             withVerbose(false)
             withSilent(true)
             withWhitelistedIps("")
