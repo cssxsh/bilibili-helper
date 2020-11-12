@@ -6,13 +6,12 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.openqa.selenium.chrome.ChromeDriverService
 import java.io.File
-import java.net.URL
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 internal class BilibiliChromeDriverToolTest {
 
     private val service : ChromeDriverService = ChromeDriverService.Builder().apply {
-            usingDriverExecutable(File("chromedriver.exe"))
+            usingDriverExecutable(File("test","chromedriver.exe"))
             withVerbose(false)
             withSilent(true)
             withWhitelistedIps("")
