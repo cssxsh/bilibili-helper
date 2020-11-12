@@ -2,10 +2,12 @@ package xyz.cssxsh.mirai.plugin.tools
 
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.openqa.selenium.chrome.ChromeDriverService
 import java.io.File
+import java.net.URL
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 internal class BilibiliChromeDriverToolTest {
@@ -16,25 +18,34 @@ internal class BilibiliChromeDriverToolTest {
             withSilent(true)
             withWhitelistedIps("")
             usingPort(9515)
-    }.build().apply { start() }
+    }.build()
 
     private val tool = BilibiliChromeDriverTool(
-        remoteAddress = service.url,
+        remoteAddress = URL("http://127.0.0.1:9515"),
         deviceName = "iPad"
     )
 
+    private val dynamicIds = listOf(
+        450055453856015371,
+        456805261245236351
+    )
+
+    @BeforeAll
+    fun setUp(): Unit = runBlocking {
+        // service.start()
+    }
+
     @AfterAll
     fun tearDown(): Unit = runBlocking {
-        service.stop()
+        // service.stop()
     }
 
     @Test
     fun getScreenShot(): Unit = runBlocking {
-        tool.getScreenShot("https://t.bilibili.com/450055453856015371").let {
-            File("test","450055453856015371.png").writeBytes(it)
-        }
-        tool.getScreenShot("https://t.bilibili.com/455352437023507650").let {
-            File("test","455352437023507650.png").writeBytes(it)
+        dynamicIds.forEach { id ->
+            tool.getScreenShot(url = "https://t.bilibili.com/h5/dynamic/detail/${id}").let {
+                File("test","${id}.png").writeBytes(it)
+            }
         }
     }
 }

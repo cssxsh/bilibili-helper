@@ -1,5 +1,9 @@
 package xyz.cssxsh.mirai.plugin.tools
 
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
+import net.mamoe.mirai.utils.minutesToMillis
+import net.mamoe.mirai.utils.secondsToMillis
 import org.openqa.selenium.OutputType
 import org.openqa.selenium.PageLoadStrategy
 import org.openqa.selenium.chrome.ChromeOptions
@@ -25,46 +29,42 @@ class BilibiliChromeDriverTool(
             }
         }
 
-        val LOADED_SCRIPT = """
-            function findVues() {
-                let vues = [];
+        val IS_READY_SCRIPT = """
+            function findVue() {
+                let Vue = null;
                 try {
-                    for(const element of document.getElementsByTagName("div")) {
-                        if (element.__vue__) {
-                            vues.push(element.__vue__);
-                        }
+                    for(const element of document.body.children) {
+                        Vue = Vue || element.__vue__;
                     }
                 } finally {
-                    //
+                    Vue = Vue || {};
                 }
-                return vues;
-            };
-            function vuesMounted() {
-                let mounted = true;
+                return Vue;
+            }
+            function vmMounted(vm = findVue()) {
+                let mounted = vm._isMounted;
                 try {
-                    for (const vue of findVues()) {
-                        mounted = mounted && vue._isMounted;
+                    for (const child of vm['$'+ 'children']) {
+                        mounted = mounted && vmMounted(child);
                     }
                 } finally {
                     //
                 }
                 return mounted;
-            };
-            function imgsComplete() {
-                let complete = true
+            }
+            function imagesComplete() {
+                const images = document.getElementsByTagName("img");
+                let complete = images.length !== 0;
                 try {
-                    for(const element of document.getElementsByTagName("img")) {
+                    for(const element of images) {
                         complete = complete && element.complete;
                     }
                 } finally {
                     //
                 }
                 return complete;
-            };
-            function isReady() {
-                return document.readyState === 'complete' && vuesMounted() && imgsComplete();
-            };
-            return isReady();
+            }
+            return document.readyState === 'complete' && vmMounted() && imagesComplete();
         """.trimIndent()
     }
 
@@ -79,18 +79,32 @@ class BilibiliChromeDriverTool(
         }
     }
 
-    fun <R> useWait(driver: RemoteWebDriver, timeoutMillis: Long, block: (RemoteWebDriver) -> R) = FluentWait(driver)
-        .withTimeout(Duration.ofMillis(timeoutMillis)).until(block)
+    fun <R> useWait(
+        driver: RemoteWebDriver,
+        timeoutMillis: Long,
+        intervalMillis: Long,
+        block: (RemoteWebDriver) -> R
+    ) = FluentWait(driver).withTimeout(Duration.ofMillis(timeoutMillis)).pollingEvery(Duration.ofMillis(intervalMillis))
+        .until(block)
 
     fun <R> useDriver(block: (RemoteWebDriver) -> R) = RemoteWebDriver(remoteAddress, options).let { driver ->
         block(driver).also { driver.quit() }
     }
 
-    fun getScreenShot(url: String, timeoutMillis: Long = 30_000): ByteArray = useDriver { driver ->
+    fun getScreenShot(
+        url: String,
+        timeoutProgression: LongProgression = (1).secondsToMillis..(1).minutesToMillis step (1).secondsToMillis
+    ): ByteArray = useDriver { driver ->
         driver.get(url)
-        useWait(driver, timeoutMillis) {
-            it.executeScript(LOADED_SCRIPT)
+        runBlocking { delay(timeoutProgression.first) }
+        useWait(driver, timeoutProgression.last - timeoutProgression.first, timeoutProgression.step) {
+            it.executeScript(IS_READY_SCRIPT)
         }
         driver.getScreenshotAs(OutputType.BYTES)
     }
+
+    fun getScreenShot(
+        url: String,
+        timeoutMillis: Long,
+    ) = getScreenShot(url, (1).secondsToMillis..timeoutMillis step (1).secondsToMillis)
 }
