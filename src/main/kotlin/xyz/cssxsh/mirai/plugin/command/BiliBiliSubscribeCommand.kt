@@ -18,7 +18,6 @@ import net.mamoe.mirai.message.data.Message
 import net.mamoe.mirai.message.data.PlainText
 import net.mamoe.mirai.message.data.asMessageChain
 import net.mamoe.mirai.message.uploadAsImage
-import xyz.cssxsh.bilibili.BilibiliClient
 import xyz.cssxsh.bilibili.api.accInfo
 import xyz.cssxsh.bilibili.api.dynamicInfo
 import xyz.cssxsh.bilibili.api.searchVideo
@@ -26,6 +25,7 @@ import xyz.cssxsh.bilibili.data.BiliPicCard
 import xyz.cssxsh.bilibili.data.BiliReplyCard
 import xyz.cssxsh.bilibili.data.BiliTextCard
 import xyz.cssxsh.mirai.plugin.BilibiliHelperPlugin
+import xyz.cssxsh.mirai.plugin.BilibiliHelperPlugin.bilibiliClient
 import xyz.cssxsh.mirai.plugin.BilibiliHelperPlugin.logger
 import xyz.cssxsh.mirai.plugin.data.BilibiliChromeDriverConfig.chromePath
 import xyz.cssxsh.mirai.plugin.data.BilibiliChromeDriverConfig.deviceName
@@ -58,8 +58,6 @@ object BiliBiliSubscribeCommand : CompositeCommand(
         isLenient = true
         allowStructuredMapKeys = true
     }
-
-    private val bilibiliClient = BilibiliClient(emptyMap())
 
     override val coroutineContext: CoroutineContext = CoroutineName("Bilibili-Listener")
 

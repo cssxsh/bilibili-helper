@@ -11,6 +11,7 @@ import xyz.cssxsh.mirai.plugin.command.BiliBiliSubscribeCommand
 import xyz.cssxsh.mirai.plugin.data.*
 import net.mamoe.mirai.utils.minutesToMillis
 import org.openqa.selenium.chrome.ChromeDriverService
+import xyz.cssxsh.bilibili.BilibiliClient
 import xyz.cssxsh.mirai.plugin.data.BilibiliChromeDriverConfig.driverPath
 import java.io.File
 
@@ -21,6 +22,8 @@ object BilibiliHelperPlugin : KotlinPlugin(
         author("cssxsh")
     }
 )  {
+
+    internal val bilibiliClient = BilibiliClient(emptyMap())
 
     private var service : ChromeDriverService? = null
 
