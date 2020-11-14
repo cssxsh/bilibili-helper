@@ -1,17 +1,10 @@
 package xyz.cssxsh.mirai.plugin.tools
 
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
-import net.mamoe.mirai.utils.minutesToMillis
-import net.mamoe.mirai.utils.secondsToMillis
-import org.openqa.selenium.OutputType
 import org.openqa.selenium.PageLoadStrategy
 import org.openqa.selenium.chrome.ChromeOptions
 import org.openqa.selenium.remote.ProtocolHandshake
 import org.openqa.selenium.remote.RemoteWebDriver
-import org.openqa.selenium.support.ui.FluentWait
 import java.net.URL
-import java.time.Duration
 import java.util.logging.Level
 import java.util.logging.Logger
 
@@ -79,32 +72,7 @@ class BilibiliChromeDriverTool(
         }
     }
 
-    fun <R> useWait(
-        driver: RemoteWebDriver,
-        timeoutMillis: Long,
-        intervalMillis: Long,
-        block: (RemoteWebDriver) -> R
-    ) = FluentWait(driver).withTimeout(Duration.ofMillis(timeoutMillis)).pollingEvery(Duration.ofMillis(intervalMillis))
-        .until(block)
-
-    fun <R> useDriver(block: (RemoteWebDriver) -> R) = RemoteWebDriver(remoteAddress, options).let { driver ->
+    suspend fun <R> useDriver(block: suspend (RemoteWebDriver) -> R) = RemoteWebDriver(remoteAddress, options).let { driver ->
         block(driver).also { driver.quit() }
     }
-
-    fun getScreenShot(
-        url: String,
-        timeoutProgression: LongProgression = (1).secondsToMillis..(1).minutesToMillis step (1).secondsToMillis
-    ): ByteArray = useDriver { driver ->
-        driver.get(url)
-        runBlocking { delay(timeoutProgression.first) }
-        useWait(driver, timeoutProgression.last - timeoutProgression.first, timeoutProgression.step) {
-            it.executeScript(IS_READY_SCRIPT)
-        }
-        driver.getScreenshotAs(OutputType.BYTES)
-    }
-
-    fun getScreenShot(
-        url: String,
-        timeoutMillis: Long,
-    ) = getScreenShot(url, (1).secondsToMillis..timeoutMillis step (1).secondsToMillis)
 }

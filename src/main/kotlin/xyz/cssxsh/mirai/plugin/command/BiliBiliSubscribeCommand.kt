@@ -34,6 +34,7 @@ import xyz.cssxsh.mirai.plugin.data.BilibiliTaskData.tasks
 import xyz.cssxsh.mirai.plugin.data.BilibiliChromeDriverConfig.timeoutMillis
 import xyz.cssxsh.mirai.plugin.data.BilibiliTaskInfo
 import xyz.cssxsh.mirai.plugin.tools.BilibiliChromeDriverTool
+import xyz.cssxsh.mirai.plugin.tools.getScreenShot
 import java.net.URL
 import java.time.Instant.ofEpochSecond
 import java.time.ZoneOffset
@@ -95,7 +96,9 @@ object BiliBiliSubscribeCommand : CompositeCommand(
     }
 
     private suspend fun getScreenShot(url: String): ByteArray = runCatching {
-        BilibiliChromeDriverTool(URL(driverUrl), chromePath, deviceName).getScreenShot(url = url, timeoutMillis = timeoutMillis)
+        BilibiliChromeDriverTool(URL(driverUrl), chromePath, deviceName).useDriver {
+            it.getScreenShot(url, timeoutMillis)
+        }
     }.onFailure {
         logger.warning("使用ChromeDriver(${driverUrl})失败", it)
     }.getOrElse {
