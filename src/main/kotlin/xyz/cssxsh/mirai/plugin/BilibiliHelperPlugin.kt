@@ -7,7 +7,7 @@ import net.mamoe.mirai.console.plugin.jvm.JvmPlugin
 import net.mamoe.mirai.console.plugin.jvm.JvmPluginDescription
 import net.mamoe.mirai.console.plugin.jvm.KotlinPlugin
 import net.mamoe.mirai.console.util.ConsoleExperimentalApi
-import xyz.cssxsh.mirai.plugin.command.BiliBiliCommand
+import xyz.cssxsh.mirai.plugin.command.BiliBiliSubscribeCommand
 import xyz.cssxsh.mirai.plugin.data.*
 import net.mamoe.mirai.utils.minutesToMillis
 import org.openqa.selenium.chrome.ChromeDriverService

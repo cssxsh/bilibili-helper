@@ -40,10 +40,10 @@ import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import kotlin.coroutines.CoroutineContext
 
-object BiliBiliCommand : CompositeCommand(
+object BiliBiliSubscribeCommand : CompositeCommand(
     owner = BilibiliHelperPlugin,
-    "bilibili", "B站",
-    description = "B站指令"
+    "subscribe", "订阅",
+    description = "B站订阅指令"
 ), CoroutineScope {
 
     @ExperimentalCommandDescriptors
@@ -139,7 +139,7 @@ object BiliBiliCommand : CompositeCommand(
             }
             maxByOrNull { it.created }?.let { video ->
                 logger.verbose(
-                    "(${uid})[${video.author}]>最新视频为[${video.title}](${video.bvId})<${
+                    "(${uid})[${video.author}]>最新视频为(${video.bvId})[${video.title}]<${
                         timestampToFormatText(
                             video.created
                         )
@@ -241,22 +241,20 @@ object BiliBiliCommand : CompositeCommand(
         }
     }.onFailure { logger.warning("($uid)获取动态失败", it) }.isSuccess
 
+    private fun BilibiliTaskInfo.getInterval() = minIntervalMillis..maxIntervalMillis
+
     private fun addListener(uid: Long): Job = launch {
-        val intervalMillis = tasks.getValue(uid).run {
-            minIntervalMillis..maxIntervalMillis
-        }
+        delay(tasks.getValue(uid).getInterval().random())
         while (isActive && taskContacts[uid].isNullOrEmpty().not()) {
             runCatching {
-                buildVideoMessage(uid)
-                buildLiveMessage(uid)
-                buildDynamicMessage(uid)
+                buildVideoMessage(uid) && buildLiveMessage(uid) && buildDynamicMessage(uid)
             }.onSuccess {
-                delay(intervalMillis.random().also {
+                delay(tasks.getValue(uid).getInterval().random().also {
                     logger.info("(${uid}): ${tasks[uid]}监听任务完成一次, 即将进入延时delay(${it}ms)。")
                 })
             }.onFailure {
                 logger.warning("(${uid})监听任务执行失败", it)
-                delay(intervalMillis.last)
+                delay(tasks.getValue(uid).maxIntervalMillis)
             }
         }
     }.also { logger.info("添加对(${uid})的监听任务, 添加完成${it}") }
@@ -279,9 +277,9 @@ object BiliBiliCommand : CompositeCommand(
         (list ?: emptySet()) - subject
     }
 
-    @SubCommand("task", "订阅")
+    @SubCommand("add", "添加")
     @Suppress("unused")
-    suspend fun CommandSenderOnMessage<MessageEvent>.task(uid: Long) = runCatching {
+    suspend fun CommandSenderOnMessage<MessageEvent>.add(uid: Long) = runCatching {
         taskContacts.addUid(uid, fromEvent.subject)
         taskJobs.compute(uid) { _, job ->
             job?.takeIf { it.isActive } ?: addListener(uid)
