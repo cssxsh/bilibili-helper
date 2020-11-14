@@ -6,13 +6,13 @@ import xyz.cssxsh.bilibili.BilibiliClient
 import xyz.cssxsh.bilibili.data.BiliRoomInfo
 
 suspend fun BilibiliClient.roomInfo(
-    id: Long,
+    roomId: Long,
     url: String = BilibiliApi.ROOM_INIT
 ): BiliRoomInfo = useHttpClient { client ->
     client.get(url) {
         header(HttpHeaders.Origin, BilibiliApi.SPACE)
         header(HttpHeaders.Referrer, BilibiliApi.SPACE)
 
-        parameter("id", id)
+        parameter("id", roomId)
     }
 }
