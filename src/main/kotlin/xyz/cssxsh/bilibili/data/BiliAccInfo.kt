@@ -42,7 +42,7 @@ data class BiliAccInfo(
         @SerialName("nameplate")
         val nameplate: Nameplate,
         @SerialName("official")
-        val official: Official,
+        val official: BiliOfficial,
         @SerialName("pendant")
         val pendant: Pendant,
         @SerialName("rank")
@@ -98,18 +98,6 @@ data class BiliAccInfo(
             val name: String,
             @SerialName("nid")
             val nid: Int
-        )
-
-        @Serializable
-        data class Official(
-            @SerialName("desc")
-            val desc: String,
-            @SerialName("role")
-            val role: Int,
-            @SerialName("title")
-            val title: String,
-            @SerialName("type")
-            val type: Int
         )
 
         @Serializable

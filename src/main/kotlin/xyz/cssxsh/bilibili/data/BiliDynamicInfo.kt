@@ -65,7 +65,6 @@ data class BiliDynamicInfo(
                     override fun deserialize(decoder: Decoder): JsonElement =
                         Json.decodeFromString(JsonElement.serializer(), decoder.decodeString())
 
-
                     override val descriptor: SerialDescriptor
                         get() = PrimitiveSerialDescriptor("JsonTextSerializer", PrimitiveKind.STRING)
 
@@ -84,37 +83,37 @@ data class BiliDynamicInfo(
                 @SerialName("dynamic_id")
                 val dynamicId: Long,
                 @SerialName("dynamic_id_str")
-                val dynamicIdStr: String,
+                val dynamicIdStr: String? = null,
                 @SerialName("inner_id")
-                val innerId: Long,
+                val innerId: Long? = null,
                 @SerialName("is_liked")
                 val isLiked: Int,
                 @SerialName("like")
                 val like: Int,
                 @SerialName("orig_dy_id")
-                val origDyId: Long,
+                val origDyId: Long? = null,
                 @SerialName("orig_dy_id_str")
-                val origDyIdStr: String,
+                val origDyIdStr: String? = null,
                 @SerialName("orig_type")
-                val origType: Int,
+                val origType: Int? = null,
                 @SerialName("origin")
                 val origin: JsonElement? = null,
                 @SerialName("pre_dy_id")
-                val preDyId: Long,
+                val preDyId: Long? = null,
                 @SerialName("pre_dy_id_str")
-                val preDyIdStr: String,
+                val preDyIdStr: String? = null,
                 @SerialName("r_type")
                 val rType: Int,
                 @SerialName("repost")
                 val repost: Int,
                 @SerialName("rid")
-                val rid: Long,
+                val rid: Long? = null,
                 @SerialName("rid_str")
-                val ridStr: String,
+                val ridStr: String? = null,
                 @SerialName("status")
                 val status: Int,
                 @SerialName("stype")
-                val sType: Int,
+                val sType: Int? = null,
                 @SerialName("timestamp")
                 val timestamp: Long,
                 @SerialName("type")
