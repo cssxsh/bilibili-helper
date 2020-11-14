@@ -47,17 +47,9 @@ object BilibiliHelperPlugin : KotlinPlugin(
     override fun onEnable() {
         BilibiliTaskData.reload()
         BilibiliChromeDriverConfig.reload()
-        BiliBiliCommand.register()
-        BiliBiliCommand.onInit()
-        service = driverPath.takeIf { it.isNotBlank() }?.runCatching {
-            ChromeDriverService.Builder().apply {
-                usingDriverExecutable(File(driverPath))
-                withVerbose(false)
-                withSilent(true)
-                withWhitelistedIps("")
-                usingPort(9515)
-            }.build().apply { start() }
-        }?.onFailure { logger.warning("启动${driverPath}失败", it) }?.getOrNull()
+        BiliBiliSubscribeCommand.register()
+        BiliBiliSubscribeCommand.onInit()
+        serviceStart()
     }
 
     @ConsoleExperimentalApi
