@@ -27,6 +27,18 @@ object BilibiliHelperPlugin : KotlinPlugin(
 
     private var service : ChromeDriverService? = null
 
+    private fun serviceStart(): Boolean = runCatching {
+        ChromeDriverService.Builder().apply {
+            usingDriverExecutable(File(driverPath))
+            withVerbose(false)
+            withSilent(true)
+            withWhitelistedIps("")
+            usingPort(9515)
+        }.build().apply { start() }
+    }.onFailure { logger.warning("启动${driverPath}失败", it) }.isSuccess
+
+    private fun serviceStop() { service?.stop() }
+
     @ConsoleExperimentalApi
     override val autoSaveIntervalMillis: LongRange
         get() = 3.minutesToMillis..10.minutesToMillis
@@ -50,7 +62,7 @@ object BilibiliHelperPlugin : KotlinPlugin(
 
     @ConsoleExperimentalApi
     override fun onDisable() {
-        BiliBiliCommand.unregister()
-        service?.stop()
+        BiliBiliSubscribeCommand.unregister()
+        serviceStop()
     }
 }
