@@ -140,7 +140,7 @@ object BiliBiliSubscribeCommand : CompositeCommand(
             }
             maxByOrNull { it.created }?.let { video ->
                 logger.verbose(
-                    "(${uid})[${video.author}]>最新视频为(${video.bvId})[${video.title}]<${
+                    "(${uid})[${video.author}]最新视频为(${video.bvId})[${video.title}]<${
                         timestampToFormatText(
                             video.created
                         )
