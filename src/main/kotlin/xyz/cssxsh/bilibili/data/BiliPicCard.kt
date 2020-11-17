@@ -55,7 +55,7 @@ data class BiliPicCard(
             @SerialName("img_height")
             val imgHeight: Int,
             @SerialName("img_size")
-            val imgSize: Int,
+            val imgSize: Int? = null,
             @SerialName("img_src")
             val imgSrc: String,
             @SerialName("img_width")
