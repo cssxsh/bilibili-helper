@@ -8,7 +8,7 @@ data class BiliVip(
     @SerialName("accessStatus")
     val accessStatus: Int? = null,
     @SerialName("dueRemark")
-    val dueRemark: String,
+    val dueRemark: String? = null,
     @SerialName("label")
     val label: Label,
     @SerialName("themeType")
