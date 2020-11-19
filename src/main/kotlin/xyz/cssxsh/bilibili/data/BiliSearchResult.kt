@@ -16,19 +16,19 @@ data class BiliSearchResult(
 ) {
 
     @Serializable
-    data class TInfo(
+    data class TypeInfo(
         @SerialName("count")
         val count: Int,
         @SerialName("name")
         val name: String,
         @SerialName("tid")
-        val tid: Int
+        val tid: Long
     )
 
     @Serializable
     data class VideoInfo(
         @SerialName("aid")
-        val aid: Int,
+        val aid: Long,
         @SerialName("author")
         val author: String,
         @SerialName("bvid")
@@ -50,7 +50,7 @@ data class BiliSearchResult(
         @SerialName("length")
         val length: String,
         @SerialName("mid")
-        val mid: Int,
+        val mid: Long,
         @SerialName("pic")
         val pic: String,
         @SerialName("play")
@@ -70,7 +70,7 @@ data class BiliSearchResult(
     @Serializable
     data class InfoList(
         @SerialName("tlist")
-        val tList: Map<Int, TInfo>? = null,
+        val tList: Map<Int, TypeInfo> = emptyMap(),
         @SerialName("vlist")
         val vList: List<VideoInfo>
     )

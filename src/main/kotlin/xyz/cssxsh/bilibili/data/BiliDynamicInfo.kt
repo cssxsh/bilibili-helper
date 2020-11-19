@@ -22,6 +22,7 @@ data class BiliDynamicInfo(
     @SerialName("msg")
     val msg: String
 ) {
+
     @Serializable
     data class DynamicData(
         @SerialName("attentions")
@@ -35,10 +36,11 @@ data class BiliDynamicInfo(
         @SerialName("next_offset")
         val nextOffset: Long
     ) {
+
         @Serializable
         data class Attentions(
             @SerialName("uids")
-            val uids: List<Int>
+            val UIDs: List<Long>
         )
 
         @Serializable
@@ -60,6 +62,7 @@ data class BiliDynamicInfo(
             @SerialName("extension")
             val extension: JsonElement? = null
         ) {
+
             companion object {
                 object JsonTextSerializer : KSerializer<JsonElement> {
                     override fun deserialize(decoder: Decoder): JsonElement =
@@ -119,115 +122,18 @@ data class BiliDynamicInfo(
                 @SerialName("type")
                 val type: Int,
                 @SerialName("uid")
-                val uid: Int,
+                val uid: Long,
                 @SerialName("uid_type")
                 val uidType: Int,
                 @SerialName("user_profile")
-                val userProfile: UserProfile,
+                val userProfile: BiliUserProfile,
                 @SerialName("view")
                 val view: Int,
                 @SerialName("bvid")
                 val bvId: String? = null,
                 @SerialName("previous")
                 val previous: JsonElement? = null
-            ) {
-
-                @Serializable
-                data class UserProfile(
-                    @SerialName("card")
-                    val card: Card,
-                    @SerialName("info")
-                    val info: Info,
-                    @SerialName("level_info")
-                    val levelInfo: LevelInfo,
-                    @SerialName("pendant")
-                    val pendant: Pendant,
-                    @SerialName("rank")
-                    val rank: String,
-                    @SerialName("sign")
-                    val sign: String,
-                    @SerialName("vip")
-                    val vip: Vip,
-                    @SerialName("decorate_card")
-                    val decorate_card: JsonElement? = null
-                ) {
-                    @Serializable
-                    data class Card(
-                        @SerialName("official_verify")
-                        val officialVerify: OfficialVerify
-                    ) {
-                        @Serializable
-                        data class OfficialVerify(
-                            @SerialName("desc")
-                            val desc: String,
-                            @SerialName("type")
-                            val type: Int
-                        )
-                    }
-
-                    @Serializable
-                    data class Info(
-                        @SerialName("face")
-                        val face: String? = null,
-                        @SerialName("uid")
-                        val uid: Long,
-                        @SerialName("uname")
-                        val uname: String
-                    )
-
-                    @Serializable
-                    data class LevelInfo(
-                        @SerialName("current_exp")
-                        val currentExp: Int,
-                        @SerialName("current_level")
-                        val currentLevel: Int,
-                        @SerialName("current_min")
-                        val currentMin: Int,
-                        @SerialName("next_exp")
-                        val nextExp: String
-                    )
-
-                    @Serializable
-                    data class Pendant(
-                        @SerialName("expire")
-                        val expire: Int,
-                        @SerialName("image")
-                        val image: String,
-                        @SerialName("image_enhance")
-                        val imageEnhance: String,
-                        @SerialName("name")
-                        val name: String,
-                        @SerialName("pid")
-                        val pid: Long
-                    )
-
-                    @Serializable
-                    data class Vip(
-                        @SerialName("accessStatus")
-                        val accessStatus: Int,
-                        @SerialName("dueRemark")
-                        val dueRemark: String,
-                        @SerialName("label")
-                        val label: Label,
-                        @SerialName("themeType")
-                        val themeType: Int,
-                        @SerialName("vipDueDate")
-                        val vipDueDate: Long,
-                        @SerialName("vipStatus")
-                        val vipStatus: Int,
-                        @SerialName("vipStatusWarn")
-                        val vipStatusWarn: String,
-                        @SerialName("vipType")
-                        val vipType: Int
-                    ) {
-                        @Serializable
-                        data class Label(
-                            @SerialName("path")
-                            val path: String
-                        )
-                    }
-                }
-            }
+            )
 
             @Serializable
             data class Extra(

@@ -15,6 +15,7 @@ data class BiliAccInfo(
     @SerialName("ttl")
     val ttl: Int
 ) {
+
     @Serializable
     data class UserData(
         @SerialName("birthday")
@@ -32,19 +33,19 @@ data class BiliAccInfo(
         @SerialName("level")
         val level: Int,
         @SerialName("live_room")
-        val liveRoom: LiveRoom,
+        val liveRoom: BiliLiveRoom,
         @SerialName("mid")
-        val mid: Int,
+        val mid: Long,
         @SerialName("moral")
         val moral: Int,
         @SerialName("name")
         val name: String,
         @SerialName("nameplate")
-        val nameplate: Nameplate,
+        val nameplate: BiliNameplate,
         @SerialName("official")
         val official: BiliOfficial,
         @SerialName("pendant")
-        val pendant: Pendant,
+        val pendant: BiliPendant,
         @SerialName("rank")
         val rank: Int,
         @SerialName("sex")
@@ -54,90 +55,12 @@ data class BiliAccInfo(
         @SerialName("silence")
         val silence: Int,
         @SerialName("sys_notice")
-        val sysNotice: JsonElement,
+        val systemNotice: BiliSystemNotice? = null,
         @SerialName("theme")
         val theme: JsonElement,
         @SerialName("top_photo")
         val topPhoto: String,
         @SerialName("vip")
-        val vip: Vip
-    ) {
-        @Serializable
-        data class LiveRoom(
-            @SerialName("broadcast_type")
-            val broadcastType: Int,
-            @SerialName("cover")
-            val cover: String,
-            @SerialName("liveStatus")
-            val liveStatus: Int,
-            @SerialName("online")
-            val online: Int,
-            @SerialName("roomStatus")
-            val roomStatus: Int,
-            @SerialName("roomid")
-            val roomId: Int,
-            @SerialName("roundStatus")
-            val roundStatus: Int,
-            @SerialName("title")
-            val title: String,
-            @SerialName("url")
-            val url: String
-        )
-
-        @Serializable
-        data class Nameplate(
-            @SerialName("condition")
-            val condition: String,
-            @SerialName("image")
-            val image: String,
-            @SerialName("image_small")
-            val imageSmall: String,
-            @SerialName("level")
-            val level: String,
-            @SerialName("name")
-            val name: String,
-            @SerialName("nid")
-            val nid: Int
-        )
-
-        @Serializable
-        data class Pendant(
-            @SerialName("expire")
-            val expire: Int,
-            @SerialName("image")
-            val image: String,
-            @SerialName("image_enhance")
-            val imageEnhance: String,
-            @SerialName("name")
-            val name: String,
-            @SerialName("pid")
-            val pid: Int
-        )
-
-        @Serializable
-        data class Vip(
-            @SerialName("avatar_subscript")
-            val avatarSubscript: Int,
-            @SerialName("label")
-            val label: Label,
-            @SerialName("nickname_color")
-            val nicknameColor: String,
-            @SerialName("status")
-            val status: Int,
-            @SerialName("theme_type")
-            val themeType: Int,
-            @SerialName("type")
-            val type: Int
-        ) {
-            @Serializable
-            data class Label(
-                @SerialName("label_theme")
-                val labelTheme: String,
-                @SerialName("path")
-                val path: String,
-                @SerialName("text")
-                val text: String
-            )
-        }
-    }
+        val vip: BiliVip
+    )
 }

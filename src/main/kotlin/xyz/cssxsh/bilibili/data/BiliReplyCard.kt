@@ -14,9 +14,9 @@ data class BiliReplyCard(
     @SerialName("origin_extend_json")
     val originExtendJson: String,
     @SerialName("origin_user")
-    val originUser: OriginUser,
+    val originUser: BiliUserProfile,
     @SerialName("user")
-    val user: User,
+    val user: BiliCardUser,
     @SerialName("activity_infos")
     val activityInfos: JsonElement? = null,
     @SerialName("extension")
@@ -24,6 +24,7 @@ data class BiliReplyCard(
     @SerialName("origin_extension")
     val originExtension: JsonElement? = null
 ) {
+
     companion object {
         const val TYPE = 1
     }
@@ -47,112 +48,8 @@ data class BiliReplyCard(
         @SerialName("timestamp")
         val timestamp: Int,
         @SerialName("uid")
-        val uid: Int,
+        val uid: Long,
         @SerialName("at_uids")
         val atUIDs: List<Long> = emptyList()
-    )
-
-    @Serializable
-    data class OriginUser(
-        @SerialName("card")
-        val card: Card,
-        @SerialName("info")
-        val info: Info,
-        @SerialName("level_info")
-        val levelInfo: LevelInfo,
-        @SerialName("pendant")
-        val pendant: Pendant,
-        @SerialName("rank")
-        val rank: String,
-        @SerialName("sign")
-        val sign: String,
-        @SerialName("vip")
-        val vip: Vip
-    ) {
-        @Serializable
-        data class Card(
-            @SerialName("official_verify")
-            val officialVerify: OfficialVerify
-        ) {
-            @Serializable
-            data class OfficialVerify(
-                @SerialName("desc")
-                val desc: String,
-                @SerialName("type")
-                val type: Int
-            )
-        }
-
-        @Serializable
-        data class Info(
-            @SerialName("face")
-            val face: String,
-            @SerialName("uid")
-            val uid: Int,
-            @SerialName("uname")
-            val uname: String
-        )
-
-        @Serializable
-        data class LevelInfo(
-            @SerialName("current_exp")
-            val currentExp: Int,
-            @SerialName("current_level")
-            val currentLevel: Int,
-            @SerialName("current_min")
-            val currentMin: Int,
-            @SerialName("next_exp")
-            val nextExp: String
-        )
-
-        @Serializable
-        data class Pendant(
-            @SerialName("expire")
-            val expire: Int,
-            @SerialName("image")
-            val image: String,
-            @SerialName("image_enhance")
-            val imageEnhance: String,
-            @SerialName("name")
-            val name: String,
-            @SerialName("pid")
-            val pid: Int
-        )
-
-        @Serializable
-        data class Vip(
-            @SerialName("accessStatus")
-            val accessStatus: Int,
-            @SerialName("dueRemark")
-            val dueRemark: String,
-            @SerialName("label")
-            val label: Label,
-            @SerialName("themeType")
-            val themeType: Int,
-            @SerialName("vipDueDate")
-            val vipDueDate: Long,
-            @SerialName("vipStatus")
-            val vipStatus: Int,
-            @SerialName("vipStatusWarn")
-            val vipStatusWarn: String,
-            @SerialName("vipType")
-            val vipType: Int
-        ) {
-            @Serializable
-            data class Label(
-                @SerialName("path")
-                val path: String
-            )
-        }
-    }
-
-    @Serializable
-    data class User(
-        @SerialName("face")
-        val face: String,
-        @SerialName("uid")
-        val uid: Int,
-        @SerialName("uname")
-        val uname: String
     )
 }

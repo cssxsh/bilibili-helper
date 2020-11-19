@@ -10,7 +10,7 @@ data class BiliTextCard(
     @SerialName("item")
     val item: Item,
     @SerialName("user")
-    val user: User,
+    val user: BiliCardUser,
     @SerialName("activity_infos")
     val activityInfos: JsonElement? = null,
     @SerialName("extension")
@@ -24,7 +24,7 @@ data class BiliTextCard(
     @Serializable
     data class Item(
         @SerialName("at_uids")
-        val atUids: List<Long> = emptyList(),
+        val atUIDs: List<Long> = emptyList(),
         @SerialName("content")
         val content: String,
         @SerialName("ctrl")
@@ -36,20 +36,10 @@ data class BiliTextCard(
         @SerialName("reply")
         val reply: Int,
         @SerialName("rp_id")
-        val rpId: Long,
+        val replyId: Long,
         @SerialName("timestamp")
         val timestamp: Long,
         @SerialName("uid")
         val uid: Long
-    )
-
-    @Serializable
-    data class User(
-        @SerialName("face")
-        val face: String,
-        @SerialName("uid")
-        val uid: Int,
-        @SerialName("uname")
-        val uname: String
     )
 }

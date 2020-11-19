@@ -14,6 +14,7 @@ data class BiliRoomInfo(
     @SerialName("msg")
     val msg: String
 ) {
+
     @Serializable
     data class RoomData(
         @SerialName("encrypted")
@@ -31,7 +32,7 @@ data class BiliRoomInfo(
         @SerialName("live_status")
         val liveStatus: Int,
         @SerialName("live_time")
-        val liveTime: Int,
+        val liveTime: Long,
         @SerialName("lock_till")
         val lockTill: Int,
         @SerialName("need_p2p")
@@ -39,7 +40,7 @@ data class BiliRoomInfo(
         @SerialName("pwd_verified")
         val pwdVerified: Boolean,
         @SerialName("room_id")
-        val roomId: Int,
+        val roomId: Long,
         @SerialName("room_shield")
         val roomShield: Int,
         @SerialName("short_id")
@@ -47,6 +48,6 @@ data class BiliRoomInfo(
         @SerialName("special_type")
         val specialType: Int,
         @SerialName("uid")
-        val uid: Int
+        val uid: Long
     )
 }

@@ -21,7 +21,7 @@ import net.mamoe.mirai.message.uploadAsImage
 import xyz.cssxsh.bilibili.api.accInfo
 import xyz.cssxsh.bilibili.api.dynamicInfo
 import xyz.cssxsh.bilibili.api.searchVideo
-import xyz.cssxsh.bilibili.data.BiliPicCard
+import xyz.cssxsh.bilibili.data.BiliPictureCard
 import xyz.cssxsh.bilibili.data.BiliReplyCard
 import xyz.cssxsh.bilibili.data.BiliTextCard
 import xyz.cssxsh.mirai.plugin.BilibiliHelperPlugin
@@ -202,7 +202,7 @@ object BiliBiliSubscribeCommand : CompositeCommand(
                                 }
                             }
                             2 -> {
-                                json.decodeFromJsonElement(BiliPicCard.serializer(), dynamic.card).let { card ->
+                                json.decodeFromJsonElement(BiliPictureCard.serializer(), dynamic.card).let { card ->
                                     add("${card.user.name}: \n${card.item.description}")
                                 }
                             }
@@ -217,7 +217,7 @@ object BiliBiliSubscribeCommand : CompositeCommand(
                     }
                     if (dynamic.desc.type == 2) {
                         json.decodeFromJsonElement(
-                            BiliPicCard.serializer(),
+                            BiliPictureCard.serializer(),
                             dynamic.card
                         ).item.pictures.forEach { picture ->
                             runCatching {
