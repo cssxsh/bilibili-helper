@@ -12,7 +12,7 @@ data class BiliVip(
     @SerialName("label")
     val label: Label,
     @SerialName("themeType")
-    val themeType: Int,
+    val themeType: Int? = null,
     @SerialName("vipDueDate")
     val vipDueDate: Long,
     @SerialName("vipStatus")
