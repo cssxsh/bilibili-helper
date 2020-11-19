@@ -61,6 +61,6 @@ data class BiliAccInfo(
         @SerialName("top_photo")
         val topPhoto: String,
         @SerialName("vip")
-        val vip: BiliVip
+        val vip: JsonElement
     )
 }

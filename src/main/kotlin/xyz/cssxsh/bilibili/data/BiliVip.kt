@@ -6,9 +6,9 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class BiliVip(
     @SerialName("accessStatus")
-    val accessStatus: Int? = null,
+    val accessStatus: Int,
     @SerialName("dueRemark")
-    val dueRemark: String? = null,
+    val dueRemark: String,
     @SerialName("label")
     val label: Label,
     @SerialName("themeType")
