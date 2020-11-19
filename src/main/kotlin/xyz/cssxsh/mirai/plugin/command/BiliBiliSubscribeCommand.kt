@@ -18,6 +18,9 @@ import net.mamoe.mirai.message.data.Message
 import net.mamoe.mirai.message.data.PlainText
 import net.mamoe.mirai.message.data.asMessageChain
 import net.mamoe.mirai.message.uploadAsImage
+import net.mamoe.mirai.utils.info
+import net.mamoe.mirai.utils.verbose
+import net.mamoe.mirai.utils.warning
 import xyz.cssxsh.bilibili.api.accInfo
 import xyz.cssxsh.bilibili.api.dynamicInfo
 import xyz.cssxsh.bilibili.api.searchVideo
@@ -75,7 +78,7 @@ object BiliBiliSubscribeCommand : CompositeCommand(
         (bot.groups.filter { it.id in groups } + bot.friends.filter { it.id in friends }).toSet()
 
     fun onInit() = BilibiliHelperPlugin.subscribeAlways<BotOnlineEvent> {
-        logger.info("开始初始化${bot}联系人列表")
+        logger.info { "开始初始化${bot}联系人列表" }
         tasks.toMap().forEach { (uid, info) ->
             taskContacts[uid] = info.getContacts(bot)
             addListener(uid)
@@ -100,7 +103,7 @@ object BiliBiliSubscribeCommand : CompositeCommand(
             it.getScreenShot(url, timeoutMillis)
         }
     }.onFailure {
-        logger.warning("使用ChromeDriver(${driverUrl})失败", it)
+        logger.warning({ "使用ChromeDriver(${driverUrl})失败" }, it)
     }.getOrElse {
         bilibiliClient.useHttpClient {
             it.get("https://www.screenshotmaster.com/api/screenshot") {
@@ -134,28 +137,26 @@ object BiliBiliSubscribeCommand : CompositeCommand(
                     }.onSuccess {
                         add(it)
                     }.onFailure {
-                        logger.warning("获取[${video.title}](${video.bvId})}视频封面失败", it)
+                        logger.warning({ "获取[${video.title}](${video.bvId})}视频封面失败" }, it)
                     }
                 }.sendMessageToTaskContacts(uid)
             }
             maxByOrNull { it.created }?.let { video ->
-                logger.verbose(
+                logger.verbose {
                     "(${uid})[${video.author}]最新视频为(${video.bvId})[${video.title}]<${
-                        timestampToFormatText(
-                            video.created
-                        )
+                        timestampToFormatText(video.created)
                     }>"
-                )
+                }
                 tasks.compute(uid) { _, info ->
                     info?.copy(videoLast = video.created)
                 }
             }
         }
-    }.onFailure { logger.warning("($uid)获取视频失败", it) }.isSuccess
+    }.onFailure { logger.warning({ "($uid)获取视频失败" }, it) }.isSuccess
 
     private suspend fun buildLiveMessage(uid: Long) = runCatching {
         bilibiliClient.accInfo(uid).userData.also { user ->
-            logger.verbose("(${uid})[${user.name}][${user.liveRoom.title}]最新开播状态为${user.liveRoom.liveStatus == 1}")
+            logger.verbose { "(${uid})[${user.name}][${user.liveRoom.title}]最新开播状态为${user.liveRoom.liveStatus == 1}" }
             liveState.put(uid, user.liveRoom.liveStatus == 1).let { old ->
                 if (old != true && user.liveRoom.liveStatus == 1) {
                     buildList<Any> {
@@ -172,13 +173,13 @@ object BiliBiliSubscribeCommand : CompositeCommand(
                         }.onSuccess {
                             add(it)
                         }.onFailure {
-                            logger.warning("获取[${uid}]直播间封面封面失败", it)
+                            logger.warning({ "获取[${uid}]直播间封面封面失败" }, it)
                         }
                     }.sendMessageToTaskContacts(uid)
                 }
             }
         }
-    }.onFailure { logger.warning("($uid)获取直播失败", it) }.isSuccess
+    }.onFailure { logger.warning({ "($uid)获取直播失败" }, it) }.isSuccess
 
     private suspend fun buildDynamicMessage(uid: Long) = runCatching {
         bilibiliClient.dynamicInfo(uid).dynamicData.cards.apply {
@@ -194,7 +195,7 @@ object BiliBiliSubscribeCommand : CompositeCommand(
                     runCatching {
                         add(getScreenShot(url = DYNAMIC_DETAIL + dynamic.desc.dynamicId))
                     }.onFailure {
-                        logger.warning("获取动态${dynamic.desc.dynamicId}快照失败", it)
+                        logger.warning({ "获取动态${dynamic.desc.dynamicId}快照失败" }, it)
                         when (dynamic.desc.type) {
                             1 -> {
                                 json.decodeFromJsonElement(BiliReplyCard.serializer(), dynamic.card).let { card ->
@@ -227,20 +228,26 @@ object BiliBiliSubscribeCommand : CompositeCommand(
                             }.onSuccess {
                                 add(it)
                             }.onFailure {
-                                logger.warning("动态图片下载失败: ${picture.imgSrc}", it)
+                                logger.warning({ "动态图片下载失败: ${picture.imgSrc}" }, it)
                             }
                         }
                     }
                 }.sendMessageToTaskContacts(uid)
             }
             maxByOrNull { it.desc.timestamp }?.let { dynamic ->
-                logger.verbose("(${uid})[${dynamic.desc.userProfile.info.uname}]最新动态时间为<${timestampToFormatText(dynamic.desc.timestamp)}>")
+                logger.verbose {
+                    "(${uid})[${dynamic.desc.userProfile.info.uname}]最新动态时间为<${
+                        timestampToFormatText(
+                            dynamic.desc.timestamp
+                        )
+                    }>"
+                }
                 tasks.compute(uid) { _, info ->
                     info?.copy(dynamicLast = dynamic.desc.timestamp)
                 }
             }
         }
-    }.onFailure { logger.warning("($uid)获取动态失败", it) }.isSuccess
+    }.onFailure { logger.warning({ "($uid)获取动态失败" }, it) }.isSuccess
 
     private fun BilibiliTaskInfo.getInterval() = minIntervalMillis..maxIntervalMillis
 
@@ -251,14 +258,14 @@ object BiliBiliSubscribeCommand : CompositeCommand(
                 buildVideoMessage(uid) && buildLiveMessage(uid) && buildDynamicMessage(uid)
             }.onSuccess {
                 delay(tasks.getValue(uid).getInterval().random().also {
-                    logger.info("(${uid}): ${tasks[uid]}监听任务完成一次, 即将进入延时delay(${it}ms)。")
+                    logger.info { "(${uid}): ${tasks[uid]}监听任务完成一次, 即将进入延时delay(${it}ms)。" }
                 })
             }.onFailure {
-                logger.warning("(${uid})监听任务执行失败", it)
+                logger.warning({ "(${uid})监听任务执行失败" }, it)
                 delay(tasks.getValue(uid).maxIntervalMillis)
             }
         }
-    }.also { logger.info("添加对(${uid})的监听任务, 添加完成${it}") }
+    }.also { logger.info { "添加对(${uid})的监听任务, 添加完成${it}" } }
 
     private fun MutableMap<Long, Set<Contact>>.addUid(uid: Long, subject: Contact) = compute(uid) { _, list ->
         (list ?: emptySet()) + subject.also { contact ->

@@ -10,6 +10,7 @@ import net.mamoe.mirai.console.util.ConsoleExperimentalApi
 import xyz.cssxsh.mirai.plugin.command.BiliBiliSubscribeCommand
 import xyz.cssxsh.mirai.plugin.data.*
 import net.mamoe.mirai.utils.minutesToMillis
+import net.mamoe.mirai.utils.warning
 import org.openqa.selenium.chrome.ChromeDriverService
 import xyz.cssxsh.bilibili.BilibiliClient
 import xyz.cssxsh.mirai.plugin.data.BilibiliChromeDriverConfig.driverPath
@@ -21,11 +22,11 @@ object BilibiliHelperPlugin : KotlinPlugin(
         name("bilibili-helper")
         author("cssxsh")
     }
-)  {
+) {
 
     internal val bilibiliClient = BilibiliClient(emptyMap())
 
-    private var service : ChromeDriverService? = null
+    private var service: ChromeDriverService? = null
 
     private fun serviceStart(): Boolean = runCatching {
         ChromeDriverService.Builder().apply {
@@ -35,9 +36,11 @@ object BilibiliHelperPlugin : KotlinPlugin(
             withWhitelistedIps("")
             usingPort(9515)
         }.build().apply { start() }
-    }.onFailure { logger.warning("启动${driverPath}失败", it) }.isSuccess
+    }.onFailure { logger.warning({ "启动${driverPath}失败" }, it) }.isSuccess
 
-    private fun serviceStop() { service?.stop() }
+    private fun serviceStop() {
+        service?.stop()
+    }
 
     @ConsoleExperimentalApi
     override val autoSaveIntervalMillis: LongRange

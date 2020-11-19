@@ -41,7 +41,7 @@ class JsonPluginDataStorage(
                 store(holder, instance) // save an initial copy
             }
         }
-        logger.verbose("Successfully loaded PluginData: ${instance.saveName}")
+        logger.verbose { "Successfully loaded PluginData: ${instance.saveName}" }
     }
 
     private fun getPluginDataFile(holder: PluginDataHolder, instance: PluginData): File = directoryPath.run {
@@ -55,7 +55,7 @@ class JsonPluginDataStorage(
         require(isDirectory.not()) {
             "Target File $absolutePath is occupied by a directory therefore data ${instance::class.qualifiedName} can't be saved."
         }
-        logger.verbose("File allocated for ${instance.saveName}: $absolutePath")
+        logger.verbose { "File allocated for ${instance.saveName}: $absolutePath" }
         createNewFile()
     }
 
@@ -65,7 +65,7 @@ class JsonPluginDataStorage(
                 json.encodeToString(instance.updaterSerializer, {}())
             )
         }.onSuccess {
-            logger.verbose("Successfully saved PluginData: ${instance.saveName}")
+            logger.verbose { "Successfully saved PluginData: ${instance.saveName}" }
         }.onFailure {
             throw IllegalStateException("Exception while saving $instance, saveName=${instance.saveName}", it)
         }
