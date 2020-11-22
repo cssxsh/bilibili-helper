@@ -2,7 +2,7 @@
 object Versions {
     // mirai
     const val core = "1.3.3"
-    const val console = "1.0-RC-1"
+    const val console = "1.0.0"
     const val autoService = "1.0-rc7"
     // kotlin
     const val kotlin = "1.4.10"
