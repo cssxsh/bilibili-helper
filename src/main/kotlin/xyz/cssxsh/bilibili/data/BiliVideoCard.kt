@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
 
 @Serializable
-data class BiliVideoData(
+data class BiliVideoCard(
     @SerialName("aid")
     val aid: Int,
     @SerialName("attribute")

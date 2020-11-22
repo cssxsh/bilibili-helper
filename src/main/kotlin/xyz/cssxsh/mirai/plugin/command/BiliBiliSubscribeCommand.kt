@@ -27,6 +27,7 @@ import xyz.cssxsh.bilibili.api.searchVideo
 import xyz.cssxsh.bilibili.data.BiliPictureCard
 import xyz.cssxsh.bilibili.data.BiliReplyCard
 import xyz.cssxsh.bilibili.data.BiliTextCard
+import xyz.cssxsh.bilibili.data.BiliVideoCard
 import xyz.cssxsh.mirai.plugin.BilibiliHelperPlugin
 import xyz.cssxsh.mirai.plugin.BilibiliHelperPlugin.bilibiliClient
 import xyz.cssxsh.mirai.plugin.BilibiliHelperPlugin.logger
@@ -210,6 +211,11 @@ object BiliBiliSubscribeCommand : CompositeCommand(
                             4 -> {
                                 json.decodeFromJsonElement(BiliTextCard.serializer(), dynamic.card).let { card ->
                                     add("${card.user.uname}: \n${card.item.content}")
+                                }
+                            }
+                            8 -> {
+                                json.decodeFromJsonElement(BiliVideoCard.serializer(), dynamic.card).let { card ->
+                                    add("${card.owner.name}: \n${card.title}")
                                 }
                             }
                             else -> {
