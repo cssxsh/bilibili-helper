@@ -41,7 +41,7 @@ import xyz.cssxsh.mirai.plugin.tools.getScreenShot
 import java.net.URL
 import java.time.Instant.ofEpochSecond
 import java.time.ZoneOffset
-import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME
 import kotlin.coroutines.CoroutineContext
 
 object BiliBiliSubscribeCommand : CompositeCommand(
@@ -72,7 +72,7 @@ object BiliBiliSubscribeCommand : CompositeCommand(
     private val taskContacts = mutableMapOf<Long, Set<Contact>>()
 
     private fun timestampToFormatText(timestamp: Long): String =
-        ofEpochSecond(timestamp).atZone(ZoneOffset.systemDefault()).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+        ofEpochSecond(timestamp).atZone(ZoneOffset.systemDefault()).format(ISO_OFFSET_DATE_TIME)
 
     private fun BilibiliTaskInfo.getContacts(bot: Bot): Set<Contact> =
         (bot.groups.filter { it.id in groups } + bot.friends.filter { it.id in friends }).toSet()
