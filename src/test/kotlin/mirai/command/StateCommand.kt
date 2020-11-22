@@ -12,11 +12,11 @@ import java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME
 
 object StateCommand : SimpleCommand(
     owner = TempCommandOwner,
-    "state", "状态",
+    "helper-state", "助手状态",
     description = "状态指令"
 ) {
 
-    private val startTime = ZonedDateTime.now(ZoneId.systemDefault())
+    private val startTime = ZonedDateTime.now(ZoneId.systemDefault()).withNano(0)
 
     @ExperimentalCommandDescriptors
     @ConsoleExperimentalApi
