@@ -243,9 +243,7 @@ object BiliBiliSubscribeCommand : CompositeCommand(
             maxByOrNull { it.desc.timestamp }?.let { dynamic ->
                 logger.verbose {
                     "(${uid})[${dynamic.desc.userProfile.info.uname}]最新动态时间为<${
-                        timestampToFormatText(
-                            dynamic.desc.timestamp
-                        )
+                        timestampToFormatText(dynamic.desc.timestamp)
                     }>"
                 }
                 tasks.compute(uid) { _, info ->
