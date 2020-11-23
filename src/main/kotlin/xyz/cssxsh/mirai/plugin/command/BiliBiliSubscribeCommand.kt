@@ -286,7 +286,17 @@ object BiliBiliSubscribeCommand : CompositeCommand(
     }
 
     private fun MutableMap<Long, Set<Contact>>.removeUid(uid: Long, subject: Contact) = compute(uid) { _, list ->
-        (list ?: emptySet()) - subject
+        (list ?: emptySet()) - subject.also { contact ->
+            tasks.compute(uid) { _, info ->
+                info?.run {
+                    when (contact) {
+                        is Friend -> copy(friends = friends - contact.id)
+                        is Group -> copy(groups = groups - contact.id)
+                        else -> this
+                    }
+                }
+            }
+        }
     }
 
     @SubCommand("add", "添加")
@@ -307,12 +317,7 @@ object BiliBiliSubscribeCommand : CompositeCommand(
     suspend fun CommandSenderOnMessage<MessageEvent>.stop(uid: Long) = runCatching {
         taskContacts.removeUid(uid, fromEvent.subject)
         taskJobs.compute(uid) { _, job ->
-            if (taskContacts[uid].isNullOrEmpty()) {
-                tasks.remove(uid)
-                null
-            } else {
-                job
-            }
+            job?.takeIf { taskContacts[uid].isNullOrEmpty() }
         }
     }.onSuccess { job ->
         quoteReply("对${uid}的监听任务, 取消完成${job}")
@@ -325,8 +330,8 @@ object BiliBiliSubscribeCommand : CompositeCommand(
     suspend fun CommandSenderOnMessage<MessageEvent>.list() = runCatching {
         buildString {
             appendLine("监听状态:")
-            tasks.toMap().forEach { (uid, info) ->
-                if (fromEvent.subject.id in info.groups + info.friends) {
+            tasks.toMap().forEach { (uid, _) ->
+                if (taskContacts.getOrDefault(uid, emptySet()).isNotEmpty()) {
                     appendLine("$uid -> ${taskJobs.getValue(uid)}")
                 }
             }
