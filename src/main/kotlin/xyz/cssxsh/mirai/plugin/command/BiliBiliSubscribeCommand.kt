@@ -81,7 +81,9 @@ object BiliBiliSubscribeCommand : CompositeCommand(
     fun onInit() = BilibiliHelperPlugin.subscribeAlways<BotOnlineEvent> {
         logger.info { "开始初始化${bot}联系人列表" }
         tasks.toMap().forEach { (uid, info) ->
-            taskContacts[uid] = info.getContacts(bot)
+            taskContacts.compute(uid) { _, contacts ->
+                (contacts ?: emptySet()) + info.getContacts(bot)
+            }
             addListener(uid)
         }
     }
