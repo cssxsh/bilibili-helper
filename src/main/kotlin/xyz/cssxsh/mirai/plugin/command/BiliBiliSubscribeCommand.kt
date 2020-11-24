@@ -47,7 +47,7 @@ import kotlin.coroutines.CoroutineContext
 
 object BiliBiliSubscribeCommand : CompositeCommand(
     owner = BilibiliHelperPlugin,
-    "subscribe", "订阅",
+    "bili-subscribe", "B订阅",
     description = "B站订阅指令"
 ), CoroutineScope {
 
