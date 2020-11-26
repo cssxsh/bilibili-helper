@@ -42,7 +42,7 @@ object BilibiliInfoCommand : CompositeCommand(
 
     private val VIDEO_REGEX = """(?=https://(?=m.)?bilibili.com/video/)?(av\d+|BV[0-9A-z]{10})""".toRegex()
 
-    private val DYNAMIC_REGEX = """(?=https://t.bilibili.com/(?=h5/dynamic/detail/)?)?\d+""".toRegex()
+    private val DYNAMIC_REGEX = """(?=https://t.bilibili.com/(?=h5/dynamic/detail/)?)\d+""".toRegex()
 
     fun CoroutineScope.subscribeBilibiliInfo(): Job = subscribeMessages {
         finding(VIDEO_REGEX) { result ->
