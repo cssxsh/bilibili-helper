@@ -124,7 +124,7 @@ data class BiliDynamicInfo(
                 @SerialName("uid")
                 val uid: Long,
                 @SerialName("uid_type")
-                val uidType: Int,
+                val uidType: Int? = null,
                 @SerialName("user_profile")
                 val userProfile: BiliUserProfile,
                 @SerialName("view")

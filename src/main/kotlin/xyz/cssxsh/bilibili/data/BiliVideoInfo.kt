@@ -146,6 +146,10 @@ data class BiliVideoInfo(
 
             @Serializable
             data class SubtitleItem(
+                @SerialName("author_mid")
+                val authorMid: Long? = null,
+                @SerialName("author")
+                val author: Author? = null,
                 @SerialName("id")
                 val id: Long,
                 @SerialName("lan")
@@ -153,13 +157,9 @@ data class BiliVideoInfo(
                 @SerialName("lan_doc")
                 val languageDoc: String,
                 @SerialName("is_lock")
-                val is_lock: Boolean,
-                @SerialName("author_mid")
-                val authorMid: Long,
+                val isLock: Boolean,
                 @SerialName("subtitle_url")
-                val subtitleUrl: String,
-                @SerialName("author")
-                val author: Author
+                val subtitleUrl: String
             ) {
 
                 @Serializable
