@@ -1,6 +1,5 @@
 package xyz.cssxsh.mirai.plugin.command
 
-import io.ktor.client.request.*
 import kotlinx.coroutines.*
 import kotlinx.serialization.json.Json
 import net.mamoe.mirai.Bot
@@ -14,9 +13,7 @@ import net.mamoe.mirai.contact.Group
 import net.mamoe.mirai.event.events.BotOnlineEvent
 import net.mamoe.mirai.event.subscribeAlways
 import net.mamoe.mirai.message.MessageEvent
-import net.mamoe.mirai.message.data.Message
-import net.mamoe.mirai.message.data.PlainText
-import net.mamoe.mirai.message.data.asMessageChain
+import net.mamoe.mirai.message.data.*
 import net.mamoe.mirai.message.uploadAsImage
 import net.mamoe.mirai.utils.info
 import net.mamoe.mirai.utils.verbose
@@ -28,21 +25,12 @@ import xyz.cssxsh.bilibili.data.BiliPictureCard
 import xyz.cssxsh.bilibili.data.BiliReplyCard
 import xyz.cssxsh.bilibili.data.BiliTextCard
 import xyz.cssxsh.bilibili.data.BiliVideoCard
-import xyz.cssxsh.mirai.plugin.BilibiliHelperPlugin
+import xyz.cssxsh.mirai.plugin.*
 import xyz.cssxsh.mirai.plugin.BilibiliHelperPlugin.bilibiliClient
 import xyz.cssxsh.mirai.plugin.BilibiliHelperPlugin.logger
-import xyz.cssxsh.mirai.plugin.data.BilibiliChromeDriverConfig.chromePath
-import xyz.cssxsh.mirai.plugin.data.BilibiliChromeDriverConfig.deviceName
-import xyz.cssxsh.mirai.plugin.data.BilibiliChromeDriverConfig.driverUrl
 import xyz.cssxsh.mirai.plugin.data.BilibiliTaskData.tasks
-import xyz.cssxsh.mirai.plugin.data.BilibiliChromeDriverConfig.timeoutMillis
 import xyz.cssxsh.mirai.plugin.data.BilibiliTaskInfo
-import xyz.cssxsh.mirai.plugin.tools.BilibiliChromeDriverTool
-import xyz.cssxsh.mirai.plugin.tools.getScreenShot
-import java.net.URL
-import java.time.Instant.ofEpochSecond
-import java.time.ZoneOffset
-import java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME
+import java.io.File
 import kotlin.coroutines.CoroutineContext
 
 object BiliBiliSubscribeCommand : CompositeCommand(
@@ -54,8 +42,6 @@ object BiliBiliSubscribeCommand : CompositeCommand(
     @ExperimentalCommandDescriptors
     @ConsoleExperimentalApi
     override val prefixOptional: Boolean = true
-
-    private const val DYNAMIC_DETAIL = "https://t.bilibili.com/h5/dynamic/detail/"
 
     private val json = Json {
         prettyPrint = true
@@ -72,9 +58,6 @@ object BiliBiliSubscribeCommand : CompositeCommand(
 
     private val taskContacts = mutableMapOf<Long, Set<Contact>>()
 
-    private fun timestampToFormatText(timestamp: Long): String =
-        ofEpochSecond(timestamp).atZone(ZoneOffset.systemDefault()).format(ISO_OFFSET_DATE_TIME)
-
     private fun BilibiliTaskInfo.getContacts(bot: Bot): Set<Contact> =
         (bot.groups.filter { it.id in groups } + bot.friends.filter { it.id in friends }).toSet()
 
@@ -88,35 +71,18 @@ object BiliBiliSubscribeCommand : CompositeCommand(
         }
     }
 
-    private suspend fun List<Any>.sendMessageToTaskContacts(uid: Long) = taskContacts.getValue(uid).forEach { contact ->
-        contact.runCatching {
-            sendMessage(map {
-                when (it) {
-                    is String -> PlainText(it)
-                    is Message -> it
-                    is ByteArray -> it.inputStream().uploadAsImage(contact)
-                    else -> PlainText(it.toString())
+    private suspend fun sendMessageToTaskContacts(
+        uid: Long, images: List<File> = emptyList(), block: suspend MessageChainBuilder.(contact: Contact) -> Unit
+    ) = taskContacts.getValue(uid).forEach { contact ->
+        runCatching {
+            contact.sendMessage(buildMessageChain {
+                block(contact)
+                images.forEach {
+                    add(it.uploadAsImage(contact))
                 }
-            }.asMessageChain())
-        }
-    }
-
-    private suspend fun getScreenShot(url: String): ByteArray = runCatching {
-        BilibiliChromeDriverTool(URL(driverUrl), chromePath, deviceName).useDriver {
-            it.getScreenShot(url, timeoutMillis)
-        }
-    }.onFailure {
-        logger.warning({ "使用ChromeDriver(${driverUrl})失败" }, it)
-    }.getOrElse {
-        bilibiliClient.useHttpClient {
-            it.get("https://www.screenshotmaster.com/api/screenshot") {
-                parameter("url", url)
-                parameter("width", 768)
-                parameter("height", 1024)
-                parameter("zone", "gz")
-                parameter("device", "table")
-                parameter("delay", 500)
-            }
+            })
+        }.onFailure {
+            logger.warning({ "构建消息失败" }, it)
         }
     }
 
@@ -125,24 +91,24 @@ object BiliBiliSubscribeCommand : CompositeCommand(
             filter {
                 it.created > tasks.getValue(uid).videoLast
             }.forEach { video ->
-                buildList<Any> {
-                    add(buildString {
-                        appendLine("标题: ${video.title}")
-                        appendLine("作者: ${video.author}")
-                        appendLine("时间: ${timestampToFormatText(video.created)}")
-                        appendLine("时长: ${video.length}")
-                        appendLine("链接: https://www.bilibili.com/video/${video.bvId}")
-                    })
-                    runCatching {
-                        bilibiliClient.useHttpClient<ByteArray> {
-                            it.get(video.pic)
+                sendMessageToTaskContacts(
+                    uid = uid,
+                    images = buildList {
+                        runCatching {
+                            getBilibiliImage(url = video.pic, name = "${video.bvId}-cover")
+                        }.onSuccess {
+                            add(it)
+                        }.onFailure {
+                            logger.warning({ "获取[${uid}]直播间封面封面失败" }, it)
                         }
-                    }.onSuccess {
-                        add(it)
-                    }.onFailure {
-                        logger.warning({ "获取[${video.title}](${video.bvId})}视频封面失败" }, it)
                     }
-                }.sendMessageToTaskContacts(uid)
+                ) {
+                    appendLine("标题: ${video.title}")
+                    appendLine("作者: ${video.author}")
+                    appendLine("时间: ${timestampToFormatText(video.created)}")
+                    appendLine("时长: ${video.length}")
+                    appendLine("链接: https://www.bilibili.com/video/${video.bvId}")
+                }
             }
             maxByOrNull { it.created }?.let { video ->
                 logger.verbose {
@@ -162,23 +128,23 @@ object BiliBiliSubscribeCommand : CompositeCommand(
             logger.verbose { "(${uid})[${user.name}][${user.liveRoom.title}]最新开播状态为${user.liveRoom.liveStatus == 1}" }
             liveState.put(uid, user.liveRoom.liveStatus == 1).let { old ->
                 if (old != true && user.liveRoom.liveStatus == 1) {
-                    buildList<Any> {
-                        add(buildString {
-                            appendLine("主播: ${user.name}")
-                            appendLine("标题: ${user.liveRoom.title}")
-                            appendLine("人气: ${user.liveRoom.online}")
-                            appendLine("链接: ${user.liveRoom.url}")
-                        })
-                        runCatching {
-                            bilibiliClient.useHttpClient<ByteArray> {
-                                it.get(user.liveRoom.cover)
+                    sendMessageToTaskContacts(
+                        uid = uid,
+                        images = buildList {
+                            runCatching {
+                                getBilibiliImage(url = user.liveRoom.cover, name = "${user.liveRoom.roomId}-cover")
+                            }.onSuccess {
+                                add(it)
+                            }.onFailure {
+                                logger.warning({ "获取[${uid}]直播间封面封面失败" }, it)
                             }
-                        }.onSuccess {
-                            add(it)
-                        }.onFailure {
-                            logger.warning({ "获取[${uid}]直播间封面封面失败" }, it)
                         }
-                    }.sendMessageToTaskContacts(uid)
+                    ) {
+                        appendLine("主播: ${user.name}")
+                        appendLine("标题: ${user.liveRoom.title}")
+                        appendLine("人气: ${user.liveRoom.online}")
+                        appendLine("链接: ${user.liveRoom.url}")
+                    }
                 }
             }
         }
@@ -189,58 +155,65 @@ object BiliBiliSubscribeCommand : CompositeCommand(
             filter {
                 it.desc.timestamp > tasks.getValue(uid).dynamicLast
             }.forEach { dynamic ->
-                buildList<Any> {
-                    add(buildString {
-                        appendLine("${dynamic.desc.userProfile.info.uname} 有新动态")
-                        appendLine("时间: ${timestampToFormatText(dynamic.desc.timestamp)}")
-                        appendLine("链接: https://t.bilibili.com/${dynamic.desc.dynamicId}")
-                    })
-                    runCatching {
-                        add(getScreenShot(url = DYNAMIC_DETAIL + dynamic.desc.dynamicId))
-                    }.onFailure {
-                        logger.warning({ "获取动态${dynamic.desc.dynamicId}快照失败" }, it)
+                var noScreenShot = false
+                sendMessageToTaskContacts(
+                    uid = uid,
+                    images = buildList {
+                        runCatching {
+                            getScreenShot(url = DYNAMIC_DETAIL + dynamic.desc.dynamicId, name = "${dynamic.desc.dynamicId}")
+                        }.onSuccess {
+                            add(it)
+                        }.onFailure {
+                            logger.warning({ "获取动态${dynamic.desc.dynamicId}快照失败" }, it)
+                            noScreenShot = true
+                        }
+
+                        if (dynamic.desc.type == BiliPictureCard.TYPE) {
+                            json.decodeFromJsonElement(
+                                BiliPictureCard.serializer(),
+                                dynamic.card
+                            ).item.pictures.forEachIndexed { index, picture ->
+                                runCatching {
+                                    getBilibiliImage(url = picture.imgSrc, name = "${dynamic.desc.dynamicId}-${index}")
+                                }.onSuccess {
+                                    add(it)
+                                }.onFailure {
+                                    logger.warning({ "动态图片下载失败: ${picture.imgSrc}" }, it)
+                                }
+                            }
+                        }
+                    }
+                ) {
+                    appendLine("${dynamic.desc.userProfile.info.uname} 有新动态")
+                    appendLine("时间: ${timestampToFormatText(dynamic.desc.timestamp)}")
+                    appendLine("链接: https://t.bilibili.com/${dynamic.desc.dynamicId}")
+                    if (noScreenShot) {
                         when (dynamic.desc.type) {
                             1 -> {
                                 json.decodeFromJsonElement(BiliReplyCard.serializer(), dynamic.card).let { card ->
-                                    add("${card.user.uname} -> ${card.originUser.info.uname}: \n${card.item.content}")
+                                    appendLine("${card.user.uname} -> ${card.originUser.info.uname}: \n${card.item.content}")
                                 }
                             }
                             2 -> {
                                 json.decodeFromJsonElement(BiliPictureCard.serializer(), dynamic.card).let { card ->
-                                    add("${card.user.name}: \n${card.item.description}")
+                                    appendLine("${card.user.name}: \n${card.item.description}")
                                 }
                             }
                             4 -> {
                                 json.decodeFromJsonElement(BiliTextCard.serializer(), dynamic.card).let { card ->
-                                    add("${card.user.uname}: \n${card.item.content}")
+                                    appendLine("${card.user.uname}: \n${card.item.content}")
                                 }
                             }
                             8 -> {
                                 json.decodeFromJsonElement(BiliVideoCard.serializer(), dynamic.card).let { card ->
-                                    add("${card.owner.name}: \n${card.title}")
+                                    appendLine("${card.owner.name}: \n${card.title}")
                                 }
                             }
                             else -> {
                             }
                         }
                     }
-                    if (dynamic.desc.type == 2) {
-                        json.decodeFromJsonElement(
-                            BiliPictureCard.serializer(),
-                            dynamic.card
-                        ).item.pictures.forEach { picture ->
-                            runCatching {
-                                bilibiliClient.useHttpClient<ByteArray> {
-                                    it.get(picture.imgSrc)
-                                }
-                            }.onSuccess {
-                                add(it)
-                            }.onFailure {
-                                logger.warning({ "动态图片下载失败: ${picture.imgSrc}" }, it)
-                            }
-                        }
-                    }
-                }.sendMessageToTaskContacts(uid)
+                }
             }
             maxByOrNull { it.desc.timestamp }?.let { dynamic ->
                 logger.verbose {
