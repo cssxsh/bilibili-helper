@@ -22,7 +22,7 @@ import net.mamoe.mirai.utils.info
 import net.mamoe.mirai.utils.verbose
 import net.mamoe.mirai.utils.warning
 import xyz.cssxsh.bilibili.api.accInfo
-import xyz.cssxsh.bilibili.api.dynamicInfo
+import xyz.cssxsh.bilibili.api.spaceHistory
 import xyz.cssxsh.bilibili.api.searchVideo
 import xyz.cssxsh.bilibili.data.BiliPictureCard
 import xyz.cssxsh.bilibili.data.BiliReplyCard
@@ -185,7 +185,7 @@ object BiliBiliSubscribeCommand : CompositeCommand(
     }.onFailure { logger.warning({ "($uid)获取直播失败" }, it) }.isSuccess
 
     private suspend fun buildDynamicMessage(uid: Long) = runCatching {
-        bilibiliClient.dynamicInfo(uid).dynamicData.cards.apply {
+        bilibiliClient.spaceHistory(uid).dynamicData.cards.apply {
             filter {
                 it.desc.timestamp > tasks.getValue(uid).dynamicLast
             }.forEach { dynamic ->

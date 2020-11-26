@@ -5,9 +5,9 @@ import io.ktor.http.*
 import xyz.cssxsh.bilibili.BilibiliClient
 import xyz.cssxsh.bilibili.data.BiliDynamicInfo
 
-suspend fun BilibiliClient.dynamicInfo(
+suspend fun BilibiliClient.spaceHistory(
     uid: Long,
-    url: String = BilibiliApi.DYNAMIC_SVR
+    url: String = BilibiliApi.SPACE_HISTORY
 ): BiliDynamicInfo = useHttpClient { client ->
     client.get(url) {
         header(HttpHeaders.Origin, BilibiliApi.SPACE)

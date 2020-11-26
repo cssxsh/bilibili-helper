@@ -15,7 +15,7 @@ internal class BiliAPiTest {
 
     @Test
     fun dynamicInfo(): Unit = runBlocking {
-        bilibiliClient.dynamicInfo(uid = 26798384L)
+        bilibiliClient.spaceHistory(uid = 26798384L)
     }
 
     @Test
