@@ -12,6 +12,7 @@ import net.mamoe.mirai.event.subscribeMessages
 import net.mamoe.mirai.message.MessageEvent
 import net.mamoe.mirai.message.data.buildMessageChain
 import net.mamoe.mirai.message.uploadAsImage
+import net.mamoe.mirai.utils.verbose
 import net.mamoe.mirai.utils.warning
 import xyz.cssxsh.bilibili.api.getDynamicDetail
 import xyz.cssxsh.bilibili.api.videoInfo
@@ -40,12 +41,21 @@ object BilibiliInfoCommand : CompositeCommand(
         allowStructuredMapKeys = true
     }
 
-    private val VIDEO_REGEX = """(?<=https://(m\.)?bilibili\.com/video/)?(av\d+|BV[0-9A-z]{10})""".toRegex()
+    private val VIDEO_REGEX = """(?<=https://(m|www)\.bilibili\.com/video/)?(av\d+|BV[0-9A-z]{10})""".toRegex()
 
-    private val DYNAMIC_REGEX = """(?<=https://t\.bilibili\.com/(h5/dynamic/detail/)?)[0-9]{18}""".toRegex()
+    private val DYNAMIC_REGEX = """(?<=https://t\.bilibili\.com/(h5/dynamic/detail/)?)([0-9]{18})""".toRegex()
 
     fun CoroutineScope.subscribeBilibiliInfo(): Job = subscribeMessages {
+        finding(DYNAMIC_REGEX) { result ->
+            logger.verbose { "匹配DYNAMIC(${result.value})" }
+            runCatching {
+                bilibiliClient.getDynamicDetail(result.value.toLong()).dynamic.card.buildDynamicMessage(subject)
+            }.onFailure {
+                logger.warning({ "构建DYNAMIC(${result.value})信息失败" }, it)
+            }
+        }
         finding(VIDEO_REGEX) { result ->
+            logger.verbose { "匹配VIDEO(${result.value})" }
             runCatching {
                 when (result.value.first()) {
                     'B', 'b' -> {
@@ -62,13 +72,6 @@ object BilibiliInfoCommand : CompositeCommand(
                 }.videoData.buildVideoMessage(subject)
             }.onFailure {
                 logger.warning({ "构建VIDEO(${result.value})信息失败" }, it)
-            }
-        }
-        finding(DYNAMIC_REGEX) { result ->
-            runCatching {
-                bilibiliClient.getDynamicDetail(result.value.toLong()).dynamic
-            }.onFailure {
-                logger.warning({ "构建DYNAMIC(${result.value})信息失败" }, it)
             }
         }
     }
@@ -142,7 +145,7 @@ object BilibiliInfoCommand : CompositeCommand(
                 card
             ).item.pictures.forEachIndexed { index, picture ->
                 runCatching {
-                    getBilibiliImage(picture.imgSrc, "${desc.dynamicId}-${index}.jpg")
+                    getBilibiliImage(picture.imgSrc, "${desc.dynamicId}-${index}")
                 }.onSuccess {
                     add(it.uploadAsImage(contact))
                 }.onFailure {
