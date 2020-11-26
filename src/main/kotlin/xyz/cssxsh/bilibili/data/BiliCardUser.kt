@@ -10,5 +10,5 @@ data class BiliCardUser(
     @SerialName("uid")
     val uid: Int,
     @SerialName("uname")
-    val uname: String
+    val uname: String? = null
 )
