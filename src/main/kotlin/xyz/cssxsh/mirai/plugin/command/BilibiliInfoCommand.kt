@@ -40,9 +40,9 @@ object BilibiliInfoCommand : CompositeCommand(
         allowStructuredMapKeys = true
     }
 
-    private val VIDEO_REGEX = """(?<=https://(?<=m\.)?bilibili\.com/video/)?(av\d+|BV[0-9A-z]{10})""".toRegex()
+    private val VIDEO_REGEX = """(?<=https://(m\.)?bilibili\.com/video/)?(av\d+|BV[0-9A-z]{10})""".toRegex()
 
-    private val DYNAMIC_REGEX = """(?<=https://t\.bilibili\.com/(?<=h5/dynamic/detail/)?)[0-9]{18}""".toRegex()
+    private val DYNAMIC_REGEX = """(?<=https://t\.bilibili\.com/(h5/dynamic/detail/)?)[0-9]{18}""".toRegex()
 
     fun CoroutineScope.subscribeBilibiliInfo(): Job = subscribeMessages {
         finding(VIDEO_REGEX) { result ->
