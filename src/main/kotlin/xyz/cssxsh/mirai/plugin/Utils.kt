@@ -20,9 +20,6 @@ const val DYNAMIC_DETAIL = "https://t.bilibili.com/h5/dynamic/detail/"
 
 const val IMAGE_CACHE_DIR = "ImageCache"
 
-fun timestampToFormatText(timestamp: Long): String =
-    Instant.ofEpochSecond(timestamp).atZone(ZoneOffset.systemDefault()).format(ISO_OFFSET_DATE_TIME)
-
 fun getSuffix(url: String) = url.substring(url.lastIndexOf(".") + 1)
 
 suspend fun getBilibiliImage(url: String, name: String): File = File(IMAGE_CACHE_DIR, "${name}.${getSuffix(url)}").apply {

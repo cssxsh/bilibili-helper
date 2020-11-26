@@ -31,6 +31,9 @@ import xyz.cssxsh.mirai.plugin.BilibiliHelperPlugin.logger
 import xyz.cssxsh.mirai.plugin.data.BilibiliTaskData.tasks
 import xyz.cssxsh.mirai.plugin.data.BilibiliTaskInfo
 import java.io.File
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME
 import kotlin.coroutines.CoroutineContext
 
 object BiliBiliSubscribeCommand : CompositeCommand(
@@ -51,6 +54,9 @@ object BiliBiliSubscribeCommand : CompositeCommand(
     }
 
     override val coroutineContext: CoroutineContext = CoroutineName("Bilibili-Listener")
+
+    private fun timestampToFormatText(timestamp: Long): String =
+        Instant.ofEpochSecond(timestamp).atZone(ZoneId.systemDefault()).format(ISO_OFFSET_DATE_TIME)
 
     private val taskJobs = mutableMapOf<Long, Job>()
 

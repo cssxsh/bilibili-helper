@@ -23,9 +23,9 @@ import xyz.cssxsh.mirai.plugin.BilibiliHelperPlugin.logger
 import xyz.cssxsh.mirai.plugin.DYNAMIC_DETAIL
 import xyz.cssxsh.mirai.plugin.getBilibiliImage
 import xyz.cssxsh.mirai.plugin.getScreenShot
-import java.time.Instant.ofEpochSecond
+import java.time.Instant
 import java.time.ZoneId
-import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME
 
 object BilibiliInfoCommand : CompositeCommand(
     owner = BilibiliHelperPlugin,
@@ -78,7 +78,7 @@ object BilibiliInfoCommand : CompositeCommand(
     override val prefixOptional: Boolean = true
 
     private fun timestampToFormatText(timestamp: Long): String =
-        ofEpochSecond(timestamp).atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+        Instant.ofEpochSecond(timestamp).atZone(ZoneId.systemDefault()).format(ISO_OFFSET_DATE_TIME)
 
     private fun Int.durationText() =
         "${this / 60}:${this % 60}"
