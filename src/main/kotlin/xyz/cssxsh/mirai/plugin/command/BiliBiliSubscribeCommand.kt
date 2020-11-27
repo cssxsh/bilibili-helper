@@ -88,7 +88,7 @@ object BiliBiliSubscribeCommand : CompositeCommand(
                 }
             })
         }.onFailure {
-            logger.warning({ "构建消息失败" }, it)
+            logger.warning({ "对[${contact}]构建消息失败" }, it)
         }
     }
 
