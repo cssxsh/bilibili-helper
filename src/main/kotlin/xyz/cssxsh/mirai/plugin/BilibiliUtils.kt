@@ -18,8 +18,7 @@ import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME
 
-
-internal val BILI_JOSN = Json {
+internal val BILI_JSON = Json {
     prettyPrint = true
     ignoreUnknownKeys = true
     isLenient = true
@@ -83,25 +82,25 @@ suspend fun getScreenShot(
 fun BiliCardInfo.toMessageText(): String = buildString {
     when (desc.type) {
         1 -> {
-            BILI_JOSN.decodeFromJsonElement(BiliReplyCard.serializer(), card).let { card ->
+            BILI_JSON.decodeFromJsonElement(BiliReplyCard.serializer(), card).let { card ->
                 appendLine("${card.user.uname} -> ${card.originUser.info.uname}: ")
                 appendLine(card.item.content)
             }
         }
         2 -> {
-            BILI_JOSN.decodeFromJsonElement(BiliPictureCard.serializer(), card).let { card ->
+            BILI_JSON.decodeFromJsonElement(BiliPictureCard.serializer(), card).let { card ->
                 appendLine("${card.user.name}: ")
                 appendLine(card.item.description)
             }
         }
         4 -> {
-            BILI_JOSN.decodeFromJsonElement(BiliTextCard.serializer(), card).let { card ->
+            BILI_JSON.decodeFromJsonElement(BiliTextCard.serializer(), card).let { card ->
                 appendLine("${card.user.uname}: ")
                 appendLine(card.item.content)
             }
         }
         8 -> {
-            BILI_JOSN.decodeFromJsonElement(BiliVideoCard.serializer(), card).let { card ->
+            BILI_JSON.decodeFromJsonElement(BiliVideoCard.serializer(), card).let { card ->
                 appendLine("${card.owner.name}: ")
                 appendLine(card.title)
             }
@@ -113,7 +112,7 @@ fun BiliCardInfo.toMessageText(): String = buildString {
 
 suspend fun BiliCardInfo.getImages(): List<File> = buildList {
     if (desc.type == BiliPictureCard.TYPE) {
-        BILI_JOSN.decodeFromJsonElement(
+        BILI_JSON.decodeFromJsonElement(
             deserializer = BiliPictureCard.serializer(),
             element = card
         ).item.pictures.forEachIndexed { index, picture ->
