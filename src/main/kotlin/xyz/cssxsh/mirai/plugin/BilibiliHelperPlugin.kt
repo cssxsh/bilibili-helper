@@ -65,6 +65,7 @@ object BilibiliHelperPlugin : KotlinPlugin(
     @ConsoleExperimentalApi
     override fun onDisable() {
         BiliBiliSubscribeCommand.unregister()
+        BilibiliInfoCommand.unregister()
         bilibiliInfoJob.cancel()
         serviceStop()
     }
