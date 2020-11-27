@@ -18,4 +18,6 @@ data class BilibiliTaskInfo(
     val friends: Set<Long> = emptySet(),
     @SerialName("groups")
     val groups: Set<Long> = emptySet()
-)
+) {
+    fun getInterval() = minIntervalMillis..maxIntervalMillis
+}

@@ -234,8 +234,6 @@ object BiliBiliSubscribeCommand : CompositeCommand(
         }
     }.onFailure { logger.warning({ "($uid)获取动态失败" }, it) }.isSuccess
 
-    private fun BilibiliTaskInfo.getInterval() = minIntervalMillis..maxIntervalMillis
-
     private fun addListener(uid: Long): Job = launch {
         delay(tasks.getValue(uid).getInterval().random())
         while (isActive && taskContacts[uid].isNullOrEmpty().not()) {
