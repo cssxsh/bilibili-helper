@@ -1,7 +1,6 @@
 package xyz.cssxsh.mirai.plugin.command
 
 import kotlinx.coroutines.*
-import kotlinx.serialization.json.Json
 import net.mamoe.mirai.Bot
 import net.mamoe.mirai.console.command.CommandSenderOnMessage
 import net.mamoe.mirai.console.command.CompositeCommand
@@ -21,19 +20,11 @@ import net.mamoe.mirai.utils.warning
 import xyz.cssxsh.bilibili.api.accInfo
 import xyz.cssxsh.bilibili.api.spaceHistory
 import xyz.cssxsh.bilibili.api.searchVideo
-import xyz.cssxsh.bilibili.data.BiliPictureCard
-import xyz.cssxsh.bilibili.data.BiliReplyCard
-import xyz.cssxsh.bilibili.data.BiliTextCard
-import xyz.cssxsh.bilibili.data.BiliVideoCard
 import xyz.cssxsh.mirai.plugin.*
 import xyz.cssxsh.mirai.plugin.BilibiliHelperPlugin.bilibiliClient
 import xyz.cssxsh.mirai.plugin.BilibiliHelperPlugin.logger
 import xyz.cssxsh.mirai.plugin.data.BilibiliTaskData.tasks
 import xyz.cssxsh.mirai.plugin.data.BilibiliTaskInfo
-import java.io.File
-import java.time.Instant
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME
 import kotlin.coroutines.CoroutineContext
 
 object BiliBiliSubscribeCommand : CompositeCommand(
@@ -46,17 +37,7 @@ object BiliBiliSubscribeCommand : CompositeCommand(
     @ConsoleExperimentalApi
     override val prefixOptional: Boolean = true
 
-    private val json = Json {
-        prettyPrint = true
-        ignoreUnknownKeys = true
-        isLenient = true
-        allowStructuredMapKeys = true
-    }
-
     override val coroutineContext: CoroutineContext = CoroutineName("Bilibili-Listener")
-
-    private fun timestampToFormatText(timestamp: Long): String =
-        Instant.ofEpochSecond(timestamp).atZone(ZoneId.systemDefault()).format(ISO_OFFSET_DATE_TIME)
 
     private val taskJobs = mutableMapOf<Long, Job>()
 
@@ -78,14 +59,11 @@ object BiliBiliSubscribeCommand : CompositeCommand(
     }
 
     private suspend fun sendMessageToTaskContacts(
-        uid: Long, images: List<File> = emptyList(), block: suspend MessageChainBuilder.(contact: Contact) -> Unit
+        uid: Long, block: suspend MessageChainBuilder.(contact: Contact) -> Unit
     ) = taskContacts.getValue(uid).forEach { contact ->
         runCatching {
             contact.sendMessage(buildMessageChain {
                 block(contact)
-                images.forEach {
-                    add(it.uploadAsImage(contact))
-                }
             })
         }.onFailure {
             logger.warning({ "对[${contact}]构建消息失败" }, it)
@@ -97,23 +75,23 @@ object BiliBiliSubscribeCommand : CompositeCommand(
             filter {
                 it.created > tasks.getValue(uid).videoLast
             }.forEach { video ->
-                sendMessageToTaskContacts(
-                    uid = uid,
-                    images = buildList {
-                        runCatching {
-                            getBilibiliImage(url = video.pic, name = "${video.bvId}-cover")
-                        }.onSuccess {
-                            add(it)
-                        }.onFailure {
-                            logger.warning({ "获取[${uid}]直播间封面封面失败" }, it)
-                        }
-                    }
-                ) {
+                sendMessageToTaskContacts(uid = uid) { contact ->
                     appendLine("标题: ${video.title}")
                     appendLine("作者: ${video.author}")
                     appendLine("时间: ${timestampToFormatText(video.created)}")
                     appendLine("时长: ${video.length}")
                     appendLine("链接: https://www.bilibili.com/video/${video.bvId}")
+
+                    runCatching {
+                        getBilibiliImage(
+                            url = video.pic,
+                            name = "video-${video.bvId}-cover"
+                        )
+                    }.onSuccess {
+                        add(it.uploadAsImage(contact))
+                    }.onFailure {
+                        logger.warning({ "获取[${uid}]直播间封面封面失败" }, it)
+                    }
                 }
             }
             maxByOrNull { it.created }?.let { video ->
@@ -134,22 +112,22 @@ object BiliBiliSubscribeCommand : CompositeCommand(
             logger.verbose { "(${uid})[${user.name}][${user.liveRoom.title}]最新开播状态为${user.liveRoom.liveStatus == 1}" }
             liveState.put(uid, user.liveRoom.liveStatus == 1).let { old ->
                 if (old != true && user.liveRoom.liveStatus == 1) {
-                    sendMessageToTaskContacts(
-                        uid = uid,
-                        images = buildList {
-                            runCatching {
-                                getBilibiliImage(url = user.liveRoom.cover, name = "${user.liveRoom.roomId}-cover")
-                            }.onSuccess {
-                                add(it)
-                            }.onFailure {
-                                logger.warning({ "获取[${uid}]直播间封面封面失败" }, it)
-                            }
-                        }
-                    ) {
+                    sendMessageToTaskContacts(uid = uid) { contact ->
                         appendLine("主播: ${user.name}")
                         appendLine("标题: ${user.liveRoom.title}")
                         appendLine("人气: ${user.liveRoom.online}")
                         appendLine("链接: ${user.liveRoom.url}")
+
+                        runCatching {
+                            getBilibiliImage(
+                                url = user.liveRoom.cover,
+                                name = "live-${user.liveRoom.roomId}-cover"
+                            )
+                        }.onSuccess {
+                            add(it.uploadAsImage(contact))
+                        }.onFailure {
+                            logger.warning({ "获取[${uid}]直播间封面封面失败" }, it)
+                        }
                     }
                 }
             }
@@ -161,63 +139,25 @@ object BiliBiliSubscribeCommand : CompositeCommand(
             filter {
                 it.desc.timestamp > tasks.getValue(uid).dynamicLast
             }.forEach { dynamic ->
-                var noScreenShot = false
-                sendMessageToTaskContacts(
-                    uid = uid,
-                    images = buildList {
-                        runCatching {
-                            getScreenShot(url = DYNAMIC_DETAIL + dynamic.desc.dynamicId, name = "${dynamic.desc.dynamicId}")
-                        }.onSuccess {
-                            add(it)
-                        }.onFailure {
-                            logger.warning({ "获取动态${dynamic.desc.dynamicId}快照失败" }, it)
-                            noScreenShot = true
-                        }
-
-                        if (dynamic.desc.type == BiliPictureCard.TYPE) {
-                            json.decodeFromJsonElement(
-                                BiliPictureCard.serializer(),
-                                dynamic.card
-                            ).item.pictures.forEachIndexed { index, picture ->
-                                runCatching {
-                                    getBilibiliImage(url = picture.imgSrc, name = "${dynamic.desc.dynamicId}-${index}")
-                                }.onSuccess {
-                                    add(it)
-                                }.onFailure {
-                                    logger.warning({ "动态图片下载失败: ${picture.imgSrc}" }, it)
-                                }
-                            }
-                        }
-                    }
-                ) {
+                sendMessageToTaskContacts(uid = uid) { contact ->
                     appendLine("${dynamic.desc.userProfile.info.uname} 有新动态")
                     appendLine("时间: ${timestampToFormatText(dynamic.desc.timestamp)}")
                     appendLine("链接: https://t.bilibili.com/${dynamic.desc.dynamicId}")
-                    if (noScreenShot) {
-                        when (dynamic.desc.type) {
-                            1 -> {
-                                json.decodeFromJsonElement(BiliReplyCard.serializer(), dynamic.card).let { card ->
-                                    appendLine("${card.user.uname} -> ${card.originUser.info.uname}: \n${card.item.content}")
-                                }
-                            }
-                            2 -> {
-                                json.decodeFromJsonElement(BiliPictureCard.serializer(), dynamic.card).let { card ->
-                                    appendLine("${card.user.name}: \n${card.item.description}")
-                                }
-                            }
-                            4 -> {
-                                json.decodeFromJsonElement(BiliTextCard.serializer(), dynamic.card).let { card ->
-                                    appendLine("${card.user.uname}: \n${card.item.content}")
-                                }
-                            }
-                            8 -> {
-                                json.decodeFromJsonElement(BiliVideoCard.serializer(), dynamic.card).let { card ->
-                                    appendLine("${card.owner.name}: \n${card.title}")
-                                }
-                            }
-                            else -> {
-                            }
-                        }
+
+                    runCatching {
+                        getScreenShot(
+                            url = DYNAMIC_DETAIL + dynamic.desc.dynamicId,
+                            name = "dynamic-${dynamic.desc.dynamicId}"
+                        )
+                    }.onSuccess {
+                        add(it.uploadAsImage(contact))
+                    }.onFailure {
+                        logger.warning({ "获取动态${dynamic.desc.dynamicId}快照失败" }, it)
+                        add(dynamic.toMessageText())
+                    }
+
+                    dynamic.getImages().forEach {
+                        add(it.uploadAsImage(contact))
                     }
                 }
             }

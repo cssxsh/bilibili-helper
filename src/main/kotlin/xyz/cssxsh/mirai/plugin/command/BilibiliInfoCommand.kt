@@ -2,7 +2,6 @@ package xyz.cssxsh.mirai.plugin.command
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
-import kotlinx.serialization.json.Json
 import net.mamoe.mirai.console.command.CommandSenderOnMessage
 import net.mamoe.mirai.console.command.CompositeCommand
 import net.mamoe.mirai.console.command.descriptor.ExperimentalCommandDescriptors
@@ -18,28 +17,15 @@ import xyz.cssxsh.bilibili.api.getDynamicDetail
 import xyz.cssxsh.bilibili.api.videoInfo
 import xyz.cssxsh.bilibili.data.*
 import xyz.cssxsh.bilibili.data.BiliVideoInfo.VideoData
-import xyz.cssxsh.mirai.plugin.BilibiliHelperPlugin
+import xyz.cssxsh.mirai.plugin.*
 import xyz.cssxsh.mirai.plugin.BilibiliHelperPlugin.bilibiliClient
 import xyz.cssxsh.mirai.plugin.BilibiliHelperPlugin.logger
-import xyz.cssxsh.mirai.plugin.DYNAMIC_DETAIL
-import xyz.cssxsh.mirai.plugin.getBilibiliImage
-import xyz.cssxsh.mirai.plugin.getScreenShot
-import java.time.Instant
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME
 
 object BilibiliInfoCommand : CompositeCommand(
     owner = BilibiliHelperPlugin,
     "bili-info", "B信息",
     description = "B站信息指令"
 ) {
-
-    private val json = Json {
-        prettyPrint = true
-        ignoreUnknownKeys = true
-        isLenient = true
-        allowStructuredMapKeys = true
-    }
 
     private val VIDEO_REGEX = """(?<=https://(m|www)\.bilibili\.com/video/)?(av\d+|BV[0-9A-z]{10})""".toRegex()
 
@@ -80,21 +66,21 @@ object BilibiliInfoCommand : CompositeCommand(
     @ConsoleExperimentalApi
     override val prefixOptional: Boolean = true
 
-    private fun timestampToFormatText(timestamp: Long): String =
-        Instant.ofEpochSecond(timestamp).atZone(ZoneId.systemDefault()).format(ISO_OFFSET_DATE_TIME)
-
-    private fun Int.durationText() =
-        "${this / 60}:${this % 60}"
+    private fun VideoData.durationText() = "${duration / 3600}:${duration % 3600 / 60}:${duration % 60}"
 
     private suspend fun VideoData.buildVideoMessage(contact: Contact) = buildMessageChain {
-        appendLine("标题: ${title}")
+        appendLine("标题: $title")
         appendLine("作者: ${owner.name}")
         appendLine("时间: ${timestampToFormatText(pubDate)}")
-        appendLine("时长: ${duration.durationText()}")
+        appendLine("时长: ${durationText()}")
         appendLine("链接: https://www.bilibili.com/video/${bvId}")
 
         runCatching {
-            getBilibiliImage(pic, "${bvId}-cover")
+            getBilibiliImage(
+                url = pic,
+                name ="video-${bvId}-cover",
+                refresh = true
+            )
         }.onSuccess {
             add(it.uploadAsImage(contact))
         }.onFailure {
@@ -108,50 +94,20 @@ object BilibiliInfoCommand : CompositeCommand(
         appendLine("链接: https://t.bilibili.com/${desc.dynamicId}")
 
         runCatching {
-            getScreenShot(url = DYNAMIC_DETAIL + desc.dynamicId, name = "${desc.dynamicId}")
+            getScreenShot(
+                url = DYNAMIC_DETAIL + desc.dynamicId,
+                name = "dynamic-${desc.dynamicId}",
+                refresh = true
+            )
         }.onSuccess {
             add(it.uploadAsImage(contact))
         }.onFailure {
             logger.warning({ "获取动态${desc.dynamicId}快照失败" }, it)
-            when (desc.type) {
-                1 -> {
-                    json.decodeFromJsonElement(BiliReplyCard.serializer(), card).let { card ->
-                        add("${card.user.uname} -> ${card.originUser.info.uname}: \n${card.item.content}")
-                    }
-                }
-                2 -> {
-                    json.decodeFromJsonElement(BiliPictureCard.serializer(), card).let { card ->
-                        add("${card.user.name}: \n${card.item.description}")
-                    }
-                }
-                4 -> {
-                    json.decodeFromJsonElement(BiliTextCard.serializer(), card).let { card ->
-                        add("${card.user.uname}: \n${card.item.content}")
-                    }
-                }
-                8 -> {
-                    json.decodeFromJsonElement(BiliVideoCard.serializer(), card).let { card ->
-                        add("${card.owner.name}: \n${card.title}")
-                    }
-                }
-                else -> {
-                }
-            }
+            add(toMessageText())
         }
 
-        if (desc.type == BiliPictureCard.TYPE) {
-            json.decodeFromJsonElement(
-                BiliPictureCard.serializer(),
-                card
-            ).item.pictures.forEachIndexed { index, picture ->
-                runCatching {
-                    getBilibiliImage(picture.imgSrc, "${desc.dynamicId}-${index}")
-                }.onSuccess {
-                    add(it.uploadAsImage(contact))
-                }.onFailure {
-                    logger.warning({ "动态图片下载失败: ${picture.imgSrc}" }, it)
-                }
-            }
+        getImages().forEach {
+            add(it.uploadAsImage(contact))
         }
     }.let { contact.sendMessage(it) }
 
