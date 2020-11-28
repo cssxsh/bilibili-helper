@@ -11,6 +11,7 @@ import net.mamoe.mirai.event.subscribeMessages
 import net.mamoe.mirai.message.MessageEvent
 import net.mamoe.mirai.message.data.buildMessageChain
 import net.mamoe.mirai.message.uploadAsImage
+import net.mamoe.mirai.utils.info
 import net.mamoe.mirai.utils.verbose
 import net.mamoe.mirai.utils.warning
 import xyz.cssxsh.bilibili.api.getDynamicDetail
@@ -33,7 +34,7 @@ object BilibiliInfoCommand : CompositeCommand(
 
     fun CoroutineScope.subscribeBilibiliInfo(): Job = subscribeMessages {
         finding(DYNAMIC_REGEX) { result ->
-            logger.verbose { "匹配DYNAMIC(${result.value})" }
+            logger.info { "匹配DYNAMIC(${result.value})" }
             runCatching {
                 bilibiliClient.getDynamicDetail(result.value.toLong()).dynamic.card.buildDynamicMessage(subject)
             }.onFailure {
@@ -41,7 +42,7 @@ object BilibiliInfoCommand : CompositeCommand(
             }
         }
         finding(VIDEO_REGEX) { result ->
-            logger.verbose { "匹配VIDEO(${result.value})" }
+            logger.info { "匹配VIDEO(${result.value})" }
             runCatching {
                 when (result.value.first()) {
                     'B', 'b' -> {
