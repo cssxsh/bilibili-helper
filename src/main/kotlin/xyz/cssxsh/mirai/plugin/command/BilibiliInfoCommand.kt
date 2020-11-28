@@ -86,7 +86,7 @@ object BilibiliInfoCommand : CompositeCommand(
         }.onFailure {
             logger.warning({ "获取[${title}](${bvId})}视频封面失败" }, it)
         }
-    }.let { contact.sendMessage(it) }
+    }
 
     private suspend fun BiliCardInfo.buildDynamicMessage(contact: Contact) = buildMessageChain {
         appendLine("${desc.userProfile.info.uname} 有新动态")
@@ -109,23 +109,29 @@ object BilibiliInfoCommand : CompositeCommand(
         getImages().forEach {
             add(it.uploadAsImage(contact))
         }
-    }.let { contact.sendMessage(it) }
+    }
 
     @SubCommand
     @Suppress("unused")
     suspend fun CommandSenderOnMessage<MessageEvent>.aid(id: Long) = runCatching {
-        bilibiliClient.videoInfo(aid = id).videoData.buildVideoMessage(fromEvent.subject)
+        bilibiliClient.videoInfo(aid = id).videoData.buildVideoMessage(fromEvent.subject).let {
+            quoteReply(it)
+        }
     }.onFailure { reply(it.toString()) }.isSuccess
 
     @SubCommand
     @Suppress("unused")
     suspend fun CommandSenderOnMessage<MessageEvent>.bvid(id: String) = runCatching {
-        bilibiliClient.videoInfo(bvId = id).videoData.buildVideoMessage(fromEvent.subject)
+        bilibiliClient.videoInfo(bvId = id).videoData.buildVideoMessage(fromEvent.subject).let {
+            quoteReply(it)
+        }
     }.onFailure { reply(it.toString()) }.isSuccess
 
     @SubCommand
     @Suppress("unused")
     suspend fun CommandSenderOnMessage<MessageEvent>.dynamic(id: Long) = runCatching {
-        bilibiliClient.getDynamicDetail(id).dynamic.card.buildDynamicMessage(fromEvent.subject)
+        bilibiliClient.getDynamicDetail(id).dynamic.card.buildDynamicMessage(fromEvent.subject).let {
+            quoteReply(it)
+        }
     }.onFailure { reply(it.toString()) }.isSuccess
 }
