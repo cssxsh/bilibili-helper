@@ -9,9 +9,8 @@ import net.mamoe.mirai.console.terminal.ConsoleTerminalExperimentalApi
 import net.mamoe.mirai.console.terminal.MiraiConsoleImplementationTerminal
 import net.mamoe.mirai.console.terminal.MiraiConsoleTerminalLoader
 import net.mamoe.mirai.console.util.ConsoleExperimentalApi
-import net.mamoe.mirai.contact.Friend
-import net.mamoe.mirai.event.events.BotOnlineEvent
-import net.mamoe.mirai.event.subscribeAlways
+import net.mamoe.mirai.getFriendOrNull
+import net.mamoe.mirai.message.data.buildMessageChain
 import net.mamoe.mirai.utils.minutesToMillis
 import xyz.cssxsh.mirai.plugin.data.BilibiliTaskData.tasks
 import java.nio.file.Path
@@ -29,28 +28,28 @@ object RunMirai {
         configStorageForBuiltIns = JsonPluginDataStorage(rootPath.resolve("config"), true),
     )
 
+    private fun getAuthorOrNull() =  Bot.botInstances.mapNotNull { it.getFriendOrNull(1438159989L) }.firstOrNull()
+
     @JvmStatic
     fun main(args: Array<String>): Unit = runBlocking {
         // 默认在 /test 目录下运行
-        MiraiConsoleTerminalLoader.parse(args, exitProcess = true)
+        MiraiConsoleTerminalLoader.parse(args = args, exitProcess = true)
         MiraiConsoleTerminalLoader.startAsDaemon(miraiConsoleImpl(Paths.get(".").toAbsolutePath()))
         MiraiConsole.apply {
             StateCommand.register()
-            val block: (Friend) -> Job = { friend ->
-                friend.launch {
-                    while (isActive) {
-                        friend.sendMessage(buildString {
+            launch {
+                while (isActive) {
+                    getAuthorOrNull()?.runCatching {
+                        sendMessage(buildMessageChain {
                             appendLine("存活！")
                             tasks.toMap().forEach { (uid, info) ->
                                 appendLine("$uid -> Friends: ${info.friends}, Groups: ${info.groups}")
                             }
                         })
-                        delay((10).minutesToMillis)
                     }
+                    delay((10).minutesToMillis)
                 }
             }
-            Bot.botInstances.forEach { bot -> bot.friends.getOrNull(1438159989L)?.let(block) }
-            subscribeAlways<BotOnlineEvent> { bot.friends.getOrNull(1438159989L)?.let(block) }
         }
         try {
             MiraiConsole.job.join()
