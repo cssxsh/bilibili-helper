@@ -53,10 +53,10 @@ object BilibiliHelperPlugin : KotlinPlugin(
 
     @ConsoleExperimentalApi
     override fun onEnable() {
+        BiliBiliSubscribeCommand.onInit()
         BilibiliTaskData.reload()
         BilibiliChromeDriverConfig.reload()
         BiliBiliSubscribeCommand.register()
-        BiliBiliSubscribeCommand.onInit()
         BilibiliInfoCommand.register()
         bilibiliInfoJob = subscribeBilibiliInfo()
         serviceStart()
@@ -64,9 +64,9 @@ object BilibiliHelperPlugin : KotlinPlugin(
 
     @ConsoleExperimentalApi
     override fun onDisable() {
-        BiliBiliSubscribeCommand.unregister()
-        BilibiliInfoCommand.unregister()
         bilibiliInfoJob.cancel()
         serviceStop()
+        BiliBiliSubscribeCommand.unregister()
+        BilibiliInfoCommand.unregister()
     }
 }
