@@ -36,7 +36,9 @@ object BilibiliInfoCommand : CompositeCommand(
         finding(DYNAMIC_REGEX) { result ->
             logger.info { "匹配DYNAMIC(${result.value})" }
             runCatching {
-                bilibiliClient.getDynamicDetail(result.value.toLong()).dynamic.card.buildDynamicMessage(subject)
+                bilibiliClient.getDynamicDetail(result.value.toLong()).dynamic.card.buildDynamicMessage(subject).let {
+                    quoteReply(it)
+                }
             }.onFailure {
                 logger.warning({ "构建DYNAMIC(${result.value})信息失败" }, it)
             }
@@ -56,7 +58,9 @@ object BilibiliInfoCommand : CompositeCommand(
                         }
                     }
                     else -> throw IllegalArgumentException("未知视频ID(${result.value})")
-                }.videoData.buildVideoMessage(subject)
+                }.videoData.buildVideoMessage(subject).let {
+                    quoteReply(it)
+                }
             }.onFailure {
                 logger.warning({ "构建VIDEO(${result.value})信息失败" }, it)
             }
