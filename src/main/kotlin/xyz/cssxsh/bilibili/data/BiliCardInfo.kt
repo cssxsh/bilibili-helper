@@ -58,7 +58,7 @@ data class BiliCardInfo(
         @SerialName("inner_id")
         val innerId: Long? = null,
         @SerialName("is_liked")
-        val isLiked: Int,
+        val isLiked: Int? = null,
         @SerialName("like")
         val like: Int,
         @SerialName("orig_dy_id")
