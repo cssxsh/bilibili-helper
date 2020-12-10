@@ -1,15 +1,11 @@
 package xyz.cssxsh.mirai.plugin.data
 
-import net.mamoe.mirai.console.data.AutoSavePluginConfig
+import net.mamoe.mirai.console.data.ReadOnlyPluginConfig
 import net.mamoe.mirai.console.data.ValueName
 import net.mamoe.mirai.console.data.value
-import net.mamoe.mirai.console.util.ConsoleExperimentalApi
 import net.mamoe.mirai.utils.minutesToMillis
 
-object BilibiliChromeDriverConfig : AutoSavePluginConfig("BilibiliChromeDriverConfig") {
-
-    @ConsoleExperimentalApi
-    override fun shouldPerformAutoSaveWheneverChanged(): Boolean = false
+object BilibiliChromeDriverConfig : ReadOnlyPluginConfig("BilibiliChromeDriverConfig") {
 
     @ValueName("driver_path")
     val driverPath: String by value("")
