@@ -31,15 +31,21 @@ object BilibiliHelperPlugin : KotlinPlugin(
 
     private var service: ChromeDriverService? = null
 
-    private fun serviceStart(): Boolean = runCatching {
-        ChromeDriverService.Builder().apply {
-            usingDriverExecutable(File(driverPath))
-            withVerbose(false)
-            withSilent(true)
-            withWhitelistedIps("")
-            usingPort(9515)
-        }.build().apply { start() }
-    }.onFailure { logger.warning({ "启动${driverPath}失败" }, it) }.isSuccess
+    private fun serviceStart() {
+        if (driverPath.isNotEmpty()) {
+            runCatching {
+                service = ChromeDriverService.Builder().apply {
+                    usingDriverExecutable(File(driverPath))
+                    withVerbose(false)
+                    withSilent(true)
+                    withWhitelistedIps("")
+                    usingPort(9515)
+                }.build().apply { start() }
+            }.onFailure {
+                logger.warning({ "启动${driverPath}失败" }, it)
+            }
+        }
+    }
 
     private fun serviceStop() {
         service?.stop()
