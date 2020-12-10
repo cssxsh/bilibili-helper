@@ -74,7 +74,7 @@ object BiliBiliSubscribeCommand : CompositeCommand(
         bilibiliClient.searchVideo(uid).searchData.list.vList.apply {
             filter {
                 it.created > tasks.getValue(uid).videoLast
-            }.forEach { video ->
+            }.sortedByDescending { it.created }.forEach { video ->
                 sendMessageToTaskContacts(uid = uid) { contact ->
                     appendLine("标题: ${video.title}")
                     appendLine("作者: ${video.author}")
@@ -138,7 +138,7 @@ object BiliBiliSubscribeCommand : CompositeCommand(
         bilibiliClient.spaceHistory(uid).dynamicData.cards.apply {
             filter {
                 it.desc.timestamp > tasks.getValue(uid).dynamicLast
-            }.forEach { dynamic ->
+            }.sortedByDescending { it.desc.timestamp }.forEach { dynamic ->
                 sendMessageToTaskContacts(uid = uid) { contact ->
                     appendLine("${dynamic.desc.userProfile.info.uname} 有新动态")
                     appendLine("时间: ${timestampToFormatText(dynamic.desc.timestamp)}")
