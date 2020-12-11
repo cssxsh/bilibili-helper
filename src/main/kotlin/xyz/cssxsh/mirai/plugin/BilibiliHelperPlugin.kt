@@ -62,6 +62,7 @@ object BilibiliHelperPlugin : KotlinPlugin(
         BiliBiliSubscribeCommand.onInit()
         BilibiliTaskData.reload()
         BilibiliChromeDriverConfig.reload()
+        BilibiliHelperSettings.reload()
         BiliBiliSubscribeCommand.register()
         BilibiliInfoCommand.register()
         bilibiliInfoJob = subscribeBilibiliInfo()

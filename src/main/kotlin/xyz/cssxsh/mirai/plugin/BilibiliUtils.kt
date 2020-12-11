@@ -10,6 +10,7 @@ import xyz.cssxsh.mirai.plugin.data.BilibiliChromeDriverConfig
 import xyz.cssxsh.mirai.plugin.data.BilibiliChromeDriverConfig.chromePath
 import xyz.cssxsh.mirai.plugin.data.BilibiliChromeDriverConfig.deviceName
 import xyz.cssxsh.mirai.plugin.data.BilibiliChromeDriverConfig.driverUrl
+import xyz.cssxsh.mirai.plugin.data.BilibiliHelperSettings.cachePath
 import xyz.cssxsh.mirai.plugin.tools.BilibiliChromeDriverTool
 import xyz.cssxsh.mirai.plugin.tools.getScreenShot
 import java.io.File
@@ -27,8 +28,6 @@ internal val BILI_JSON = Json {
 
 internal const val DYNAMIC_DETAIL = "https://t.bilibili.com/h5/dynamic/detail/"
 
-internal const val IMAGE_CACHE_DIR = "ImageCache"
-
 internal fun getSuffix(url: String) = url.substring(url.lastIndexOf(".") + 1)
 
 fun timestampToFormatText(timestamp: Long): String =
@@ -38,7 +37,7 @@ suspend fun getBilibiliImage(
     url: String,
     name: String,
     refresh: Boolean = false
-): File = File(IMAGE_CACHE_DIR, "${name}.${getSuffix(url)}").apply {
+): File = File(cachePath).resolve("${name}.${getSuffix(url)}").apply {
     parentFile.mkdirs()
     if (exists().not() || refresh) {
         writeBytes(bilibiliClient.useHttpClient { it.get(url) })
@@ -49,7 +48,7 @@ suspend fun getScreenShot(
     url: String,
     name: String,
     refresh: Boolean = false
-): File = File(IMAGE_CACHE_DIR, "${name}.png").apply {
+): File = File(cachePath).resolve("${name}.png").apply {
     parentFile.mkdirs()
     if (exists().not() || refresh) {
         runCatching {
