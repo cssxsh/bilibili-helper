@@ -11,7 +11,7 @@ data class BiliUserProfile(
     @SerialName("info")
     val info: BiliCardUser,
     @SerialName("level_info")
-    val levelInfo: BiliLevelInfo,
+    val levelInfo: BiliLevelInfo? = null,
     @SerialName("pendant")
     val pendant: BiliPendant,
     @SerialName("rank")
