@@ -99,13 +99,7 @@ object BilibiliInfoCommand : CompositeCommand(
         appendLine("链接: https://t.bilibili.com/${desc.dynamicId}")
 
         runCatching {
-            getScreenShot(
-                url = DYNAMIC_DETAIL + desc.dynamicId,
-                name = "dynamic-${desc.dynamicId}",
-                refresh = true
-            )
-        }.onSuccess {
-            add(it.uploadAsImage(contact))
+            add(getScreenShot(refresh = true).uploadAsImage(contact))
         }.onFailure {
             logger.warning({ "获取动态${desc.dynamicId}快照失败" }, it)
             add(toMessageText())

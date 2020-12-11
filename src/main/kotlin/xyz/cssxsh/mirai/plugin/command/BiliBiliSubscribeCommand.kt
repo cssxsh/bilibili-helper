@@ -145,12 +145,7 @@ object BiliBiliSubscribeCommand : CompositeCommand(
                     appendLine("链接: https://t.bilibili.com/${dynamic.desc.dynamicId}")
 
                     runCatching {
-                        getScreenShot(
-                            url = DYNAMIC_DETAIL + dynamic.desc.dynamicId,
-                            name = "dynamic-${dynamic.desc.dynamicId}"
-                        )
-                    }.onSuccess {
-                        add(it.uploadAsImage(contact))
+                        add(dynamic.getScreenShot(refresh = false).uploadAsImage(contact))
                     }.onFailure {
                         logger.warning({ "获取动态${dynamic.desc.dynamicId}快照失败" }, it)
                         add(dynamic.toMessageText())

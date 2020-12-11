@@ -78,6 +78,9 @@ suspend fun getScreenShot(
     }
 }
 
+suspend fun BiliCardInfo.getScreenShot(refresh: Boolean = false) =
+    getScreenShot(url = DYNAMIC_DETAIL + desc.dynamicId, name = "dynamic-${desc.dynamicId}", refresh)
+
 fun BiliCardInfo.toMessageText(): String = buildString {
     when (desc.type) {
         1 -> {
