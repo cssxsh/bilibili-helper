@@ -22,43 +22,12 @@ class BilibiliChromeDriverTool(
             }
         }
 
-        val IS_READY_SCRIPT = """
-            function findVue() {
-                let Vue = null;
-                try {
-                    for(const element of document.body.children) {
-                        Vue = Vue || element.__vue__;
-                    }
-                } finally {
-                    Vue = Vue || {};
-                }
-                return Vue;
+        val IS_READY_SCRIPT by lazy {
+            this::class.java.getResourceAsStream("isReady.js")!!.use {
+                it.reader().readText() +  "return isReady();"
             }
-            function vmMounted(vm = findVue()) {
-                let mounted = vm._isMounted;
-                try {
-                    for (const child of vm['$'+ 'children']) {
-                        mounted = mounted && vmMounted(child);
-                    }
-                } finally {
-                    //
-                }
-                return mounted;
-            }
-            function imagesComplete() {
-                const images = document.getElementsByTagName("img");
-                let complete = images.length !== 0;
-                try {
-                    for(const element of images) {
-                        complete = complete && element.complete;
-                    }
-                } finally {
-                    //
-                }
-                return complete;
-            }
-            return document.readyState === 'complete' && vmMounted() && imagesComplete();
-        """.trimIndent()
+        }
+
     }
 
     private val options = ChromeOptions().apply {
