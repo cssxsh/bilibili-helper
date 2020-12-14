@@ -1,4 +1,4 @@
 
 function hasContent() {
-    return $('.content').length !== 0
+    return  document.getElementsByClassName('content').length !== 0
 }
