@@ -6,7 +6,7 @@ import net.mamoe.mirai.utils.warning
 import xyz.cssxsh.bilibili.data.*
 import xyz.cssxsh.mirai.plugin.BilibiliHelperPlugin.bilibiliClient
 import xyz.cssxsh.mirai.plugin.BilibiliHelperPlugin.logger
-import xyz.cssxsh.mirai.plugin.data.BilibiliChromeDriverConfig
+import xyz.cssxsh.mirai.plugin.data.BilibiliChromeDriverConfig.timeoutMillis
 import xyz.cssxsh.mirai.plugin.data.BilibiliChromeDriverConfig.chromePath
 import xyz.cssxsh.mirai.plugin.data.BilibiliChromeDriverConfig.deviceName
 import xyz.cssxsh.mirai.plugin.data.BilibiliChromeDriverConfig.driverUrl
@@ -16,7 +16,8 @@ import xyz.cssxsh.mirai.plugin.tools.getScreenShot
 import java.io.File
 import java.net.URL
 import java.time.Instant
-import java.time.ZoneId
+import java.time.OffsetDateTime
+import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME
 
 internal val BILI_JSON = Json {
@@ -31,7 +32,7 @@ internal const val DYNAMIC_DETAIL = "https://t.bilibili.com/h5/dynamic/detail/"
 internal fun String.getFilename() = substring(lastIndexOfAny(listOf("\\", "/")) + 1)
 
 fun timestampToFormatText(timestamp: Long): String =
-    Instant.ofEpochSecond(timestamp).atZone(ZoneId.systemDefault()).format(ISO_OFFSET_DATE_TIME)
+    OffsetDateTime.ofInstant(Instant.ofEpochSecond(timestamp), ZoneOffset.systemDefault()).format(ISO_OFFSET_DATE_TIME)
 
 suspend fun getBilibiliImage(
     url: String,
@@ -57,7 +58,7 @@ suspend fun getScreenShot(
                 chromePath = chromePath,
                 deviceName = deviceName
             ).useDriver {
-                it.getScreenShot(url, BilibiliChromeDriverConfig.timeoutMillis)
+                it.getScreenShot(url, timeoutMillis)
             }
         }.onFailure {
             logger.warning({ "使用ChromeDriver(${driverUrl})失败" }, it)

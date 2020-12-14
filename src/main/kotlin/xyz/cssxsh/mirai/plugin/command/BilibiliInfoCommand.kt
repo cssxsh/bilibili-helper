@@ -11,9 +11,7 @@ import net.mamoe.mirai.event.subscribeMessages
 import net.mamoe.mirai.message.MessageEvent
 import net.mamoe.mirai.message.data.buildMessageChain
 import net.mamoe.mirai.message.uploadAsImage
-import net.mamoe.mirai.utils.info
-import net.mamoe.mirai.utils.verbose
-import net.mamoe.mirai.utils.warning
+import net.mamoe.mirai.utils.*
 import xyz.cssxsh.bilibili.api.getDynamicDetail
 import xyz.cssxsh.bilibili.api.videoInfo
 import xyz.cssxsh.bilibili.data.*
