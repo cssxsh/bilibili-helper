@@ -24,10 +24,15 @@ class BilibiliChromeDriverTool(
 
         val IS_READY_SCRIPT by lazy {
             this::class.java.getResourceAsStream("isReady.js")!!.use {
-                it.reader().readText() +  "return isReady();"
+                it.reader().readText() + "\nreturn isReady();"
             }
         }
 
+        val HAS_CONTENT by lazy {
+            this::class.java.getResourceAsStream("hasContent.js")!!.use {
+                it.reader().readText() + "\nreturn isReady();"
+            }
+        }
     }
 
     private val options = ChromeOptions().apply {

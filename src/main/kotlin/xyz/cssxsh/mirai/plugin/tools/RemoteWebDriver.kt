@@ -23,7 +23,8 @@ suspend fun RemoteWebDriver.getScreenShot(
     get(url)
     delay(timeoutProgression.first)
     useWait(timeoutProgression.last - timeoutProgression.first, timeoutProgression.step) {
-        it.executeScript(BilibiliChromeDriverTool.IS_READY_SCRIPT)
+        (it.executeScript(BilibiliChromeDriverTool.IS_READY_SCRIPT) as Boolean) &&
+            (it.executeScript(BilibiliChromeDriverTool.HAS_CONTENT) as Boolean)
     }
     return getScreenshotAs(OutputType.BYTES)
 }
