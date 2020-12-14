@@ -13,13 +13,13 @@ data class BiliUserProfile(
     @SerialName("level_info")
     val levelInfo: BiliLevelInfo? = null,
     @SerialName("pendant")
-    val pendant: BiliPendant,
+    val pendant: BiliPendant? = null,
     @SerialName("rank")
-    val rank: String,
+    val rank: String? = null,
     @SerialName("sign")
     val sign: String,
     @SerialName("vip")
-    val vip: BiliVip,
+    val vip: BiliVip? = null,
     @SerialName("decorate_card")
     val decorate_card: JsonElement? = null
 )
