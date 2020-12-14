@@ -1,8 +1,11 @@
 package xyz.cssxsh.mirai.plugin
 
+import io.ktor.client.features.*
 import io.ktor.client.request.*
+import io.ktor.network.sockets.*
 import kotlinx.serialization.json.Json
 import net.mamoe.mirai.utils.warning
+import okhttp3.internal.http2.StreamResetException
 import xyz.cssxsh.bilibili.data.*
 import xyz.cssxsh.mirai.plugin.BilibiliHelperPlugin.bilibiliClient
 import xyz.cssxsh.mirai.plugin.BilibiliHelperPlugin.logger
@@ -13,12 +16,15 @@ import xyz.cssxsh.mirai.plugin.data.BilibiliChromeDriverConfig.driverUrl
 import xyz.cssxsh.mirai.plugin.data.BilibiliHelperSettings.cachePath
 import xyz.cssxsh.mirai.plugin.tools.BilibiliChromeDriverTool
 import xyz.cssxsh.mirai.plugin.tools.getScreenShot
+import java.io.EOFException
 import java.io.File
+import java.net.ConnectException
 import java.net.URL
 import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME
+import javax.net.ssl.SSLException
 
 internal val BILI_JSON = Json {
     prettyPrint = true
@@ -41,7 +47,29 @@ suspend fun getBilibiliImage(
 ): File = File(cachePath).resolve("${name}-${url.getFilename()}").apply {
     parentFile.mkdirs()
     if (exists().not() || refresh) {
-        writeBytes(bilibiliClient.useHttpClient { it.get(url) })
+        runCatching {
+            writeBytes(bilibiliClient.useHttpClient { it.get(url) })
+        }.getOrElse { throwable ->
+            when (throwable) {
+                is SSLException,
+                is EOFException,
+                is ConnectException,
+                is SocketTimeoutException,
+                is HttpRequestTimeoutException,
+                is StreamResetException,
+                -> {
+                    logger.warning { "[${url}]下载错误, 已忽略: ${throwable.message}" }
+                    getBilibiliImage(url = url, name = name, refresh = refresh)
+                }
+                else -> when(throwable.message) {
+                    "Required SETTINGS preface not received" -> {
+                        logger.warning { "[${url}]下载错误, 已忽略: ${throwable.message}" }
+                        getBilibiliImage(url = url, name = name, refresh = refresh)
+                    }
+                    else -> throw throwable
+                }
+            }
+        }
     }
 }
 
