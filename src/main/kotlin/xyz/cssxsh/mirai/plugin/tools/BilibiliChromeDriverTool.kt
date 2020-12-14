@@ -30,7 +30,7 @@ class BilibiliChromeDriverTool(
 
         val HAS_CONTENT by lazy {
             this::class.java.getResourceAsStream("hasContent.js")!!.use {
-                it.reader().readText() + "\nreturn isReady();"
+                it.reader().readText() + "\nreturn hasContent();"
             }
         }
     }
