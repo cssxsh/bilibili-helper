@@ -95,7 +95,7 @@ object BiliBiliSubscribeCommand : CompositeCommand(
                 }
             }
             maxByOrNull { it.created }?.let { video ->
-                logger.verbose {
+                logger.info {
                     "(${uid})[${video.author}]最新视频为(${video.bvId})[${video.title}]<${
                         timestampToFormatText(video.created)
                     }>"
@@ -157,7 +157,7 @@ object BiliBiliSubscribeCommand : CompositeCommand(
                 }
             }
             maxByOrNull { it.desc.timestamp }?.let { dynamic ->
-                logger.verbose {
+                logger.info {
                     "(${uid})[${dynamic.desc.userProfile.info.uname}]最新动态时间为<${
                         timestampToFormatText(dynamic.desc.timestamp)
                     }>"
