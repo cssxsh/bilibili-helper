@@ -79,13 +79,7 @@ object BilibiliInfoCommand : CompositeCommand(
         appendLine("链接: https://www.bilibili.com/video/${bvId}")
 
         runCatching {
-            getBilibiliImage(
-                url = pic,
-                name ="video-${bvId}-cover",
-                refresh = true
-            )
-        }.onSuccess {
-            add(it.uploadAsImage(contact))
+            add(getCover().uploadAsImage(contact))
         }.onFailure {
             logger.warning({ "获取[${title}](${bvId})}视频封面失败" }, it)
         }
@@ -103,8 +97,12 @@ object BilibiliInfoCommand : CompositeCommand(
             add(toMessageText())
         }
 
-        getImages().forEach {
-            add(it.uploadAsImage(contact))
+        runCatching {
+            getImages().forEach {
+                add(it.uploadAsImage(contact))
+            }
+        }.onFailure {
+            logger.warning({ "获取动态${desc.dynamicId}图片失败" }, it)
         }
     }
 

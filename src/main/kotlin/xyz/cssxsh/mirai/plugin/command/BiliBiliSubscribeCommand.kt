@@ -83,12 +83,7 @@ object BiliBiliSubscribeCommand : CompositeCommand(
                     appendLine("链接: https://www.bilibili.com/video/${video.bvId}")
 
                     runCatching {
-                        getBilibiliImage(
-                            url = video.pic,
-                            name = "video-${video.bvId}-cover"
-                        )
-                    }.onSuccess {
-                        add(it.uploadAsImage(contact))
+                        add(video.getCover().uploadAsImage(contact))
                     }.onFailure {
                         logger.warning({ "获取[${uid}]直播间封面封面失败" }, it)
                     }
@@ -119,12 +114,7 @@ object BiliBiliSubscribeCommand : CompositeCommand(
                         appendLine("链接: ${user.liveRoom.url}")
 
                         runCatching {
-                            getBilibiliImage(
-                                url = user.liveRoom.cover,
-                                name = "live-${user.liveRoom.roomId}-cover"
-                            )
-                        }.onSuccess {
-                            add(it.uploadAsImage(contact))
+                            add(user.liveRoom.getCover().uploadAsImage(contact))
                         }.onFailure {
                             logger.warning({ "获取[${uid}]直播间封面封面失败" }, it)
                         }
@@ -151,8 +141,12 @@ object BiliBiliSubscribeCommand : CompositeCommand(
                         add(dynamic.toMessageText())
                     }
 
-                    dynamic.getImages().forEach {
-                        add(it.uploadAsImage(contact))
+                    runCatching {
+                        dynamic.getImages().forEach {
+                            add(it.uploadAsImage(contact))
+                        }
+                    }.onFailure {
+                        logger.warning({ "获取动态${dynamic.desc.dynamicId}图片失败" }, it)
                     }
                 }
             }

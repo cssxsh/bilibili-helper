@@ -158,3 +158,12 @@ suspend fun BiliCardInfo.getImages(): List<File> = buildList {
     }
 }
 
+suspend fun BiliSearchResult.VideoInfo.getCover(): File =
+    getBilibiliImage(url = pic, name ="video-${bvId}-cover", refresh = false)
+
+suspend fun BiliLiveRoom.getCover(): File =
+    getBilibiliImage(url = cover, name = "live-${roomId}-cover", refresh = false)
+
+
+suspend fun BiliVideoInfo.VideoData.getCover(): File =
+    getBilibiliImage(url = pic, name ="video-${bvId}-cover", refresh = true)
