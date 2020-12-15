@@ -130,6 +130,7 @@ object BiliBiliSubscribeCommand : CompositeCommand(
             filter {
                 it.desc.timestamp > tasks.getValue(uid).dynamicLast
             }.sortedBy { it.desc.timestamp }.forEach { dynamic ->
+                logger.verbose { "(${uid})当前处理${dynamic.desc.dynamicId}" }
                 sendMessageToTaskContacts(uid = uid) { contact ->
                     appendLine("${dynamic.desc.userProfile.info.uname} 有新动态")
                     appendLine("时间: ${timestampToFormatText(dynamic.desc.timestamp)}")
@@ -149,16 +150,6 @@ object BiliBiliSubscribeCommand : CompositeCommand(
                     }.onFailure {
                         logger.warning({ "获取动态${dynamic.desc.dynamicId}图片失败" }, it)
                     }
-                }
-            }
-            maxByOrNull { it.desc.timestamp }?.let { dynamic ->
-                logger.info {
-                    "(${uid})[${dynamic.desc.userProfile.info.uname}]最新动态时间为<${
-                        timestampToFormatText(dynamic.desc.timestamp)
-                    }>"
-                }
-                tasks.compute(uid) { _, info ->
-                    info?.copy(dynamicLast = dynamic.desc.timestamp)
                 }
             }
         }
