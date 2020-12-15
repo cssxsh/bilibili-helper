@@ -21,13 +21,14 @@ internal class BilibiliChromeDriverToolTest {
     }.build()
 
     private val tool = BilibiliChromeDriverTool(
-        remoteAddress = URL("http://127.0.0.1:9515"),
+        remoteAddress = URL("http://10.70.159.64:9515"),
         deviceName = "iPad"
     )
 
     private val dynamicIds = listOf(
         450055453856015371,
-        456805261245236351
+        456805261245236351,
+        468989129984490798
     )
 
     @BeforeAll
