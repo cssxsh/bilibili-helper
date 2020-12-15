@@ -13,7 +13,7 @@ fun <R> RemoteWebDriver.useWait(
     timeoutMillis: Long,
     intervalMillis: Long,
     block: (RemoteWebDriver) -> R
-) = FluentWait(this).withTimeout(Duration.ofMillis(timeoutMillis)).pollingEvery(Duration.ofMillis(intervalMillis))
+): R = FluentWait(this).withTimeout(Duration.ofMillis(timeoutMillis)).pollingEvery(Duration.ofMillis(intervalMillis))
     .until(block)
 
 suspend fun RemoteWebDriver.getScreenShot(
@@ -26,7 +26,7 @@ suspend fun RemoteWebDriver.getScreenShot(
         (it.executeScript(BilibiliChromeDriverTool.IS_READY_SCRIPT) as Boolean) &&
             (it.executeScript(BilibiliChromeDriverTool.HAS_CONTENT) as Boolean)
     }
-    return getScreenshotAs(OutputType.BYTES)
+    return getScreenshotAs(OutputType.BYTES).also { quit() }
 }
 
 suspend fun RemoteWebDriver.getScreenShot(
