@@ -6,6 +6,7 @@ import net.mamoe.mirai.utils.secondsToMillis
 import org.openqa.selenium.OutputType
 import org.openqa.selenium.remote.RemoteWebDriver
 import org.openqa.selenium.support.ui.FluentWait
+import xyz.cssxsh.mirai.plugin.tools.BilibiliChromeDriverTool.Companion.IS_READY_SCRIPT
 import java.time.Duration
 
 
@@ -23,8 +24,7 @@ suspend fun RemoteWebDriver.getScreenShot(
     get(url)
     delay(timeoutProgression.first)
     useWait(timeoutProgression.last - timeoutProgression.first, timeoutProgression.step) {
-        (it.executeScript(BilibiliChromeDriverTool.IS_READY_SCRIPT) as Boolean) &&
-            (it.executeScript(BilibiliChromeDriverTool.HAS_CONTENT) as Boolean)
+        it.executeScript(IS_READY_SCRIPT)
     }
     return getScreenshotAs(OutputType.BYTES)
 }
