@@ -12,14 +12,6 @@ import java.net.URL
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 internal class BilibiliChromeDriverToolTest {
 
-    private val service : ChromeDriverService = ChromeDriverService.Builder().apply {
-            usingDriverExecutable(File("test","chromedriver.exe"))
-            withVerbose(false)
-            withSilent(true)
-            withWhitelistedIps("")
-            usingPort(9515)
-    }.build()
-
     private val tool = BilibiliChromeDriverTool(
         remoteAddress = URL("http://10.70.159.64:9515"),
         deviceName = "iPad"
