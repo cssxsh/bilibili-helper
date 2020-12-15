@@ -26,6 +26,7 @@ suspend fun RemoteWebDriver.getScreenShot(
     useWait(timeoutProgression.last - timeoutProgression.first, timeoutProgression.step) {
         it.executeScript(IS_READY_SCRIPT)
     }
+    println(url)
     return getScreenshotAs(OutputType.BYTES)
 }
 

@@ -24,7 +24,7 @@ internal class BilibiliChromeDriverToolTest {
     @Test
     fun getScreenShot(): Unit = runBlocking {
         tool.useDriver { driver ->
-            driver.getScreenShot("https://www.bilibili.com/", 1_000L .. 10_000L step 1_000L).let {
+            driver.getScreenShot("https://www.bilibili.com/").let {
                 println(it.size)
                 File("test","index.png").writeBytes(it)
             }
