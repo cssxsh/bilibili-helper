@@ -8,9 +8,14 @@ import io.ktor.client.features.cookies.*
 import io.ktor.client.features.json.*
 import io.ktor.client.features.json.serializer.*
 import io.ktor.http.*
+import io.ktor.network.sockets.*
 import io.ktor.utils.io.core.*
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
+import okhttp3.internal.http2.StreamResetException
+import java.io.EOFException
+import java.net.ConnectException
+import javax.net.ssl.SSLException
 
 class BilibiliClient(initCookies: Map<String, String>) {
 
@@ -31,7 +36,26 @@ class BilibiliClient(initCookies: Map<String, String>) {
         })
     }
 
-    suspend fun <T> useHttpClient(block: suspend (HttpClient) -> T): T = HttpClient(OkHttp) {
+    suspend fun <T> useHttpClient(
+        ignore: (exception: Throwable) -> Boolean = { throwable ->
+            when (throwable) {
+                is SSLException,
+                is EOFException,
+                is ConnectException,
+                is SocketTimeoutException,
+                is HttpRequestTimeoutException,
+                is StreamResetException,
+                -> {
+                    true
+                }
+                else -> when(throwable.message) {
+                    "Required SETTINGS preface not received" -> true
+                    else -> false
+                }
+            }
+        },
+        block: suspend (HttpClient) -> T
+    ): T = HttpClient(OkHttp) {
         install(JsonFeature) {
             serializer = KOTLINX_SERIALIZER
         }
@@ -49,5 +73,13 @@ class BilibiliClient(initCookies: Map<String, String>) {
             deflate()
             identity()
         }
-    }.use { block(it) }
+    }.use {
+        var result: T? = null
+        while (result === null) {
+            result = runCatching { block(it) }.onFailure {
+                if (ignore(it).not()) throw it
+            }.getOrNull()
+        }
+        result
+    }
 }
