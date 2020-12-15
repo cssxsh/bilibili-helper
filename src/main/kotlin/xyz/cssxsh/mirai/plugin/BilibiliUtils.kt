@@ -47,7 +47,6 @@ suspend fun getBilibiliImage(
 ): File = File(cachePath).resolve("${name}-${url.getFilename()}").apply {
     if (exists().not() || refresh) {
         runCatching {
-            parentFile.mkdirs()
             writeBytes(bilibiliClient.useHttpClient { it.get(url) })
         }.getOrElse { throwable ->
             when (throwable) {
@@ -78,7 +77,6 @@ suspend fun getScreenShot(
     name: String,
     refresh: Boolean = false
 ): File = File(cachePath).resolve("${name}.png").apply {
-    parentFile.mkdirs()
     if (exists().not() || refresh) {
         runCatching {
             BilibiliChromeDriverTool(

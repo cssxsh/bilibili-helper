@@ -65,6 +65,8 @@ object BilibiliHelperPlugin : KotlinPlugin(
         BilibiliHelperSettings.reload()
         BiliBiliSubscribeCommand.register()
         BilibiliInfoCommand.register()
+
+        BilibiliHelperSettings.cachePath.let { File(it).mkdirs() }
         bilibiliInfoJob = subscribeBilibiliInfo()
         serviceStart()
     }
