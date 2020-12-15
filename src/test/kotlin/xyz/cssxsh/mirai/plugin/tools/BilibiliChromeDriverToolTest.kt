@@ -23,16 +23,6 @@ internal class BilibiliChromeDriverToolTest {
         468989129984490798
     )
 
-    @BeforeAll
-    fun setUp(): Unit = runBlocking {
-        // service.start()
-    }
-
-    @AfterAll
-    fun tearDown(): Unit = runBlocking {
-        // service.stop()
-    }
-
     @Test
     fun getScreenShot(): Unit = runBlocking {
         tool.useDriver { driver ->
