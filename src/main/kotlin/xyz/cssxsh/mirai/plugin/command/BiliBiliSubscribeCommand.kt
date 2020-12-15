@@ -71,10 +71,11 @@ object BiliBiliSubscribeCommand : CompositeCommand(
     }
 
     private suspend fun buildVideoMessage(uid: Long) = runCatching {
-        bilibiliClient.searchVideo(uid).searchData.list.vList.apply {
-            filter {
-                it.created > tasks.getValue(uid).videoLast
-            }.sortedBy { it.created }.forEach { video ->
+        bilibiliClient.searchVideo(uid).searchData.list.vList.filter {
+            it.created > tasks.getValue(uid).videoLast
+        }.apply {
+            logger.verbose { "(${uid})共加载${size}条视频" }
+            sortedBy { it.created }.forEach { video ->
                 sendMessageToTaskContacts(uid = uid) { contact ->
                     appendLine("标题: ${video.title}")
                     appendLine("作者: ${video.author}")
@@ -125,11 +126,11 @@ object BiliBiliSubscribeCommand : CompositeCommand(
     }.onFailure { logger.warning({ "($uid)获取直播失败" }, it) }.isSuccess
 
     private suspend fun buildDynamicMessage(uid: Long) = runCatching {
-        bilibiliClient.spaceHistory(uid).dynamicData.cards.apply {
+        bilibiliClient.spaceHistory(uid).dynamicData.cards.filter {
+            it.desc.timestamp > tasks.getValue(uid).dynamicLast
+        }.apply {
             logger.verbose { "(${uid})共加载${size}条动态" }
-            filter {
-                it.desc.timestamp > tasks.getValue(uid).dynamicLast
-            }.sortedBy { it.desc.timestamp }.forEach { dynamic ->
+            sortedBy { it.desc.timestamp }.forEach { dynamic ->
                 logger.verbose { "(${uid})当前处理${dynamic.desc.dynamicId}" }
                 sendMessageToTaskContacts(uid = uid) { contact ->
                     appendLine("${dynamic.desc.userProfile.info.uname} 有新动态")
@@ -150,6 +151,16 @@ object BiliBiliSubscribeCommand : CompositeCommand(
                     }.onFailure {
                         logger.warning({ "获取动态${dynamic.desc.dynamicId}图片失败" }, it)
                     }
+                }
+            }
+            maxByOrNull { it.desc.timestamp }?.let { dynamic ->
+                logger.info {
+                    "(${uid})[${dynamic.desc.userProfile.info.uname}]最新动态时间为<${
+                        timestampToFormatText(dynamic.desc.timestamp)
+                    }>"
+                }
+                tasks.compute(uid) { _, info ->
+                    info?.copy(dynamicLast = dynamic.desc.timestamp)
                 }
             }
         }
