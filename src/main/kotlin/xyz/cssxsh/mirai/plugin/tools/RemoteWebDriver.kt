@@ -26,7 +26,7 @@ suspend fun RemoteWebDriver.getScreenShot(
         (it.executeScript(BilibiliChromeDriverTool.IS_READY_SCRIPT) as Boolean) &&
             (it.executeScript(BilibiliChromeDriverTool.HAS_CONTENT) as Boolean)
     }
-    return getScreenshotAs(OutputType.BYTES).also { quit() }
+    return getScreenshotAs(OutputType.BYTES)
 }
 
 suspend fun RemoteWebDriver.getScreenShot(

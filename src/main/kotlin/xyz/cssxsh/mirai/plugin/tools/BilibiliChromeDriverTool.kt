@@ -47,6 +47,6 @@ class BilibiliChromeDriverTool(
     }
 
     suspend fun <R> useDriver(block: suspend (RemoteWebDriver) -> R) = RemoteWebDriver(remoteAddress, options).let { driver ->
-        block(driver).also { driver.quit() }
+        block(driver).also { driver.close() }
     }
 }
