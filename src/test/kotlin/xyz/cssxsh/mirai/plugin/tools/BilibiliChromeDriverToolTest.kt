@@ -1,11 +1,8 @@
 package xyz.cssxsh.mirai.plugin.tools
 
 import kotlinx.coroutines.runBlocking
-import org.junit.jupiter.api.AfterAll
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
-import org.openqa.selenium.chrome.ChromeDriverService
 import java.io.File
 import java.net.URL
 
