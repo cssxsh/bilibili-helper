@@ -126,6 +126,7 @@ object BiliBiliSubscribeCommand : CompositeCommand(
 
     private suspend fun buildDynamicMessage(uid: Long) = runCatching {
         bilibiliClient.spaceHistory(uid).dynamicData.cards.apply {
+            logger.verbose { "(${uid})共加载${size}条动态" }
             filter {
                 it.desc.timestamp > tasks.getValue(uid).dynamicLast
             }.sortedBy { it.desc.timestamp }.forEach { dynamic ->
@@ -167,9 +168,9 @@ object BiliBiliSubscribeCommand : CompositeCommand(
         delay(tasks.getValue(uid).getInterval().random())
         while (isActive && taskContacts[uid].isNullOrEmpty().not()) {
             runCatching {
+                buildDynamicMessage(uid)
                 buildVideoMessage(uid)
                 buildLiveMessage(uid)
-                buildDynamicMessage(uid)
             }.onSuccess {
                 delay(tasks.getValue(uid).getInterval().random().also {
                     logger.info { "(${uid}): ${tasks[uid]}监听任务完成一次, 即将进入延时delay(${it}ms)。" }

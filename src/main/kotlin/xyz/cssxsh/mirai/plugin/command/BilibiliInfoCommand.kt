@@ -32,7 +32,7 @@ object BilibiliInfoCommand : CompositeCommand(
 
     fun CoroutineScope.subscribeBilibiliInfo(): Job = subscribeMessages {
         finding(DYNAMIC_REGEX) { result ->
-            logger.info { "匹配DYNAMIC(${result.value})" }
+            logger.info { "[${senderName}] 匹配DYNAMIC(${result.value})" }
             runCatching {
                 bilibiliClient.getDynamicDetail(result.value.toLong()).dynamic.card.buildDynamicMessage(subject).let {
                     quoteReply(it)
@@ -86,7 +86,7 @@ object BilibiliInfoCommand : CompositeCommand(
     }
 
     private suspend fun BiliCardInfo.buildDynamicMessage(contact: Contact) = buildMessageChain {
-        appendLine("${desc.userProfile.info.uname} 有新动态")
+        appendLine("${desc.userProfile.info.uname} 动态")
         appendLine("时间: ${timestampToFormatText(desc.timestamp)}")
         appendLine("链接: https://t.bilibili.com/${desc.dynamicId}")
 
