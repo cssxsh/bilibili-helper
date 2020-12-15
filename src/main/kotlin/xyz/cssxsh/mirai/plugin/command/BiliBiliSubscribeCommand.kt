@@ -138,6 +138,7 @@ object BiliBiliSubscribeCommand : CompositeCommand(
                     appendLine("链接: https://t.bilibili.com/${dynamic.desc.dynamicId}")
 
                     runCatching {
+                        logger.verbose { "(${uid})当前处理${dynamic.desc.dynamicId}, 加载快照" }
                         add(dynamic.getScreenShot(refresh = false).uploadAsImage(contact))
                     }.onFailure {
                         logger.warning({ "获取动态${dynamic.desc.dynamicId}快照失败" }, it)
@@ -145,6 +146,7 @@ object BiliBiliSubscribeCommand : CompositeCommand(
                     }
 
                     runCatching {
+                        logger.verbose { "(${uid})当前处理${dynamic.desc.dynamicId}， 加载图片" }
                         dynamic.getImages().forEach {
                             add(it.uploadAsImage(contact))
                         }

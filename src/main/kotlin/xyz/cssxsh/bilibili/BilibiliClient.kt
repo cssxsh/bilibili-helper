@@ -36,9 +36,9 @@ class BilibiliClient(initCookies: Map<String, String>) {
             serializer = KOTLINX_SERIALIZER
         }
         install(HttpTimeout) {
-            socketTimeoutMillis = 60_000
-            connectTimeoutMillis = 60_000
-            requestTimeoutMillis = 180_000
+            socketTimeoutMillis = 10_000
+            connectTimeoutMillis = 10_000
+            requestTimeoutMillis = 60_000
         }
         install(HttpCookies) {
             storage = cookiesStorage
