@@ -37,7 +37,7 @@ class BilibiliChromeDriverTool(
 
     private val options = ChromeOptions().apply {
         setHeadless(true)
-        setPageLoadStrategy(PageLoadStrategy.NONE)
+        setPageLoadStrategy(PageLoadStrategy.NORMAL)
         addArguments(
             "--no-sandbox",
             "--disable-infobars",
