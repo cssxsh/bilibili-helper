@@ -1,4 +1,2 @@
 
-function hasContent() {
-    return  document.getElementsByClassName('content').length !== 0
-}
+const hasContent = () => document.getElementsByClassName('content').length !== 0
