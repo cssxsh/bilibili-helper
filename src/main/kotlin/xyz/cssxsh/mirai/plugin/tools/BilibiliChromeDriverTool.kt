@@ -37,7 +37,13 @@ class BilibiliChromeDriverTool(
 
     private val options = ChromeOptions().apply {
         setHeadless(true)
-        setPageLoadStrategy(PageLoadStrategy.NORMAL)
+        setPageLoadStrategy(PageLoadStrategy.NONE)
+        addArguments(
+            "--no-sandbox",
+            "--disable-infobars",
+            "--disable-dev-shm-usage",
+            "--disable-browser-side-navigation"
+        )
         if (chromePath.isNotBlank()) {
             setBinary(chromePath)
         }
@@ -46,7 +52,8 @@ class BilibiliChromeDriverTool(
         }
     }
 
-    suspend fun <R> useDriver(block: suspend (RemoteWebDriver) -> R) = RemoteWebDriver(remoteAddress, options).let { driver ->
-        block(driver).also { driver.close() }
-    }
+    suspend fun <R> useDriver(block: suspend (RemoteWebDriver) -> R) =
+        RemoteWebDriver(remoteAddress, options).let { driver ->
+            block(driver).also { driver.close() }
+        }
 }
