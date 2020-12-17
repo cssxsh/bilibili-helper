@@ -13,8 +13,10 @@ function findVue() {
 function vmMounted(vm) {
     let mounted = vm['_isMounted'];
     try {
-        for (const child of vm['$children']) {
-            mounted = mounted && vmMounted(child);
+        if (Array.isArray(vm['$children'])) {
+            for (const child of vm['$children']) {
+                mounted = mounted && vmMounted(child);
+            }
         }
     } finally {
         // console.log(`VmMounted: ${mounted}`);

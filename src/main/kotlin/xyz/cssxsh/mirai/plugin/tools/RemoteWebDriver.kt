@@ -10,7 +10,6 @@ import xyz.cssxsh.mirai.plugin.tools.BilibiliChromeDriverTool.Companion.IS_READY
 import xyz.cssxsh.mirai.plugin.tools.BilibiliChromeDriverTool.Companion.HAS_CONTENT
 import java.time.Duration
 
-
 fun <R> RemoteWebDriver.useWait(
     timeoutMillis: Long,
     intervalMillis: Long,

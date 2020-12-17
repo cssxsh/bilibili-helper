@@ -5,6 +5,7 @@ import org.openqa.selenium.chrome.ChromeOptions
 import org.openqa.selenium.remote.ProtocolHandshake
 import org.openqa.selenium.remote.RemoteWebDriver
 import java.net.URL
+import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 import java.util.logging.Logger
 
@@ -38,12 +39,6 @@ class BilibiliChromeDriverTool(
     private val options = ChromeOptions().apply {
         setHeadless(true)
         setPageLoadStrategy(PageLoadStrategy.NORMAL)
-        addArguments(
-            "--no-sandbox",
-            "--disable-infobars",
-            "--disable-dev-shm-usage",
-            "--disable-browser-side-navigation"
-        )
         if (chromePath.isNotBlank()) {
             setBinary(chromePath)
         }
@@ -54,6 +49,8 @@ class BilibiliChromeDriverTool(
 
     suspend fun <R> useDriver(block: suspend (RemoteWebDriver) -> R) =
         RemoteWebDriver(remoteAddress, options).let { driver ->
-            block(driver).also { driver.close() }
+            driver.manage().timeouts().pageLoadTimeout(10L, TimeUnit.MINUTES)
+            driver.manage().timeouts().setScriptTimeout(10L, TimeUnit.SECONDS)
+            block(driver).also { driver.quit() }
         }
 }

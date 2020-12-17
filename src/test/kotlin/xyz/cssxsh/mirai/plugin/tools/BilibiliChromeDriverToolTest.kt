@@ -3,7 +3,6 @@ package xyz.cssxsh.mirai.plugin.tools
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
-import org.openqa.selenium.OutputType
 import xyz.cssxsh.mirai.plugin.DYNAMIC_DETAIL
 import java.io.File
 import java.net.URL
@@ -24,14 +23,12 @@ internal class BilibiliChromeDriverToolTest {
 
     @Test
     fun getScreenShot(): Unit = runBlocking {
-        tool.useDriver { driver ->
-            dynamicIds.forEach { id ->
-//                driver.getScreenShot(url = DYNAMIC_DETAIL + id).let {
-//                    println(it.size)
-//                    File("test", "${id}.png").writeBytes(it)
-//                }
-                driver.get(DYNAMIC_DETAIL + id)
-                File("test", "${id}.png").writeBytes(driver.getScreenshotAs(OutputType.BYTES))
+        dynamicIds.forEach { id ->
+            tool.useDriver { driver ->
+                driver.getScreenShot(url = DYNAMIC_DETAIL + id).let {
+                    println("${id}: ${it.size}")
+                    File("test", "${id}.png").writeBytes(it)
+                }
             }
         }
     }
