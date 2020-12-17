@@ -51,6 +51,10 @@ class BilibiliChromeDriverTool(
         RemoteWebDriver(remoteAddress, options).let { driver ->
             driver.manage().timeouts().pageLoadTimeout(10L, TimeUnit.MINUTES)
             driver.manage().timeouts().setScriptTimeout(10L, TimeUnit.SECONDS)
-            block(driver).also { driver.quit() }
+            kotlin.runCatching {
+                block(driver)
+            }.also {
+                driver.quit()
+            }.getOrThrow()
         }
 }
