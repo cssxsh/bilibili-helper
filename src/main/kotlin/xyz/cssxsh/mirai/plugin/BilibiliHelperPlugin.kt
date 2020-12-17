@@ -32,7 +32,7 @@ object BilibiliHelperPlugin : KotlinPlugin(
     private var service: ChromeDriverService? = null
 
     private fun serviceStart() {
-        if (driverPath.isNotEmpty()) {
+        if (driverPath.isNotBlank()) {
             runCatching {
                 service = ChromeDriverService.Builder().apply {
                     usingDriverExecutable(File(driverPath))
