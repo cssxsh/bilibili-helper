@@ -39,6 +39,10 @@ class BilibiliChromeDriverTool(
     private val options = ChromeOptions().apply {
         setHeadless(true)
         setPageLoadStrategy(PageLoadStrategy.NORMAL)
+        setExperimentalOption("excludeSwitches", listOf(
+            "enable-automation",
+            "ignore-certificate-errors"
+        ))
         if (chromePath.isNotBlank()) {
             setBinary(chromePath)
         }
