@@ -23,8 +23,8 @@ suspend fun RemoteWebDriver.getScreenShot(
 ): ByteArray {
     get(url)
     delay(timeoutProgression.first)
-    useWait(timeoutProgression.last - timeoutProgression.first, timeoutProgression.step) {
-        (it.executeScript(IS_READY_SCRIPT) == true) && it.findElementsByClassName("content").isNullOrEmpty()
+    useWait(timeoutProgression.last - timeoutProgression.first, timeoutProgression.step) { driver ->
+        (driver.executeScript(IS_READY_SCRIPT) == true) && driver.findElementsByClassName("content").isNotEmpty()
     }
     return getScreenshotAs(OutputType.BYTES)
 }
