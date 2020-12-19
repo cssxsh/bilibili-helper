@@ -28,7 +28,7 @@ data class BiliVideoCard(
     @SerialName("jump_url")
     val jumpUrl: String,
     @SerialName("mission_id")
-    val missionId: Long,
+    val missionId: Long? = null,
     @SerialName("owner")
     val owner: BiliOwner,
     @SerialName("pic")
