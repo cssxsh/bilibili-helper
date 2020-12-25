@@ -23,7 +23,7 @@ data class BiliPictureCard(
     @Serializable
     data class Item(
         @SerialName("at_control")
-        val atControl: String,
+        val atControl: String? = null,
         @SerialName("category")
         val category: String,
         @SerialName("ctrl")
