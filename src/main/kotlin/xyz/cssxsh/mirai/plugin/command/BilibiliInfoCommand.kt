@@ -42,7 +42,7 @@ object BilibiliInfoCommand : CompositeCommand(
             }
         }
         finding(VIDEO_REGEX) { result ->
-            logger.info { "匹配VIDEO(${result.value})" }
+            logger.info { "[${senderName}] 匹配VIDEO(${result.value})" }
             runCatching {
                 when (result.value.first()) {
                     'B', 'b' -> {
