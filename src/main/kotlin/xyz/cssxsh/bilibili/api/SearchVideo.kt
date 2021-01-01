@@ -4,6 +4,7 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import xyz.cssxsh.bilibili.BilibiliClient
 import xyz.cssxsh.bilibili.data.BiliSearchResult
+import xyz.cssxsh.bilibili.data.BiliTempInfo
 
 suspend fun BilibiliClient.searchVideo(
     uid: Long,
@@ -11,7 +12,7 @@ suspend fun BilibiliClient.searchVideo(
     pageNum: Int = 1,
     url: String = BilibiliApi.SEARCH_URL
 ): BiliSearchResult = useHttpClient { client ->
-    client.get(url) {
+    client.get<BiliTempInfo>(url) {
         header(HttpHeaders.Origin, BilibiliApi.SPACE)
         header(HttpHeaders.Referrer, BilibiliApi.SPACE)
 
@@ -22,5 +23,5 @@ suspend fun BilibiliClient.searchVideo(
         parameter("ps", pageSize)
         parameter("pn", pageNum)
         parameter("tid", 0)
-    }
+    }.transferTo(BiliSearchResult.serializer())
 }

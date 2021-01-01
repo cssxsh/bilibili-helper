@@ -15,7 +15,6 @@ import net.mamoe.mirai.utils.*
 import xyz.cssxsh.bilibili.api.getDynamicDetail
 import xyz.cssxsh.bilibili.api.videoInfo
 import xyz.cssxsh.bilibili.data.*
-import xyz.cssxsh.bilibili.data.BiliVideoInfo.VideoData
 import xyz.cssxsh.mirai.plugin.*
 import xyz.cssxsh.mirai.plugin.BilibiliHelperPlugin.bilibiliClient
 import xyz.cssxsh.mirai.plugin.BilibiliHelperPlugin.logger
@@ -34,7 +33,7 @@ object BilibiliInfoCommand : CompositeCommand(
         finding(DYNAMIC_REGEX) { result ->
             logger.info { "[${senderName}] 匹配DYNAMIC(${result.value})" }
             runCatching {
-                bilibiliClient.getDynamicDetail(result.value.toLong()).dynamic.card.buildDynamicMessage(subject).let {
+                bilibiliClient.getDynamicDetail(result.value.toLong()).card.buildDynamicMessage(subject).let {
                     quoteReply(it)
                 }
             }.onFailure {
@@ -56,7 +55,7 @@ object BilibiliInfoCommand : CompositeCommand(
                         }
                     }
                     else -> throw IllegalArgumentException("未知视频ID(${result.value})")
-                }.videoData.buildVideoMessage(subject).let {
+                }.buildVideoMessage(subject).let {
                     quoteReply(it)
                 }
             }.onFailure {
@@ -69,9 +68,9 @@ object BilibiliInfoCommand : CompositeCommand(
     @ConsoleExperimentalApi
     override val prefixOptional: Boolean = true
 
-    private fun VideoData.durationText() = "${duration / 3600}:${duration % 3600 / 60}:${duration % 60}"
+    private fun BiliVideoInfo.durationText() = "${duration / 3600}:${duration % 3600 / 60}:${duration % 60}"
 
-    private suspend fun VideoData.buildVideoMessage(contact: Contact) = buildMessageChain {
+    private suspend fun BiliVideoInfo.buildVideoMessage(contact: Contact) = buildMessageChain {
         appendLine("标题: $title")
         appendLine("作者: ${owner.name}")
         appendLine("时间: ${timestampToFormatText(pubDate)}")
@@ -109,7 +108,7 @@ object BilibiliInfoCommand : CompositeCommand(
     @SubCommand
     @Suppress("unused")
     suspend fun CommandSenderOnMessage<MessageEvent>.aid(id: Long) = runCatching {
-        bilibiliClient.videoInfo(aid = id).videoData.buildVideoMessage(fromEvent.subject).let {
+        bilibiliClient.videoInfo(aid = id).buildVideoMessage(fromEvent.subject).let {
             quoteReply(it)
         }
     }.onFailure { reply(it.toString()) }.isSuccess
@@ -117,7 +116,7 @@ object BilibiliInfoCommand : CompositeCommand(
     @SubCommand
     @Suppress("unused")
     suspend fun CommandSenderOnMessage<MessageEvent>.bvid(id: String) = runCatching {
-        bilibiliClient.videoInfo(bvId = id).videoData.buildVideoMessage(fromEvent.subject).let {
+        bilibiliClient.videoInfo(bvId = id).buildVideoMessage(fromEvent.subject).let {
             quoteReply(it)
         }
     }.onFailure { reply(it.toString()) }.isSuccess
@@ -125,7 +124,7 @@ object BilibiliInfoCommand : CompositeCommand(
     @SubCommand
     @Suppress("unused")
     suspend fun CommandSenderOnMessage<MessageEvent>.dynamic(id: Long) = runCatching {
-        bilibiliClient.getDynamicDetail(id).dynamic.card.buildDynamicMessage(fromEvent.subject).let {
+        bilibiliClient.getDynamicDetail(id).card.buildDynamicMessage(fromEvent.subject).let {
             quoteReply(it)
         }
     }.onFailure { reply(it.toString()) }.isSuccess

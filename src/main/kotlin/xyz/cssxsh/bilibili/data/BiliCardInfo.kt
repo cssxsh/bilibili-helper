@@ -1,28 +1,19 @@
 package xyz.cssxsh.bilibili.data
 
-import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.descriptors.PrimitiveKind
-import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
-import kotlinx.serialization.descriptors.SerialDescriptor
-import kotlinx.serialization.encoding.Decoder
-import kotlinx.serialization.encoding.Encoder
-import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 
 @Serializable
 data class BiliCardInfo(
     @SerialName("card")
-    @Serializable(JsonTextSerializer::class)
-    val card: JsonElement,
+    val card: String,
     @SerialName("desc")
     val desc: Desc,
     @SerialName("display")
     val display: JsonElement,
     @SerialName("extend_json")
-    @Serializable(JsonTextSerializer::class)
-    val extendJson: JsonElement,
+    val extendJson: String,
     @SerialName("extra")
     val extra: JsonElement? = null,
     @SerialName("activity_infos")
@@ -30,20 +21,6 @@ data class BiliCardInfo(
     @SerialName("extension")
     val extension: JsonElement? = null
 ) {
-
-    companion object {
-        object JsonTextSerializer : KSerializer<JsonElement> {
-            override fun deserialize(decoder: Decoder): JsonElement =
-                Json.decodeFromString(JsonElement.serializer(), decoder.decodeString())
-
-            override val descriptor: SerialDescriptor
-                get() = PrimitiveSerialDescriptor("JsonTextSerializer", PrimitiveKind.STRING)
-
-            override fun serialize(encoder: Encoder, value: JsonElement) {
-                encoder.encodeString(Json.encodeToString(JsonElement.serializer(), value))
-            }
-        }
-    }
 
     @Serializable
     data class Desc(

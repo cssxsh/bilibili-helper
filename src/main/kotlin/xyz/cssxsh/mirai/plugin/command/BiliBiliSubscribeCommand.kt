@@ -71,7 +71,7 @@ object BiliBiliSubscribeCommand : CompositeCommand(
     }
 
     private suspend fun buildVideoMessage(uid: Long) = runCatching {
-        bilibiliClient.searchVideo(uid).searchData.list.vList.filter {
+        bilibiliClient.searchVideo(uid).list.vList.filter {
             it.created > tasks.getValue(uid).videoLast
         }.apply {
             logger.verbose { "(${uid})共加载${size}条视频" }
@@ -104,7 +104,7 @@ object BiliBiliSubscribeCommand : CompositeCommand(
     }.onFailure { logger.warning({ "($uid)获取视频失败" }, it) }.isSuccess
 
     private suspend fun buildLiveMessage(uid: Long) = runCatching {
-        bilibiliClient.accInfo(uid).userData.also { user ->
+        bilibiliClient.accInfo(uid).also { user ->
             logger.verbose { "(${uid})[${user.name}][${user.liveRoom.title}]最新开播状态为${user.liveRoom.liveStatus == 1}" }
             liveState.put(uid, user.liveRoom.liveStatus == 1).let { old ->
                 if (old != true && user.liveRoom.liveStatus == 1) {
@@ -126,7 +126,7 @@ object BiliBiliSubscribeCommand : CompositeCommand(
     }.onFailure { logger.warning({ "($uid)获取直播失败" }, it) }.isSuccess
 
     private suspend fun buildDynamicMessage(uid: Long) = runCatching {
-        bilibiliClient.spaceHistory(uid).dynamicData.cards.filter {
+        bilibiliClient.spaceHistory(uid).cards.filter {
             it.desc.timestamp > tasks.getValue(uid).dynamicLast
         }.apply {
             logger.verbose { "(${uid})共加载${size}条动态" }

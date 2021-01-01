@@ -19,7 +19,7 @@ data class BiliUserProfile(
     @SerialName("sign")
     val sign: String,
     @SerialName("vip")
-    val vip: BiliVip? = null,
+    val vip: JsonElement? = null,
     @SerialName("decorate_card")
     val decorate_card: JsonElement? = null
 )

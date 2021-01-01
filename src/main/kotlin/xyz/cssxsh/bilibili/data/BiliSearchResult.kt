@@ -2,17 +2,16 @@ package xyz.cssxsh.bilibili.data
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonElement
 
 @Serializable
 data class BiliSearchResult(
-    @SerialName("code")
-    val code: Int,
-    @SerialName("data")
-    val searchData: SearchData,
-    @SerialName("message")
-    val message: String,
-    @SerialName("ttl")
-    val ttl: Int
+    @SerialName("episodic_button")
+    val episodic_button: JsonElement? = null,
+    @SerialName("list")
+    val list: InfoList,
+    @SerialName("page")
+    val page: Page
 ) {
 
     @Serializable
@@ -47,6 +46,8 @@ data class BiliSearchResult(
         val isPay: Int,
         @SerialName("is_union_video")
         val isUnionVideo: Int,
+        @SerialName("is_steins_gate")
+        val isSteinsGate: Int,
         @SerialName("length")
         val length: String,
         @SerialName("mid")
@@ -83,13 +84,5 @@ data class BiliSearchResult(
         val pageNum: Int,
         @SerialName("ps")
         val pageSize: Int
-    )
-
-    @Serializable
-    data class SearchData(
-        @SerialName("list")
-        val list: InfoList,
-        @SerialName("page")
-        val page: Page
     )
 }

@@ -83,25 +83,25 @@ suspend fun BiliCardInfo.getScreenShot(refresh: Boolean = false) =
 fun BiliCardInfo.toMessageText(): String = buildString {
     when (desc.type) {
         1 -> {
-            BILI_JSON.decodeFromJsonElement(BiliReplyCard.serializer(), card).let { card ->
+            BILI_JSON.decodeFromString(BiliReplyCard.serializer(), card).let { card ->
                 appendLine("${card.user.uname} -> ${card.originUser.info.uname}: ")
                 appendLine(card.item.content)
             }
         }
         2 -> {
-            BILI_JSON.decodeFromJsonElement(BiliPictureCard.serializer(), card).let { card ->
+            BILI_JSON.decodeFromString(BiliPictureCard.serializer(), card).let { card ->
                 appendLine("${card.user.name}: ")
                 appendLine(card.item.description)
             }
         }
         4 -> {
-            BILI_JSON.decodeFromJsonElement(BiliTextCard.serializer(), card).let { card ->
+            BILI_JSON.decodeFromString(BiliTextCard.serializer(), card).let { card ->
                 appendLine("${card.user.uname}: ")
                 appendLine(card.item.content)
             }
         }
         8 -> {
-            BILI_JSON.decodeFromJsonElement(BiliVideoCard.serializer(), card).let { card ->
+            BILI_JSON.decodeFromString(BiliVideoCard.serializer(), card).let { card ->
                 appendLine("${card.owner.name}: ")
                 appendLine(card.title)
             }
@@ -113,9 +113,9 @@ fun BiliCardInfo.toMessageText(): String = buildString {
 
 suspend fun BiliCardInfo.getImages(): List<File> = buildList {
     if (desc.type == BiliPictureCard.TYPE) {
-        BILI_JSON.decodeFromJsonElement(
+        BILI_JSON.decodeFromString(
             deserializer = BiliPictureCard.serializer(),
-            element = card
+            string = card
         ).item.pictures.forEachIndexed { index, picture ->
             runCatching {
                 getBilibiliImage(url = picture.imgSrc, name = "dynamic-${desc.dynamicId}-${index}")
@@ -135,5 +135,5 @@ suspend fun BiliLiveRoom.getCover(): File =
     getBilibiliImage(url = cover, name = "live-${roomId}-cover", refresh = false)
 
 
-suspend fun BiliVideoInfo.VideoData.getCover(): File =
+suspend fun BiliVideoInfo.getCover(): File =
     getBilibiliImage(url = pic, name ="video-${bvId}-cover", refresh = true)

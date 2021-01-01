@@ -1,6 +1,5 @@
 package xyz.cssxsh.bilibili.data
 
-
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
@@ -44,7 +43,7 @@ data class BiliReplyCard(
         @SerialName("reply")
         val reply: Int,
         @SerialName("rp_id")
-        val rpId: Long,
+        val replyId: Long,
         @SerialName("timestamp")
         val timestamp: Int,
         @SerialName("uid")

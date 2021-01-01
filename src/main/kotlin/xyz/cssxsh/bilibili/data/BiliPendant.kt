@@ -11,6 +11,8 @@ data class BiliPendant(
     val image: String,
     @SerialName("image_enhance")
     val imageEnhance: String,
+    @SerialName("image_enhance_frame")
+    val imageEnhanceFrame: String = "",
     @SerialName("name")
     val name: String,
     @SerialName("pid")

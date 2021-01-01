@@ -80,6 +80,6 @@ data class BiliPictureCard(
         @SerialName("uid")
         val uid: Int,
         @SerialName("vip")
-        val vip: BiliVip
+        val vip: JsonElement
     )
 }
