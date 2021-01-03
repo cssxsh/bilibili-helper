@@ -7,12 +7,16 @@ import kotlinx.serialization.Serializable
 data class BiliVideoState(
     @SerialName("aid")
     val aid: Long,
+    @SerialName("argue_msg")
+    val argueMsg: String = "",
     @SerialName("coin")
     val coin: Int,
     @SerialName("danmaku")
     val danmaku: Int,
     @SerialName("dislike")
     val dislike: Int,
+    @SerialName("evaluation")
+    val evaluation: String = "",
     @SerialName("favorite")
     val favorite: Int,
     @SerialName("his_rank")
