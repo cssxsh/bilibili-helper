@@ -51,7 +51,7 @@ data class BiliCardInfo(
         @SerialName("pre_dy_id_str")
         val preDyIdStr: String? = null,
         @SerialName("r_type")
-        val rType: Int,
+        val rType: Int? = null,
         @SerialName("repost")
         val repost: Int,
         @SerialName("rid")
