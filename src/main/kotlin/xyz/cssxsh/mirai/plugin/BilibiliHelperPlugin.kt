@@ -10,7 +10,6 @@ import net.mamoe.mirai.console.plugin.jvm.KotlinPlugin
 import net.mamoe.mirai.console.util.ConsoleExperimentalApi
 import xyz.cssxsh.mirai.plugin.command.BiliBiliSubscribeCommand
 import xyz.cssxsh.mirai.plugin.data.*
-import net.mamoe.mirai.utils.minutesToMillis
 import net.mamoe.mirai.utils.warning
 import org.openqa.selenium.chrome.ChromeDriverService
 import xyz.cssxsh.bilibili.BilibiliClient
@@ -18,6 +17,7 @@ import xyz.cssxsh.mirai.plugin.command.BilibiliInfoCommand
 import xyz.cssxsh.mirai.plugin.command.BilibiliInfoCommand.subscribeBilibiliInfo
 import xyz.cssxsh.mirai.plugin.data.BilibiliChromeDriverConfig.driverPath
 import java.io.File
+import kotlin.time.minutes
 
 @AutoService(JvmPlugin::class)
 object BilibiliHelperPlugin : KotlinPlugin(
@@ -55,7 +55,7 @@ object BilibiliHelperPlugin : KotlinPlugin(
 
     @ConsoleExperimentalApi
     override val autoSaveIntervalMillis: LongRange
-        get() = 3.minutesToMillis..10.minutesToMillis
+        get() = (3).minutes.toLongMilliseconds()..(10).minutes.toLongMilliseconds()
 
     @ConsoleExperimentalApi
     override fun onEnable() {

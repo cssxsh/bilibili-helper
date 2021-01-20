@@ -3,7 +3,7 @@ package xyz.cssxsh.mirai.plugin.data
 import net.mamoe.mirai.console.data.ReadOnlyPluginConfig
 import net.mamoe.mirai.console.data.ValueName
 import net.mamoe.mirai.console.data.value
-import net.mamoe.mirai.utils.minutesToMillis
+import kotlin.time.minutes
 
 object BilibiliChromeDriverConfig : ReadOnlyPluginConfig("BilibiliChromeDriverConfig") {
 
@@ -20,5 +20,5 @@ object BilibiliChromeDriverConfig : ReadOnlyPluginConfig("BilibiliChromeDriverCo
     val deviceName: String by value("iPad")
 
     @ValueName("timeout_millis")
-    val timeoutMillis: Long by value(1.minutesToMillis)
+    val timeoutMillis: Long by value((1).minutes.toLongMilliseconds())
 }
