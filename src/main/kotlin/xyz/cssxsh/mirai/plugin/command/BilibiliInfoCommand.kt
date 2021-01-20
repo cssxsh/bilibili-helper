@@ -1,17 +1,17 @@
 package xyz.cssxsh.mirai.plugin.command
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
 import net.mamoe.mirai.console.command.CommandSenderOnMessage
 import net.mamoe.mirai.console.command.CompositeCommand
 import net.mamoe.mirai.console.command.descriptor.ExperimentalCommandDescriptors
 import net.mamoe.mirai.console.util.ConsoleExperimentalApi
 import net.mamoe.mirai.contact.Contact
+import net.mamoe.mirai.event.GlobalEventChannel
+import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.event.subscribeMessages
-import net.mamoe.mirai.message.MessageEvent
+import net.mamoe.mirai.message.data.MessageSource.Key.quote
 import net.mamoe.mirai.message.data.buildMessageChain
-import net.mamoe.mirai.message.uploadAsImage
 import net.mamoe.mirai.utils.*
+import net.mamoe.mirai.utils.ExternalResource.Companion.uploadAsImage
 import xyz.cssxsh.bilibili.api.getDynamicDetail
 import xyz.cssxsh.bilibili.api.videoInfo
 import xyz.cssxsh.bilibili.data.*
@@ -29,18 +29,16 @@ object BilibiliInfoCommand : CompositeCommand(
 
     private val DYNAMIC_REGEX = """(?<=https://t\.bilibili\.com/(h5/dynamic/detail/)?)([0-9]{18})""".toRegex()
 
-    fun CoroutineScope.subscribeBilibiliInfo(): Job = subscribeMessages {
-        finding(DYNAMIC_REGEX) { result ->
+    fun subscribeBilibiliInfo() = GlobalEventChannel.parentScope(BilibiliHelperPlugin).subscribeMessages {
+        DYNAMIC_REGEX findingReply { result ->
             logger.info { "[${senderName}] 匹配DYNAMIC(${result.value})" }
             runCatching {
-                bilibiliClient.getDynamicDetail(result.value.toLong()).card.buildDynamicMessage(subject).let {
-                    quoteReply(it)
-                }
+                bilibiliClient.getDynamicDetail(result.value.toLong()).card.buildDynamicMessage(subject)
             }.onFailure {
                 logger.warning({ "构建DYNAMIC(${result.value})信息失败" }, it)
-            }
+            }.getOrNull()
         }
-        finding(VIDEO_REGEX) { result ->
+        VIDEO_REGEX findingReply { result ->
             logger.info { "[${senderName}] 匹配VIDEO(${result.value})" }
             runCatching {
                 when (result.value.first()) {
@@ -55,12 +53,10 @@ object BilibiliInfoCommand : CompositeCommand(
                         }
                     }
                     else -> throw IllegalArgumentException("未知视频ID(${result.value})")
-                }.buildVideoMessage(subject).let {
-                    quoteReply(it)
-                }
+                }.buildVideoMessage(subject)
             }.onFailure {
                 logger.warning({ "构建VIDEO(${result.value})信息失败" }, it)
-            }
+            }.getOrNull()
         }
     }
 
@@ -109,23 +105,23 @@ object BilibiliInfoCommand : CompositeCommand(
     @Suppress("unused")
     suspend fun CommandSenderOnMessage<MessageEvent>.aid(id: Long) = runCatching {
         bilibiliClient.videoInfo(aid = id).buildVideoMessage(fromEvent.subject).let {
-            quoteReply(it)
+            sendMessage(fromEvent.message.quote() + it)
         }
-    }.onFailure { reply(it.toString()) }.isSuccess
+    }.onFailure { sendMessage(it.toString()) }.isSuccess
 
     @SubCommand
     @Suppress("unused")
     suspend fun CommandSenderOnMessage<MessageEvent>.bvid(id: String) = runCatching {
         bilibiliClient.videoInfo(bvId = id).buildVideoMessage(fromEvent.subject).let {
-            quoteReply(it)
+            sendMessage(fromEvent.message.quote() + it)
         }
-    }.onFailure { reply(it.toString()) }.isSuccess
+    }.onFailure { sendMessage(it.toString()) }.isSuccess
 
     @SubCommand
     @Suppress("unused")
     suspend fun CommandSenderOnMessage<MessageEvent>.dynamic(id: Long) = runCatching {
         bilibiliClient.getDynamicDetail(id).card.buildDynamicMessage(fromEvent.subject).let {
-            quoteReply(it)
+            sendMessage(fromEvent.message.quote() + it)
         }
-    }.onFailure { reply(it.toString()) }.isSuccess
+    }.onFailure { sendMessage(it.toString()) }.isSuccess
 }

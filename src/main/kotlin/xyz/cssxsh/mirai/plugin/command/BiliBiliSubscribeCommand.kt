@@ -9,11 +9,12 @@ import net.mamoe.mirai.console.util.ConsoleExperimentalApi
 import net.mamoe.mirai.contact.Contact
 import net.mamoe.mirai.contact.Friend
 import net.mamoe.mirai.contact.Group
+import net.mamoe.mirai.event.GlobalEventChannel
 import net.mamoe.mirai.event.events.BotOnlineEvent
-import net.mamoe.mirai.event.subscribeAlways
-import net.mamoe.mirai.message.MessageEvent
+import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.message.data.*
-import net.mamoe.mirai.message.uploadAsImage
+import net.mamoe.mirai.message.data.MessageSource.Key.quote
+import net.mamoe.mirai.utils.ExternalResource.Companion.uploadAsImage
 import net.mamoe.mirai.utils.info
 import net.mamoe.mirai.utils.verbose
 import net.mamoe.mirai.utils.warning
@@ -48,7 +49,7 @@ object BiliBiliSubscribeCommand : CompositeCommand(
     private fun BilibiliTaskInfo.getContacts(bot: Bot): Set<Contact> =
         (bot.groups.filter { it.id in groups } + bot.friends.filter { it.id in friends }).toSet()
 
-    fun onInit() = BilibiliHelperPlugin.subscribeAlways<BotOnlineEvent> {
+    fun onInit() = GlobalEventChannel.parentScope(BilibiliHelperPlugin).subscribeAlways<BotOnlineEvent> {
         logger.info { "开始初始化${bot}联系人列表" }
         tasks.toMap().forEach { (uid, info) ->
             taskContacts.compute(uid) { _, contacts ->
@@ -220,9 +221,9 @@ object BiliBiliSubscribeCommand : CompositeCommand(
             job?.takeIf { it.isActive } ?: addListener(uid)
         }
     }.onSuccess { job ->
-        quoteReply("对${uid}的监听任务, 添加完成${job}")
+        sendMessage(fromEvent.message.quote() + "对${uid}的监听任务, 添加完成${job}")
     }.onFailure {
-        quoteReply(it.toString())
+        sendMessage(fromEvent.message.quote() + it.toString())
     }.isSuccess
 
     @SubCommand("stop", "停止")
@@ -233,9 +234,9 @@ object BiliBiliSubscribeCommand : CompositeCommand(
             job?.takeIf { taskContacts[uid].isNullOrEmpty() }
         }
     }.onSuccess { job ->
-        quoteReply("对${uid}的监听任务, 取消完成${job}")
+        sendMessage(fromEvent.message.quote() + "对${uid}的监听任务, 取消完成${job}")
     }.onFailure {
-        quoteReply(it.toString())
+        sendMessage(fromEvent.message.quote() + it.toString())
     }.isSuccess
 
     @SubCommand("list", "列表")
@@ -250,8 +251,8 @@ object BiliBiliSubscribeCommand : CompositeCommand(
             }
         }
     }.onSuccess { text ->
-        quoteReply(text)
+        sendMessage(fromEvent.message.quote() + text)
     }.onFailure {
-        quoteReply(it.toString())
+        sendMessage(fromEvent.message.quote() + it.toString())
     }.isSuccess
 }
