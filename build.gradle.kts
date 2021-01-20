@@ -42,7 +42,7 @@ kotlin {
 dependencies {
     kapt(group = "com.google.auto.service", name = "auto-service", version = Versions.autoService)
     compileOnly(group = "com.google.auto.service", name = "auto-service-annotations", version = Versions.autoService)
-    implementation(mirai("core", Versions.core))
+    implementation(mirai("core-api", Versions.core))
     implementation(mirai("console", Versions.console))
     implementation(ktor("client-core", Versions.ktor))
     implementation(ktor("client-serialization", Versions.ktor))
@@ -50,7 +50,7 @@ dependencies {
     implementation(ktor("client-okhttp", Versions.ktor))
     implementation(selenium("java", Versions.selenium))
     // test
-    testImplementation(mirai("core-qqandroid", Versions.core))
+    testImplementation(mirai("core", Versions.core))
     testImplementation(mirai("console-terminal", Versions.console))
     testImplementation(group = "org.junit.jupiter", name = "junit-jupiter", version = Versions.junit)
 }
