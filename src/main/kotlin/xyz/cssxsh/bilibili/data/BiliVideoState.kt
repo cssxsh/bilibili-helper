@@ -8,7 +8,7 @@ data class BiliVideoState(
     @SerialName("aid")
     val aid: Long,
     @SerialName("argue_msg")
-    val argueMsg: String = "",
+    val argueMessage: String = "",
     @SerialName("coin")
     val coin: Int,
     @SerialName("danmaku")

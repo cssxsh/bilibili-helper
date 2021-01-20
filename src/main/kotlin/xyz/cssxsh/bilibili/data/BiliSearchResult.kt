@@ -7,7 +7,7 @@ import kotlinx.serialization.json.JsonElement
 @Serializable
 data class BiliSearchResult(
     @SerialName("episodic_button")
-    val episodic_button: JsonElement? = null,
+    val episodicButton: JsonElement? = null,
     @SerialName("list")
     val list: InfoList,
     @SerialName("page")
@@ -53,7 +53,7 @@ data class BiliSearchResult(
         @SerialName("mid")
         val mid: Long,
         @SerialName("pic")
-        val pic: String,
+        val picture: String,
         @SerialName("play")
         val play: Int,
         @SerialName("review")

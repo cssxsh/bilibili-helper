@@ -55,13 +55,13 @@ data class BiliPictureCard(
         @Serializable
         data class Picture(
             @SerialName("img_height")
-            val imgHeight: Int,
+            val imageHeight: Int,
             @SerialName("img_size")
-            val imgSize: Double? = null,
+            val imageSize: Double? = null,
             @SerialName("img_src")
-            val imgSrc: String,
+            val imageSource: String,
             @SerialName("img_width")
-            val imgWidth: Int
+            val imageWidth: Int
         )
 
         @Serializable

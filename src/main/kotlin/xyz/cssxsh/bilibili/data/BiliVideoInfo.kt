@@ -37,13 +37,15 @@ data class BiliVideoInfo(
     @SerialName("pages")
     val pages: List<Page>,
     @SerialName("pic")
-    val pic: String,
+    val picture: String,
     @SerialName("pubdate")
-    val pubDate: Long,
+    val pubdate: Long,
     @SerialName("redirect_url")
     val redirectUrl: String? = null,
     @SerialName("rights")
     val rights: Map<String, Int>,
+    @SerialName("season_id")
+    val seasonId: Int? = null,
     @SerialName("staff")
     val staff: List<Staff>? = null,
     @SerialName("stat")

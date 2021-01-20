@@ -21,5 +21,5 @@ data class BiliUserProfile(
     @SerialName("vip")
     val vip: JsonElement? = null,
     @SerialName("decorate_card")
-    val decorate_card: JsonElement? = null
+    val decorateCard: JsonElement? = null
 )

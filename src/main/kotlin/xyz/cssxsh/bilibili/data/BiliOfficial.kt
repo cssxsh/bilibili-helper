@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class BiliOfficial(
     @SerialName("desc")
-    val desc: String,
+    val description: String,
     @SerialName("role")
     val role: Int,
     @SerialName("title")

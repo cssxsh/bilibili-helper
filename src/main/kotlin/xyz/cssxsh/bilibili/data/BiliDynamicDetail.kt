@@ -10,7 +10,7 @@ data class BiliDynamicDetail(
     @SerialName("card")
     val card: BiliCardInfo,
     @SerialName("_gt_")
-    val gt: Int,
+    val grandTotal: Int,
     @SerialName("result")
     val result: Int
 )

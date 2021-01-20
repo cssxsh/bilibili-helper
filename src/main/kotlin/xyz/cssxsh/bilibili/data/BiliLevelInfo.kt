@@ -6,11 +6,11 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class BiliLevelInfo(
     @SerialName("current_exp")
-    val currentExp: Int,
+    val currentExperience: Int,
     @SerialName("current_level")
     val currentLevel: Int,
     @SerialName("current_min")
     val currentMin: Int,
     @SerialName("next_exp")
-    val nextExp: String
+    val nextExperience: String
 )

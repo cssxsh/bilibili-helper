@@ -16,7 +16,7 @@ data class BiliRoomInfo(
     @SerialName("is_portrait")
     val isPortrait: Boolean,
     @SerialName("is_sp")
-    val isSp: Int,
+    val isSmartPhone: Int,
     @SerialName("live_status")
     val liveStatus: Int,
     @SerialName("live_time")
@@ -26,7 +26,7 @@ data class BiliRoomInfo(
     @SerialName("need_p2p")
     val needP2p: Int,
     @SerialName("pwd_verified")
-    val pwdVerified: Boolean,
+    val passwordVerified: Boolean,
     @SerialName("room_id")
     val roomId: Long,
     @SerialName("room_shield")

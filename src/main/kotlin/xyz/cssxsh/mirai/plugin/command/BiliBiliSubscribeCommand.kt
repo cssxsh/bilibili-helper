@@ -127,20 +127,20 @@ object BiliBiliSubscribeCommand : CompositeCommand(
 
     private suspend fun buildDynamicMessage(uid: Long) = runCatching {
         bilibiliClient.spaceHistory(uid).cards.filter {
-            it.desc.timestamp > tasks.getValue(uid).dynamicLast
+            it.describe.timestamp > tasks.getValue(uid).dynamicLast
         }.apply {
             logger.verbose { "(${uid})共加载${size}条动态" }
-            sortedBy { it.desc.timestamp }.forEach { dynamic ->
-                logger.verbose { "(${uid})当前处理${dynamic.desc.dynamicId}" }
+            sortedBy { it.describe.timestamp }.forEach { dynamic ->
+                logger.verbose { "(${uid})当前处理${dynamic.describe.dynamicId}" }
                 sendMessageToTaskContacts(uid = uid) { contact ->
-                    appendLine("${dynamic.desc.userProfile.info.uname} 有新动态")
-                    appendLine("时间: ${timestampToFormatText(dynamic.desc.timestamp)}")
-                    appendLine("链接: https://t.bilibili.com/${dynamic.desc.dynamicId}")
+                    appendLine("${dynamic.describe.userProfile.info.uname} 有新动态")
+                    appendLine("时间: ${timestampToFormatText(dynamic.describe.timestamp)}")
+                    appendLine("链接: https://t.bilibili.com/${dynamic.describe.dynamicId}")
 
                     runCatching {
                         add(dynamic.getScreenShot(refresh = false).uploadAsImage(contact))
                     }.onFailure {
-                        logger.warning({ "获取动态${dynamic.desc.dynamicId}快照失败" }, it)
+                        logger.warning({ "获取动态${dynamic.describe.dynamicId}快照失败" }, it)
                         add(dynamic.toMessageText())
                     }
 
@@ -149,18 +149,18 @@ object BiliBiliSubscribeCommand : CompositeCommand(
                             add(it.uploadAsImage(contact))
                         }
                     }.onFailure {
-                        logger.warning({ "获取动态${dynamic.desc.dynamicId}图片失败" }, it)
+                        logger.warning({ "获取动态${dynamic.describe.dynamicId}图片失败" }, it)
                     }
                 }
             }
-            maxByOrNull { it.desc.timestamp }?.let { dynamic ->
+            maxByOrNull { it.describe.timestamp }?.let { dynamic ->
                 logger.info {
-                    "(${uid})[${dynamic.desc.userProfile.info.uname}]最新动态时间为<${
-                        timestampToFormatText(dynamic.desc.timestamp)
+                    "(${uid})[${dynamic.describe.userProfile.info.uname}]最新动态时间为<${
+                        timestampToFormatText(dynamic.describe.timestamp)
                     }>"
                 }
                 tasks.compute(uid) { _, info ->
-                    info?.copy(dynamicLast = dynamic.desc.timestamp)
+                    info?.copy(dynamicLast = dynamic.describe.timestamp)
                 }
             }
         }

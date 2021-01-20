@@ -35,11 +35,11 @@ data class BiliReplyCard(
         @SerialName("ctrl")
         val ctrl: String = "",
         @SerialName("orig_dy_id")
-        val origDyId: Long,
+        val originDynamicId: Long,
         @SerialName("orig_type")
-        val origType: Int,
+        val originType: Int,
         @SerialName("pre_dy_id")
-        val preDyId: Long,
+        val previousDynamicId: Long,
         @SerialName("reply")
         val reply: Int,
         @SerialName("rp_id")

@@ -15,9 +15,9 @@ data class BiliVideoCard(
     @SerialName("copyright")
     val copyright: Int,
     @SerialName("ctime")
-    val ctime: Int,
+    val createTime: Int,
     @SerialName("desc")
-    val desc: String,
+    val description: String,
     @SerialName("dimension")
     val dimension: BiliDimension,
     @SerialName("duration")

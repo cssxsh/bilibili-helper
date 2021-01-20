@@ -78,10 +78,10 @@ suspend fun getScreenShot(
 }
 
 suspend fun BiliCardInfo.getScreenShot(refresh: Boolean = false) =
-    getScreenShot(url = DYNAMIC_DETAIL + desc.dynamicId, name = "dynamic-${desc.dynamicId}", refresh = refresh)
+    getScreenShot(url = DYNAMIC_DETAIL + describe.dynamicId, name = "dynamic-${describe.dynamicId}", refresh = refresh)
 
 fun BiliCardInfo.toMessageText(): String = buildString {
-    when (desc.type) {
+    when (describe.type) {
         1 -> {
             BILI_JSON.decodeFromString(BiliReplyCard.serializer(), card).let { card ->
                 appendLine("${card.user.uname} -> ${card.originUser.info.uname}: ")
@@ -112,28 +112,28 @@ fun BiliCardInfo.toMessageText(): String = buildString {
 }
 
 suspend fun BiliCardInfo.getImages(): List<File> = buildList {
-    if (desc.type == BiliPictureCard.TYPE) {
+    if (describe.type == BiliPictureCard.TYPE) {
         BILI_JSON.decodeFromString(
             deserializer = BiliPictureCard.serializer(),
             string = card
         ).item.pictures.forEachIndexed { index, picture ->
             runCatching {
-                getBilibiliImage(url = picture.imgSrc, name = "dynamic-${desc.dynamicId}-${index}")
+                getBilibiliImage(url = picture.imageSource, name = "dynamic-${describe.dynamicId}-${index}")
             }.onSuccess {
                 add(it)
             }.onFailure {
-                logger.warning({ "动态图片下载失败: ${picture.imgSrc}" }, it)
+                logger.warning({ "动态图片下载失败: ${picture.imageSource}" }, it)
             }
         }
     }
 }
 
 suspend fun BiliSearchResult.VideoInfo.getCover(): File =
-    getBilibiliImage(url = pic, name ="video-${bvId}-cover", refresh = false)
+    getBilibiliImage(url = picture, name ="video-${bvId}-cover", refresh = false)
 
 suspend fun BiliLiveRoom.getCover(): File =
     getBilibiliImage(url = cover, name = "live-${roomId}-cover", refresh = false)
 
 
 suspend fun BiliVideoInfo.getCover(): File =
-    getBilibiliImage(url = pic, name ="video-${bvId}-cover", refresh = true)
+    getBilibiliImage(url = picture, name ="video-${bvId}-cover", refresh = true)

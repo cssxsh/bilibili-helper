@@ -29,9 +29,9 @@ data class BiliTextCard(
         @SerialName("ctrl")
         val ctrl: String = "",
         @SerialName("orig_dy_id")
-        val origDyId: Long,
+        val originDynamicId: Long,
         @SerialName("pre_dy_id")
-        val preDyId: Long,
+        val previousDynamicId: Long,
         @SerialName("reply")
         val reply: Int,
         @SerialName("rp_id")

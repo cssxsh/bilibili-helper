@@ -10,7 +10,7 @@ data class BiliDynamicInfo(
     @SerialName("cards")
     val cards: List<BiliCardInfo>,
     @SerialName("_gt_")
-    val gt: Int,
+    val grandTotal: Int,
     @SerialName("has_more")
     val hasMore: Int,
     @SerialName("next_offset")

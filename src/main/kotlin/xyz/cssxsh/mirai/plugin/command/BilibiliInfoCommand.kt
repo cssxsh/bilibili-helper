@@ -73,7 +73,7 @@ object BilibiliInfoCommand : CompositeCommand(
     private suspend fun BiliVideoInfo.buildVideoMessage(contact: Contact) = buildMessageChain {
         appendLine("标题: $title")
         appendLine("作者: ${owner.name}")
-        appendLine("时间: ${timestampToFormatText(pubDate)}")
+        appendLine("时间: ${timestampToFormatText(pubdate)}")
         appendLine("时长: ${durationText()}")
         appendLine("链接: https://www.bilibili.com/video/${bvId}")
 
@@ -85,14 +85,14 @@ object BilibiliInfoCommand : CompositeCommand(
     }
 
     private suspend fun BiliCardInfo.buildDynamicMessage(contact: Contact) = buildMessageChain {
-        appendLine("${desc.userProfile.info.uname} 动态")
-        appendLine("时间: ${timestampToFormatText(desc.timestamp)}")
-        appendLine("链接: https://t.bilibili.com/${desc.dynamicId}")
+        appendLine("${describe.userProfile.info.uname} 动态")
+        appendLine("时间: ${timestampToFormatText(describe.timestamp)}")
+        appendLine("链接: https://t.bilibili.com/${describe.dynamicId}")
 
         runCatching {
             add(getScreenShot(refresh = true).uploadAsImage(contact))
         }.onFailure {
-            logger.warning({ "获取动态${desc.dynamicId}快照失败" }, it)
+            logger.warning({ "获取动态${describe.dynamicId}快照失败" }, it)
             add(toMessageText())
         }
 
@@ -101,7 +101,7 @@ object BilibiliInfoCommand : CompositeCommand(
                 add(it.uploadAsImage(contact))
             }
         }.onFailure {
-            logger.warning({ "获取动态${desc.dynamicId}图片失败" }, it)
+            logger.warning({ "获取动态${describe.dynamicId}图片失败" }, it)
         }
     }
 
