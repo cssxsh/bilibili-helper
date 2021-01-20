@@ -10,10 +10,10 @@ import net.mamoe.mirai.console.terminal.MiraiConsoleImplementationTerminal
 import net.mamoe.mirai.console.terminal.MiraiConsoleTerminalLoader
 import net.mamoe.mirai.console.util.ConsoleExperimentalApi
 import net.mamoe.mirai.message.data.buildMessageChain
-import net.mamoe.mirai.utils.minutesToMillis
 import xyz.cssxsh.mirai.plugin.data.BilibiliTaskData.tasks
 import java.nio.file.Path
 import java.nio.file.Paths
+import kotlin.time.minutes
 
 @ConsoleExperimentalApi
 @ConsoleTerminalExperimentalApi
@@ -46,7 +46,7 @@ object RunMirai {
                             }
                         })
                     }
-                    delay((10).minutesToMillis)
+                    delay((10).minutes)
                 }
             }
         }
