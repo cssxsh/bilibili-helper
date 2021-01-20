@@ -4,7 +4,9 @@ import net.mamoe.mirai.console.command.CommandSenderOnMessage
 import net.mamoe.mirai.console.command.SimpleCommand
 import net.mamoe.mirai.console.command.descriptor.ExperimentalCommandDescriptors
 import net.mamoe.mirai.console.util.ConsoleExperimentalApi
-import net.mamoe.mirai.message.MessageEvent
+import net.mamoe.mirai.event.events.MessageEvent
+import net.mamoe.mirai.message.data.MessageSource.Key.quote
+import net.mamoe.mirai.message.data.buildMessageChain
 import xyz.cssxsh.mirai.plugin.data.BilibiliTaskData.tasks
 import java.time.ZoneId
 import java.time.ZonedDateTime
@@ -25,7 +27,8 @@ object StateCommand : SimpleCommand(
     @ConsoleExperimentalApi
     @Handler
     suspend fun CommandSenderOnMessage<MessageEvent>.handle() {
-        quoteReply(buildString {
+        sendMessage(buildMessageChain {
+            add(fromEvent.message.quote())
             appendLine("启动时间: ${startTime.format(ISO_OFFSET_DATE_TIME)}")
             appendLine("订阅人数: ${tasks.size}")
         })

@@ -9,7 +9,6 @@ import net.mamoe.mirai.console.terminal.ConsoleTerminalExperimentalApi
 import net.mamoe.mirai.console.terminal.MiraiConsoleImplementationTerminal
 import net.mamoe.mirai.console.terminal.MiraiConsoleTerminalLoader
 import net.mamoe.mirai.console.util.ConsoleExperimentalApi
-import net.mamoe.mirai.getFriendOrNull
 import net.mamoe.mirai.message.data.buildMessageChain
 import net.mamoe.mirai.utils.minutesToMillis
 import xyz.cssxsh.mirai.plugin.data.BilibiliTaskData.tasks
@@ -28,7 +27,7 @@ object RunMirai {
         configStorageForBuiltIns = JsonPluginDataStorage(rootPath.resolve("config"), true),
     )
 
-    private fun getAuthorOrNull() =  Bot.botInstances.mapNotNull { it.getFriendOrNull(1438159989L) }.firstOrNull()
+    private fun getAuthorOrNull() =  Bot.instances.map { it.getFriend(1438159989L) }.firstOrNull()
 
     @JvmStatic
     fun main(args: Array<String>): Unit = runBlocking {
