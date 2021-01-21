@@ -9,6 +9,7 @@ import net.mamoe.mirai.event.GlobalEventChannel
 import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.event.subscribeMessages
 import net.mamoe.mirai.message.data.MessageSource.Key.quote
+import net.mamoe.mirai.message.data.QuoteReply
 import net.mamoe.mirai.message.data.buildMessageChain
 import net.mamoe.mirai.utils.*
 import net.mamoe.mirai.utils.ExternalResource.Companion.uploadAsImage
@@ -33,7 +34,9 @@ object BilibiliInfoCommand : CompositeCommand(
         DYNAMIC_REGEX findingReply { result ->
             logger.info { "[${senderName}] 匹配DYNAMIC(${result.value})" }
             runCatching {
-                bilibiliClient.getDynamicDetail(result.value.toLong()).card.buildDynamicMessage(subject)
+                bilibiliClient.getDynamicDetail(
+                    dynamicId = result.value.toLong()
+                ).card.buildDynamicMessage(contact = subject, quote = message.quote())
             }.onFailure {
                 logger.warning({ "构建DYNAMIC(${result.value})信息失败" }, it)
             }.getOrNull()
@@ -53,7 +56,7 @@ object BilibiliInfoCommand : CompositeCommand(
                         }
                     }
                     else -> throw IllegalArgumentException("未知视频ID(${result.value})")
-                }.buildVideoMessage(subject)
+                }.buildVideoMessage(contact = subject, quote = message.quote())
             }.onFailure {
                 logger.warning({ "构建VIDEO(${result.value})信息失败" }, it)
             }.getOrNull()
@@ -66,7 +69,8 @@ object BilibiliInfoCommand : CompositeCommand(
 
     private fun BiliVideoInfo.durationText() = "${duration / 3600}:${duration % 3600 / 60}:${duration % 60}"
 
-    private suspend fun BiliVideoInfo.buildVideoMessage(contact: Contact) = buildMessageChain {
+    private suspend fun BiliVideoInfo.buildVideoMessage(contact: Contact, quote: QuoteReply? = null) = buildMessageChain {
+        quote?.let { add(it) }
         appendLine("标题: $title")
         appendLine("作者: ${owner.name}")
         appendLine("时间: ${timestampToFormatText(pubdate)}")
@@ -80,7 +84,8 @@ object BilibiliInfoCommand : CompositeCommand(
         }
     }
 
-    private suspend fun BiliCardInfo.buildDynamicMessage(contact: Contact) = buildMessageChain {
+    private suspend fun BiliCardInfo.buildDynamicMessage(contact: Contact, quote: QuoteReply? = null) = buildMessageChain {
+        quote?.let { add(it) }
         appendLine("${describe.userProfile.info.uname} 动态")
         appendLine("时间: ${timestampToFormatText(describe.timestamp)}")
         appendLine("链接: https://t.bilibili.com/${describe.dynamicId}")
@@ -104,24 +109,33 @@ object BilibiliInfoCommand : CompositeCommand(
     @SubCommand
     @Suppress("unused")
     suspend fun CommandSenderOnMessage<MessageEvent>.aid(id: Long) = runCatching {
-        bilibiliClient.videoInfo(aid = id).buildVideoMessage(fromEvent.subject).let {
-            sendMessage(fromEvent.message.quote() + it)
+        bilibiliClient.videoInfo(aid = id).buildVideoMessage(
+            contact = fromEvent.subject,
+            quote = fromEvent.message.quote()
+        ).let {
+            sendMessage(it)
         }
     }.onFailure { sendMessage(it.toString()) }.isSuccess
 
     @SubCommand
     @Suppress("unused")
     suspend fun CommandSenderOnMessage<MessageEvent>.bvid(id: String) = runCatching {
-        bilibiliClient.videoInfo(bvId = id).buildVideoMessage(fromEvent.subject).let {
-            sendMessage(fromEvent.message.quote() + it)
+        bilibiliClient.videoInfo(bvId = id).buildVideoMessage(
+            contact = fromEvent.subject,
+            quote = fromEvent.message.quote()
+        ).let {
+            sendMessage(it)
         }
     }.onFailure { sendMessage(it.toString()) }.isSuccess
 
     @SubCommand
     @Suppress("unused")
     suspend fun CommandSenderOnMessage<MessageEvent>.dynamic(id: Long) = runCatching {
-        bilibiliClient.getDynamicDetail(id).card.buildDynamicMessage(fromEvent.subject).let {
-            sendMessage(fromEvent.message.quote() + it)
+        bilibiliClient.getDynamicDetail(id).card.buildDynamicMessage(
+            contact = fromEvent.subject,
+            quote = fromEvent.message.quote()
+        ).let {
+            sendMessage(it)
         }
     }.onFailure { sendMessage(it.toString()) }.isSuccess
 }
