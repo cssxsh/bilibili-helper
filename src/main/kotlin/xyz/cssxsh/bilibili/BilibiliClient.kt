@@ -15,6 +15,7 @@ import kotlinx.serialization.json.Json
 import okhttp3.internal.http2.StreamResetException
 import java.io.EOFException
 import java.net.ConnectException
+import java.net.UnknownHostException
 import javax.net.ssl.SSLException
 
 class BilibiliClient(initCookies: Map<String, String>) {
@@ -45,6 +46,7 @@ class BilibiliClient(initCookies: Map<String, String>) {
                 is SocketTimeoutException,
                 is HttpRequestTimeoutException,
                 is StreamResetException,
+                is UnknownHostException,
                 -> {
                     true
                 }
