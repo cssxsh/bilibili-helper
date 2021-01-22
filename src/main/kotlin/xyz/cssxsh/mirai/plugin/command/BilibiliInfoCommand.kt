@@ -39,7 +39,9 @@ object BilibiliInfoCommand : CompositeCommand(
                 ).card.buildDynamicMessage(contact = subject, quote = message.quote())
             }.onFailure {
                 logger.warning({ "构建DYNAMIC(${result.value})信息失败" }, it)
-            }.getOrNull()
+            }.getOrElse {
+                it.message
+            }
         }
         VIDEO_REGEX findingReply { result ->
             logger.info { "[${senderName}] 匹配VIDEO(${result.value})" }
@@ -59,7 +61,9 @@ object BilibiliInfoCommand : CompositeCommand(
                 }.buildVideoMessage(contact = subject, quote = message.quote())
             }.onFailure {
                 logger.warning({ "构建VIDEO(${result.value})信息失败" }, it)
-            }.getOrNull()
+            }.getOrElse {
+                it.message
+            }
         }
     }
 
