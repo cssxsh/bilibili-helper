@@ -11,7 +11,7 @@ data class BiliTempInfo(
     @SerialName("code")
     val code: Int,
     @SerialName("data")
-    val data: JsonElement,
+    val data: JsonElement? = null,
     @SerialName("message")
     val message: String,
     @SerialName("ttl")
@@ -20,6 +20,6 @@ data class BiliTempInfo(
     val msg: String? = null
 ) {
     fun <T> transferTo(deserializer: DeserializationStrategy<T>) =
-        Json.decodeFromJsonElement(deserializer, data)
+        Json.decodeFromJsonElement(deserializer, requireNotNull(data) { message })
 }
 
