@@ -16,6 +16,7 @@ import xyz.cssxsh.bilibili.BilibiliClient
 import xyz.cssxsh.mirai.plugin.command.BilibiliInfoCommand
 import xyz.cssxsh.mirai.plugin.command.BilibiliInfoCommand.subscribeBilibiliInfo
 import xyz.cssxsh.mirai.plugin.data.BilibiliChromeDriverConfig.driverPath
+import xyz.cssxsh.mirai.plugin.data.BilibiliHelperSettings.initCookies
 import java.io.File
 import kotlin.time.minutes
 
@@ -27,7 +28,8 @@ object BilibiliHelperPlugin : KotlinPlugin(
     }
 ) {
 
-    internal val bilibiliClient = BilibiliClient(emptyMap())
+    internal lateinit var bilibiliClient : BilibiliClient
+        private set
 
     private var service: ChromeDriverService? = null
 
@@ -66,6 +68,7 @@ object BilibiliHelperPlugin : KotlinPlugin(
         BiliBiliSubscribeCommand.register()
         BilibiliInfoCommand.register()
 
+        bilibiliClient = BilibiliClient(initCookies)
         BilibiliHelperSettings.cachePath.let { File(it).mkdirs() }
         bilibiliInfoJob = subscribeBilibiliInfo()
         serviceStart()

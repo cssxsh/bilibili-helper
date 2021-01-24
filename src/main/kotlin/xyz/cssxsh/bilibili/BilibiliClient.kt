@@ -22,9 +22,29 @@ class BilibiliClient(initCookies: Map<String, String>) {
 
     private val cookiesStorage = AcceptAllCookiesStorage().apply {
         runBlocking {
-            initCookies.forEach { (name, value) ->
-                addCookie("https://www.bilibili.com/", Cookie(name = name, value = value, domain = ".bilibili.com"))
+            initCookies.forEach { (url, header) ->
+                addCookie(url, parseServerSetCookieHeader(header))
             }
+        }
+    }
+
+    private fun httpClient() = HttpClient(OkHttp) {
+        Json {
+            serializer = KOTLINX_SERIALIZER
+        }
+        install(HttpTimeout) {
+            socketTimeoutMillis = 10_000
+            connectTimeoutMillis = 10_000
+            requestTimeoutMillis = 10_000
+        }
+        install(HttpCookies) {
+            storage = cookiesStorage
+        }
+        BrowserUserAgent()
+        ContentEncoding {
+            gzip()
+            deflate()
+            identity()
         }
     }
 
@@ -35,10 +55,8 @@ class BilibiliClient(initCookies: Map<String, String>) {
             isLenient = true
             allowStructuredMapKeys = true
         })
-    }
 
-    suspend fun <T> useHttpClient(
-        ignore: (exception: Throwable) -> Boolean = { throwable ->
+        private val DEFAULT_IGNORE: (exception: Throwable) -> Boolean = { throwable ->
             when (throwable) {
                 is SSLException,
                 is EOFException,
@@ -50,32 +68,18 @@ class BilibiliClient(initCookies: Map<String, String>) {
                 -> {
                     true
                 }
-                else -> when(throwable.message) {
+                else -> when (throwable.message) {
                     "Required SETTINGS preface not received" -> true
                     else -> false
                 }
             }
-        },
+        }
+    }
+
+    suspend fun <T> useHttpClient(
+        ignore: (exception: Throwable) -> Boolean = DEFAULT_IGNORE,
         block: suspend (HttpClient) -> T
-    ): T = HttpClient(OkHttp) {
-        install(JsonFeature) {
-            serializer = KOTLINX_SERIALIZER
-        }
-        install(HttpTimeout) {
-            socketTimeoutMillis = 10_000
-            connectTimeoutMillis = 10_000
-            requestTimeoutMillis = 60_000
-        }
-        install(HttpCookies) {
-            storage = cookiesStorage
-        }
-        BrowserUserAgent()
-        ContentEncoding {
-            gzip()
-            deflate()
-            identity()
-        }
-    }.use {
+    ): T = httpClient().use {
         var result: T? = null
         while (result === null) {
             result = runCatching { block(it) }.onFailure {

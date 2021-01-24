@@ -10,5 +10,8 @@ object BilibiliHelperSettings : ReadOnlyPluginConfig("BilibiliHelperConfig") {
      * 图片缓存位置
      */
     @ValueName("cache_path")
-    val cachePath: String by value("ImageCache")
+    val cachePath: String by value("BilibiliCache")
+
+    @ValueName("init_cookies")
+    val initCookies: Map<String, String> by value(emptyMap())
 }
