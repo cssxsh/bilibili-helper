@@ -71,15 +71,13 @@ object BilibiliInfoCommand : CompositeCommand(
     @ConsoleExperimentalApi
     override val prefixOptional: Boolean = true
 
-    private fun BiliVideoInfo.durationText() = "${duration / 3600}:${duration % 3600 / 60}:${duration % 60}"
-
     private suspend fun BiliVideoInfo.buildVideoMessage(contact: Contact, quote: QuoteReply? = null) = buildMessageChain {
         quote?.let { add(it) }
         appendLine("标题: $title")
         appendLine("作者: ${owner.name}")
         appendLine("时间: ${timestampToFormatText(pubdate)}")
         appendLine("时长: ${durationText()}")
-        appendLine("链接: https://www.bilibili.com/video/${bvId}")
+        appendLine("链接: ${getVideoUrl()}")
 
         runCatching {
             add(getCover().uploadAsImage(contact))
@@ -92,7 +90,7 @@ object BilibiliInfoCommand : CompositeCommand(
         quote?.let { add(it) }
         appendLine("${describe.userProfile.info.uname} 动态")
         appendLine("时间: ${timestampToFormatText(describe.timestamp)}")
-        appendLine("链接: https://t.bilibili.com/${describe.dynamicId}")
+        appendLine("链接: ${getDynamicUrl()}")
 
         runCatching {
             add(getScreenShot(refresh = true).uploadAsImage(contact))

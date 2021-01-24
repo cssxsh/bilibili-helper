@@ -1,6 +1,7 @@
 package xyz.cssxsh.mirai.plugin
 
 import io.ktor.client.request.*
+import io.ktor.http.*
 import kotlinx.serialization.json.Json
 import net.mamoe.mirai.utils.warning
 import xyz.cssxsh.bilibili.data.*
@@ -27,15 +28,13 @@ internal val BILI_JSON = Json {
     allowStructuredMapKeys = true
 }
 
-internal const val DYNAMIC_DETAIL = "https://t.bilibili.com/h5/dynamic/detail/"
+private fun Url.getFilename() = encodedPath.substring(encodedPath.lastIndexOfAny(listOf("\\", "/")) + 1)
 
-internal fun String.getFilename() = substring(lastIndexOfAny(listOf("\\", "/")) + 1)
-
-fun timestampToFormatText(timestamp: Long): String =
+internal fun timestampToFormatText(timestamp: Long): String =
     OffsetDateTime.ofInstant(Instant.ofEpochSecond(timestamp), ZoneOffset.systemDefault()).format(ISO_OFFSET_DATE_TIME)
 
-suspend fun getBilibiliImage(
-    url: String,
+private suspend fun getBilibiliImage(
+    url: Url,
     name: String,
     refresh: Boolean = false
 ): File = File(cachePath).resolve("${name}-${url.getFilename()}").apply {
@@ -44,7 +43,7 @@ suspend fun getBilibiliImage(
     }
 }
 
-suspend fun getScreenShot(
+internal suspend fun getScreenShot(
     url: String,
     name: String,
     refresh: Boolean = false
@@ -77,10 +76,10 @@ suspend fun getScreenShot(
     }
 }
 
-suspend fun BiliCardInfo.getScreenShot(refresh: Boolean = false) =
-    getScreenShot(url = DYNAMIC_DETAIL + describe.dynamicId, name = "dynamic-${describe.dynamicId}", refresh = refresh)
+internal suspend fun BiliCardInfo.getScreenShot(refresh: Boolean = false) =
+    getScreenShot(url = getDynamicUrl(), name = "dynamic-${describe.dynamicId}", refresh = refresh)
 
-fun BiliCardInfo.toMessageText(): String = buildString {
+internal fun BiliCardInfo.toMessageText(): String = buildString {
     when (describe.type) {
         1 -> {
             BILI_JSON.decodeFromString(BiliReplyCard.serializer(), card).let { card ->
@@ -111,14 +110,17 @@ fun BiliCardInfo.toMessageText(): String = buildString {
     }
 }
 
-suspend fun BiliCardInfo.getImages(): List<File> = buildList {
+internal fun BiliCardInfo.getDynamicUrl() =
+    "https://t.bilibili.com/${describe.dynamicId}"
+
+internal suspend fun BiliCardInfo.getImages(): List<File> = buildList {
     if (describe.type == BiliPictureCard.TYPE) {
         BILI_JSON.decodeFromString(
             deserializer = BiliPictureCard.serializer(),
             string = card
         ).item.pictures.forEachIndexed { index, picture ->
             runCatching {
-                getBilibiliImage(url = picture.imageSource, name = "dynamic-${describe.dynamicId}-${index}")
+                getBilibiliImage(url = Url(urlString = picture.imageSource), name = "dynamic-${describe.dynamicId}-${index}")
             }.onSuccess {
                 add(it)
             }.onFailure {
@@ -128,12 +130,21 @@ suspend fun BiliCardInfo.getImages(): List<File> = buildList {
     }
 }
 
-suspend fun BiliSearchResult.VideoInfo.getCover(): File =
-    getBilibiliImage(url = picture, name ="video-${bvId}-cover", refresh = false)
+internal fun BiliVideoInfo.durationText() =
+    "${duration / 3600}:${duration % 3600 / 60}:${duration % 60}"
 
-suspend fun BiliLiveRoom.getCover(): File =
-    getBilibiliImage(url = cover, name = "live-${roomId}-cover", refresh = false)
+internal fun BiliVideoInfo.getVideoUrl() =
+    "https://www.bilibili.com/video/${bvId}"
+
+internal fun BiliSearchResult.VideoInfo.getVideoUrl() =
+    "https://www.bilibili.com/video/${bvId}"
+
+internal suspend fun BiliSearchResult.VideoInfo.getCover(): File =
+    getBilibiliImage(url = Url(urlString = picture), name ="video-${bvId}-cover", refresh = false)
+
+internal suspend fun BiliLiveRoom.getCover(): File =
+    getBilibiliImage(url = Url(urlString = cover), name = "live-${roomId}-cover", refresh = false)
 
 
-suspend fun BiliVideoInfo.getCover(): File =
-    getBilibiliImage(url = picture, name ="video-${bvId}-cover", refresh = true)
+internal suspend fun BiliVideoInfo.getCover(): File =
+    getBilibiliImage(url = Url(urlString = picture), name ="video-${bvId}-cover", refresh = true)

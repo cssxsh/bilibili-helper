@@ -23,26 +23,26 @@ class BilibiliChromeDriverTool(
             }
         }
 
+        private fun loadJavaScript(name: String) = this::class.java.getResourceAsStream("$name.js")!!.use {
+            it.reader().readText() + "\nreturn $name();"
+        }
+
         val IS_READY_SCRIPT by lazy {
-            this::class.java.getResourceAsStream("isReady.js")!!.use {
-                it.reader().readText() + "\nreturn isReady();"
-            }
+            loadJavaScript("IsReady")
         }
 
         val HAS_CONTENT by lazy {
-            this::class.java.getResourceAsStream("hasContent.js")!!.use {
-                it.reader().readText() + "\nreturn hasContent();"
-            }
+            loadJavaScript("HasContent")
         }
     }
 
     private val options = ChromeOptions().apply {
         setHeadless(true)
         setPageLoadStrategy(PageLoadStrategy.NORMAL)
-        setExperimentalOption("excludeSwitches", listOf(
-            "enable-automation",
-            "ignore-certificate-errors"
-        ))
+        setExperimentalOption(
+            "excludeSwitches",
+            listOf("enable-automation", "ignore-certificate-errors")
+        )
         if (chromePath.isNotBlank()) {
             setBinary(chromePath)
         }

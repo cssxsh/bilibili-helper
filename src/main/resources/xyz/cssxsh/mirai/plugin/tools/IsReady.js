@@ -38,4 +38,4 @@ function imagesComplete() {
     return complete;
 }
 
-const isReady = () => document.readyState === 'complete' && vmMounted(findVue()) && imagesComplete();
+const IsReady = () => document.readyState === 'complete' && vmMounted(findVue()) && imagesComplete();

@@ -82,7 +82,7 @@ object BiliBiliSubscribeCommand : CompositeCommand(
                     appendLine("作者: ${video.author}")
                     appendLine("时间: ${timestampToFormatText(video.created)}")
                     appendLine("时长: ${video.length}")
-                    appendLine("链接: https://www.bilibili.com/video/${video.bvId}")
+                    appendLine("链接: ${video.getVideoUrl()}")
 
                     runCatching {
                         add(video.getCover().uploadAsImage(contact))
@@ -136,12 +136,12 @@ object BiliBiliSubscribeCommand : CompositeCommand(
                 sendMessageToTaskContacts(uid = uid) { contact ->
                     appendLine("${dynamic.describe.userProfile.info.uname} 有新动态")
                     appendLine("时间: ${timestampToFormatText(dynamic.describe.timestamp)}")
-                    appendLine("链接: https://t.bilibili.com/${dynamic.describe.dynamicId}")
+                    appendLine("链接: ${dynamic.getDynamicUrl()}")
 
                     runCatching {
                         add(dynamic.getScreenShot(refresh = false).uploadAsImage(contact))
                     }.onFailure {
-                        logger.warning({ "获取动态${dynamic.describe.dynamicId}快照失败" }, it)
+                        logger.warning({ "获取动态[${dynamic.describe.dynamicId}]快照失败" }, it)
                         add(dynamic.toMessageText())
                     }
 
@@ -150,7 +150,7 @@ object BiliBiliSubscribeCommand : CompositeCommand(
                             add(it.uploadAsImage(contact))
                         }
                     }.onFailure {
-                        logger.warning({ "获取动态${dynamic.describe.dynamicId}图片失败" }, it)
+                        logger.warning({ "获取动态[${dynamic.describe.dynamicId}]图片失败" }, it)
                     }
                 }
             }

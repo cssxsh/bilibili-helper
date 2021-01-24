@@ -3,7 +3,6 @@ package xyz.cssxsh.mirai.plugin.tools
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
-import xyz.cssxsh.mirai.plugin.DYNAMIC_DETAIL
 import java.io.File
 import java.net.URL
 
@@ -21,11 +20,13 @@ internal class BilibiliChromeDriverToolTest {
         468989129984490798
     )
 
+    private fun getDynamicUrl(id: Long) = "https://t.bilibili.com/h5/dynamic/detail/$id"
+
     @Test
     fun getScreenShot(): Unit = runBlocking {
         dynamicIds.forEach { id ->
             tool.useDriver { driver ->
-                driver.getScreenShot(url = DYNAMIC_DETAIL + id).let {
+                driver.getScreenShot(url = getDynamicUrl(id)).let {
                     println("${id}: ${it.size}")
                     File("test", "${id}.png").writeBytes(it)
                 }

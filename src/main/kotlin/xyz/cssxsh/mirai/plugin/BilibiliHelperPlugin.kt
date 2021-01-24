@@ -14,7 +14,6 @@ import net.mamoe.mirai.utils.warning
 import org.openqa.selenium.chrome.ChromeDriverService
 import xyz.cssxsh.bilibili.BilibiliClient
 import xyz.cssxsh.mirai.plugin.command.BilibiliInfoCommand
-import xyz.cssxsh.mirai.plugin.command.BilibiliInfoCommand.subscribeBilibiliInfo
 import xyz.cssxsh.mirai.plugin.data.BilibiliChromeDriverConfig.driverPath
 import xyz.cssxsh.mirai.plugin.data.BilibiliHelperSettings.initCookies
 import java.io.File
@@ -70,7 +69,7 @@ object BilibiliHelperPlugin : KotlinPlugin(
 
         bilibiliClient = BilibiliClient(initCookies)
         BilibiliHelperSettings.cachePath.let { File(it).mkdirs() }
-        bilibiliInfoJob = subscribeBilibiliInfo()
+        bilibiliInfoJob = BilibiliInfoCommand.subscribeBilibiliInfo()
         serviceStart()
     }
 
@@ -78,6 +77,7 @@ object BilibiliHelperPlugin : KotlinPlugin(
     override fun onDisable() {
         bilibiliInfoJob.cancel()
         serviceStop()
+
         BiliBiliSubscribeCommand.unregister()
         BilibiliInfoCommand.unregister()
     }
