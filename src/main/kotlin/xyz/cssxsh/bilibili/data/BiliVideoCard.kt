@@ -31,11 +31,11 @@ data class BiliVideoCard(
     @SerialName("owner")
     val owner: BiliOwner,
     @SerialName("pic")
-    val pic: String,
+    val picture: String,
     @SerialName("player_info")
     val playerInfo: JsonElement,
     @SerialName("pubdate")
-    val pubDate: Int,
+    val pubdate: Int,
     @SerialName("rights")
     val rights: JsonElement,
     @SerialName("stat")

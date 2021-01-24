@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-class BiliLiveRoom(
+data class BiliLiveRoom(
     @SerialName("broadcast_type")
     val broadcastType: Int,
     @SerialName("cover")

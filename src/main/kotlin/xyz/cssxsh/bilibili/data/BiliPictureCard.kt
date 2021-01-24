@@ -43,7 +43,7 @@ data class BiliPictureCard(
         @SerialName("role")
         val role: List<JsonElement>,
         @SerialName("settings")
-        val settings: Settings,
+        val settings: JsonElement,
         @SerialName("source")
         val source: List<JsonElement>,
         @SerialName("title")
@@ -62,12 +62,6 @@ data class BiliPictureCard(
             val imageSource: String,
             @SerialName("img_width")
             val imageWidth: Int
-        )
-
-        @Serializable
-        data class Settings(
-            @SerialName("copy_forbidden")
-            val copyForbidden: Int
         )
     }
 

@@ -131,7 +131,7 @@ data class BiliVideoInfo(
             @SerialName("lan")
             val language: String,
             @SerialName("lan_doc")
-            val languageDoc: String,
+            val languageDocument: String,
             @SerialName("is_lock")
             val isLock: Boolean,
             @SerialName("subtitle_url")

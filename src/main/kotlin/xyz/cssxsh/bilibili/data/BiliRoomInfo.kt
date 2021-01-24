@@ -24,7 +24,7 @@ data class BiliRoomInfo(
     @SerialName("lock_till")
     val lockTill: Int,
     @SerialName("need_p2p")
-    val needP2p: Int,
+    val needP2P: Int,
     @SerialName("pwd_verified")
     val passwordVerified: Boolean,
     @SerialName("room_id")
