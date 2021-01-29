@@ -1,12 +1,20 @@
 package xyz.cssxsh.mirai.plugin
 
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonObject
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import java.io.File
 
 internal class BilibiliUtilsKtTest {
 
-    private val cachePath = "./ImageCache"
+    private val FILEPATH = "./test/config/bilibili-helper/BilibiliHelperConfig.json"
+
+
+
+    private val cachePath by lazy {
+        Json.parseToJsonElement(File(FILEPATH).readText()).jsonObject["cache_path"]!!.toString()
+    }
 
     private fun getImage(type: CacheType, name: String): File =
         File(cachePath).resolve(type.name).resolve(name)
