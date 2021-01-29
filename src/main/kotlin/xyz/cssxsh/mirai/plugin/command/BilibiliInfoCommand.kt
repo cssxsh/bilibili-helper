@@ -32,7 +32,7 @@ object BilibiliInfoCommand : CompositeCommand(
 
     fun subscribeBilibiliInfo() = GlobalEventChannel.parentScope(BilibiliHelperPlugin).subscribeMessages {
         DYNAMIC_REGEX findingReply { result ->
-            logger.info { "[${senderName}] 匹配DYNAMIC(${result.value})" }
+            logger.info { "[${sender}] 匹配DYNAMIC(${result.value})" }
             runCatching {
                 bilibiliClient.getDynamicDetail(
                     dynamicId = result.value.toLong()
@@ -44,7 +44,7 @@ object BilibiliInfoCommand : CompositeCommand(
             }
         }
         VIDEO_REGEX findingReply { result ->
-            logger.info { "[${senderName}] 匹配VIDEO(${result.value})" }
+            logger.info { "[${sender}] 匹配VIDEO(${result.value})" }
             runCatching {
                 when (result.value.first()) {
                     'B', 'b' -> {

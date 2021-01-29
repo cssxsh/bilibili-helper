@@ -111,6 +111,8 @@ internal fun BiliCardInfo.toMessageText(): String = buildString {
             }
         }
         else -> {
+            logger.warning("未知类型卡片")
+            appendLine("未知类型卡片")
         }
     }
 }
