@@ -75,7 +75,7 @@ object BilibiliInfoCommand : CompositeCommand(
         quote?.let { add(it) }
         appendLine("标题: $title")
         appendLine("作者: ${owner.name}")
-        appendLine("时间: ${timestampToFormatText(pubdate)}")
+        appendLine("时间: ${timestampToOffsetDateTime(pubdate)}")
         appendLine("时长: ${durationText()}")
         appendLine("链接: ${getVideoUrl()}")
 
@@ -89,7 +89,7 @@ object BilibiliInfoCommand : CompositeCommand(
     private suspend fun BiliCardInfo.buildDynamicMessage(contact: Contact, quote: QuoteReply? = null) = buildMessageChain {
         quote?.let { add(it) }
         appendLine("${describe.userProfile.info.uname} 动态")
-        appendLine("时间: ${timestampToFormatText(describe.timestamp)}")
+        appendLine("时间: ${timestampToOffsetDateTime(describe.timestamp)}")
         appendLine("链接: ${getDynamicUrl()}")
 
         runCatching {

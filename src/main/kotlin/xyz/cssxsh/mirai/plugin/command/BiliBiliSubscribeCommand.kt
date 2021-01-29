@@ -80,7 +80,7 @@ object BiliBiliSubscribeCommand : CompositeCommand(
                 sendMessageToTaskContacts(uid = uid) { contact ->
                     appendLine("标题: ${video.title}")
                     appendLine("作者: ${video.author}")
-                    appendLine("时间: ${timestampToFormatText(video.created)}")
+                    appendLine("时间: ${timestampToOffsetDateTime(video.created)}")
                     appendLine("时长: ${video.length}")
                     appendLine("链接: ${video.getVideoUrl()}")
 
@@ -94,7 +94,7 @@ object BiliBiliSubscribeCommand : CompositeCommand(
             maxByOrNull { it.created }?.let { video ->
                 logger.info {
                     "(${uid})[${video.author}]最新视频为(${video.bvId})[${video.title}]<${
-                        timestampToFormatText(video.created)
+                        timestampToOffsetDateTime(video.created)
                     }>"
                 }
                 tasks.compute(uid) { _, info ->
@@ -135,7 +135,7 @@ object BiliBiliSubscribeCommand : CompositeCommand(
                 logger.verbose { "(${uid})当前处理${dynamic.describe.dynamicId}" }
                 sendMessageToTaskContacts(uid = uid) { contact ->
                     appendLine("${dynamic.describe.userProfile.info.uname} 有新动态")
-                    appendLine("时间: ${timestampToFormatText(dynamic.describe.timestamp)}")
+                    appendLine("时间: ${timestampToOffsetDateTime(dynamic.describe.timestamp)}")
                     appendLine("链接: ${dynamic.getDynamicUrl()}")
 
                     runCatching {
@@ -157,7 +157,7 @@ object BiliBiliSubscribeCommand : CompositeCommand(
             maxByOrNull { it.describe.timestamp }?.let { dynamic ->
                 logger.info {
                     "(${uid})[${dynamic.describe.userProfile.info.uname}]最新动态时间为<${
-                        timestampToFormatText(dynamic.describe.timestamp)
+                        timestampToOffsetDateTime(dynamic.describe.timestamp)
                     }>"
                 }
                 tasks.compute(uid) { _, info ->

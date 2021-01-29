@@ -19,7 +19,7 @@ import java.net.URL
 import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
-import java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME
+import kotlin.time.seconds
 
 internal val BILI_JSON = Json {
     prettyPrint = true
@@ -30,8 +30,13 @@ internal val BILI_JSON = Json {
 
 private fun Url.getFilename() = encodedPath.substring(encodedPath.lastIndexOfAny(listOf("\\", "/")) + 1)
 
-internal fun timestampToFormatText(timestamp: Long): String =
-    OffsetDateTime.ofInstant(Instant.ofEpochSecond(timestamp), ZoneOffset.systemDefault()).format(ISO_OFFSET_DATE_TIME)
+internal fun timestampToOffsetDateTime(timestamp: Long) =
+    OffsetDateTime.ofInstant(Instant.ofEpochSecond(timestamp), ZoneOffset.systemDefault())
+
+internal fun timestampToLocalDate(timestamp: Long) =
+    timestampToOffsetDateTime(timestamp).toLocalDate()
+
+
 
 private suspend fun getBilibiliImage(
     url: Url,
