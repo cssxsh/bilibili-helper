@@ -28,7 +28,23 @@ internal val BILI_JSON = Json {
     allowStructuredMapKeys = true
 }
 
+enum class CacheType {
+    DYNAMIC,
+    VIDEO,
+    LIVE;
+}
+
+/**
+ * 2017-07-01 00:00:00
+ */
+private const val DYNAMIC_START = 1498838400L
+
+internal fun dynamicTimestamp(id: Long): Long = id / 0x1_0000_0000 + DYNAMIC_START
+
 private fun Url.getFilename() = encodedPath.substring(encodedPath.lastIndexOfAny(listOf("\\", "/")) + 1)
+
+private fun getImage(type: CacheType, name: String): File =
+    File(cachePath).resolve(type.name).resolve(name)
 
 internal fun timestampToOffsetDateTime(timestamp: Long) =
     OffsetDateTime.ofInstant(Instant.ofEpochSecond(timestamp), ZoneOffset.systemDefault())
@@ -40,9 +56,11 @@ internal fun timestampToLocalDate(timestamp: Long) =
 
 private suspend fun getBilibiliImage(
     url: Url,
+    type: CacheType,
     name: String,
     refresh: Boolean = false
-): File = File(cachePath).resolve("${name}-${url.getFilename()}").apply {
+): File = getImage(type = type, name  = name).apply {
+    parentFile.mkdirs()
     if (exists().not() || refresh) {
         writeBytes(bilibiliClient.useHttpClient { it.get(url) })
     }
@@ -50,9 +68,11 @@ private suspend fun getBilibiliImage(
 
 internal suspend fun getScreenShot(
     url: String,
+    type: CacheType,
     name: String,
     refresh: Boolean = false
-): File = File(cachePath).resolve("${name}.png").apply {
+): File = getImage(type = type, name  = name).apply {
+    parentFile.mkdirs()
     if (exists().not() || refresh) {
         runCatching {
             BilibiliChromeDriverTool(
@@ -81,8 +101,12 @@ internal suspend fun getScreenShot(
     }
 }
 
-internal suspend fun BiliCardInfo.getScreenShot(refresh: Boolean = false) =
-    getScreenShot(url = getDynamicUrl(), name = "dynamic-${describe.dynamicId}", refresh = refresh)
+internal suspend fun BiliCardInfo.getScreenShot(refresh: Boolean = false) = getScreenShot(
+    url = getDynamicUrl(),
+    type = CacheType.DYNAMIC,
+    name = "${timestampToLocalDate(describe.timestamp)}/${describe.dynamicId}.png",
+    refresh = refresh
+)
 
 internal fun BiliCardInfo.toMessageText(): String = buildString {
     when (describe.type) {
@@ -127,7 +151,11 @@ internal suspend fun BiliCardInfo.getImages(): List<File> = buildList {
             string = card
         ).item.pictures.forEachIndexed { index, picture ->
             runCatching {
-                getBilibiliImage(url = Url(urlString = picture.imageSource), name = "dynamic-${describe.dynamicId}-${index}")
+                getBilibiliImage(
+                    url = Url(picture.imageSource),
+                    type = CacheType.DYNAMIC,
+                    name = "${timestampToLocalDate(describe.timestamp)}/${describe.dynamicId}-${index}-${Url(picture.imageSource).getFilename()}"
+                )
             }.onSuccess {
                 add(it)
             }.onFailure {
@@ -138,7 +166,7 @@ internal suspend fun BiliCardInfo.getImages(): List<File> = buildList {
 }
 
 internal fun BiliVideoInfo.durationText() =
-    "${duration / 3600}:${duration % 3600 / 60}:${duration % 60}"
+    duration.seconds.toString()
 
 internal fun BiliVideoInfo.getVideoUrl() =
     "https://www.bilibili.com/video/${bvId}"
@@ -146,12 +174,24 @@ internal fun BiliVideoInfo.getVideoUrl() =
 internal fun BiliSearchResult.VideoInfo.getVideoUrl() =
     "https://www.bilibili.com/video/${bvId}"
 
-internal suspend fun BiliSearchResult.VideoInfo.getCover(): File =
-    getBilibiliImage(url = Url(urlString = picture), name ="video-${bvId}-cover", refresh = false)
+internal suspend fun BiliSearchResult.VideoInfo.getCover(): File = getBilibiliImage(
+    url = Url(picture),
+    type = CacheType.VIDEO,
+    name ="${bvId}-cover-${Url(picture).getFilename()}",
+    refresh = false
+)
 
-internal suspend fun BiliLiveRoom.getCover(): File =
-    getBilibiliImage(url = Url(urlString = cover), name = "live-${roomId}-cover", refresh = false)
+internal suspend fun BiliLiveRoom.getCover(): File = getBilibiliImage(
+    url = Url(cover),
+    type = CacheType.LIVE,
+    name = "${roomId}-cover-${Url(cover).getFilename()}",
+    refresh = false
+)
 
 
-internal suspend fun BiliVideoInfo.getCover(): File =
-    getBilibiliImage(url = Url(urlString = picture), name ="video-${bvId}-cover", refresh = true)
+internal suspend fun BiliVideoInfo.getCover(): File = getBilibiliImage(
+    url = Url(picture),
+    type = CacheType.LIVE,
+    name ="${bvId}-cover-${Url(picture).getFilename()}",
+    refresh = true
+)
