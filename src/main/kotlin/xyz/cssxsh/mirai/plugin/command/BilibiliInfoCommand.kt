@@ -26,7 +26,7 @@ object BilibiliInfoCommand : CompositeCommand(
     description = "B站信息指令"
 ) {
 
-    private val VIDEO_REGEX = """(?<=https://(m|www)\.bilibili\.com/video/)?(av\d+|BV[0-9A-z]{10})""".toRegex()
+    private val VIDEO_REGEX = """(?<=https://(m|www)\.bilibili\.com/video/)?((av|AV)\d+|(bv|BV)[0-9A-z]{10})""".toRegex()
 
     private val DYNAMIC_REGEX = """(?<=https://t\.bilibili\.com/(h5/dynamic/detail/)?)([0-9]{18})""".toRegex()
 
