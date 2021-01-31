@@ -131,33 +131,17 @@ object BilibiliInfoCommand : CompositeCommand(
                 runCatching {
                     bilibiliClient.getOffLiveList(roomId = roomId, count = 1).run {
                         appendLine(tips)
-                        if (records.isNotEmpty()) {
-                            records.first().run {
-                                appendLine("直播回放: ${getRecordUrl()}")
-                                appendLine("主播: $uname")
-                                appendLine("标题: $title")
-                                appendLine("时间: $startTime")
+                        records.firstOrNull()?.run {
+                            appendLine("直播回放: ${getRecordUrl()}")
+                            appendLine("主播: $uname")
+                            appendLine("标题: $title")
+                            appendLine("时间: $startTime")
 
-                                runCatching {
-                                    add(getCover().uploadAsImage(contact))
-                                }.onFailure {
-                                    logger.warning({ "获取[${rid}]直播回放封面封面失败" }, it)
-                                    appendLine("获取[${rid}]直播回放封面失败")
-                                }
-                            }
-                        } else {
-                            recommends.first().run {
-                                appendLine("直播推荐: ${getLiveUrl()}")
-                                appendLine("主播: $uname")
-                                appendLine("标题: $title")
-                                appendLine("人气: $online")
-
-                                runCatching {
-                                    add(getCover().uploadAsImage(contact))
-                                }.onFailure {
-                                    logger.warning({ "获取[${uid}]直播间封面封面失败" }, it)
-                                    appendLine("获取[${uid}]直播间封面失败")
-                                }
+                            runCatching {
+                                add(getCover().uploadAsImage(contact))
+                            }.onFailure {
+                                logger.warning({ "获取[${rid}]直播回放封面封面失败" }, it)
+                                appendLine("获取[${rid}]直播回放封面失败")
                             }
                         }
                     }
