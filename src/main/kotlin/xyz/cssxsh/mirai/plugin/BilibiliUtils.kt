@@ -195,7 +195,7 @@ internal suspend fun BiliLiveRoom.getCover(): File = getBilibiliImage(
 
 internal suspend fun BiliVideoInfo.getCover(): File = getBilibiliImage(
     url = Url(picture),
-    type = CacheType.LIVE,
+    type = CacheType.VIDEO,
     name ="${bvid}-cover-${Url(picture).getFilename()}",
     refresh = true
 )
