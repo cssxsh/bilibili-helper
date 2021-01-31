@@ -31,7 +31,7 @@ data class BiliSearchResult(
         @SerialName("author")
         val author: String,
         @SerialName("bvid")
-        val bvId: String,
+        val bvid: String,
         @SerialName("comment")
         val comment: Int,
         @SerialName("copyright")

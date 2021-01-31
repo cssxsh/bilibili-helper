@@ -27,7 +27,7 @@ data class BiliCardInfo(
         @SerialName("acl")
         val acl: Int? = null,
         @SerialName("bvid")
-        val bvId: String? = null,
+        val bvid: String? = null,
         @SerialName("comment")
         val comment: Int? = null,
         @SerialName("dynamic_id")

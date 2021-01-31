@@ -15,10 +15,10 @@ suspend fun BilibiliClient.getVideoInfo(
 }.transferTo(BiliVideoInfo.serializer())
 
 suspend fun BilibiliClient.getVideoInfo(
-    bvId: String,
+    bvid: String,
     url: String = BilibiliApi.VIDEO_INFO
 ): BiliVideoInfo = useHttpClient { client ->
     client.get<BiliTempInfo>(url) {
-        parameter("bvid", bvId)
+        parameter("bvid", bvid)
     }
 }.transferTo(BiliVideoInfo.serializer())

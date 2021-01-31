@@ -11,7 +11,7 @@ data class BiliVideoInfo(
     @SerialName("attribute")
     val attribute: Int? = null,
     @SerialName("bvid")
-    val bvId: String,
+    val bvid: String,
     @SerialName("cid")
     val cid: Int,
     @SerialName("copyright")

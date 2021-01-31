@@ -86,14 +86,14 @@ object BiliBiliSubscribeCommand : CompositeCommand(
                     runCatching {
                         add(video.getCover().uploadAsImage(contact))
                     }.onFailure {
-                        logger.warning({ "获取[${video.bvId}]封面封面失败" }, it)
-                        appendLine("获取[${video.bvId}]封面封面失败")
+                        logger.warning({ "获取[${video.bvid}]封面封面失败" }, it)
+                        appendLine("获取[${video.bvid}]封面封面失败")
                     }
                 }
             }
             maxByOrNull { it.created }?.let { video ->
                 logger.info {
-                    "(${uid})[${video.author}]最新视频为(${video.bvId})[${video.title}]<${
+                    "(${uid})[${video.author}]最新视频为(${video.bvid})[${video.title}]<${
                         timestampToOffsetDateTime(video.created)
                     }>"
                 }

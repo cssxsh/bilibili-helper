@@ -167,15 +167,15 @@ internal fun BiliVideoInfo.durationText() =
     duration.seconds.toString()
 
 internal fun BiliVideoInfo.getVideoUrl() =
-    "https://www.bilibili.com/video/${bvId}"
+    "https://www.bilibili.com/video/${bvid}"
 
 internal fun BiliSearchResult.VideoInfo.getVideoUrl() =
-    "https://www.bilibili.com/video/${bvId}"
+    "https://www.bilibili.com/video/${bvid}"
 
 internal suspend fun BiliSearchResult.VideoInfo.getCover() = getBilibiliImage(
     url = Url(picture),
     type = CacheType.VIDEO,
-    name ="${bvId}-cover-${Url(picture).getFilename()}",
+    name ="${bvid}-cover-${Url(picture).getFilename()}",
     refresh = false
 )
 
@@ -186,10 +186,9 @@ internal suspend fun BiliLiveRoom.getCover(): File = getBilibiliImage(
     refresh = false
 )
 
-
 internal suspend fun BiliVideoInfo.getCover(): File = getBilibiliImage(
     url = Url(picture),
     type = CacheType.LIVE,
-    name ="${bvId}-cover-${Url(picture).getFilename()}",
+    name ="${bvid}-cover-${Url(picture).getFilename()}",
     refresh = true
 )

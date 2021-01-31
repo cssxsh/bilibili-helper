@@ -36,6 +36,6 @@ internal class BiliAPiTest {
     @Test
     fun getVideoInfoTest(): Unit = runBlocking {
         bilibiliClient.getVideoInfo(aid = 13502509L)
-        bilibiliClient.getVideoInfo(bvId = "BV1ex411J7GE")
+        bilibiliClient.getVideoInfo(bvid = "BV1ex411J7GE")
     }
 }

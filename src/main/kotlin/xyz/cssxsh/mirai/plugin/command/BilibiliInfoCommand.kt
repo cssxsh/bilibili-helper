@@ -51,7 +51,7 @@ object BilibiliInfoCommand : CompositeCommand(
                 when (result.value.first()) {
                     'B', 'b' -> {
                         result.value.let {
-                            bilibiliClient.getVideoInfo(bvId = it)
+                            bilibiliClient.getVideoInfo(bvid = it)
                         }
                     }
                     'A', 'a' -> {
@@ -96,7 +96,7 @@ object BilibiliInfoCommand : CompositeCommand(
         runCatching {
             add(getCover().uploadAsImage(contact))
         }.onFailure {
-            logger.warning({ "获取[${title}](${bvId})}视频封面失败" }, it)
+            logger.warning({ "获取[${title}](${bvid})}视频封面失败" }, it)
         }
     }
 
@@ -167,7 +167,7 @@ object BilibiliInfoCommand : CompositeCommand(
 
     @SubCommand
     suspend fun CommandSenderOnMessage<MessageEvent>.bvid(id: String) = runCatching {
-        bilibiliClient.getVideoInfo(bvId = id).buildVideoMessage(
+        bilibiliClient.getVideoInfo(bvid = id).buildVideoMessage(
             contact = fromEvent.subject,
             quote = fromEvent.message.quote()
         ).let {
