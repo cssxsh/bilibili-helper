@@ -71,7 +71,7 @@ data class BiliSearchResult(
     @Serializable
     data class InfoList(
         @SerialName("tlist")
-        val tList: Map<Int, TypeInfo> = emptyMap(),
+        val tList: Map<Int, TypeInfo>? = emptyMap(),
         @SerialName("vlist")
         val vList: List<VideoInfo>
     )

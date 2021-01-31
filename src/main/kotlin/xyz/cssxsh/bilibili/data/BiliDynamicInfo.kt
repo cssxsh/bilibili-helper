@@ -8,7 +8,7 @@ data class BiliDynamicInfo(
     @SerialName("attentions")
     val attentions: BiliAttentions? = null,
     @SerialName("cards")
-    val cards: List<BiliCardInfo>,
+    val cards: List<BiliCardInfo> = emptyList(),
     @SerialName("_gt_")
     val grandTotal: Int,
     @SerialName("has_more")
