@@ -23,5 +23,5 @@ suspend fun BilibiliClient.searchVideo(
         parameter("ps", pageSize)
         parameter("pn", pageNum)
         parameter("tid", 0)
-    }.transferTo(BiliSearchResult.serializer())
-}
+    }
+}.transferTo(BiliSearchResult.serializer())
