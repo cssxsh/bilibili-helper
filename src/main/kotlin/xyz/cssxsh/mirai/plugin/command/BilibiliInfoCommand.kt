@@ -13,13 +13,13 @@ import net.mamoe.mirai.message.data.QuoteReply
 import net.mamoe.mirai.message.data.buildMessageChain
 import net.mamoe.mirai.utils.*
 import net.mamoe.mirai.utils.ExternalResource.Companion.uploadAsImage
-import xyz.cssxsh.bilibili.api.getDynamicDetail
-import xyz.cssxsh.bilibili.api.videoInfo
+import xyz.cssxsh.bilibili.api.*
 import xyz.cssxsh.bilibili.data.*
 import xyz.cssxsh.mirai.plugin.*
 import xyz.cssxsh.mirai.plugin.BilibiliHelperPlugin.bilibiliClient
 import xyz.cssxsh.mirai.plugin.BilibiliHelperPlugin.logger
 
+@Suppress("unused")
 object BilibiliInfoCommand : CompositeCommand(
     owner = BilibiliHelperPlugin,
     "bili-info", "B信息",
@@ -49,12 +49,12 @@ object BilibiliInfoCommand : CompositeCommand(
                 when (result.value.first()) {
                     'B', 'b' -> {
                         result.value.let {
-                            bilibiliClient.videoInfo(bvId = it)
+                            bilibiliClient.getVideoInfo(bvId = it)
                         }
                     }
                     'A', 'a' -> {
                         result.value.substring(2).toLong().let {
-                            bilibiliClient.videoInfo(aid = it)
+                            bilibiliClient.getVideoInfo(aid = it)
                         }
                     }
                     else -> throw IllegalArgumentException("未知视频ID(${result.value})")
@@ -109,9 +109,8 @@ object BilibiliInfoCommand : CompositeCommand(
     }
 
     @SubCommand
-    @Suppress("unused")
     suspend fun CommandSenderOnMessage<MessageEvent>.aid(id: Long) = runCatching {
-        bilibiliClient.videoInfo(aid = id).buildVideoMessage(
+        bilibiliClient.getVideoInfo(aid = id).buildVideoMessage(
             contact = fromEvent.subject,
             quote = fromEvent.message.quote()
         ).let {
@@ -120,9 +119,8 @@ object BilibiliInfoCommand : CompositeCommand(
     }.onFailure { sendMessage(it.toString()) }.isSuccess
 
     @SubCommand
-    @Suppress("unused")
     suspend fun CommandSenderOnMessage<MessageEvent>.bvid(id: String) = runCatching {
-        bilibiliClient.videoInfo(bvId = id).buildVideoMessage(
+        bilibiliClient.getVideoInfo(bvId = id).buildVideoMessage(
             contact = fromEvent.subject,
             quote = fromEvent.message.quote()
         ).let {
@@ -131,7 +129,6 @@ object BilibiliInfoCommand : CompositeCommand(
     }.onFailure { sendMessage(it.toString()) }.isSuccess
 
     @SubCommand
-    @Suppress("unused")
     suspend fun CommandSenderOnMessage<MessageEvent>.dynamic(id: Long) = runCatching {
         bilibiliClient.getDynamicDetail(id).card.buildDynamicMessage(
             contact = fromEvent.subject,

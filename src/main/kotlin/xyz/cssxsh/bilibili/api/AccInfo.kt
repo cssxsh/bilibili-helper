@@ -6,7 +6,7 @@ import xyz.cssxsh.bilibili.BilibiliClient
 import xyz.cssxsh.bilibili.data.BiliAccInfo
 import xyz.cssxsh.bilibili.data.BiliTempInfo
 
-suspend fun BilibiliClient.accInfo(
+suspend fun BilibiliClient.getAccInfo(
     uid: Long,
     url: String = BilibiliApi.ACC_INFO
 ): BiliAccInfo = useHttpClient { client ->
@@ -17,5 +17,5 @@ suspend fun BilibiliClient.accInfo(
         parameter("mid", uid)
         parameter("jsonp", "jsonp")
         parameter("tid", 0)
-    }.transferTo(BiliAccInfo.serializer())
-}
+    }
+}.transferTo(BiliAccInfo.serializer())

@@ -7,7 +7,7 @@ import xyz.cssxsh.bilibili.data.BiliDynamicDetail
 import xyz.cssxsh.bilibili.data.BiliDynamicInfo
 import xyz.cssxsh.bilibili.data.BiliTempInfo
 
-suspend fun BilibiliClient.spaceHistory(
+suspend fun BilibiliClient.getSpaceHistory(
     uid: Long,
     url: String = BilibiliApi.SPACE_HISTORY
 ): BiliDynamicInfo = useHttpClient { client ->
@@ -19,8 +19,8 @@ suspend fun BilibiliClient.spaceHistory(
         parameter("host_uid", uid)
         parameter("offset_dynamic_id", 0)
         parameter("need_top", 0)
-    }.transferTo(BiliDynamicInfo.serializer())
-}
+    }
+}.transferTo(BiliDynamicInfo.serializer())
 
 suspend fun BilibiliClient.getDynamicDetail(
     dynamicId: Long,
@@ -31,5 +31,5 @@ suspend fun BilibiliClient.getDynamicDetail(
         header(HttpHeaders.Referrer, BilibiliApi.SPACE)
 
         parameter("dynamic_id", dynamicId)
-    }.transferTo(BiliDynamicDetail.serializer())
-}
+    }
+}.transferTo(BiliDynamicDetail.serializer())
