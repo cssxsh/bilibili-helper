@@ -26,9 +26,11 @@ object BilibiliInfoCommand : CompositeCommand(
     description = "B站信息指令"
 ) {
 
-    private val VIDEO_REGEX = """(?<=https://(m|www)\.bilibili\.com/video/)?((av|AV)\d+|(bv|BV)[0-9A-z]{10})""".toRegex()
+    private val VIDEO_REGEX = """(?<=http(s)?://(m|www)\.bilibili\.com/video/)?((av|AV)\d+|(bv|BV)[0-9A-z]{10})""".toRegex()
 
-    private val DYNAMIC_REGEX = """(?<=https://t\.bilibili\.com/(h5/dynamic/detail/)?)([0-9]{18})""".toRegex()
+    private val DYNAMIC_REGEX = """(?<=http(s)?://t\.bilibili\.com/(h5/dynamic/detail/)?)([0-9]{18})""".toRegex()
+
+    private val ROOM_REGEX = """(?<=http(s)?://live\.bilibili\.com/)(\d+)""".toRegex()
 
     fun subscribeBilibiliInfo() = GlobalEventChannel.parentScope(BilibiliHelperPlugin).subscribeMessages {
         DYNAMIC_REGEX findingReply { result ->
@@ -61,6 +63,18 @@ object BilibiliInfoCommand : CompositeCommand(
                 }.buildVideoMessage(contact = subject, quote = message.quote())
             }.onFailure {
                 logger.warning({ "构建VIDEO(${result.value})信息失败" }, it)
+            }.getOrElse {
+                it.message
+            }
+        }
+        ROOM_REGEX findingReply { result ->
+            logger.info { "[${sender}] 匹配ROOM(${result.value})" }
+            runCatching {
+                bilibiliClient.getRoomInfo(
+                    roomId = result.value.toLong()
+                ).buildRoomMessage(contact = subject, quote = message.quote())
+            }.onFailure {
+                logger.warning({ "构建ROOM(${result.value})信息失败" }, it)
             }.getOrElse {
                 it.message
             }
@@ -109,6 +123,38 @@ object BilibiliInfoCommand : CompositeCommand(
         }
     }
 
+    private suspend fun BiliRoomInfo.buildRoomMessage(contact: Contact, quote: QuoteReply? = null) = buildMessageChain {
+        quote?.let { add(it) }
+        when(liveStatus) {
+            0 -> {
+                appendLine("未开播")
+            }
+            1 -> {
+                appendLine("开播时间: ${timestampToOffsetDateTime(liveTime)}")
+                runCatching {
+                    bilibiliClient.getAccInfo(uid = uid).run {
+                        appendLine("主播: ${name}")
+                        appendLine("标题: ${liveRoom.title}")
+                        appendLine("人气: ${liveRoom.online}")
+
+                        runCatching {
+                            add(liveRoom.getCover().uploadAsImage(contact))
+                        }.onFailure {
+                            logger.warning({ "获取[${uid}]直播间封面封面失败" }, it)
+                            appendLine("获取[${uid}]直播间封面失败")
+                        }
+                    }
+                }.onFailure {
+                    logger.warning({ "获取[${uid}]直播间信息失败" }, it)
+                    appendLine("获取[${uid}]直播间信息失败")
+                }
+            }
+            2 -> {
+                appendLine("轮播中")
+            }
+        }
+    }
+
     @SubCommand
     suspend fun CommandSenderOnMessage<MessageEvent>.aid(id: Long) = runCatching {
         bilibiliClient.getVideoInfo(aid = id).buildVideoMessage(
@@ -132,6 +178,16 @@ object BilibiliInfoCommand : CompositeCommand(
     @SubCommand
     suspend fun CommandSenderOnMessage<MessageEvent>.dynamic(id: Long) = runCatching {
         bilibiliClient.getDynamicDetail(id).card.buildDynamicMessage(
+            contact = fromEvent.subject,
+            quote = fromEvent.message.quote()
+        ).let {
+            sendMessage(it)
+        }
+    }.onFailure { sendMessage(it.toString()) }.isSuccess
+
+    @SubCommand
+    suspend fun  CommandSenderOnMessage<MessageEvent>.live(id: Long) = runCatching {
+        bilibiliClient.getRoomInfo(id).buildRoomMessage(
             contact = fromEvent.subject,
             quote = fromEvent.message.quote()
         ).let {
