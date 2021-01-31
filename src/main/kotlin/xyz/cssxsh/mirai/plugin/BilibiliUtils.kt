@@ -52,8 +52,6 @@ internal fun timestampToOffsetDateTime(timestamp: Long) =
 internal fun timestampToLocalDate(timestamp: Long) =
     timestampToOffsetDateTime(timestamp).toLocalDate()
 
-
-
 private suspend fun getBilibiliImage(
     url: Url,
     type: CacheType,
@@ -144,7 +142,7 @@ internal fun BiliCardInfo.toMessageText(): String = buildString {
 internal fun BiliCardInfo.getDynamicUrl() =
     "https://t.bilibili.com/${describe.dynamicId}"
 
-internal suspend fun BiliCardInfo.getImages(): List<File> = buildList {
+internal suspend fun BiliCardInfo.getImages() = buildList {
     if (describe.type == BiliPictureCard.TYPE) {
         BILI_JSON.decodeFromString(
             deserializer = BiliPictureCard.serializer(),
@@ -156,10 +154,10 @@ internal suspend fun BiliCardInfo.getImages(): List<File> = buildList {
                     type = CacheType.DYNAMIC,
                     name = "${timestampToLocalDate(describe.timestamp)}/${describe.dynamicId}-${index}-${Url(picture.imageSource).getFilename()}"
                 )
-            }.onSuccess {
-                add(it)
             }.onFailure {
                 logger.warning({ "动态图片下载失败: ${picture.imageSource}" }, it)
+            }.let {
+                add(it)
             }
         }
     }
@@ -174,7 +172,7 @@ internal fun BiliVideoInfo.getVideoUrl() =
 internal fun BiliSearchResult.VideoInfo.getVideoUrl() =
     "https://www.bilibili.com/video/${bvId}"
 
-internal suspend fun BiliSearchResult.VideoInfo.getCover(): File = getBilibiliImage(
+internal suspend fun BiliSearchResult.VideoInfo.getCover() = getBilibiliImage(
     url = Url(picture),
     type = CacheType.VIDEO,
     name ="${bvId}-cover-${Url(picture).getFilename()}",

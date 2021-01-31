@@ -18,9 +18,7 @@ import net.mamoe.mirai.utils.ExternalResource.Companion.uploadAsImage
 import net.mamoe.mirai.utils.info
 import net.mamoe.mirai.utils.verbose
 import net.mamoe.mirai.utils.warning
-import xyz.cssxsh.bilibili.api.accInfo
-import xyz.cssxsh.bilibili.api.spaceHistory
-import xyz.cssxsh.bilibili.api.searchVideo
+import xyz.cssxsh.bilibili.api.*
 import xyz.cssxsh.mirai.plugin.*
 import xyz.cssxsh.mirai.plugin.BilibiliHelperPlugin.bilibiliClient
 import xyz.cssxsh.mirai.plugin.BilibiliHelperPlugin.logger
@@ -28,6 +26,7 @@ import xyz.cssxsh.mirai.plugin.data.BilibiliTaskData.tasks
 import xyz.cssxsh.mirai.plugin.data.BilibiliTaskInfo
 import kotlin.coroutines.CoroutineContext
 
+@Suppress("unused")
 object BiliBiliSubscribeCommand : CompositeCommand(
     owner = BilibiliHelperPlugin,
     "bili-subscribe", "B订阅",
@@ -87,7 +86,8 @@ object BiliBiliSubscribeCommand : CompositeCommand(
                     runCatching {
                         add(video.getCover().uploadAsImage(contact))
                     }.onFailure {
-                        logger.warning({ "获取[${uid}]直播间封面封面失败" }, it)
+                        logger.warning({ "获取[${video.bvId}]封面封面失败" }, it)
+                        appendLine("获取[${video.bvId}]封面封面失败")
                     }
                 }
             }
@@ -105,7 +105,7 @@ object BiliBiliSubscribeCommand : CompositeCommand(
     }.onFailure { logger.warning({ "($uid)获取视频失败" }, it) }.isSuccess
 
     private suspend fun buildLiveMessage(uid: Long) = runCatching {
-        bilibiliClient.accInfo(uid).also { user ->
+        bilibiliClient.getAccInfo(uid).also { user ->
             logger.verbose { "(${uid})[${user.name}][${user.liveRoom.title}]最新开播状态为${user.liveRoom.liveStatus == 1}" }
             liveState.put(uid, user.liveRoom.liveStatus == 1).let { old ->
                 if (old != true && user.liveRoom.liveStatus == 1) {
@@ -118,7 +118,8 @@ object BiliBiliSubscribeCommand : CompositeCommand(
                         runCatching {
                             add(user.liveRoom.getCover().uploadAsImage(contact))
                         }.onFailure {
-                            logger.warning({ "获取[${uid}]直播间封面封面失败" }, it)
+                            logger.warning({ "获取[${user.liveRoom.roomId}]直播间封面封面失败" }, it)
+                            appendLine("获取[${user.liveRoom.roomId}]直播间封面失败")
                         }
                     }
                 }
@@ -127,7 +128,7 @@ object BiliBiliSubscribeCommand : CompositeCommand(
     }.onFailure { logger.warning({ "($uid)获取直播失败" }, it) }.isSuccess
 
     private suspend fun buildDynamicMessage(uid: Long) = runCatching {
-        bilibiliClient.spaceHistory(uid).cards.filter {
+        bilibiliClient.getSpaceHistory(uid).cards.filter {
             it.describe.timestamp > tasks.getValue(uid).dynamicLast
         }.apply {
             logger.verbose { "(${uid})共加载${size}条动态" }
@@ -145,12 +146,13 @@ object BiliBiliSubscribeCommand : CompositeCommand(
                         add(dynamic.toMessageText())
                     }
 
-                    runCatching {
-                        dynamic.getImages().forEach {
-                            add(it.uploadAsImage(contact))
+                    dynamic.getImages().forEachIndexed { index, result ->
+                        runCatching {
+                            add(result.getOrThrow().uploadAsImage(contact))
+                        }.onFailure {
+                            logger.warning({ "获取动态[${dynamic.describe.dynamicId}]图片[${index}]失败" }, it)
+                            appendLine("获取动态[${dynamic.describe.dynamicId}]图片[${index}]失败")
                         }
-                    }.onFailure {
-                        logger.warning({ "获取动态[${dynamic.describe.dynamicId}]图片失败" }, it)
                     }
                 }
             }
@@ -214,7 +216,6 @@ object BiliBiliSubscribeCommand : CompositeCommand(
     }
 
     @SubCommand("add", "添加")
-    @Suppress("unused")
     suspend fun CommandSenderOnMessage<MessageEvent>.add(uid: Long) = runCatching {
         taskContacts.addUid(uid, fromEvent.subject)
         taskJobs.compute(uid) { _, job ->
@@ -227,7 +228,6 @@ object BiliBiliSubscribeCommand : CompositeCommand(
     }.isSuccess
 
     @SubCommand("stop", "停止")
-    @Suppress("unused")
     suspend fun CommandSenderOnMessage<MessageEvent>.stop(uid: Long) = runCatching {
         taskContacts.removeUid(uid, fromEvent.subject)
         taskJobs.compute(uid) { _, job ->
@@ -240,7 +240,6 @@ object BiliBiliSubscribeCommand : CompositeCommand(
     }.isSuccess
 
     @SubCommand("list", "列表")
-    @Suppress("unused")
     suspend fun CommandSenderOnMessage<MessageEvent>.list() = runCatching {
         buildString {
             appendLine("监听状态:")

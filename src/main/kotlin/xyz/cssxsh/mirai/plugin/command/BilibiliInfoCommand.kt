@@ -99,12 +99,13 @@ object BilibiliInfoCommand : CompositeCommand(
             add(toMessageText())
         }
 
-        runCatching {
-            getImages().forEach {
-                add(it.uploadAsImage(contact))
+        getImages().forEachIndexed { index, result ->
+            runCatching {
+                add(result.getOrThrow().uploadAsImage(contact))
+            }.onFailure {
+                logger.warning({ "获取动态${describe.dynamicId}图片[${index}]失败" }, it)
+                appendLine("获取动态${describe.dynamicId}图片[${index}]失败")
             }
-        }.onFailure {
-            logger.warning({ "获取动态${describe.dynamicId}图片失败" }, it)
         }
     }
 
