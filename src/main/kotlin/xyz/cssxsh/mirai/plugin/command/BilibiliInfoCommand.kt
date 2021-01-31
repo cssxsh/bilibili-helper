@@ -128,12 +128,46 @@ object BilibiliInfoCommand : CompositeCommand(
         when(liveStatus) {
             0 -> {
                 appendLine("未开播")
+                runCatching {
+                    bilibiliClient.getOffLiveList(roomId = roomId, count = 1).run {
+                        appendLine(tips)
+                        if (records.isNotEmpty()) {
+                            records.first().run {
+                                appendLine("直播回放: ${getRecordUrl()}")
+                                appendLine("主播: $uname")
+                                appendLine("标题: $title")
+                                appendLine("时间: $startTime")
+
+                                runCatching {
+                                    add(getCover().uploadAsImage(contact))
+                                }.onFailure {
+                                    logger.warning({ "获取[${rid}]直播回放封面封面失败" }, it)
+                                    appendLine("获取[${rid}]直播回放封面失败")
+                                }
+                            }
+                        } else {
+                            recommends.first().run {
+                                appendLine("直播推荐: ${getLiveUrl()}")
+                                appendLine("主播: $uname")
+                                appendLine("标题: $title")
+                                appendLine("人气: $online")
+
+                                runCatching {
+                                    add(getCover().uploadAsImage(contact))
+                                }.onFailure {
+                                    logger.warning({ "获取[${uid}]直播间封面封面失败" }, it)
+                                    appendLine("获取[${uid}]直播间封面失败")
+                                }
+                            }
+                        }
+                    }
+                }
             }
             1 -> {
                 appendLine("开播时间: ${timestampToOffsetDateTime(liveTime)}")
                 runCatching {
                     bilibiliClient.getAccInfo(uid = uid).run {
-                        appendLine("主播: ${name}")
+                        appendLine("主播: $name")
                         appendLine("标题: ${liveRoom.title}")
                         appendLine("人气: ${liveRoom.online}")
 
@@ -151,6 +185,15 @@ object BilibiliInfoCommand : CompositeCommand(
             }
             2 -> {
                 appendLine("轮播中")
+                runCatching {
+                    bilibiliClient.getRoundPlayVideo(roomId = roomId).run {
+                        appendLine("标题: $title")
+                        appendLine("链接: $bvidUrl")
+                    }
+                }.onFailure {
+                    logger.warning({ "获取[${roomId}]轮播信息失败" }, it)
+                    appendLine("获取[${roomId}]轮播信息失败")
+                }
             }
         }
     }

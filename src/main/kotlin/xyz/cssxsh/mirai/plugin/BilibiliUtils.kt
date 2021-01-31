@@ -31,7 +31,8 @@ internal val BILI_JSON = Json {
 enum class CacheType {
     DYNAMIC,
     VIDEO,
-    LIVE;
+    LIVE,
+    RECORD;
 }
 
 /**
@@ -166,6 +167,12 @@ internal suspend fun BiliCardInfo.getImages() = buildList {
 internal fun BiliVideoInfo.durationText() =
     duration.seconds.toString()
 
+internal fun BiliLiveRecord.getRecordUrl() =
+    "https://live.bilibili.com/record/${rid}"
+
+internal fun BiliLiveRecommend.getLiveUrl() =
+    "https://live.bilibili.com${link}"
+
 internal fun BiliVideoInfo.getVideoUrl() =
     "https://www.bilibili.com/video/${bvid}"
 
@@ -191,4 +198,17 @@ internal suspend fun BiliVideoInfo.getCover(): File = getBilibiliImage(
     type = CacheType.LIVE,
     name ="${bvid}-cover-${Url(picture).getFilename()}",
     refresh = true
+)
+
+internal suspend fun BiliLiveRecord.getCover(): File = getBilibiliImage(
+    url = Url(cover),
+    type = CacheType.RECORD,
+    name = "${rid}-cover-${Url(cover).getFilename()}",
+    refresh = false
+)
+internal suspend fun BiliLiveRecommend.getCover(): File = getBilibiliImage(
+    url = Url(cover),
+    type = CacheType.LIVE,
+    name = "${roomId}-cover-${Url(cover).getFilename()}",
+    refresh = false
 )
