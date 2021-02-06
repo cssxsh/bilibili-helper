@@ -17,6 +17,7 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import java.time.OffsetDateTime
 import kotlin.time.minutes
+import kotlin.time.seconds
 
 @ConsoleExperimentalApi
 @ConsoleTerminalExperimentalApi
@@ -56,7 +57,7 @@ object RunMirai {
             launch {
                 while (isActive) {
                     OffsetDateTime.now().takeIf {
-                        it.minute % 30 == 0 && it.second == 0
+                        it.minute % 30 == 0
                     }?.let { datetime ->
                         getTestGroupOrNull()?.runCatching {
                             sendMessage(buildMessageChain {
@@ -67,7 +68,7 @@ object RunMirai {
                     OffsetDateTime.now().run {
                         plusMinutes(30).withMinute(if (minute < 30) 0 else 30).withSecond(0)
                     }.toEpochSecond().let { after ->
-                        delay((after - OffsetDateTime.now().toEpochSecond()).minutes)
+                        delay((after - OffsetDateTime.now().toEpochSecond()).seconds)
                     }
                 }
             }
