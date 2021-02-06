@@ -2,6 +2,7 @@ package xyz.cssxsh.mirai.plugin.command
 
 import kotlinx.coroutines.*
 import net.mamoe.mirai.Bot
+import net.mamoe.mirai.console.command.CommandManager
 import net.mamoe.mirai.console.command.CommandSenderOnMessage
 import net.mamoe.mirai.console.command.CompositeCommand
 import net.mamoe.mirai.console.command.descriptor.ExperimentalCommandDescriptors
@@ -45,17 +46,35 @@ object BiliBiliSubscribeCommand : CompositeCommand(
 
     private val taskContacts = mutableMapOf<Long, Set<Contact>>()
 
+    private lateinit var subscribeJob: Job
+
     private fun BilibiliTaskInfo.getContacts(bot: Bot): Set<Contact> =
         (bot.groups.filter { it.id in groups } + bot.friends.filter { it.id in friends }).toSet()
 
-    fun onInit() = GlobalEventChannel.parentScope(BilibiliHelperPlugin).subscribeAlways<BotOnlineEvent> {
-        logger.info { "开始初始化${bot}联系人列表" }
-        tasks.toMap().forEach { (uid, info) ->
-            taskContacts.compute(uid) { _, contacts ->
-                (contacts ?: emptySet()) + info.getContacts(bot)
+    fun register(override: Boolean = false): Boolean = run {
+        start()
+        CommandManager.registerCommand(this, override)
+    }
+
+    fun unregister(): Boolean = run {
+        stop()
+        CommandManager.unregisterCommand(this)
+    }
+
+    private fun start() {
+        subscribeJob = GlobalEventChannel.parentScope(BilibiliHelperPlugin).subscribeAlways<BotOnlineEvent> {
+            logger.info { "开始初始化${bot}联系人列表" }
+            tasks.toMap().forEach { (uid, info) ->
+                taskContacts.compute(uid) { _, contacts ->
+                    (contacts ?: emptySet()) + info.getContacts(bot)
+                }
+                addListener(uid)
             }
-            addListener(uid)
         }
+    }
+
+    private fun stop() {
+        subscribeJob.cancel()
     }
 
     private suspend fun sendMessageToTaskContacts(
@@ -70,7 +89,7 @@ object BiliBiliSubscribeCommand : CompositeCommand(
         }
     }
 
-    private suspend fun buildVideoMessage(uid: Long) = runCatching {
+    private suspend fun sendVideoMessage(uid: Long) = runCatching {
         bilibiliClient.searchVideo(uid).list.vList.filter {
             it.created > tasks.getValue(uid).videoLast
         }.apply {
@@ -104,7 +123,7 @@ object BiliBiliSubscribeCommand : CompositeCommand(
         }
     }.onFailure { logger.warning({ "($uid)获取视频失败" }, it) }.isSuccess
 
-    private suspend fun buildLiveMessage(uid: Long) = runCatching {
+    private suspend fun sendLiveMessage(uid: Long) = runCatching {
         bilibiliClient.getAccInfo(uid).also { user ->
             logger.verbose { "(${uid})[${user.name}][${user.liveRoom.title}]最新开播状态为${user.liveRoom.liveStatus == 1}" }
             liveState.put(uid, user.liveRoom.liveStatus == 1).let { old ->
@@ -127,7 +146,7 @@ object BiliBiliSubscribeCommand : CompositeCommand(
         }
     }.onFailure { logger.warning({ "($uid)获取直播失败" }, it) }.isSuccess
 
-    private suspend fun buildDynamicMessage(uid: Long) = runCatching {
+    private suspend fun sendDynamicMessage(uid: Long) = runCatching {
         bilibiliClient.getSpaceHistory(uid).cards.filter {
             it.describe.timestamp > tasks.getValue(uid).dynamicLast
         }.apply {
@@ -173,9 +192,9 @@ object BiliBiliSubscribeCommand : CompositeCommand(
         delay(tasks.getValue(uid).getInterval().random())
         while (isActive && taskContacts[uid].isNullOrEmpty().not()) {
             runCatching {
-                buildDynamicMessage(uid)
-                buildVideoMessage(uid)
-                buildLiveMessage(uid)
+                sendDynamicMessage(uid)
+                sendVideoMessage(uid)
+                sendLiveMessage(uid)
             }.onSuccess {
                 delay(tasks.getValue(uid).getInterval().random().also {
                     logger.info { "(${uid}): ${tasks[uid]}监听任务完成一次, 即将进入延时delay(${it}ms)。" }
@@ -231,7 +250,7 @@ object BiliBiliSubscribeCommand : CompositeCommand(
     suspend fun CommandSenderOnMessage<MessageEvent>.stop(uid: Long) = runCatching {
         taskContacts.removeUid(uid, fromEvent.subject)
         taskJobs.compute(uid) { _, job ->
-            job?.takeIf { taskContacts[uid].isNullOrEmpty() }
+            job?.takeIf { taskContacts[uid].isNullOrEmpty().not() }
         }
     }.onSuccess { job ->
         sendMessage(fromEvent.message.quote() + "对${uid}的监听任务, 取消完成${job}")
@@ -244,8 +263,8 @@ object BiliBiliSubscribeCommand : CompositeCommand(
         buildString {
             appendLine("监听状态:")
             tasks.toMap().forEach { (uid, _) ->
-                if (taskContacts.getOrDefault(uid, emptySet()).isNotEmpty()) {
-                    appendLine("$uid -> ${taskJobs.getValue(uid)}")
+                if (taskContacts[uid].isNullOrEmpty().not()) {
+                    appendLine("$uid -> ${taskJobs[uid]}")
                 }
             }
         }

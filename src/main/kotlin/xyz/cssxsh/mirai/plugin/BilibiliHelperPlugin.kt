@@ -1,19 +1,13 @@
 package xyz.cssxsh.mirai.plugin
 
 import com.google.auto.service.AutoService
-import kotlinx.coroutines.Job
-import net.mamoe.mirai.console.command.CommandManager.INSTANCE.register
-import net.mamoe.mirai.console.command.CommandManager.INSTANCE.unregister
-import net.mamoe.mirai.console.plugin.jvm.JvmPlugin
-import net.mamoe.mirai.console.plugin.jvm.JvmPluginDescription
-import net.mamoe.mirai.console.plugin.jvm.KotlinPlugin
+import net.mamoe.mirai.console.plugin.jvm.*
 import net.mamoe.mirai.console.util.ConsoleExperimentalApi
-import xyz.cssxsh.mirai.plugin.command.BiliBiliSubscribeCommand
-import xyz.cssxsh.mirai.plugin.data.*
 import net.mamoe.mirai.utils.warning
 import org.openqa.selenium.chrome.ChromeDriverService
 import xyz.cssxsh.bilibili.BilibiliClient
-import xyz.cssxsh.mirai.plugin.command.BilibiliInfoCommand
+import xyz.cssxsh.mirai.plugin.command.*
+import xyz.cssxsh.mirai.plugin.data.*
 import xyz.cssxsh.mirai.plugin.data.BilibiliChromeDriverConfig.driverPath
 import xyz.cssxsh.mirai.plugin.data.BilibiliHelperSettings.initCookies
 import java.io.File
@@ -52,15 +46,12 @@ object BilibiliHelperPlugin : KotlinPlugin(
         service?.stop()
     }
 
-    private lateinit var bilibiliInfoJob: Job
-
     @ConsoleExperimentalApi
     override val autoSaveIntervalMillis: LongRange
         get() = (3).minutes.toLongMilliseconds()..(10).minutes.toLongMilliseconds()
 
     @ConsoleExperimentalApi
     override fun onEnable() {
-        BiliBiliSubscribeCommand.onInit()
         BilibiliTaskData.reload()
         BilibiliChromeDriverConfig.reload()
         BilibiliHelperSettings.reload()
@@ -68,14 +59,11 @@ object BilibiliHelperPlugin : KotlinPlugin(
         BilibiliInfoCommand.register()
 
         bilibiliClient = BilibiliClient(initCookies)
-        BilibiliHelperSettings.makeCacheDir()
-        bilibiliInfoJob = BilibiliInfoCommand.subscribeBilibiliInfo()
         serviceStart()
     }
 
     @ConsoleExperimentalApi
     override fun onDisable() {
-        bilibiliInfoJob.cancel()
         serviceStop()
 
         BiliBiliSubscribeCommand.unregister()
