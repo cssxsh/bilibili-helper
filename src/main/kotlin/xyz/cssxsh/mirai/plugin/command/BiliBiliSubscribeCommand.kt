@@ -52,13 +52,13 @@ object BiliBiliSubscribeCommand : CompositeCommand(
         }
     }
 
-    fun start() {
+    internal fun start() {
         tasks.forEach { (uid, _) ->
             addListener(uid)
         }
     }
 
-    fun stop() {
+    internal fun stop() {
         taskJobs.forEach { (_, job) ->
             job.cancel()
         }
@@ -235,9 +235,9 @@ object BiliBiliSubscribeCommand : CompositeCommand(
     @SubCommand("stop", "停止")
     suspend fun CommandSenderOnMessage<MessageEvent>.stop(uid: Long) = runCatching {
         removeUid(uid, fromEvent.subject)
-        taskJobs.compute(uid) { _, job ->
-            job?.takeIf { tasks[uid]?.contacts.isNullOrEmpty().not() }
-        }
+        taskJobs[uid]?.takeIf {
+            tasks[uid]?.contacts.isNullOrEmpty().not()
+        }?.cancel()
     }.onSuccess { job ->
         sendMessage(fromEvent.message.quote() + "对${uid}的监听任务, 取消完成${job}")
     }.onFailure {
