@@ -6,7 +6,7 @@ import xyz.cssxsh.bilibili.BilibiliClient
 
 internal class BiliAPiTest {
 
-    private val bilibiliClient = BilibiliClient(emptyMap())
+    private val bilibiliClient = BilibiliClient(emptyList())
 
     @Test
     fun getAccInfoTest(): Unit = runBlocking {

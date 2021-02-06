@@ -9,22 +9,39 @@ import io.ktor.client.features.json.*
 import io.ktor.client.features.json.serializer.*
 import io.ktor.http.*
 import io.ktor.network.sockets.*
+import io.ktor.util.date.*
 import io.ktor.utils.io.core.*
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import okhttp3.internal.http2.StreamResetException
+import xyz.cssxsh.bilibili.api.BilibiliApi.INDEX_PAGE
 import java.io.EOFException
 import java.net.ConnectException
 import java.net.UnknownHostException
 import javax.net.ssl.SSLException
 
-class BilibiliClient(initCookies: Map<String, String>) {
+class BilibiliClient(initCookies: List<HttpCookie>) {
 
-    private val cookiesStorage = AcceptAllCookiesStorage().apply {
+    private val cookiesStorage = AcceptAllCookiesStorage()
+
+    suspend fun loadCookies(list: List<HttpCookie>) {
+        list.forEach {
+            cookiesStorage.addCookie(INDEX_PAGE, Cookie(
+                name = it.name,
+                value = it.value,
+                encoding = CookieEncoding.RAW,
+                expires = it.expirationDate?.run { GMTDate(times(1_000).toLong()) },
+                path = it.path,
+                domain = it.domain,
+                secure = it.secure,
+                httpOnly = it.httpOnly
+            ))
+        }
+    }
+
+    init {
         runBlocking {
-            initCookies.forEach { (url, header) ->
-                addCookie(url, parseServerSetCookieHeader(header))
-            }
+            loadCookies(initCookies)
         }
     }
 
