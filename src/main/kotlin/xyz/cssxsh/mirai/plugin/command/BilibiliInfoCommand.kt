@@ -1,5 +1,10 @@
 package xyz.cssxsh.mirai.plugin.command
 
+import io.ktor.client.*
+import io.ktor.client.request.*
+import io.ktor.http.*
+import kotlinx.coroutines.Job
+import net.mamoe.mirai.console.command.CommandManager
 import net.mamoe.mirai.console.command.CommandSenderOnMessage
 import net.mamoe.mirai.console.command.CompositeCommand
 import net.mamoe.mirai.console.command.descriptor.ExperimentalCommandDescriptors
@@ -26,59 +31,102 @@ object BilibiliInfoCommand : CompositeCommand(
     description = "B站信息指令"
 ) {
 
-    private val VIDEO_REGEX = """(?<=http(s)?://(m|www)\.bilibili\.com/video/)?((av|AV)\d+|(bv|BV)[0-9A-z]{10})""".toRegex()
+    internal val VIDEO_REGEX = """(?<=http(s)?://(m|www)\.bilibili\.com/video/)?((av|AV)\d+|(bv|BV)[0-9A-z]{10})""".toRegex()
 
-    private val DYNAMIC_REGEX = """(?<=http(s)?://t\.bilibili\.com/(h5/dynamic/detail/)?)([0-9]{18})""".toRegex()
+    internal val DYNAMIC_REGEX = """(?<=http(s)?://t\.bilibili\.com/(h5/dynamic/detail/)?)([0-9]{18})""".toRegex()
 
-    private val ROOM_REGEX = """(?<=http(s)?://live\.bilibili\.com/)(\d+)""".toRegex()
+    internal val ROOM_REGEX = """(?<=http(s)?://live\.bilibili\.com/)(\d+)""".toRegex()
 
-    fun subscribeBilibiliInfo() = GlobalEventChannel.parentScope(BilibiliHelperPlugin).subscribeMessages {
-        DYNAMIC_REGEX findingReply { result ->
-            logger.info { "[${sender}] 匹配DYNAMIC(${result.value})" }
-            runCatching {
-                bilibiliClient.getDynamicDetail(
-                    dynamicId = result.value.toLong()
-                ).card.buildDynamicMessage(contact = subject, quote = message.quote())
-            }.onFailure {
-                logger.warning({ "构建DYNAMIC(${result.value})信息失败" }, it)
-            }.getOrElse {
-                it.message
-            }
+    internal val SHORT_LINK_REGEX = """http(s)?://b23\.tv/[0-9A-z]+""".toRegex()
+
+    private lateinit var subscribeJob: Job
+
+    fun register(override: Boolean = false): Boolean = run {
+        start()
+        CommandManager.registerCommand(this, override)
+    }
+
+    fun unregister(): Boolean = run {
+        stop()
+        CommandManager.unregisterCommand(this)
+    }
+
+    private suspend fun Url.getLocation() = HttpClient {
+        followRedirects = false
+        expectSuccess = false
+    }.use { it.head<HttpMessage>(this).headers[HttpHeaders.Location] }
+
+    private val dynamicReplier: suspend MessageEvent.(MatchResult) -> Any? = { result ->
+        logger.info { "[${sender}] 匹配DYNAMIC(${result.value})" }
+        runCatching {
+            bilibiliClient.getDynamicDetail(
+                dynamicId = result.value.toLong()
+            ).card.buildDynamicMessage(contact = subject, quote = message.quote())
+        }.onFailure {
+            logger.warning({ "构建DYNAMIC(${result.value})信息失败" }, it)
+        }.getOrElse {
+            it.message
         }
-        VIDEO_REGEX findingReply { result ->
-            logger.info { "[${sender}] 匹配VIDEO(${result.value})" }
-            runCatching {
-                when (result.value.first()) {
-                    'B', 'b' -> {
-                        result.value.let {
-                            bilibiliClient.getVideoInfo(bvid = it)
-                        }
+    }
+
+    private val videoReplier: suspend MessageEvent.(MatchResult) -> Any? = { result ->
+        logger.info { "[${sender}] 匹配VIDEO(${result.value})" }
+        runCatching {
+            when (result.value.first()) {
+                'B', 'b' -> {
+                    result.value.let {
+                        bilibiliClient.getVideoInfo(bvid = it)
                     }
-                    'A', 'a' -> {
-                        result.value.substring(2).toLong().let {
-                            bilibiliClient.getVideoInfo(aid = it)
-                        }
+                }
+                'A', 'a' -> {
+                    result.value.substring(2).toLong().let {
+                        bilibiliClient.getVideoInfo(aid = it)
                     }
-                    else -> throw IllegalArgumentException("未知视频ID(${result.value})")
-                }.buildVideoMessage(contact = subject, quote = message.quote())
-            }.onFailure {
-                logger.warning({ "构建VIDEO(${result.value})信息失败" }, it)
-            }.getOrElse {
-                it.message
+                }
+                else -> throw IllegalArgumentException("未知视频ID(${result.value})")
+            }.buildVideoMessage(contact = subject, quote = message.quote())
+        }.onFailure {
+            logger.warning({ "构建VIDEO(${result.value})信息失败" }, it)
+        }.getOrElse {
+            it.message
+        }
+    }
+
+    private val roomReplier: suspend MessageEvent.(MatchResult) -> Any? = { result ->
+        logger.info { "[${sender}] 匹配ROOM(${result.value})" }
+        runCatching {
+            bilibiliClient.getRoomInfo(
+                roomId = result.value.toLong()
+            ).buildRoomMessage(contact = subject, quote = message.quote())
+        }.onFailure {
+            logger.warning({ "构建ROOM(${result.value})信息失败" }, it)
+        }.getOrElse {
+            it.message
+        }
+    }
+
+    private fun start() {
+        subscribeJob = GlobalEventChannel.parentScope(BilibiliHelperPlugin).subscribeMessages {
+            DYNAMIC_REGEX findingReply dynamicReplier
+            VIDEO_REGEX findingReply videoReplier
+            ROOM_REGEX findingReply roomReplier
+            SHORT_LINK_REGEX findingReply { result ->
+                logger.info { "[${sender}] 匹配SHORT_LINK(${result.value}) 尝试跳转" }
+                Url(result.value).getLocation()?.let { url ->
+                    DYNAMIC_REGEX.find(url)?.let { result ->
+                        dynamicReplier(result)
+                    } ?: VIDEO_REGEX.find(url)?.let { result ->
+                        videoReplier(result)
+                    } ?: ROOM_REGEX.find(url)?.let { result ->
+                        roomReplier(result)
+                    }
+                } ?: Unit
             }
         }
-        ROOM_REGEX findingReply { result ->
-            logger.info { "[${sender}] 匹配ROOM(${result.value})" }
-            runCatching {
-                bilibiliClient.getRoomInfo(
-                    roomId = result.value.toLong()
-                ).buildRoomMessage(contact = subject, quote = message.quote())
-            }.onFailure {
-                logger.warning({ "构建ROOM(${result.value})信息失败" }, it)
-            }.getOrElse {
-                it.message
-            }
-        }
+    }
+
+    private fun stop() {
+        subscribeJob.cancel()
     }
 
     @ExperimentalCommandDescriptors
