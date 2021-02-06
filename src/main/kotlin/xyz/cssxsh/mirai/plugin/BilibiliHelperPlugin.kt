@@ -1,6 +1,8 @@
 package xyz.cssxsh.mirai.plugin
 
 import com.google.auto.service.AutoService
+import net.mamoe.mirai.console.command.CommandManager.INSTANCE.register
+import net.mamoe.mirai.console.command.CommandManager.INSTANCE.unregister
 import net.mamoe.mirai.console.plugin.jvm.*
 import net.mamoe.mirai.console.util.ConsoleExperimentalApi
 import net.mamoe.mirai.utils.warning
@@ -60,6 +62,9 @@ object BilibiliHelperPlugin : KotlinPlugin(
 
         bilibiliClient = BilibiliClient(initCookies)
         serviceStart()
+
+        BiliBiliSubscribeCommand.start()
+        BilibiliInfoCommand.start()
     }
 
     @ConsoleExperimentalApi
@@ -68,5 +73,8 @@ object BilibiliHelperPlugin : KotlinPlugin(
 
         BiliBiliSubscribeCommand.unregister()
         BilibiliInfoCommand.unregister()
+
+        BiliBiliSubscribeCommand.stop()
+        BilibiliInfoCommand.stop()
     }
 }

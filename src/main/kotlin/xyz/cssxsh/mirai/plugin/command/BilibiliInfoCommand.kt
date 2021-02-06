@@ -41,16 +41,6 @@ object BilibiliInfoCommand : CompositeCommand(
 
     private lateinit var subscribeJob: Job
 
-    fun register(override: Boolean = false): Boolean = run {
-        start()
-        CommandManager.registerCommand(this, override)
-    }
-
-    fun unregister(): Boolean = run {
-        stop()
-        CommandManager.unregisterCommand(this)
-    }
-
     private suspend fun Url.getLocation() = HttpClient {
         followRedirects = false
         expectSuccess = false
@@ -105,7 +95,7 @@ object BilibiliInfoCommand : CompositeCommand(
         }
     }
 
-    private fun start() {
+    fun start() {
         subscribeJob = GlobalEventChannel.parentScope(BilibiliHelperPlugin).subscribeMessages {
             DYNAMIC_REGEX findingReply dynamicReplier
             VIDEO_REGEX findingReply videoReplier
@@ -125,7 +115,7 @@ object BilibiliInfoCommand : CompositeCommand(
         }
     }
 
-    private fun stop() {
+    fun stop() {
         subscribeJob.cancel()
     }
 
