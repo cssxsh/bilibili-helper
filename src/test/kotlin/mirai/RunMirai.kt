@@ -67,7 +67,7 @@ object RunMirai {
                     OffsetDateTime.now().run {
                         plusMinutes(30).withMinute(if (minute < 30) 0 else 30).withSecond(0)
                     }.toEpochSecond().let { after ->
-                        delay(after - OffsetDateTime.now().toEpochSecond())
+                        delay((after - OffsetDateTime.now().toEpochSecond()).minutes)
                     }
                 }
             }
