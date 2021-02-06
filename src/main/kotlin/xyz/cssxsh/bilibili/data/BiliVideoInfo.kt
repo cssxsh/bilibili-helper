@@ -52,6 +52,8 @@ data class BiliVideoInfo(
     val stat: BiliVideoState,
     @SerialName("state")
     val state: Int,
+    @SerialName("stein_guide_cid")
+    val steinGuideCid: Int? = null,
     @SerialName("subtitle")
     val subtitle: Subtitle,
     @SerialName("title")
