@@ -63,6 +63,7 @@ object BilibiliHelperPlugin : KotlinPlugin(
         bilibiliClient = BilibiliClient(initCookies)
         serviceStart()
 
+        BilibiliHelperSettings.makeCacheDir()
         BiliBiliSubscribeCommand.start()
         BilibiliInfoCommand.start()
     }
