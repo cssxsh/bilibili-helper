@@ -73,11 +73,13 @@ object RunMirai {
                 }
             }
             GlobalEventChannel.parentScope(this).subscribeAlways<MemberJoinEvent> {
-                group.sendMessage(buildMessageChain {
-                    appendLine("欢迎新人")
-                    appendLine("新人请注意群公告，以免被踢")
-                    append(At(member))
-                })
+                group.runCatching {
+                    sendMessage(buildMessageChain {
+                        appendLine("欢迎新人")
+                        appendLine("新人请注意群公告，以免被踢")
+                        append(At(member))
+                    })
+                }
             }
         }
         try {
