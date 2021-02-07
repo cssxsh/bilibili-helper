@@ -75,8 +75,8 @@ object RunMirai {
             GlobalEventChannel.parentScope(this).subscribeAlways<MemberJoinEvent> {
                 group.sendMessage(buildMessageChain {
                     appendLine("欢迎新人")
-                    append(At(member))
                     appendLine("新人请注意群公告，以免被踢")
+                    append(At(member))
                 })
             }
         }
