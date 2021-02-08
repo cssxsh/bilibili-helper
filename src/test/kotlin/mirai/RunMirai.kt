@@ -98,6 +98,12 @@ object RunMirai {
                         toExternalResource().uploadAsVoice(group)
                     } ?: Unit
                 }
+                "来点Test" reply {
+                    File("./test/").listFiles()?.random()?.run {
+                        println("播放文件${name}")
+                        toExternalResource().uploadAsVoice(group)
+                    } ?: Unit
+                }
             }
         }
         try {
