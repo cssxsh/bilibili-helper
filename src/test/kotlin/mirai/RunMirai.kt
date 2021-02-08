@@ -87,10 +87,16 @@ object RunMirai {
             }
             GlobalEventChannel.parentScope(this).subscribeGroupMessages {
                 "来点Debu" reply {
-                    File("./debu/").listFiles()?.random()?.toExternalResource()?.uploadAsVoice(group) ?: Unit
+                    File("./debu/").listFiles()?.random()?.run {
+                        println("播放文件${name}")
+                        toExternalResource().uploadAsVoice(group)
+                    } ?: Unit
                 }
                 "来点Hiiro" reply {
-                    File("./hiiro/").listFiles()?.random()?.toExternalResource()?.uploadAsVoice(group) ?: Unit
+                    File("./hiiro/").listFiles()?.random()?.run {
+                        println("播放文件${name}")
+                        toExternalResource().uploadAsVoice(group)
+                    } ?: Unit
                 }
             }
         }
