@@ -86,10 +86,11 @@ object RunMirai {
                 }
             }
             GlobalEventChannel.parentScope(this).subscribeGroupMessages {
+                "来点Debu" reply {
+                    File("./debu/").listFiles()?.random()?.toExternalResource()?.uploadAsVoice(group) ?: Unit
+                }
                 "来点Hiiro" reply {
-                    File("./amr/").listFiles { file ->
-                        file.name.matches("""\w+\.amr""".toRegex())
-                    }?.random()?.toExternalResource()?.uploadAsVoice(group) ?: Unit
+                    File("./hiiro/").listFiles()?.random()?.toExternalResource()?.uploadAsVoice(group) ?: Unit
                 }
             }
         }
