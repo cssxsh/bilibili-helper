@@ -11,8 +11,12 @@ import net.mamoe.mirai.console.terminal.MiraiConsoleTerminalLoader
 import net.mamoe.mirai.console.util.ConsoleExperimentalApi
 import net.mamoe.mirai.event.GlobalEventChannel
 import net.mamoe.mirai.event.events.MemberJoinEvent
+import net.mamoe.mirai.event.subscribeGroupMessages
 import net.mamoe.mirai.message.data.At
 import net.mamoe.mirai.message.data.buildMessageChain
+import net.mamoe.mirai.utils.ExternalResource.Companion.toExternalResource
+import net.mamoe.mirai.utils.ExternalResource.Companion.uploadAsVoice
+import java.io.File
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.time.OffsetDateTime
@@ -79,6 +83,13 @@ object RunMirai {
                         appendLine("新人请注意群公告，以免被踢")
                         append(At(member))
                     })
+                }
+            }
+            GlobalEventChannel.parentScope(this).subscribeGroupMessages {
+                "来点Hiiro" reply {
+                    File("./amr/").listFiles { file ->
+                        file.name.matches("""\w+\.amr""".toRegex())
+                    }?.random()?.toExternalResource()?.uploadAsVoice(group) ?: Unit
                 }
             }
         }
