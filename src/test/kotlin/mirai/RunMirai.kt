@@ -81,6 +81,9 @@ object RunMirai {
                     sendMessage(buildMessageChain {
                         appendLine("欢迎新人")
                         appendLine("新人请注意群公告，以免被踢")
+                        File("./welcome.amr").takeIf { it.exists() }?.run {
+                            append(toExternalResource().uploadAsVoice(group))
+                        }
                         append(At(member))
                     })
                 }
