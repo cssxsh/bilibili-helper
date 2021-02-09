@@ -89,20 +89,26 @@ object RunMirai {
                 }
             }
             GlobalEventChannel.parentScope(this).subscribeGroupMessages {
-                "来点Debu" reply {
+                """来点[Dd]ebu""".toRegex() findingReply {
                     File("./debu/").listFiles()?.randomOrNull()?.run {
                         println("播放文件${name}")
                         toExternalResource().uploadAsVoice(group)
                     } ?: Unit
                 }
-                "来点Hiiro" reply {
+                """来点[Hh]iiro""".toRegex() findingReply {
                     File("./hiiro/").listFiles()?.randomOrNull()?.run {
                         println("播放文件${name}")
                         toExternalResource().uploadAsVoice(group)
                     } ?: Unit
                 }
-                "来点Test" reply {
+                """来点[Tt]est""".toRegex() findingReply {
                     File("./test/").listFiles()?.randomOrNull()?.run {
+                        println("播放文件${name}")
+                        toExternalResource().uploadAsVoice(group)
+                    } ?: Unit
+                }
+                """来点群友""".toRegex() findingReply {
+                    File("./anti/").listFiles()?.randomOrNull()?.run {
                         println("播放文件${name}")
                         toExternalResource().uploadAsVoice(group)
                     } ?: Unit
