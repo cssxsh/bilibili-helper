@@ -17,6 +17,7 @@ data class BilibiliTaskInfo(
     @SerialName("contacts")
     val contacts: List<ContactInfo> = emptyList()
 ) {
+
     enum class ContactType {
         GROUP,
         FRIEND

@@ -40,7 +40,7 @@ enum class CacheType {
  */
 private const val DYNAMIC_START = 1498838400L
 
-internal fun dynamicTimestamp(id: Long): Long = id / 0x1_0000_0000 + DYNAMIC_START
+internal fun dynamicTimestamp(id: Long): Long = (id shr 32) + DYNAMIC_START
 
 private fun Url.getFilename() = encodedPath.substring(encodedPath.lastIndexOfAny(listOf("\\", "/")) + 1)
 
@@ -49,9 +49,6 @@ private fun getImage(type: CacheType, name: String): File =
 
 internal fun timestampToOffsetDateTime(timestamp: Long) =
     OffsetDateTime.ofInstant(Instant.ofEpochSecond(timestamp), ZoneOffset.systemDefault())
-
-internal fun timestampToLocalDate(timestamp: Long) =
-    timestampToOffsetDateTime(timestamp).toLocalDate()
 
 private suspend fun getBilibiliImage(
     url: Url,
@@ -103,7 +100,7 @@ internal suspend fun getScreenShot(
 internal suspend fun BiliCardInfo.getScreenShot(refresh: Boolean = false) = getScreenShot(
     url = getDynamicUrl(),
     type = CacheType.DYNAMIC,
-    name = "${timestampToLocalDate(describe.timestamp)}/${describe.dynamicId}.png",
+    name = "${timestampToOffsetDateTime(describe.timestamp).toLocalDate()}/${describe.dynamicId}.png",
     refresh = refresh
 )
 
@@ -153,7 +150,7 @@ internal suspend fun BiliCardInfo.getImages() = buildList {
                 getBilibiliImage(
                     url = Url(picture.imageSource),
                     type = CacheType.DYNAMIC,
-                    name = "${timestampToLocalDate(describe.timestamp)}/${describe.dynamicId}-${index}-${Url(picture.imageSource).getFilename()}"
+                    name = "${timestampToOffsetDateTime(describe.timestamp).toLocalDate()}/${describe.dynamicId}-${index}-${Url(picture.imageSource).getFilename()}"
                 )
             }.onFailure {
                 logger.warning({ "动态图片下载失败: ${picture.imageSource}" }, it)

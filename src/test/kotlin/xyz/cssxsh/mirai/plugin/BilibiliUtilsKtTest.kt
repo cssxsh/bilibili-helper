@@ -24,6 +24,11 @@ internal class BilibiliUtilsKtTest {
     private val LIVE_REGEX = """live-""".toRegex()
 
     @Test
+    fun tranTest() {
+        assertEquals(dynamicTimestamp(486812728869237544), 1612183321)
+    }
+
+    @Test
     fun moveFiles() {
         File(cachePath).listFiles { file ->
             file.isFile
