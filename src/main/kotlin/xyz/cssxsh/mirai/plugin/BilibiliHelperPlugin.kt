@@ -57,25 +57,27 @@ object BilibiliHelperPlugin : KotlinPlugin(
         BilibiliTaskData.reload()
         BilibiliChromeDriverConfig.reload()
         BilibiliHelperSettings.reload()
-        BiliBiliSubscribeCommand.register()
-        BilibiliInfoCommand.register()
 
         bilibiliClient = BilibiliClient(initCookies)
         serviceStart()
 
         BilibiliHelperSettings.makeCacheDir()
-        BiliBiliSubscribeCommand.start()
+        BilibiliSubscribeCommand.start()
         BilibiliInfoCommand.start()
+
+        BilibiliSubscribeCommand.register()
+        BilibiliInfoCommand.register()
     }
 
     @ConsoleExperimentalApi
     override fun onDisable() {
-        serviceStop()
 
-        BiliBiliSubscribeCommand.unregister()
+        BilibiliSubscribeCommand.unregister()
         BilibiliInfoCommand.unregister()
 
-        BiliBiliSubscribeCommand.stop()
+        BilibiliSubscribeCommand.stop()
         BilibiliInfoCommand.stop()
+
+        serviceStop()
     }
 }

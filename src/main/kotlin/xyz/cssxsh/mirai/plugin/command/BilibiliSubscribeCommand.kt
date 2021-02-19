@@ -2,32 +2,25 @@ package xyz.cssxsh.mirai.plugin.command
 
 import kotlinx.coroutines.*
 import net.mamoe.mirai.Bot
-import net.mamoe.mirai.console.command.CommandSenderOnMessage
-import net.mamoe.mirai.console.command.CompositeCommand
+import net.mamoe.mirai.console.command.*
 import net.mamoe.mirai.console.command.descriptor.ExperimentalCommandDescriptors
 import net.mamoe.mirai.console.util.ConsoleExperimentalApi
-import net.mamoe.mirai.contact.Contact
-import net.mamoe.mirai.contact.Friend
-import net.mamoe.mirai.contact.Group
+import net.mamoe.mirai.contact.*
 import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.message.data.*
 import net.mamoe.mirai.message.data.MessageSource.Key.quote
 import net.mamoe.mirai.utils.ExternalResource.Companion.uploadAsImage
-import net.mamoe.mirai.utils.info
-import net.mamoe.mirai.utils.verbose
-import net.mamoe.mirai.utils.warning
+import net.mamoe.mirai.utils.*
 import xyz.cssxsh.bilibili.api.*
 import xyz.cssxsh.mirai.plugin.*
 import xyz.cssxsh.mirai.plugin.BilibiliHelperPlugin.bilibiliClient
 import xyz.cssxsh.mirai.plugin.BilibiliHelperPlugin.logger
 import xyz.cssxsh.mirai.plugin.data.BilibiliTaskData.tasks
-import xyz.cssxsh.mirai.plugin.data.BilibiliTaskInfo
-import xyz.cssxsh.mirai.plugin.data.BilibiliTaskInfo.ContactType
-import xyz.cssxsh.mirai.plugin.data.BilibiliTaskInfo.ContactInfo
+import xyz.cssxsh.mirai.plugin.data.*
 import kotlin.coroutines.CoroutineContext
 
 @Suppress("unused")
-object BiliBiliSubscribeCommand : CompositeCommand(
+object BilibiliSubscribeCommand : CompositeCommand(
     owner = BilibiliHelperPlugin,
     "bili-subscribe", "B订阅",
     description = "B站订阅指令"
@@ -43,11 +36,13 @@ object BiliBiliSubscribeCommand : CompositeCommand(
 
     private val liveState = mutableMapOf<Long, Boolean>()
 
-    private fun BilibiliTaskInfo.getContacts() = contacts.mapNotNull { info ->
+    private fun taskContactInfos(uid: Long) = tasks[uid]?.contacts.orEmpty()
+
+    private fun taskContacts(uid: Long) = taskContactInfos(uid).mapNotNull { info ->
         Bot.findInstance(info.bot)?.takeIf { it.isOnline }?.run {
             when(info.type) {
-                ContactType.GROUP -> getGroup(info.id)
-                ContactType.FRIEND -> getFriend(info.id)
+                BilibiliTaskInfo.ContactType.GROUP -> getGroup(info.id)
+                BilibiliTaskInfo.ContactType.FRIEND -> getFriend(info.id)
             }
         }
     }
@@ -66,8 +61,9 @@ object BiliBiliSubscribeCommand : CompositeCommand(
     }
 
     private suspend fun sendMessageToTaskContacts(
-        uid: Long, block: suspend MessageChainBuilder.(contact: Contact) -> Unit
-    ) = tasks[uid]?.getContacts().orEmpty().forEach { contact ->
+        uid: Long,
+        block: suspend MessageChainBuilder.(contact: Contact) -> Unit
+    ) = taskContacts(uid).forEach { contact ->
         runCatching {
             contact.sendMessage(buildMessageChain {
                 block(contact)
@@ -178,7 +174,7 @@ object BiliBiliSubscribeCommand : CompositeCommand(
 
     private fun addListener(uid: Long): Job = launch {
         delay(tasks.getValue(uid).getInterval().random())
-        while (isActive && tasks[uid]?.contacts.isNullOrEmpty().not()) {
+        while (isActive && taskContactInfos(uid).isNotEmpty()) {
             runCatching {
                 sendDynamicMessage(uid)
                 sendVideoMessage(uid)
@@ -194,38 +190,41 @@ object BiliBiliSubscribeCommand : CompositeCommand(
         }
     }.also { logger.info { "添加对(${uid})的监听任务, 添加完成${it}" } }
 
-    private fun addUid(uid: Long, subject: Contact) = synchronized(tasks) {
+    private fun addUid(uid: Long, subject: Contact): Unit = synchronized(tasks) {
         tasks.compute(uid) { _, info ->
             (info ?: BilibiliTaskInfo()).run {
-                ContactInfo(
+                BilibiliTaskInfo.ContactInfo(
                     id = subject.id,
                     bot = subject.bot.id,
                     type = when (subject) {
-                        is Group -> ContactType.GROUP
-                        is Friend -> ContactType.FRIEND
-                        else -> throw IllegalArgumentException("")
+                        is Group -> BilibiliTaskInfo.ContactType.GROUP
+                        is Friend -> BilibiliTaskInfo.ContactType.FRIEND
+                        else -> throw IllegalArgumentException("未知类型联系人: $subject")
                     }
                 ).let { info ->
                     copy(contacts = contacts + info)
                 }
             }
         }
+        taskJobs.compute(uid) { _, job ->
+            job?.takeIf { it.isActive } ?: addListener(uid)
+        }
     }
 
-    private fun removeUid(uid: Long, subject: Contact) = synchronized(tasks) {
+    private fun removeUid(uid: Long, subject: Contact): Unit = synchronized(tasks) {
         tasks.compute(uid) { _, info ->
             (info ?: BilibiliTaskInfo()).run {
-                copy(contacts = contacts.takeWhile { it.id == subject.id })
+                copy(contacts = contacts.filter { it.id != subject.id })
             }
         }
+        taskJobs[uid]?.takeIf {
+            taskContactInfos(uid).isEmpty()
+        }?.cancel()
     }
 
     @SubCommand("add", "添加")
     suspend fun CommandSenderOnMessage<MessageEvent>.add(uid: Long) = runCatching {
         addUid(uid, fromEvent.subject)
-        taskJobs.compute(uid) { _, job ->
-            job?.takeIf { it.isActive } ?: addListener(uid)
-        }
     }.onSuccess { job ->
         sendMessage(fromEvent.message.quote() + "对${uid}的监听任务, 添加完成${job}")
     }.onFailure {
@@ -235,9 +234,6 @@ object BiliBiliSubscribeCommand : CompositeCommand(
     @SubCommand("stop", "停止")
     suspend fun CommandSenderOnMessage<MessageEvent>.stop(uid: Long) = runCatching {
         removeUid(uid, fromEvent.subject)
-        taskJobs[uid]?.takeIf {
-            tasks[uid]?.contacts.isNullOrEmpty().not()
-        }?.cancel()
     }.onSuccess { job ->
         sendMessage(fromEvent.message.quote() + "对${uid}的监听任务, 取消完成${job}")
     }.onFailure {
@@ -248,8 +244,8 @@ object BiliBiliSubscribeCommand : CompositeCommand(
     suspend fun CommandSenderOnMessage<MessageEvent>.list() = runCatching {
         buildMessageChain {
             appendLine("监听状态:")
-            tasks.toMap().forEach { (uid, _) ->
-                if (tasks[uid]?.contacts.isNullOrEmpty().not()) {
+            tasks.forEach { (uid, info) ->
+                if (info.contacts.isNotEmpty()) {
                     appendLine("$uid -> ${taskJobs[uid]}")
                 }
             }

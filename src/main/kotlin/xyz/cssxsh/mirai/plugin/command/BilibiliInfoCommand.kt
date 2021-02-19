@@ -4,18 +4,15 @@ import io.ktor.client.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import kotlinx.coroutines.Job
-import net.mamoe.mirai.console.command.CommandManager
-import net.mamoe.mirai.console.command.CommandSenderOnMessage
-import net.mamoe.mirai.console.command.CompositeCommand
+import net.mamoe.mirai.console.command.*
 import net.mamoe.mirai.console.command.descriptor.ExperimentalCommandDescriptors
 import net.mamoe.mirai.console.util.ConsoleExperimentalApi
-import net.mamoe.mirai.contact.Contact
+import net.mamoe.mirai.contact.*
 import net.mamoe.mirai.event.GlobalEventChannel
 import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.event.subscribeMessages
+import net.mamoe.mirai.message.data.*
 import net.mamoe.mirai.message.data.MessageSource.Key.quote
-import net.mamoe.mirai.message.data.QuoteReply
-import net.mamoe.mirai.message.data.buildMessageChain
 import net.mamoe.mirai.utils.*
 import net.mamoe.mirai.utils.ExternalResource.Companion.uploadAsImage
 import xyz.cssxsh.bilibili.api.*
@@ -31,7 +28,7 @@ object BilibiliInfoCommand : CompositeCommand(
     description = "B站信息指令"
 ) {
 
-    internal val VIDEO_REGEX = """(?<=http(s)?://(m|www)\.bilibili\.com/video/)?((av|AV)\d+|(bv|BV)[0-9A-z]{10})""".toRegex()
+    internal val VIDEO_REGEX = """((av|AV)\d+|(bv|BV)[0-9A-z]{10})""".toRegex()
 
     internal val DYNAMIC_REGEX = """(?<=http(s)?://t\.bilibili\.com/(h5/dynamic/detail/)?)([0-9]{18})""".toRegex()
 
