@@ -1,6 +1,5 @@
 package xyz.cssxsh.mirai.plugin
 
-import com.google.auto.service.AutoService
 import net.mamoe.mirai.console.command.CommandManager.INSTANCE.register
 import net.mamoe.mirai.console.command.CommandManager.INSTANCE.unregister
 import net.mamoe.mirai.console.plugin.jvm.*
@@ -10,12 +9,9 @@ import org.openqa.selenium.chrome.ChromeDriverService
 import xyz.cssxsh.bilibili.BilibiliClient
 import xyz.cssxsh.mirai.plugin.command.*
 import xyz.cssxsh.mirai.plugin.data.*
-import xyz.cssxsh.mirai.plugin.data.BilibiliChromeDriverConfig.driverPath
-import xyz.cssxsh.mirai.plugin.data.BilibiliHelperSettings.initCookies
 import java.io.File
-import kotlin.time.minutes
+import kotlin.time.*
 
-@AutoService(JvmPlugin::class)
 object BilibiliHelperPlugin : KotlinPlugin(
     JvmPluginDescription("xyz.cssxsh.mirai.plugin.bilibili-helper", "0.1.0-dev-1") {
         name("bilibili-helper")
@@ -29,17 +25,17 @@ object BilibiliHelperPlugin : KotlinPlugin(
     private var service: ChromeDriverService? = null
 
     private fun serviceStart() {
-        if (driverPath.isNotBlank()) {
+        if (BilibiliChromeDriverConfig.driverPath.isNotBlank()) {
             runCatching {
                 service = ChromeDriverService.Builder().apply {
-                    usingDriverExecutable(File(driverPath))
+                    usingDriverExecutable(File(BilibiliChromeDriverConfig.driverPath))
                     withVerbose(false)
                     withSilent(true)
                     withWhitelistedIps("")
                     usingPort(9515)
                 }.build().apply { start() }
             }.onFailure {
-                logger.warning({ "启动${driverPath}失败" }, it)
+                logger.warning({ "启动${BilibiliChromeDriverConfig.driverPath}失败" }, it)
             }
         }
     }
@@ -58,7 +54,7 @@ object BilibiliHelperPlugin : KotlinPlugin(
         BilibiliChromeDriverConfig.reload()
         BilibiliHelperSettings.reload()
 
-        bilibiliClient = BilibiliClient(initCookies)
+        bilibiliClient = BilibiliClient(BilibiliHelperSettings.initCookies)
         serviceStart()
 
         BilibiliHelperSettings.makeCacheDir()

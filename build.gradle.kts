@@ -2,8 +2,7 @@
 plugins {
     kotlin("jvm") version Versions.kotlin
     kotlin("plugin.serialization") version Versions.kotlin
-    kotlin("kapt") version Versions.kotlin
-    id("com.github.johnrengelman.shadow") version Versions.shadow
+    id("net.mamoe.mirai-console") version Versions.mirai
 }
 
 group = "xyz.cssxsh.mirai.plugin"
@@ -41,19 +40,9 @@ kotlin {
 }
 
 dependencies {
-    kapt(group = "com.google.auto.service", name = "auto-service", version = Versions.autoService)
-    compileOnly(group = "com.google.auto.service", name = "auto-service-annotations", version = Versions.autoService)
-    implementation(mirai("core-api", Versions.core))
-    implementation(mirai("console", Versions.console))
-    implementation(ktor("client-core", Versions.ktor))
     implementation(ktor("client-serialization", Versions.ktor))
     implementation(ktor("client-encoding", Versions.ktor))
-    implementation(ktor("client-okhttp", Versions.ktor))
     implementation(selenium("java", Versions.selenium))
-    // test
-    testImplementation(mirai("core", Versions.core))
-    testImplementation(mirai("console-terminal", Versions.console))
-    testImplementation(group = "org.junit.jupiter", name = "junit-jupiter", version = Versions.junit)
 }
 
 tasks {
@@ -62,49 +51,31 @@ tasks {
         useJUnitPlatform()
     }
 
-    shadowJar {
-        dependencies {
-            exclude { "org.jetbrains" in it.moduleGroup }
-            exclude { "net.mamoe" in it.moduleGroup }
-        }
-    }
-
-    compileKotlin {
-        kotlinOptions.freeCompilerArgs += "-Xjvm-default=all"
-        kotlinOptions.jvmTarget = "11"
-    }
-
-    compileTestKotlin {
-        kotlinOptions.freeCompilerArgs += "-Xjvm-default=all"
-        kotlinOptions.jvmTarget = "11"
-    }
-
-    val testConsoleDir = File(rootProject.projectDir, "test").apply { mkdir() }
+    val testConsoleDir = rootProject.projectDir.resolve( "test").apply { mkdir() }
 
     create("copyFile") {
         group = "mirai"
 
-        dependsOn(shadowJar)
-        dependsOn(testClasses)
+        dependsOn("buildPlugin")
 
         doFirst {
-            File(testConsoleDir, "plugins/").walk().filter {
+            testConsoleDir.resolve( "plugins/").walk().filter {
                 project.name in it.name
             }.forEach {
                 delete(it)
                 println("Deleted ${it.absolutePath}")
             }
             copy {
-                into(File(testConsoleDir, "plugins/"))
-                from(File(project.buildDir, "libs/")) {
+                into(testConsoleDir.resolve("plugins/"))
+                from(project.buildDir.resolve("mirai/")) {
                     include {
-                        "${project.name}-${version}-all" in it.name
+                        "${project.name}-${version}" in it.name
                     }.eachFile {
                         println("Copy ${file.absolutePath}")
                     }
                 }
             }
-            File(testConsoleDir, "start.sh").writeText(
+            testConsoleDir.resolve("start.sh").writeText(
                 buildString {
                     appendln("cd ${testConsoleDir.absolutePath}")
                     appendln("java -classpath ${sourceSets.test.get().runtimeClasspath.asPath} \\")
@@ -118,7 +89,7 @@ tasks {
     create("runMiraiConsole", JavaExec::class.java) {
         group = "mirai"
 
-        dependsOn(named("copyFile"))
+        dependsOn("copyFile")
 
         main = "mirai.RunMirai"
 
