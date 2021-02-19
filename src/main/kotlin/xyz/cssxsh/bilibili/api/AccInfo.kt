@@ -3,8 +3,7 @@ package xyz.cssxsh.bilibili.api
 import io.ktor.client.request.*
 import io.ktor.http.*
 import xyz.cssxsh.bilibili.BilibiliClient
-import xyz.cssxsh.bilibili.data.BiliAccInfo
-import xyz.cssxsh.bilibili.data.BiliTempInfo
+import xyz.cssxsh.bilibili.data.*
 
 suspend fun BilibiliClient.getAccInfo(
     uid: Long,

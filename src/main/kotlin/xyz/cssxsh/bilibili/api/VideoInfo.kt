@@ -2,8 +2,7 @@ package xyz.cssxsh.bilibili.api
 
 import io.ktor.client.request.*
 import xyz.cssxsh.bilibili.BilibiliClient
-import xyz.cssxsh.bilibili.data.BiliTempInfo
-import xyz.cssxsh.bilibili.data.BiliVideoInfo
+import xyz.cssxsh.bilibili.data.*
 
 suspend fun BilibiliClient.getVideoInfo(
     aid: Long,

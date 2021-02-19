@@ -3,9 +3,7 @@ package xyz.cssxsh.bilibili.api
 import io.ktor.client.request.*
 import io.ktor.http.*
 import xyz.cssxsh.bilibili.BilibiliClient
-import xyz.cssxsh.bilibili.data.BiliDynamicDetail
-import xyz.cssxsh.bilibili.data.BiliDynamicInfo
-import xyz.cssxsh.bilibili.data.BiliTempInfo
+import xyz.cssxsh.bilibili.data.*
 
 suspend fun BilibiliClient.getSpaceHistory(
     uid: Long,
