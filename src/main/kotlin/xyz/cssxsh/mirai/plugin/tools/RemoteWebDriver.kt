@@ -4,11 +4,16 @@ import kotlinx.coroutines.delay
 import org.openqa.selenium.OutputType
 import org.openqa.selenium.remote.RemoteWebDriver
 import org.openqa.selenium.support.ui.FluentWait
-import xyz.cssxsh.mirai.plugin.tools.BilibiliChromeDriverTool.Companion.IS_READY_SCRIPT
-import xyz.cssxsh.mirai.plugin.tools.BilibiliChromeDriverTool.Companion.HAS_CONTENT
 import java.time.Duration
-import kotlin.time.minutes
-import kotlin.time.seconds
+import kotlin.time.*
+
+internal val IS_READY_SCRIPT by lazy {
+    SeleniumTool.loadJavaScript("IsReady")
+}
+
+internal val HAS_CONTENT by lazy {
+    SeleniumTool.loadJavaScript("HasContent")
+}
 
 fun <R> RemoteWebDriver.useWait(
     timeoutMillis: Long,

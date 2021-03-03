@@ -7,10 +7,11 @@ import java.io.File
 import java.net.URL
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-internal class BilibiliChromeDriverToolTest {
+internal class SeleniumToolTest {
 
-    private val tool = BilibiliChromeDriverTool(
-        remoteAddress = URL("http://10.70.159.64:9515"),
+    private val tool = SeleniumTool(
+        remote = URL("http://10.70.159.64:9515"),
+        type = SeleniumTool.DriverType.CHROME,
         deviceName = "iPad"
     )
 

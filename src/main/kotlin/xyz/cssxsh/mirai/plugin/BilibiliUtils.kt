@@ -7,13 +7,12 @@ import net.mamoe.mirai.utils.*
 import xyz.cssxsh.bilibili.data.*
 import xyz.cssxsh.mirai.plugin.BilibiliHelperPlugin.bilibiliClient
 import xyz.cssxsh.mirai.plugin.BilibiliHelperPlugin.logger
-import xyz.cssxsh.mirai.plugin.data.BilibiliChromeDriverConfig.timeoutMillis
-import xyz.cssxsh.mirai.plugin.data.BilibiliChromeDriverConfig.chromePath
-import xyz.cssxsh.mirai.plugin.data.BilibiliChromeDriverConfig.deviceName
-import xyz.cssxsh.mirai.plugin.data.BilibiliChromeDriverConfig.driverUrl
-import xyz.cssxsh.mirai.plugin.data.BilibiliHelperSettings.cachePath
-import xyz.cssxsh.mirai.plugin.tools.BilibiliChromeDriverTool
-import xyz.cssxsh.mirai.plugin.tools.getScreenShot
+import xyz.cssxsh.mirai.plugin.data.SeleniumToolConfig.timeoutMillis
+import xyz.cssxsh.mirai.plugin.data.SeleniumToolConfig.deviceName
+import xyz.cssxsh.mirai.plugin.data.SeleniumToolConfig.driverType
+import xyz.cssxsh.mirai.plugin.data.SeleniumToolConfig.driverUrl
+import xyz.cssxsh.mirai.plugin.data.BilibiliHelperSettings.cacheDir
+import xyz.cssxsh.mirai.plugin.tools.*
 import java.io.File
 import java.net.URL
 import java.time.Instant
@@ -72,10 +71,10 @@ internal suspend fun getScreenShot(
     if (exists().not() || refresh) {
         parentFile.mkdirs()
         runCatching {
-            BilibiliChromeDriverTool(
-                remoteAddress = URL(driverUrl),
-                chromePath = chromePath,
-                deviceName = deviceName
+            SeleniumTool(
+                remote = URL(driverUrl),
+                deviceName = deviceName,
+                type = driverType
             ).useDriver {
                 it.getScreenShot(url, timeoutMillis)
             }
