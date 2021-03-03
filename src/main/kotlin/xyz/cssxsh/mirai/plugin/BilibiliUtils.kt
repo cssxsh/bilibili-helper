@@ -1,5 +1,6 @@
 package xyz.cssxsh.mirai.plugin
 
+import io.ktor.client.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import kotlinx.serialization.json.Json
@@ -209,3 +210,11 @@ internal suspend fun BiliLiveRecommend.getCover(): File = getBilibiliImage(
     name = "${roomId}-cover-${Url(cover).getFilename()}",
     refresh = false
 )
+
+private fun noRedirectHttpClient() = HttpClient {
+    followRedirects = false
+    expectSuccess = false
+}
+
+internal suspend fun Url.getLocation() =
+    noRedirectHttpClient().use { it.head<HttpMessage>(this).headers[HttpHeaders.Location] }

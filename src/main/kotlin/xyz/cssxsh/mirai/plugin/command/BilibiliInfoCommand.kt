@@ -1,7 +1,5 @@
 package xyz.cssxsh.mirai.plugin.command
 
-import io.ktor.client.*
-import io.ktor.client.request.*
 import io.ktor.http.*
 import kotlinx.coroutines.Job
 import net.mamoe.mirai.console.command.*
@@ -37,11 +35,6 @@ object BilibiliInfoCommand : CompositeCommand(
     internal val SHORT_LINK_REGEX = """http(s)?://b23\.tv/[0-9A-z]+""".toRegex()
 
     private lateinit var subscribeJob: Job
-
-    private suspend fun Url.getLocation() = HttpClient {
-        followRedirects = false
-        expectSuccess = false
-    }.use { it.head<HttpMessage>(this).headers[HttpHeaders.Location] }
 
     private val dynamicReplier: suspend MessageEvent.(MatchResult) -> Any? = { result ->
         logger.info { "[${sender}] 匹配DYNAMIC(${result.value})" }
