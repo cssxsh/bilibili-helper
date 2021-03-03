@@ -39,9 +39,9 @@ object BilibiliSubscribeCommand : CompositeCommand(
 
     private fun taskContacts(uid: Long) = taskContactInfos(uid).mapNotNull { info ->
         Bot.findInstance(info.bot)?.takeIf { it.isOnline }?.run {
-            when(info.type) {
-                BilibiliTaskInfo.ContactType.GROUP -> getGroup(info.id)
-                BilibiliTaskInfo.ContactType.FRIEND -> getFriend(info.id)
+            when (info.type) {
+                ContactType.GROUP -> getGroup(info.id)
+                ContactType.FRIEND -> getFriend(info.id)
             }
         }
     }
@@ -186,17 +186,17 @@ object BilibiliSubscribeCommand : CompositeCommand(
     private fun addUid(uid: Long, subject: Contact): Unit = synchronized(taskJobs) {
         tasks.compute(uid) { _, info ->
             (info ?: BilibiliTaskInfo()).run {
-                BilibiliTaskInfo.ContactInfo(
-                    id = subject.id,
-                    bot = subject.bot.id,
-                    type = when (subject) {
-                        is Group -> BilibiliTaskInfo.ContactType.GROUP
-                        is Friend -> BilibiliTaskInfo.ContactType.FRIEND
-                        else -> throw IllegalArgumentException("未知类型联系人: $subject")
-                    }
-                ).let { info ->
-                    copy(contacts = contacts + info)
-                }
+                copy(
+                    contacts = contacts + ContactInfo(
+                        id = subject.id,
+                        bot = subject.bot.id,
+                        type = when (subject) {
+                            is Group -> ContactType.GROUP
+                            is Friend -> ContactType.FRIEND
+                            else -> throw IllegalArgumentException("未知类型联系人: $subject")
+                        }
+                    )
+                )
             }
         }
         taskJobs.compute(uid) { _, job ->
@@ -217,9 +217,9 @@ object BilibiliSubscribeCommand : CompositeCommand(
 
     @SubCommand("add", "添加")
     suspend fun CommandSenderOnMessage<MessageEvent>.add(uid: Long) = runCatching {
-        addUid(uid, fromEvent.subject)
-    }.onSuccess { job ->
-        sendMessage(fromEvent.message.quote() + "对${uid}的监听任务, 添加完成${job}")
+        client.getUserInfo(uid = uid).apply { addUid(uid = uid, subject = fromEvent.subject) }
+    }.onSuccess { info ->
+        sendMessage(fromEvent.message.quote() + "对@${info.name}(${info.uid})的监听任务, 添加完成")
     }.onFailure {
         sendMessage(fromEvent.message.quote() + it.toString())
     }.isSuccess
