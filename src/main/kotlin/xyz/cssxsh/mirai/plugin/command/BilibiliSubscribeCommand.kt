@@ -19,7 +19,6 @@ import xyz.cssxsh.mirai.plugin.data.BilibiliTaskData.tasks
 import xyz.cssxsh.mirai.plugin.data.*
 import kotlin.coroutines.CoroutineContext
 
-@Suppress("unused")
 object BilibiliSubscribeCommand : CompositeCommand(
     owner = BilibiliHelperPlugin,
     "bili-subscribe", "B订阅",
@@ -47,13 +46,13 @@ object BilibiliSubscribeCommand : CompositeCommand(
         }
     }
 
-    internal fun start() {
+    internal fun start(): Unit = synchronized(taskJobs) {
         tasks.forEach { (uid, _) ->
-            addListener(uid)
+            taskJobs[uid] = addListener(uid)
         }
     }
 
-    internal fun stop() {
+    internal fun stop(): Unit = synchronized(taskJobs) {
         taskJobs.forEach { (_, job) ->
             job.cancel()
         }
@@ -190,7 +189,7 @@ object BilibiliSubscribeCommand : CompositeCommand(
         }
     }.also { logger.info { "添加对(${uid})的监听任务, 添加完成${it}" } }
 
-    private fun addUid(uid: Long, subject: Contact): Unit = synchronized(tasks) {
+    private fun addUid(uid: Long, subject: Contact): Unit = synchronized(taskJobs) {
         tasks.compute(uid) { _, info ->
             (info ?: BilibiliTaskInfo()).run {
                 BilibiliTaskInfo.ContactInfo(
@@ -211,9 +210,9 @@ object BilibiliSubscribeCommand : CompositeCommand(
         }
     }
 
-    private fun removeUid(uid: Long, subject: Contact): Unit = synchronized(tasks) {
+    private fun removeUid(uid: Long, subject: Contact): Unit = synchronized(taskJobs) {
         tasks.compute(uid) { _, info ->
-            (info ?: BilibiliTaskInfo()).run {
+            info?.run {
                 copy(contacts = contacts.filter { it.id != subject.id })
             }
         }
@@ -234,8 +233,8 @@ object BilibiliSubscribeCommand : CompositeCommand(
     @SubCommand("stop", "停止")
     suspend fun CommandSenderOnMessage<MessageEvent>.stop(uid: Long) = runCatching {
         removeUid(uid, fromEvent.subject)
-    }.onSuccess { job ->
-        sendMessage(fromEvent.message.quote() + "对${uid}的监听任务, 取消完成${job}")
+    }.onSuccess {
+        sendMessage(fromEvent.message.quote() + "对${uid}的监听任务, 取消完成")
     }.onFailure {
         sendMessage(fromEvent.message.quote() + it.toString())
     }.isSuccess

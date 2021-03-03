@@ -105,6 +105,11 @@ internal suspend fun BiliCardInfo.getScreenShot(refresh: Boolean = false) = getS
     refresh = refresh
 )
 
+internal fun DynamicInfo.isText() = when (describe.type) {
+    DynamicType.REPLY, DynamicType.PICTURE, DynamicType.TEXT -> true
+    else -> false
+}
+
 internal fun BiliCardInfo.toMessageText(): String = buildString {
     when (describe.type) {
         1 -> {
