@@ -16,7 +16,7 @@ object BilibiliHelperPlugin : KotlinPlugin(
     }
 ) {
 
-    internal lateinit var bilibiliClient : BilibiliClient
+    internal lateinit var client : BilibiliClient
         private set
 
     @ConsoleExperimentalApi
@@ -29,7 +29,7 @@ object BilibiliHelperPlugin : KotlinPlugin(
         SeleniumToolConfig.reload()
         BilibiliHelperSettings.reload()
 
-        bilibiliClient = BilibiliClient(BilibiliHelperSettings.initCookies)
+        client = BilibiliClient(BilibiliHelperSettings.initCookies)
 
         BilibiliSubscribeCommand.start()
         BilibiliInfoCommand.start()

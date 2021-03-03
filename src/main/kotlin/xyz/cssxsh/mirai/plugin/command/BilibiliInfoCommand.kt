@@ -15,8 +15,9 @@ import net.mamoe.mirai.utils.*
 import net.mamoe.mirai.utils.ExternalResource.Companion.uploadAsImage
 import xyz.cssxsh.bilibili.api.*
 import xyz.cssxsh.bilibili.data.*
+import xyz.cssxsh.bilibili.data.dynamic.DynamicInfo
 import xyz.cssxsh.mirai.plugin.*
-import xyz.cssxsh.mirai.plugin.BilibiliHelperPlugin.bilibiliClient
+import xyz.cssxsh.mirai.plugin.BilibiliHelperPlugin.client
 import xyz.cssxsh.mirai.plugin.BilibiliHelperPlugin.logger
 
 object BilibiliInfoCommand : CompositeCommand(
@@ -38,7 +39,7 @@ object BilibiliInfoCommand : CompositeCommand(
     private val dynamicReplier: suspend MessageEvent.(MatchResult) -> Any? = { result ->
         logger.info { "[${sender}] 匹配DYNAMIC(${result.value})" }
         runCatching {
-            bilibiliClient.getDynamicDetail(
+            client.getDynamicInfo(
                 dynamicId = result.value.toLong()
             ).card.buildDynamicMessage(contact = subject, quote = message.quote())
         }.onFailure {
@@ -54,12 +55,12 @@ object BilibiliInfoCommand : CompositeCommand(
             when (result.value.first()) {
                 'B', 'b' -> {
                     result.value.let {
-                        bilibiliClient.getVideoInfo(bvid = it)
+                        client.getVideoInfo(bvid = it)
                     }
                 }
                 'A', 'a' -> {
                     result.value.substring(2).toLong().let {
-                        bilibiliClient.getVideoInfo(aid = it)
+                        client.getVideoInfo(aid = it)
                     }
                 }
                 else -> throw IllegalArgumentException("未知视频ID(${result.value})")
@@ -74,7 +75,7 @@ object BilibiliInfoCommand : CompositeCommand(
     private val roomReplier: suspend MessageEvent.(MatchResult) -> Any? = { result ->
         logger.info { "[${sender}] 匹配ROOM(${result.value})" }
         runCatching {
-            bilibiliClient.getRoomInfo(
+            client.getRoomInfo(
                 roomId = result.value.toLong()
             ).buildRoomMessage(contact = subject, quote = message.quote())
         }.onFailure {
@@ -127,7 +128,7 @@ object BilibiliInfoCommand : CompositeCommand(
         }
     }
 
-    private suspend fun BiliCardInfo.buildDynamicMessage(contact: Contact, quote: QuoteReply? = null) = buildMessageChain {
+    private suspend fun DynamicInfo.buildDynamicMessage(contact: Contact, quote: QuoteReply? = null) = buildMessageChain {
         quote?.let { add(it) }
         appendLine("${describe.userProfile.info.uname} 动态")
         appendLine("时间: ${timestampToOffsetDateTime(describe.timestamp)}")
@@ -152,11 +153,11 @@ object BilibiliInfoCommand : CompositeCommand(
 
     private suspend fun BiliRoomInfo.buildRoomMessage(contact: Contact, quote: QuoteReply? = null) = buildMessageChain {
         quote?.let { add(it) }
-        when(liveStatus) {
+        when(liveType) {
             0 -> {
                 appendLine("未开播")
                 runCatching {
-                    bilibiliClient.getOffLiveList(roomId = roomId, count = 1).run {
+                    client.getOffLiveList(roomId = roomId, count = 1).run {
                         appendLine(tips)
                         records.firstOrNull()?.run {
                             appendLine("直播回放: ${getRecordUrl()}")
@@ -167,8 +168,8 @@ object BilibiliInfoCommand : CompositeCommand(
                             runCatching {
                                 add(getCover().uploadAsImage(contact))
                             }.onFailure {
-                                logger.warning({ "获取[${rid}]直播回放封面封面失败" }, it)
-                                appendLine("获取[${rid}]直播回放封面失败")
+                                logger.warning({ "获取[${roomId}]直播回放封面封面失败" }, it)
+                                appendLine("获取[${roomId}]直播回放封面失败")
                             }
                         }
                     }
@@ -177,7 +178,7 @@ object BilibiliInfoCommand : CompositeCommand(
             1 -> {
                 appendLine("开播时间: ${timestampToOffsetDateTime(liveTime)}")
                 runCatching {
-                    bilibiliClient.getAccInfo(uid = uid).run {
+                    client.getUserInfo(uid = uid).run {
                         appendLine("主播: $name")
                         appendLine("标题: ${liveRoom.title}")
                         appendLine("人气: ${liveRoom.online}")
@@ -197,9 +198,9 @@ object BilibiliInfoCommand : CompositeCommand(
             2 -> {
                 appendLine("轮播中")
                 runCatching {
-                    bilibiliClient.getRoundPlayVideo(roomId = roomId).run {
+                    client.getRoundPlayVideo(roomId = roomId).run {
                         appendLine("标题: $title")
-                        appendLine("链接: $bvidUrl")
+                        appendLine("链接: $url")
                     }
                 }.onFailure {
                     logger.warning({ "获取[${roomId}]轮播信息失败" }, it)
@@ -211,7 +212,7 @@ object BilibiliInfoCommand : CompositeCommand(
 
     @SubCommand
     suspend fun CommandSenderOnMessage<MessageEvent>.aid(id: Long) = runCatching {
-        bilibiliClient.getVideoInfo(aid = id).buildVideoMessage(
+        client.getVideoInfo(aid = id).buildVideoMessage(
             contact = fromEvent.subject,
             quote = fromEvent.message.quote()
         ).let {
@@ -221,7 +222,7 @@ object BilibiliInfoCommand : CompositeCommand(
 
     @SubCommand
     suspend fun CommandSenderOnMessage<MessageEvent>.bvid(id: String) = runCatching {
-        bilibiliClient.getVideoInfo(bvid = id).buildVideoMessage(
+        client.getVideoInfo(bvid = id).buildVideoMessage(
             contact = fromEvent.subject,
             quote = fromEvent.message.quote()
         ).let {
@@ -231,7 +232,7 @@ object BilibiliInfoCommand : CompositeCommand(
 
     @SubCommand
     suspend fun CommandSenderOnMessage<MessageEvent>.dynamic(id: Long) = runCatching {
-        bilibiliClient.getDynamicDetail(id).card.buildDynamicMessage(
+        client.getDynamicInfo(id).card.buildDynamicMessage(
             contact = fromEvent.subject,
             quote = fromEvent.message.quote()
         ).let {
@@ -241,7 +242,7 @@ object BilibiliInfoCommand : CompositeCommand(
 
     @SubCommand
     suspend fun  CommandSenderOnMessage<MessageEvent>.live(id: Long) = runCatching {
-        bilibiliClient.getRoomInfo(id).buildRoomMessage(
+        client.getRoomInfo(id).buildRoomMessage(
             contact = fromEvent.subject,
             quote = fromEvent.message.quote()
         ).let {

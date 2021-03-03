@@ -13,7 +13,7 @@ import net.mamoe.mirai.utils.ExternalResource.Companion.uploadAsImage
 import net.mamoe.mirai.utils.*
 import xyz.cssxsh.bilibili.api.*
 import xyz.cssxsh.mirai.plugin.*
-import xyz.cssxsh.mirai.plugin.BilibiliHelperPlugin.bilibiliClient
+import xyz.cssxsh.mirai.plugin.BilibiliHelperPlugin.client
 import xyz.cssxsh.mirai.plugin.BilibiliHelperPlugin.logger
 import xyz.cssxsh.mirai.plugin.data.BilibiliTaskData.tasks
 import xyz.cssxsh.mirai.plugin.data.*
@@ -73,9 +73,7 @@ object BilibiliSubscribeCommand : CompositeCommand(
     }
 
     private suspend fun sendVideoMessage(uid: Long) = runCatching {
-        bilibiliClient.searchVideo(uid).list.vList.filter {
-            it.created > tasks.getValue(uid).videoLast
-        }.run {
+        client.searchVideo(uid).list.videoList.apply {
             logger.verbose { "(${uid})共加载${size}条视频" }
             sortedBy { it.created }.forEach { video ->
                 sendMessageToTaskContacts(uid = uid) { contact ->
@@ -107,10 +105,10 @@ object BilibiliSubscribeCommand : CompositeCommand(
     }.onFailure { logger.warning({ "($uid)获取视频失败" }, it) }.isSuccess
 
     private suspend fun sendLiveMessage(uid: Long) = runCatching {
-        bilibiliClient.getAccInfo(uid).let { user ->
-            logger.verbose { "(${uid})[${user.name}][${user.liveRoom.title}]最新开播状态为${user.liveRoom.liveStatus == 1}" }
-            liveState.put(uid, user.liveRoom.liveStatus == 1).let { old ->
-                if (old != true && user.liveRoom.liveStatus == 1) {
+        client.getUserInfo(uid).let { user ->
+            logger.verbose { "(${uid})[${user.name}][${user.liveRoom.title}]最新开播状态为${user.liveRoom.liveStatus}" }
+            liveState.put(uid, user.liveRoom.liveStatus).let { old ->
+                if (old != true && user.liveRoom.liveStatus) {
                     sendMessageToTaskContacts(uid = uid) { contact ->
                         appendLine("主播: ${user.name}")
                         appendLine("标题: ${user.liveRoom.title}")
@@ -130,9 +128,7 @@ object BilibiliSubscribeCommand : CompositeCommand(
     }.onFailure { logger.warning({ "($uid)获取直播失败" }, it) }.isSuccess
 
     private suspend fun sendDynamicMessage(uid: Long) = runCatching {
-        bilibiliClient.getSpaceHistory(uid).cards.filter {
-            it.describe.timestamp > tasks.getValue(uid).dynamicLast
-        }.apply {
+        client.getSpaceHistory(uid).cards.apply {
             logger.verbose { "(${uid})共加载${size}条动态" }
             sortedBy { it.describe.timestamp }.forEach { dynamic ->
                 logger.verbose { "(${uid})当前处理${dynamic.describe.dynamicId}" }
@@ -172,22 +168,23 @@ object BilibiliSubscribeCommand : CompositeCommand(
     }.onFailure { logger.warning({ "($uid)获取动态失败" }, it) }.isSuccess
 
     private fun addListener(uid: Long): Job = launch {
-        delay(tasks.getValue(uid).getInterval().random())
+        logger.info { "监听任务User(${uid})开始" }
+        delay(tasks.getValue(uid).interval.random())
         while (isActive && taskContactInfos(uid).isNotEmpty()) {
             runCatching {
                 sendDynamicMessage(uid)
                 sendVideoMessage(uid)
                 sendLiveMessage(uid)
             }.onSuccess {
-                delay(tasks.getValue(uid).getInterval().random().also {
+                delay(tasks.getValue(uid).interval.random().also {
                     logger.info { "(${uid}): ${tasks[uid]}监听任务完成一次, 即将进入延时delay(${it}ms)。" }
                 })
             }.onFailure {
                 logger.warning({ "(${uid})监听任务执行失败" }, it)
-                delay(tasks.getValue(uid).maxIntervalMillis)
+                delay(tasks.getValue(uid).interval.last)
             }
         }
-    }.also { logger.info { "添加对(${uid})的监听任务, 添加完成${it}" } }
+    }
 
     private fun addUid(uid: Long, subject: Contact): Unit = synchronized(taskJobs) {
         tasks.compute(uid) { _, info ->

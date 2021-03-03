@@ -6,7 +6,9 @@ import io.ktor.http.*
 import kotlinx.serialization.json.Json
 import net.mamoe.mirai.utils.*
 import xyz.cssxsh.bilibili.data.*
-import xyz.cssxsh.mirai.plugin.BilibiliHelperPlugin.bilibiliClient
+import xyz.cssxsh.bilibili.data.dynamic.*
+import xyz.cssxsh.bilibili.data.live.*
+import xyz.cssxsh.mirai.plugin.BilibiliHelperPlugin.client
 import xyz.cssxsh.mirai.plugin.BilibiliHelperPlugin.logger
 import xyz.cssxsh.mirai.plugin.data.SeleniumToolConfig.timeoutMillis
 import xyz.cssxsh.mirai.plugin.data.SeleniumToolConfig.deviceName
@@ -46,7 +48,7 @@ internal fun dynamicTimestamp(id: Long): Long = (id shr 32) + DYNAMIC_START
 private fun Url.getFilename() = encodedPath.substring(encodedPath.lastIndexOfAny(listOf("\\", "/")) + 1)
 
 private fun getImage(type: CacheType, name: String): File =
-    File(cachePath).resolve(type.name).resolve(name)
+    cacheDir.resolve(type.name).resolve(name)
 
 internal fun timestampToOffsetDateTime(timestamp: Long) =
     OffsetDateTime.ofInstant(Instant.ofEpochSecond(timestamp), ZoneOffset.systemDefault())
@@ -59,7 +61,7 @@ private suspend fun getBilibiliImage(
 ): File = getImage(type = type, name  = name).apply {
     if (exists().not() || refresh) {
         parentFile.mkdirs()
-        writeBytes(bilibiliClient.useHttpClient { it.get(url) })
+        writeBytes(client.useHttpClient { it.get(url) })
     }
 }
 
@@ -82,7 +84,7 @@ internal suspend fun getScreenShot(
         }.onFailure {
             logger.warning({ "使用ChromeDriver(${driverUrl})失败" }, it)
         }.getOrElse {
-            bilibiliClient.useHttpClient {
+            client.useHttpClient {
                 it.get("https://www.screenshotmaster.com/api/screenshot") {
                     parameter("url", url)
                     parameter("width", 768)
@@ -98,7 +100,7 @@ internal suspend fun getScreenShot(
     }
 }
 
-internal suspend fun BiliCardInfo.getScreenShot(refresh: Boolean = false) = getScreenShot(
+internal suspend fun DynamicInfo.getScreenShot(refresh: Boolean = false) = getScreenShot(
     url = getDynamicUrl(),
     type = CacheType.DYNAMIC,
     name = "${timestampToOffsetDateTime(describe.timestamp).toLocalDate()}/${describe.dynamicId}.png",
@@ -110,56 +112,72 @@ internal fun DynamicInfo.isText() = when (describe.type) {
     else -> false
 }
 
-internal fun BiliCardInfo.toMessageText(): String = buildString {
+internal fun DynamicInfo.toMessageText() = buildString {
     when (describe.type) {
-        1 -> {
-            BILI_JSON.decodeFromString(BiliReplyCard.serializer(), card).let { card ->
-                appendLine("${card.user.uname} -> ${card.originUser.info.uname}: ")
+        DynamicType.REPLY -> {
+            BILI_JSON.decodeFromJsonElement(DynamicReply.serializer(), card).let { card ->
+                appendLine("RT ${card.originUser.user.uname}: ")
                 appendLine(card.item.content)
             }
         }
-        2 -> {
-            BILI_JSON.decodeFromString(BiliPictureCard.serializer(), card).let { card ->
-                appendLine("${card.user.name}: ")
+        DynamicType.PICTURE -> {
+            BILI_JSON.decodeFromJsonElement(DynamicPicture.serializer(), card).let { card ->
                 appendLine(card.item.description)
             }
         }
-        4 -> {
-            BILI_JSON.decodeFromString(BiliTextCard.serializer(), card).let { card ->
-                appendLine("${card.user.uname}: ")
+        DynamicType.TEXT -> {
+            BILI_JSON.decodeFromJsonElement(DynamicText.serializer(), card).let { card ->
                 appendLine(card.item.content)
             }
         }
-        8 -> {
-            BILI_JSON.decodeFromString(BiliVideoCard.serializer(), card).let { card ->
-                appendLine("${card.owner.name}: ")
+        DynamicType.MUSIC -> {
+            BILI_JSON.decodeFromJsonElement(DynamicMusic.serializer(), card).let { card ->
+                appendLine(card.intro)
                 appendLine(card.title)
             }
         }
-        else -> {
-            logger.warning("未知类型卡片")
-            appendLine("未知类型卡片")
+        DynamicType.VIDEO -> {
+            BILI_JSON.decodeFromJsonElement(DynamicVideo.serializer(), card).let { card ->
+                appendLine(card.title)
+                appendLine(card.description)
+                appendLine(card.jumpUrl)
+            }
+        }
+        DynamicType.ARTICLE -> {
+            BILI_JSON.decodeFromJsonElement(DynamicArticle.serializer(), card).let { card ->
+                appendLine(card.title)
+                appendLine(card.summary)
+            }
+        }
+        DynamicType.LIVE -> {
+            BILI_JSON.decodeFromJsonElement(DynamicLive.serializer(), card).let { card ->
+                appendLine(card.title)
+                appendLine(card.tags)
+                appendLine(card.link)
+            }
+        }
+        DynamicType.NONE -> {
+            appendLine("不支持的类型${describe.type}")
         }
     }
 }
 
-internal fun BiliCardInfo.getDynamicUrl() =
-    "https://t.bilibili.com/${describe.dynamicId}"
+internal fun DynamicInfo.getDynamicUrl() = "https://t.bilibili.com/${describe.dynamicId}"
 
-internal suspend fun BiliCardInfo.getImages() = buildList {
-    if (describe.type == BiliPictureCard.TYPE) {
-        BILI_JSON.decodeFromString(
-            deserializer = BiliPictureCard.serializer(),
-            string = card
+internal suspend fun DynamicInfo.getImages() = buildList {
+    if (describe.type == DynamicType.PICTURE) {
+        BILI_JSON.decodeFromJsonElement(
+            deserializer = DynamicPicture.serializer(),
+            element = card
         ).item.pictures.forEachIndexed { index, picture ->
             runCatching {
                 getBilibiliImage(
-                    url = Url(picture.imageSource),
+                    url = Url(picture.source),
                     type = CacheType.DYNAMIC,
-                    name = "${timestampToOffsetDateTime(describe.timestamp).toLocalDate()}/${describe.dynamicId}-${index}-${Url(picture.imageSource).getFilename()}"
+                    name = "${getOffsetDateTime().toLocalDate()}/${describe.dynamicId}-${index}-${Url(picture.source).getFilename()}"
                 )
             }.onFailure {
-                logger.warning({ "动态图片下载失败: ${picture.imageSource}" }, it)
+                logger.warning({ "动态图片下载失败: ${picture.source}" }, it)
             }.let {
                 add(it)
             }
@@ -170,11 +188,7 @@ internal suspend fun BiliCardInfo.getImages() = buildList {
 internal fun BiliVideoInfo.durationText() =
     duration.seconds.toString()
 
-internal fun BiliLiveRecord.getRecordUrl() =
-    "https://live.bilibili.com/record/${rid}"
-
-internal fun BiliLiveRecommend.getLiveUrl() =
-    "https://live.bilibili.com${link}"
+internal fun LiveRecord.getRecordUrl() = "https://live.bilibili.com/record/${roomId}"
 
 internal fun BiliVideoInfo.getVideoUrl() =
     "https://www.bilibili.com/video/${bvid}"
@@ -189,10 +203,10 @@ internal suspend fun BiliSearchResult.VideoInfo.getCover() = getBilibiliImage(
     refresh = false
 )
 
-internal suspend fun BiliLiveRoom.getCover(): File = getBilibiliImage(
+internal suspend fun BiliRoomSimple.getCover() = getBilibiliImage(
     url = Url(cover),
     type = CacheType.LIVE,
-    name = "${roomId}-cover-${Url(cover).getFilename()}",
+    name = "${roomId}/cover-${Url(cover).getFilename()}",
     refresh = false
 )
 
@@ -203,16 +217,17 @@ internal suspend fun BiliVideoInfo.getCover(): File = getBilibiliImage(
     refresh = true
 )
 
-internal suspend fun BiliLiveRecord.getCover(): File = getBilibiliImage(
+internal suspend fun LiveRecord.getCover() = getBilibiliImage(
     url = Url(cover),
     type = CacheType.RECORD,
-    name = "${rid}-cover-${Url(cover).getFilename()}",
+    name = "${roomId}/cover-${Url(cover).getFilename()}",
     refresh = false
 )
-internal suspend fun BiliLiveRecommend.getCover(): File = getBilibiliImage(
+
+internal suspend fun LiveRecommend.getCover() = getBilibiliImage(
     url = Url(cover),
     type = CacheType.LIVE,
-    name = "${roomId}-cover-${Url(cover).getFilename()}",
+    name = "${roomId}/cover-${Url(cover).getFilename()}",
     refresh = false
 )
 

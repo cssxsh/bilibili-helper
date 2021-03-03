@@ -4,14 +4,14 @@ import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonObject
 
 @Serializable
 data class BiliTempInfo(
     @SerialName("code")
     val code: Int,
     @SerialName("data")
-    val data: JsonElement? = null,
+    val data: JsonObject? = null,
     @SerialName("message")
     val message: String,
     @SerialName("ttl")

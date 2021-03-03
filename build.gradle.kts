@@ -32,6 +32,8 @@ kotlin {
             languageSettings.useExperimentalAnnotation("kotlin.ExperimentalStdlibApi")
             languageSettings.useExperimentalAnnotation("kotlin.time.ExperimentalTime")
             languageSettings.useExperimentalAnnotation("io.ktor.util.KtorExperimentalAPI")
+            languageSettings.useExperimentalAnnotation("kotlinx.serialization.InternalSerializationApi")
+            languageSettings.useExperimentalAnnotation("kotlinx.serialization.ExperimentalSerializationApi")
         }
         test {
             languageSettings.useExperimentalAnnotation("net.mamoe.mirai.console.ConsoleFrontEndImplementation")
@@ -43,6 +45,8 @@ dependencies {
     implementation(ktor("client-serialization", Versions.ktor))
     implementation(ktor("client-encoding", Versions.ktor))
     implementation(selenium("java", Versions.selenium))
+    testImplementation(junit("api", Versions.junit))
+    testRuntimeOnly(junit("engine", Versions.junit))
 }
 
 tasks {

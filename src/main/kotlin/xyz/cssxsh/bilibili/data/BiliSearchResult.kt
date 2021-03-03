@@ -2,12 +2,12 @@ package xyz.cssxsh.bilibili.data
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonObject
 
 @Serializable
 data class BiliSearchResult(
     @SerialName("episodic_button")
-    val episodicButton: JsonElement? = null,
+    private val episodicButton: JsonObject? = null,
     @SerialName("list")
     val list: InfoList,
     @SerialName("page")
@@ -43,15 +43,18 @@ data class BiliSearchResult(
         @SerialName("hide_click")
         val hideClick: Boolean,
         @SerialName("is_pay")
-        val isPay: Int,
+        @Serializable(with = NumberToBooleanSerializer::class)
+        val isPay: Boolean,
         @SerialName("is_union_video")
-        val isUnionVideo: Int,
+        @Serializable(with = NumberToBooleanSerializer::class)
+        val isUnionVideo: Boolean,
         @SerialName("is_steins_gate")
-        val isSteinsGate: Int,
+        @Serializable(with = NumberToBooleanSerializer::class)
+        val isSteinsGate: Boolean,
         @SerialName("length")
         val length: String,
         @SerialName("mid")
-        val mid: Long,
+        val uid: Long,
         @SerialName("pic")
         val picture: String,
         @SerialName("play")
@@ -71,9 +74,9 @@ data class BiliSearchResult(
     @Serializable
     data class InfoList(
         @SerialName("tlist")
-        val tList: Map<Int, TypeInfo>? = emptyMap(),
+        val typeList: Map<Int, TypeInfo>? = null,
         @SerialName("vlist")
-        val vList: List<VideoInfo>
+        val videoList: List<VideoInfo>
     )
 
     @Serializable
@@ -81,8 +84,8 @@ data class BiliSearchResult(
         @SerialName("count")
         val count: Int,
         @SerialName("pn")
-        val pageNum: Int,
+        val num: Int,
         @SerialName("ps")
-        val pageSize: Int
+        val size: Int
     )
 }

@@ -1,4 +1,4 @@
-package xyz.cssxsh.bilibili.data
+package xyz.cssxsh.bilibili.data.dynamic
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -7,13 +7,11 @@ import xyz.cssxsh.bilibili.data.video.*
 import xyz.cssxsh.bilibili.data.user.*
 
 @Serializable
-data class BiliVideoInfo(
+data class DynamicVideo(
     @SerialName("aid")
     val aid: Int,
     @SerialName("attribute")
     private val attribute: Int? = null,
-    @SerialName("bvid")
-    val bvid: String,
     @SerialName("cid")
     val cid: Int,
     @SerialName("copyright")
@@ -28,36 +26,24 @@ data class BiliVideoInfo(
     val duration: Int,
     @SerialName("dynamic")
     val dynamic: String = "",
-    @SerialName("label")
-    private val label: JsonObject? = null,
+    @SerialName("jump_url")
+    val jumpUrl: String,
     @SerialName("mission_id")
     private val missionId: Long? = null,
-    @SerialName("no_cache")
-    private val noCache: Boolean,
     @SerialName("owner")
     val owner: VideoOwner,
-    @SerialName("pages")
-    val pages: List<VideoPage> = emptyList(),
     @SerialName("pic")
     val picture: String,
+    @SerialName("player_info")
+    private val playerInfo: JsonObject,
     @SerialName("pubdate")
     val pubdate: Long,
-    @SerialName("redirect_url")
-    val redirect: String? = null,
     @SerialName("rights")
-    private val rights: Map<String, Int>,
-    @SerialName("season_id")
-    private val seasonId: Int? = null,
-    @SerialName("staff")
-    val staff: List<VideoStaff> = emptyList(),
-    @SerialName("stat")
-    val status: VideoStatus,
+    private val rights: Map<String, Int> = emptyMap(),
     @SerialName("state")
     private val state: Int,
-    @SerialName("stein_guide_cid")
-    private val steinGuideCid: Int? = null,
-    @SerialName("subtitle")
-    val subtitle: VideoSubtitle,
+    @SerialName("stat")
+    val status: VideoStatus,
     @SerialName("tid")
     val tid: Long,
     @SerialName("title")
@@ -65,7 +51,5 @@ data class BiliVideoInfo(
     @SerialName("tname")
     val type: String,
     @SerialName("videos")
-    val videos: Int,
-    @SerialName("user_garb")
-    private val userGarb: JsonObject? = null
+    val videos: Int
 )
