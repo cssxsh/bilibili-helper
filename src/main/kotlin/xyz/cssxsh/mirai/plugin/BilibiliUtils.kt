@@ -50,7 +50,7 @@ private fun Url.getFilename() = encodedPath.substring(encodedPath.lastIndexOfAny
 private fun getImage(type: CacheType, name: String): File =
     cacheDir.resolve(type.name).resolve(name)
 
-internal fun timestampToOffsetDateTime(timestamp: Long) =
+private fun timestampToOffsetDateTime(timestamp: Long) =
     OffsetDateTime.ofInstant(Instant.ofEpochSecond(timestamp), ZoneOffset.systemDefault())
 
 private suspend fun getBilibiliImage(
@@ -58,7 +58,7 @@ private suspend fun getBilibiliImage(
     type: CacheType,
     name: String,
     refresh: Boolean = false
-): File = getImage(type = type, name  = name).apply {
+): File = getImage(type = type, name = name).apply {
     if (exists().not() || refresh) {
         parentFile.mkdirs()
         writeBytes(client.useHttpClient { it.get(url) })
@@ -70,7 +70,7 @@ internal suspend fun getScreenShot(
     type: CacheType,
     name: String,
     refresh: Boolean = false
-): File = getImage(type = type, name  = name).apply {
+): File = getImage(type = type, name = name).apply {
     if (exists().not() || refresh) {
         parentFile.mkdirs()
         runCatching {
@@ -103,7 +103,7 @@ internal suspend fun getScreenShot(
 internal suspend fun DynamicInfo.getScreenShot(refresh: Boolean = false) = getScreenShot(
     url = getDynamicUrl(),
     type = CacheType.DYNAMIC,
-    name = "${timestampToOffsetDateTime(describe.timestamp).toLocalDate()}/${describe.dynamicId}.png",
+    name = "${getOffsetDateTime().toLocalDate()}/${describe.dynamicId}.png",
     refresh = refresh
 )
 
@@ -162,6 +162,10 @@ internal fun DynamicInfo.toMessageText() = buildString {
     }
 }
 
+internal fun DynamicInfo.getUserName() = describe.profile?.user?.uname ?: "【动态已删除】"
+
+internal fun DynamicInfo.getOffsetDateTime() = timestampToOffsetDateTime(describe.timestamp)
+
 internal fun DynamicInfo.getDynamicUrl() = "https://t.bilibili.com/${describe.dynamicId}"
 
 internal suspend fun DynamicInfo.getImages() = buildList {
@@ -185,21 +189,24 @@ internal suspend fun DynamicInfo.getImages() = buildList {
     }
 }
 
-internal fun BiliVideoInfo.durationText() =
-    duration.seconds.toString()
+internal fun BiliVideoInfo.getDuration() = duration.seconds
+
+internal fun BiliVideoInfo.getOffsetDateTime() = timestampToOffsetDateTime(pubdate)
+
+internal fun BiliRoomInfo.getOffsetDateTime() = timestampToOffsetDateTime(liveTime)
 
 internal fun LiveRecord.getRecordUrl() = "https://live.bilibili.com/record/${roomId}"
 
-internal fun BiliVideoInfo.getVideoUrl() =
-    "https://www.bilibili.com/video/${bvid}"
+internal fun BiliVideoInfo.getVideoUrl() = "https://www.bilibili.com/video/${bvid}"
 
-internal fun BiliSearchResult.VideoInfo.getVideoUrl() =
-    "https://www.bilibili.com/video/${bvid}"
+internal fun BiliSearchResult.VideoInfo.getVideoUrl() = "https://www.bilibili.com/video/${bvid}"
+
+internal fun BiliSearchResult.VideoInfo.getOffsetDateTime() = timestampToOffsetDateTime(created)
 
 internal suspend fun BiliSearchResult.VideoInfo.getCover() = getBilibiliImage(
     url = Url(picture),
     type = CacheType.VIDEO,
-    name ="${bvid}-cover-${Url(picture).getFilename()}",
+    name = "${bvid}-cover-${Url(picture).getFilename()}",
     refresh = false
 )
 
@@ -210,10 +217,10 @@ internal suspend fun BiliRoomSimple.getCover() = getBilibiliImage(
     refresh = false
 )
 
-internal suspend fun BiliVideoInfo.getCover(): File = getBilibiliImage(
+internal suspend fun BiliVideoInfo.getCover() = getBilibiliImage(
     url = Url(picture),
     type = CacheType.VIDEO,
-    name ="${bvid}-cover-${Url(picture).getFilename()}",
+    name = "${bvid}-cover-${Url(picture).getFilename()}",
     refresh = true
 )
 

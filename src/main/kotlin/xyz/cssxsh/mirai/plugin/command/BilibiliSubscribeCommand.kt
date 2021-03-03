@@ -75,11 +75,13 @@ object BilibiliSubscribeCommand : CompositeCommand(
     private suspend fun sendVideoMessage(uid: Long) = runCatching {
         client.searchVideo(uid).list.videoList.apply {
             logger.verbose { "(${uid})共加载${size}条视频" }
-            sortedBy { it.created }.forEach { video ->
+        }.sortedBy { it.created }.onEach { video ->
+            if (video.created > tasks.getValue(uid).videoLast) {
+                logger.verbose { "(${uid})当前处理视频[${video.bvid}]" }
                 sendMessageToTaskContacts(uid = uid) { contact ->
                     appendLine("标题: ${video.title}")
                     appendLine("作者: ${video.author}")
-                    appendLine("时间: ${timestampToOffsetDateTime(video.created)}")
+                    appendLine("时间: ${video.getOffsetDateTime()}")
                     appendLine("时长: ${video.length}")
                     appendLine("链接: ${video.getVideoUrl()}")
 
@@ -91,15 +93,12 @@ object BilibiliSubscribeCommand : CompositeCommand(
                     }
                 }
             }
-            maxByOrNull { it.created }?.let { video ->
-                logger.info {
-                    "(${uid})[${video.author}]最新视频为(${video.bvid})[${video.title}]<${
-                        timestampToOffsetDateTime(video.created)
-                    }>"
-                }
-                tasks.compute(uid) { _, info ->
-                    info?.copy(videoLast = video.created)
-                }
+        }.maxByOrNull { it.created }?.let { video ->
+            logger.info {
+                "(${uid})[${video.author}]最新视频为(${video.bvid})[${video.title}]<${video.getOffsetDateTime()}>"
+            }
+            tasks.compute(uid) { _, info ->
+                info?.copy(videoLast = video.created)
             }
         }
     }.onFailure { logger.warning({ "($uid)获取视频失败" }, it) }.isSuccess
@@ -130,11 +129,12 @@ object BilibiliSubscribeCommand : CompositeCommand(
     private suspend fun sendDynamicMessage(uid: Long) = runCatching {
         client.getSpaceHistory(uid).cards.apply {
             logger.verbose { "(${uid})共加载${size}条动态" }
-            sortedBy { it.describe.timestamp }.forEach { dynamic ->
-                logger.verbose { "(${uid})当前处理${dynamic.describe.dynamicId}" }
+        }.sortedBy { it.describe.timestamp }.onEach { dynamic ->
+            if (dynamic.isText() && dynamic.describe.timestamp > tasks.getValue(uid).dynamicLast) {
+                logger.verbose { "(${uid})当前处理动态[${dynamic.describe.dynamicId}]" }
                 sendMessageToTaskContacts(uid = uid) { contact ->
-                    appendLine("${dynamic.describe.userProfile.info.uname} 有新动态")
-                    appendLine("时间: ${timestampToOffsetDateTime(dynamic.describe.timestamp)}")
+                    appendLine("@${dynamic.getUserName()} 有新动态")
+                    appendLine("时间: ${dynamic.getOffsetDateTime()}")
                     appendLine("链接: ${dynamic.getDynamicUrl()}")
 
                     runCatching {
@@ -154,15 +154,12 @@ object BilibiliSubscribeCommand : CompositeCommand(
                     }
                 }
             }
-            maxByOrNull { it.describe.timestamp }?.let { dynamic ->
-                logger.info {
-                    "(${uid})[${dynamic.describe.userProfile.info.uname}]最新动态时间为<${
-                        timestampToOffsetDateTime(dynamic.describe.timestamp)
-                    }>"
-                }
-                tasks.compute(uid) { _, info ->
-                    info?.copy(dynamicLast = dynamic.describe.timestamp)
-                }
+        }.maxByOrNull { it.describe.timestamp }?.let { dynamic ->
+            logger.info {
+                "(${uid})[${dynamic.getUserName()}]最新动态时间为<${dynamic.getOffsetDateTime()}>"
+            }
+            tasks.compute(uid) { _, info ->
+                info?.copy(dynamicLast = dynamic.describe.timestamp)
             }
         }
     }.onFailure { logger.warning({ "($uid)获取动态失败" }, it) }.isSuccess

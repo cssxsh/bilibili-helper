@@ -117,8 +117,8 @@ object BilibiliInfoCommand : CompositeCommand(
         quote?.let { add(it) }
         appendLine("标题: $title")
         appendLine("作者: ${owner.name}")
-        appendLine("时间: ${timestampToOffsetDateTime(pubdate)}")
-        appendLine("时长: ${durationText()}")
+        appendLine("时间: ${getOffsetDateTime()}")
+        appendLine("时长: ${getDuration()}")
         appendLine("链接: ${getVideoUrl()}")
 
         runCatching {
@@ -130,8 +130,8 @@ object BilibiliInfoCommand : CompositeCommand(
 
     private suspend fun DynamicInfo.buildDynamicMessage(contact: Contact, quote: QuoteReply? = null) = buildMessageChain {
         quote?.let { add(it) }
-        appendLine("${describe.userProfile.info.uname} 动态")
-        appendLine("时间: ${timestampToOffsetDateTime(describe.timestamp)}")
+        appendLine("${getUserName()} 动态")
+        appendLine("时间: ${getOffsetDateTime()}")
         appendLine("链接: ${getDynamicUrl()}")
 
         runCatching {
@@ -176,7 +176,7 @@ object BilibiliInfoCommand : CompositeCommand(
                 }
             }
             1 -> {
-                appendLine("开播时间: ${timestampToOffsetDateTime(liveTime)}")
+                appendLine("开播时间: ${getOffsetDateTime()}")
                 runCatching {
                     client.getUserInfo(uid = uid).run {
                         appendLine("主播: $name")
