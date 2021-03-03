@@ -3,7 +3,7 @@ package xyz.cssxsh.mirai.plugin
 import io.ktor.client.request.*
 import io.ktor.http.*
 import kotlinx.serialization.json.Json
-import net.mamoe.mirai.utils.warning
+import net.mamoe.mirai.utils.*
 import xyz.cssxsh.bilibili.data.*
 import xyz.cssxsh.mirai.plugin.BilibiliHelperPlugin.bilibiliClient
 import xyz.cssxsh.mirai.plugin.BilibiliHelperPlugin.logger
@@ -19,7 +19,7 @@ import java.net.URL
 import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
-import kotlin.time.seconds
+import kotlin.time.*
 
 internal val BILI_JSON = Json {
     prettyPrint = true
@@ -40,6 +40,7 @@ enum class CacheType {
  */
 private const val DYNAMIC_START = 1498838400L
 
+@Suppress("unused")
 internal fun dynamicTimestamp(id: Long): Long = (id shr 32) + DYNAMIC_START
 
 private fun Url.getFilename() = encodedPath.substring(encodedPath.lastIndexOfAny(listOf("\\", "/")) + 1)
@@ -56,8 +57,8 @@ private suspend fun getBilibiliImage(
     name: String,
     refresh: Boolean = false
 ): File = getImage(type = type, name  = name).apply {
-    parentFile.mkdirs()
     if (exists().not() || refresh) {
+        parentFile.mkdirs()
         writeBytes(bilibiliClient.useHttpClient { it.get(url) })
     }
 }
@@ -68,8 +69,8 @@ internal suspend fun getScreenShot(
     name: String,
     refresh: Boolean = false
 ): File = getImage(type = type, name  = name).apply {
-    parentFile.mkdirs()
     if (exists().not() || refresh) {
+        parentFile.mkdirs()
         runCatching {
             BilibiliChromeDriverTool(
                 remoteAddress = URL(driverUrl),
