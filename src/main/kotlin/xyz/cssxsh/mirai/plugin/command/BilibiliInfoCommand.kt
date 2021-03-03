@@ -19,20 +19,19 @@ import xyz.cssxsh.mirai.plugin.*
 import xyz.cssxsh.mirai.plugin.BilibiliHelperPlugin.bilibiliClient
 import xyz.cssxsh.mirai.plugin.BilibiliHelperPlugin.logger
 
-@Suppress("unused")
 object BilibiliInfoCommand : CompositeCommand(
     owner = BilibiliHelperPlugin,
     "bili-info", "B信息",
     description = "B站信息指令"
 ) {
 
-    internal val VIDEO_REGEX = """((av|AV)\d+|(bv|BV)[0-9A-z]{10})""".toRegex()
+    private val VIDEO_REGEX = """((av|AV)\d+|(bv|BV)[0-9A-z]{10})""".toRegex()
 
-    internal val DYNAMIC_REGEX = """(?<=http(s)?://t\.bilibili\.com/(h5/dynamic/detail/)?)([0-9]{18})""".toRegex()
+    private val DYNAMIC_REGEX = """(?<=t\.bilibili\.com/(h5/dynamic/detail/)?)([0-9]{18})""".toRegex()
 
-    internal val ROOM_REGEX = """(?<=http(s)?://live\.bilibili\.com/)(\d+)""".toRegex()
+    private val ROOM_REGEX = """(?<=live\.bilibili\.com/)(\d+)""".toRegex()
 
-    internal val SHORT_LINK_REGEX = """http(s)?://b23\.tv/[0-9A-z]+""".toRegex()
+    private val SHORT_LINK_REGEX = """b23\.tv/[0-9A-z]+""".toRegex()
 
     private lateinit var subscribeJob: Job
 
@@ -100,7 +99,7 @@ object BilibiliInfoCommand : CompositeCommand(
                     } ?: ROOM_REGEX.find(url)?.let { result ->
                         roomReplier(result)
                     }
-                } ?: Unit
+                }
             }
         }
     }
