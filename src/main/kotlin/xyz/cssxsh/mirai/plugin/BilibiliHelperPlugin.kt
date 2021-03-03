@@ -57,7 +57,6 @@ object BilibiliHelperPlugin : KotlinPlugin(
         bilibiliClient = BilibiliClient(BilibiliHelperSettings.initCookies)
         serviceStart()
 
-        BilibiliHelperSettings.makeCacheDir()
         BilibiliSubscribeCommand.start()
         BilibiliInfoCommand.start()
 
@@ -67,7 +66,6 @@ object BilibiliHelperPlugin : KotlinPlugin(
 
     @ConsoleExperimentalApi
     override fun onDisable() {
-
         BilibiliSubscribeCommand.unregister()
         BilibiliInfoCommand.unregister()
 
