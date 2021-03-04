@@ -206,7 +206,7 @@ internal fun BiliSearchResult.VideoInfo.getOffsetDateTime() = timestampToOffsetD
 internal suspend fun BiliSearchResult.VideoInfo.getCover() = getBilibiliImage(
     url = Url(picture),
     type = CacheType.VIDEO,
-    name = "${bvid}-cover-${Url(picture).getFilename()}",
+    name = "${mid}/${bvid}-cover-${Url(picture).getFilename()}",
     refresh = false
 )
 
@@ -220,7 +220,7 @@ internal suspend fun BiliRoomSimple.getCover() = getBilibiliImage(
 internal suspend fun BiliVideoInfo.getCover() = getBilibiliImage(
     url = Url(picture),
     type = CacheType.VIDEO,
-    name = "${bvid}-cover-${Url(picture).getFilename()}",
+    name = "${owner.mid}/${bvid}-cover-${Url(picture).getFilename()}",
     refresh = true
 )
 
