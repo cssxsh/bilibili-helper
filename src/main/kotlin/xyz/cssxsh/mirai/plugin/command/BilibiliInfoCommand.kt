@@ -119,7 +119,7 @@ object BilibiliInfoCommand : CompositeCommand(
         appendLine("作者: ${owner.name}")
         appendLine("时间: ${getOffsetDateTime()}")
         appendLine("时长: ${getDuration()}")
-        appendLine("链接: ${getVideoUrl()}")
+        appendLine("链接: $url")
 
         runCatching {
             add(getCover().uploadAsImage(contact))
@@ -160,7 +160,7 @@ object BilibiliInfoCommand : CompositeCommand(
                     client.getOffLiveList(roomId = roomId, count = 1).run {
                         appendLine(tips)
                         records.firstOrNull()?.run {
-                            appendLine("直播回放: ${getRecordUrl()}")
+                            appendLine("直播回放: $url")
                             appendLine("主播: $uname")
                             appendLine("标题: $title")
                             appendLine("时间: $startTime")
@@ -178,7 +178,7 @@ object BilibiliInfoCommand : CompositeCommand(
             1 -> {
                 appendLine("开播时间: ${getOffsetDateTime()}")
                 runCatching {
-                    client.getUserInfo(uid = uid).run {
+                    client.getUserInfo(mid = uid).run {
                         appendLine("主播: $name")
                         appendLine("标题: ${liveRoom.title}")
                         appendLine("人气: ${liveRoom.online}")

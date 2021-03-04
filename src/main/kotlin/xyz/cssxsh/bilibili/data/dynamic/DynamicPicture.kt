@@ -3,6 +3,7 @@ package xyz.cssxsh.bilibili.data.dynamic
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonObject
+import xyz.cssxsh.bilibili.data.NumberToBooleanSerializer
 import xyz.cssxsh.bilibili.data.user.*
 
 @Serializable
@@ -18,7 +19,7 @@ data class DynamicPicture(
 ) {
 
     @Serializable
-    data class Info(
+    data class Picture(
         @SerialName("img_height")
         val height: Int,
         @SerialName("img_size")
@@ -42,9 +43,10 @@ data class DynamicPicture(
         @SerialName("id")
         val id: Long,
         @SerialName("is_fav")
-        val isFavourite: Int,
+        @Serializable(with = NumberToBooleanSerializer::class)
+        val isFavourite: Boolean,
         @SerialName("pictures")
-        val pictures: List<Info>,
+        val pictures: List<Picture>,
         @SerialName("pictures_count")
         val picturesCount: Int,
         @SerialName("reply")

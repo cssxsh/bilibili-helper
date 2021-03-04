@@ -18,14 +18,14 @@ suspend fun BilibiliClient.getRoomInfo(
 }.transferTo(BiliRoomInfo.serializer())
 
 suspend fun BilibiliClient.getRoomInfoOld(
-    uid: Long,
+    mid: Long,
     url: String = BilibiliApi.ROOM_INFO_OLD
 ): BiliRoomSimple = useHttpClient { client ->
     client.get<BiliTempInfo>(url) {
         header(HttpHeaders.Origin, BilibiliApi.SPACE)
         header(HttpHeaders.Referrer, BilibiliApi.SPACE)
 
-        parameter("mid", uid)
+        parameter("mid", mid)
     }
 }.transferTo(BiliRoomSimple.serializer())
 

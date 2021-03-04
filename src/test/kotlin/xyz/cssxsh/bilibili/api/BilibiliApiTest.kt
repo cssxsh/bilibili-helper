@@ -26,7 +26,7 @@ internal class BilibiliApiTest {
     fun getLiveTest(): Unit = runBlocking {
         client.getRoomInfo(roomId = 10112L).withPrintln()
 
-        client.getRoomInfoOld(uid = 26798384L).withPrintln()
+        client.getRoomInfoOld(mid = 26798384L).withPrintln()
 
         client.getOffLiveList(roomId = 10112L, count = 10).withPrintln()
 
@@ -35,12 +35,12 @@ internal class BilibiliApiTest {
 
     @Test
     fun getUserTest(): Unit = runBlocking {
-        client.getUserInfo(uid = 26798384L).withPrintln()
+        client.getUserInfo(mid = 26798384L).withPrintln()
     }
 
     @Test
     fun getVideoInfoTest(): Unit = runBlocking {
-        client.searchVideo(uid = 26798384L).withPrintln()
+        client.searchVideo(mid = 26798384L).withPrintln()
 
         client.getVideoInfo(aid = 13502509L).withPrintln()
 

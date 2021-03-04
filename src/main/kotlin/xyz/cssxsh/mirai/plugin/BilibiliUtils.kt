@@ -3,12 +3,14 @@ package xyz.cssxsh.mirai.plugin
 import io.ktor.client.*
 import io.ktor.client.request.*
 import io.ktor.http.*
+import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.json.Json
 import net.mamoe.mirai.contact.*
 import net.mamoe.mirai.utils.*
 import xyz.cssxsh.bilibili.data.*
 import xyz.cssxsh.bilibili.data.dynamic.*
 import xyz.cssxsh.bilibili.data.live.*
+import xyz.cssxsh.bilibili.data.video.*
 import xyz.cssxsh.mirai.plugin.BilibiliHelperPlugin.client
 import xyz.cssxsh.mirai.plugin.BilibiliHelperPlugin.logger
 import xyz.cssxsh.mirai.plugin.data.SeleniumToolConfig.timeoutMillis
@@ -68,7 +70,7 @@ private suspend fun getBilibiliImage(
     }
 }
 
-internal suspend fun getScreenShot(
+private suspend fun getScreenShot(
     url: String,
     type: CacheType,
     name: String,
@@ -115,45 +117,49 @@ internal fun DynamicInfo.isText() = when (describe.type) {
     else -> false
 }
 
+internal fun <T> DynamicInfo.getCardContent(deserializer: DeserializationStrategy<T>): T =
+    BILI_JSON.decodeFromString(deserializer = deserializer, string = card)
+
 internal fun DynamicInfo.toMessageText() = buildString {
     when (describe.type) {
         DynamicType.REPLY -> {
-            BILI_JSON.decodeFromJsonElement(DynamicReply.serializer(), card).let { card ->
-                appendLine("RT ${card.originUser.user.uname}: ")
+            getCardContent(DynamicReply.serializer()).let { card ->
+                appendLine("RT @${card.originUser.user.uname}: ")
                 appendLine(card.item.content)
             }
         }
         DynamicType.PICTURE -> {
-            BILI_JSON.decodeFromJsonElement(DynamicPicture.serializer(), card).let { card ->
+            getCardContent(DynamicPicture.serializer()).let { card ->
                 appendLine(card.item.description)
             }
         }
         DynamicType.TEXT -> {
-            BILI_JSON.decodeFromJsonElement(DynamicText.serializer(), card).let { card ->
+            getCardContent(DynamicText.serializer()).let { card ->
                 appendLine(card.item.content)
             }
         }
         DynamicType.MUSIC -> {
-            BILI_JSON.decodeFromJsonElement(DynamicMusic.serializer(), card).let { card ->
-                appendLine(card.intro)
+            getCardContent(DynamicMusic.serializer()).let { card ->
                 appendLine(card.title)
+                appendLine(card.intro)
+                appendLine(card.url)
             }
         }
         DynamicType.VIDEO -> {
-            BILI_JSON.decodeFromJsonElement(DynamicVideo.serializer(), card).let { card ->
+            getCardContent(DynamicVideo.serializer()).let { card ->
                 appendLine(card.title)
                 appendLine(card.description)
                 appendLine(card.jumpUrl)
             }
         }
         DynamicType.ARTICLE -> {
-            BILI_JSON.decodeFromJsonElement(DynamicArticle.serializer(), card).let { card ->
+            getCardContent(DynamicArticle.serializer()).let { card ->
                 appendLine(card.title)
                 appendLine(card.summary)
             }
         }
         DynamicType.LIVE -> {
-            BILI_JSON.decodeFromJsonElement(DynamicLive.serializer(), card).let { card ->
+            getCardContent(DynamicLive.serializer()).let { card ->
                 appendLine(card.title)
                 appendLine(card.tags)
                 appendLine(card.link)
@@ -171,24 +177,34 @@ internal fun DynamicInfo.getOffsetDateTime() = timestampToOffsetDateTime(describ
 
 internal fun DynamicInfo.getDynamicUrl() = "https://t.bilibili.com/${describe.dynamicId}"
 
-internal suspend fun DynamicInfo.getImages() = buildList {
-    if (describe.type == DynamicType.PICTURE) {
-        BILI_JSON.decodeFromJsonElement(
-            deserializer = DynamicPicture.serializer(),
-            element = card
-        ).item.pictures.forEachIndexed { index, picture ->
-            runCatching {
-                getBilibiliImage(
-                    url = Url(picture.source),
-                    type = CacheType.DYNAMIC,
-                    name = "${getOffsetDateTime().toLocalDate()}/${describe.dynamicId}-${index}-${Url(picture.source).getFilename()}"
-                )
-            }.onFailure {
-                logger.warning({ "动态图片下载失败: ${picture.source}" }, it)
-            }.let {
-                add(it)
-            }
-        }
+internal fun DynamicInfo.getImageUrls(): List<String> = when(describe.type) {
+    DynamicType.NONE, DynamicType.REPLY, DynamicType.TEXT -> {
+        emptyList()
+    }
+    DynamicType.PICTURE -> {
+        getCardContent(DynamicPicture.serializer()).item.pictures.map { it.source }
+    }
+    DynamicType.VIDEO -> {
+        getCardContent(DynamicVideo.serializer()).picture.let(::listOf)
+    }
+    DynamicType.ARTICLE -> {
+        getCardContent(DynamicArticle.serializer()).originImageUrls
+    }
+    DynamicType.MUSIC -> {
+        getCardContent(DynamicMusic.serializer()).cover.let(::listOf)
+    }
+    DynamicType.LIVE -> {
+        getCardContent(DynamicLive.serializer()).cover.let(::listOf)
+    }
+}
+
+internal suspend fun DynamicInfo.getImages() = getImageUrls().mapIndexed { index, picture ->
+    runCatching {
+        getBilibiliImage(
+            url = Url(picture),
+            type = CacheType.DYNAMIC,
+            name = "${getOffsetDateTime().toLocalDate()}/${describe.dynamicId}-${index}-${Url(picture).getFilename()}"
+        )
     }
 }
 
@@ -198,15 +214,17 @@ internal fun BiliVideoInfo.getOffsetDateTime() = timestampToOffsetDateTime(pubda
 
 internal fun BiliRoomInfo.getOffsetDateTime() = timestampToOffsetDateTime(liveTime)
 
-internal fun LiveRecord.getRecordUrl() = "https://live.bilibili.com/record/${roomId}"
+internal fun VideoSimple.getOffsetDateTime() = timestampToOffsetDateTime(created)
 
-internal fun BiliVideoInfo.getVideoUrl() = "https://www.bilibili.com/video/${bvid}"
+internal val BiliVideoInfo.url get() = "https://www.bilibili.com/video/${bvid}"
 
-internal fun BiliSearchResult.VideoInfo.getVideoUrl() = "https://www.bilibili.com/video/${bvid}"
+internal val LiveRecord.url get() = "https://live.bilibili.com/record/${roomId}"
 
-internal fun BiliSearchResult.VideoInfo.getOffsetDateTime() = timestampToOffsetDateTime(created)
+internal val VideoSimple.url get() = "https://www.bilibili.com/video/${bvid}"
 
-internal suspend fun BiliSearchResult.VideoInfo.getCover() = getBilibiliImage(
+internal val DynamicMusic.url get () = "https://www.bilibili.com/audio/au$id"
+
+internal suspend fun VideoSimple.getCover() = getBilibiliImage(
     url = Url(picture),
     type = CacheType.VIDEO,
     name = "${mid}/${bvid}-cover-${Url(picture).getFilename()}",

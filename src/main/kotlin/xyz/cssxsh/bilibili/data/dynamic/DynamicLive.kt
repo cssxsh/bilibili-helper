@@ -63,7 +63,7 @@ data class DynamicLive(
     @SerialName("try_time")
     val tryTime: String,
     @SerialName("uid")
-    val uid: Int,
+    val uid: Long,
     @SerialName("uname")
     val uname: String,
     @SerialName("user_cover")

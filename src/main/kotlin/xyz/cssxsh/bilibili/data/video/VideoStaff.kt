@@ -14,7 +14,7 @@ data class VideoStaff(
     @SerialName("label_style")
     private val labelStyle: Int,
     @SerialName("mid")
-    val uid: Int,
+    val mid: Long,
     @SerialName("name")
     val name: String,
     @SerialName("official")

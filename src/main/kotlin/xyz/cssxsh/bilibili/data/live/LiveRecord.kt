@@ -22,7 +22,7 @@ data class LiveRecord(
     @SerialName("title")
     val title: String,
     @SerialName("uid")
-    val uid: Int,
+    val uid: Long,
     @SerialName("uname")
     val uname: String
 )

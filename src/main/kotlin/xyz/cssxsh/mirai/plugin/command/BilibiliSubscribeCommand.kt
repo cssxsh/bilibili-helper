@@ -83,7 +83,7 @@ object BilibiliSubscribeCommand : CompositeCommand(
                     appendLine("作者: ${video.author}")
                     appendLine("时间: ${video.getOffsetDateTime()}")
                     appendLine("时长: ${video.length}")
-                    appendLine("链接: ${video.getVideoUrl()}")
+                    appendLine("链接: ${video.url}")
 
                     runCatching {
                         add(video.getCover().uploadAsImage(contact))
@@ -207,9 +207,9 @@ object BilibiliSubscribeCommand : CompositeCommand(
 
     @SubCommand("add", "添加")
     suspend fun CommandSenderOnMessage<MessageEvent>.add(uid: Long) = runCatching {
-        client.getUserInfo(uid = uid).apply { addUid(uid = uid, subject = fromEvent.subject) }
+        client.getUserInfo(mid = uid).apply { addUid(uid = uid, name = name, subject = fromEvent.subject) }
     }.onSuccess { info ->
-        sendMessage(fromEvent.message.quote() + "对@${info.name}(${info.uid})的监听任务, 添加完成")
+        sendMessage(fromEvent.message.quote() + "对@${info.name}(${info.mid})的监听任务, 添加完成")
     }.onFailure {
         sendMessage(fromEvent.message.quote() + it.toString())
     }.isSuccess

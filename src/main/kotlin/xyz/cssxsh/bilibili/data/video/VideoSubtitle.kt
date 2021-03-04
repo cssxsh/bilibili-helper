@@ -15,7 +15,7 @@ data class VideoSubtitle(
     @Serializable
     data class SubtitleItem(
         @SerialName("author_mid")
-        val uid: Long? = null,
+        val mid: Long? = null,
         @SerialName("author")
         val author: Author? = null,
         @SerialName("id")
@@ -33,7 +33,7 @@ data class VideoSubtitle(
         @Serializable
         data class Author(
             @SerialName("mid")
-            val uid: Long,
+            val mid: Long,
             @SerialName("name")
             val name: String,
             @SerialName("sex")

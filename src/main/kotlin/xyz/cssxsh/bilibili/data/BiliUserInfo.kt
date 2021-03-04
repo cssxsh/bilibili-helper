@@ -24,7 +24,7 @@ data class BiliUserInfo(
     @SerialName("live_room")
     val liveRoom: BiliRoomSimple,
     @SerialName("mid")
-    val uid: Long,
+    val mid: Long,
     @SerialName("moral")
     val moral: Int,
     @SerialName("name")

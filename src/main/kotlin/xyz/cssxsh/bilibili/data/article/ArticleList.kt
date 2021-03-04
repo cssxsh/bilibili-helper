@@ -18,7 +18,7 @@ data class ArticleList(
     @SerialName("image_url")
     val imageUrl: String,
     @SerialName("mid")
-    val uid: Int,
+    val mid: Long,
     @SerialName("name")
     val name: String,
     @SerialName("publish_time")

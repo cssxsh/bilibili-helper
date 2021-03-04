@@ -24,7 +24,7 @@ suspend fun BilibiliClient.getVideoInfo(
 }.transferTo(BiliVideoInfo.serializer())
 
 suspend fun BilibiliClient.searchVideo(
-    uid: Long,
+    mid: Long,
     pageSize: Int = 30,
     pageNum: Int = 1,
     url: String = BilibiliApi.SEARCH_URL
@@ -33,7 +33,7 @@ suspend fun BilibiliClient.searchVideo(
         header(HttpHeaders.Origin, BilibiliApi.SPACE)
         header(HttpHeaders.Referrer, BilibiliApi.SPACE)
 
-        parameter("mid", uid)
+        parameter("mid", mid)
         parameter("keyword", "")
         parameter("order", "pubdate")
         parameter("jsonp", "jsonp")
