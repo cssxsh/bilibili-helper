@@ -183,20 +183,10 @@ object BilibiliSubscribeCommand : CompositeCommand(
         }
     }
 
-    private fun addUid(uid: Long, subject: Contact): Unit = synchronized(taskJobs) {
+    private fun addUid(uid: Long, name: String, subject: Contact): Unit = synchronized(taskJobs) {
         tasks.compute(uid) { _, info ->
-            (info ?: BilibiliTaskInfo()).run {
-                copy(
-                    contacts = contacts + ContactInfo(
-                        id = subject.id,
-                        bot = subject.bot.id,
-                        type = when (subject) {
-                            is Group -> ContactType.GROUP
-                            is Friend -> ContactType.FRIEND
-                            else -> throw IllegalArgumentException("未知类型联系人: $subject")
-                        }
-                    )
-                )
+            (info ?: BilibiliTaskInfo(name = name)).run {
+                copy(contacts = contacts + subject.toInfo())
             }
         }
         taskJobs.compute(uid) { _, job ->
@@ -207,7 +197,7 @@ object BilibiliSubscribeCommand : CompositeCommand(
     private fun removeUid(uid: Long, subject: Contact): Unit = synchronized(taskJobs) {
         tasks.compute(uid) { _, info ->
             info?.run {
-                copy(contacts = contacts.filter { it.id != subject.id })
+                copy(contacts = contacts - subject.toInfo())
             }
         }
         taskJobs[uid]?.takeIf {

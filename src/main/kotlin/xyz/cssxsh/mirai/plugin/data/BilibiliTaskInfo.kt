@@ -16,5 +16,5 @@ data class BilibiliTaskInfo(
     @Serializable(LongRangeSerializer::class)
     val interval: LongRange = (5).minutes.toLongMilliseconds()..(10).minutes.toLongMilliseconds(),
     @SerialName("contacts")
-    val contacts: List<ContactInfo> = emptyList()
+    val contacts: Set<ContactInfo> = emptySet()
 )
