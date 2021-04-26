@@ -44,7 +44,7 @@ suspend fun BilibiliClient.getOffLiveList(
 
 suspend fun BilibiliClient.getRoundPlayVideo(
     roomId: Long,
-    timestamp: Long = System.currentTimeMillis(),
+    timestamp: Long = System.currentTimeMillis() / 1_000,
     type: String = "flv",
     url: String = BilibiliApi.ROUND_PLAY_VIDEO
 ): BiliRoundPlayVideo = useHttpClient { client ->
