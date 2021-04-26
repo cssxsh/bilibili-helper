@@ -73,7 +73,7 @@ object BilibiliSubscribeCommand : CompositeCommand(
                 sendMessageToTaskContacts(uid = uid) { contact ->
                     appendLine("标题: ${video.title}")
                     appendLine("作者: ${video.author}")
-                    appendLine("时间: ${video.getOffsetDateTime()}")
+                    appendLine("时间: ${video.time}")
                     appendLine("时长: ${video.length}")
                     appendLine("链接: ${video.url}")
 
@@ -87,7 +87,7 @@ object BilibiliSubscribeCommand : CompositeCommand(
             }
         }.maxByOrNull { it.created }?.let { video ->
             logger.info {
-                "(${uid})[${video.author}]最新视频为(${video.bvid})[${video.title}]<${video.getOffsetDateTime()}>"
+                "(${uid})[${video.author}]最新视频为(${video.bvid})[${video.title}]<${video.time}>"
             }
             tasks.compute(uid) { _, info ->
                 info?.copy(videoLast = video.created)
@@ -125,18 +125,18 @@ object BilibiliSubscribeCommand : CompositeCommand(
             if (dynamic.isText() && dynamic.describe.timestamp > tasks.getValue(uid).dynamicLast) {
                 logger.verbose { "(${uid})当前处理动态[${dynamic.describe.dynamicId}]" }
                 sendMessageToTaskContacts(uid = uid) { contact ->
-                    appendLine("@${dynamic.getUserName()} 有新动态")
-                    appendLine("时间: ${dynamic.getOffsetDateTime()}")
-                    appendLine("链接: ${dynamic.getDynamicUrl()}")
+                    appendLine("@${dynamic.username} 有新动态")
+                    appendLine("时间: ${dynamic.datetime}")
+                    appendLine("链接: ${dynamic.url}")
 
                     runCatching {
                         add(dynamic.getScreenShot(refresh = false).uploadAsImage(contact))
                     }.onFailure {
                         logger.warning({ "获取动态[${dynamic.describe.dynamicId}]快照失败" }, it)
-                        add(dynamic.toMessageText())
+                        add(dynamic.content)
                     }
 
-                    dynamic.getImages().forEachIndexed { index, result ->
+                    dynamic.getImageFiles().forEachIndexed { index, result ->
                         runCatching {
                             add(result.getOrThrow().uploadAsImage(contact))
                         }.onFailure {
@@ -148,7 +148,7 @@ object BilibiliSubscribeCommand : CompositeCommand(
             }
         }.maxByOrNull { it.describe.timestamp }?.let { dynamic ->
             logger.info {
-                "(${uid})[${dynamic.getUserName()}]最新动态时间为<${dynamic.getOffsetDateTime()}>"
+                "(${uid})[${dynamic.username}]最新动态时间为<${dynamic.datetime}>"
             }
             tasks.compute(uid) { _, info ->
                 info?.copy(dynamicLast = dynamic.describe.timestamp)

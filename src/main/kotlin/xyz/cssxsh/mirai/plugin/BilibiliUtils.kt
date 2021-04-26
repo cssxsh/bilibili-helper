@@ -45,12 +45,9 @@ enum class CacheType {
 private const val DYNAMIC_START = 1498838400L
 
 @Suppress("unused")
-internal fun dynamicTimestamp(id: Long): Long = (id shr 32) + DYNAMIC_START
+internal fun timestamp(id: Long): Long = (id shr 32) + DYNAMIC_START
 
-private fun Url.getFilename() = encodedPath.substring(encodedPath.lastIndexOfAny(listOf("\\", "/")) + 1)
-
-private fun getImage(type: CacheType, name: String): File =
-    cacheDir.resolve(type.name).resolve(name)
+private val Url.filename get() = encodedPath.substringAfterLast("/")
 
 private fun timestampToOffsetDateTime(timestamp: Long) =
     OffsetDateTime.ofInstant(Instant.ofEpochSecond(timestamp), ZoneOffset.systemDefault())
@@ -60,7 +57,7 @@ private suspend fun getBilibiliImage(
     type: CacheType,
     name: String,
     refresh: Boolean = false
-): File = getImage(type = type, name = name).apply {
+): File = cacheDir.resolve(type.name).resolve(name).apply {
     if (exists().not() || refresh) {
         parentFile.mkdirs()
         writeBytes(client.useHttpClient { it.get(url) })
@@ -72,7 +69,7 @@ private suspend fun getScreenShot(
     type: CacheType,
     name: String,
     refresh: Boolean = false
-): File = getImage(type = type, name = name).apply {
+): File = cacheDir.resolve(type.name).resolve(name).apply {
     if (exists().not() || refresh) {
         parentFile.mkdirs()
         runCatching {
@@ -103,9 +100,9 @@ private suspend fun getScreenShot(
 }
 
 internal suspend fun DynamicInfo.getScreenShot(refresh: Boolean = false) = getScreenShot(
-    url = getDynamicUrl(),
+    url = url,
     type = CacheType.DYNAMIC,
-    name = "${getOffsetDateTime().toLocalDate()}/${describe.dynamicId}.png",
+    name = "${datetime.toLocalDate()}/${describe.dynamicId}.png",
     refresh = refresh
 )
 
@@ -117,123 +114,128 @@ internal fun DynamicInfo.isText() = when (describe.type) {
 internal fun <T> DynamicInfo.getCardContent(deserializer: DeserializationStrategy<T>): T =
     BILI_JSON.decodeFromString(deserializer = deserializer, string = card)
 
-internal fun DynamicInfo.toMessageText() = buildString {
-    when (describe.type) {
-        DynamicType.NONE -> {
-            appendLine("不支持的类型${describe.type}")
-        }
-        DynamicType.REPLY -> {
-            getCardContent(DynamicReply.serializer()).let { card ->
-                appendLine("RT @${card.originUser.user.uname}: ")
-                appendLine(card.item.content)
+internal val DynamicInfo.content
+    get() = buildString {
+        when (describe.type) {
+            DynamicType.NONE -> {
+                appendLine("不支持的类型${describe.type}")
             }
+            DynamicType.REPLY -> {
+                with(getCardContent(DynamicReply.serializer())) {
+                    appendLine("RT @${originUser.user.uname}: ")
+                    appendLine(item.content)
+                }
+            }
+            DynamicType.PICTURE -> {
+                with(getCardContent(DynamicPicture.serializer())) {
+                    appendLine(item.description)
+                }
+            }
+            DynamicType.TEXT -> {
+                with(getCardContent(DynamicText.serializer())) {
+                    appendLine(item.content)
+                }
+            }
+            DynamicType.VIDEO -> {
+                with(getCardContent(DynamicVideo.serializer())) {
+                    appendLine(title)
+                    appendLine(description)
+                    appendLine(jumpUrl)
+                }
+            }
+            DynamicType.ARTICLE -> {
+                with(getCardContent(DynamicArticle.serializer())) {
+                    appendLine(title)
+                    appendLine(summary)
+                }
+            }
+            DynamicType.MUSIC -> {
+                with(getCardContent(DynamicMusic.serializer())) {
+                    appendLine(title)
+                    appendLine(intro)
+                    appendLine(url)
+                }
+            }
+            DynamicType.EPISODE -> {
+                with(getCardContent(DynamicEpisode.serializer())) {
+                    appendLine("《${info.title}》- $index")
+                    appendLine(indexTitle)
+                }
+            }
+            DynamicType.DELETE -> {
+                appendLine("源动态已被作者删除")
+            }
+            DynamicType.SKETCH -> {
+                with(getCardContent(DynamicSketch.serializer())) {
+                    appendLine(vest.content)
+                    appendLine(sketch.title)
+                    appendLine(sketch.targetUrl)
+                }
+            }
+            DynamicType.LIVE -> {
+                with(getCardContent(DynamicLive.serializer())) {
+                    appendLine(title)
+                    appendLine(tags)
+                    appendLine(link)
+                }
+            }
+            DynamicType.LIVE_END -> {
+                appendLine("直播结束了")
+            }
+        }
+    }
+
+internal val DynamicInfo.username get() = describe.profile?.user?.uname ?: "【动态已删除】"
+
+internal val DynamicInfo.datetime get() = timestampToOffsetDateTime(describe.timestamp)
+
+internal val DynamicInfo.images
+    get(): List<String> = when (describe.type) {
+        DynamicType.NONE, DynamicType.REPLY, DynamicType.TEXT, DynamicType.DELETE, DynamicType.LIVE_END -> {
+            emptyList()
         }
         DynamicType.PICTURE -> {
-            getCardContent(DynamicPicture.serializer()).let { card ->
-                appendLine(card.item.description)
-            }
-        }
-        DynamicType.TEXT -> {
-            getCardContent(DynamicText.serializer()).let { card ->
-                appendLine(card.item.content)
-            }
+            getCardContent(DynamicPicture.serializer()).item.pictures.map { it.source }
         }
         DynamicType.VIDEO -> {
-            with(getCardContent(DynamicVideo.serializer())) {
-                appendLine(title)
-                appendLine(description)
-                appendLine(jumpUrl)
-            }
+            getCardContent(DynamicVideo.serializer()).picture.let(::listOf)
         }
         DynamicType.ARTICLE -> {
-            with(getCardContent(DynamicArticle.serializer())) {
-                appendLine(title)
-                appendLine(summary)
-            }
+            getCardContent(DynamicArticle.serializer()).originImageUrls
         }
         DynamicType.MUSIC -> {
-            getCardContent(DynamicMusic.serializer()).let { card ->
-                appendLine(card.title)
-                appendLine(card.intro)
-                appendLine(card.url)
-            }
+            getCardContent(DynamicMusic.serializer()).cover.let(::listOf)
         }
         DynamicType.EPISODE -> {
-            with(getCardContent(DynamicEpisode.serializer())) {
-                appendLine("《${info.title}》- $index")
-                appendLine(indexTitle)
-            }
-        }
-        DynamicType.DELETE -> {
-            appendLine("源动态已被作者删除")
-        }
-        DynamicType.SKETCH -> {
-            with(getCardContent(DynamicSketch.serializer())) {
-                appendLine(vest.content)
-                appendLine(sketch.title)
-                appendLine(sketch.targetUrl)
-            }
+            getCardContent(DynamicEpisode.serializer()).cover.let(::listOf)
         }
         DynamicType.LIVE -> {
-            getCardContent(DynamicLive.serializer()).let { card ->
-                appendLine(card.title)
-                appendLine(card.tags)
-                appendLine(card.link)
-            }
+            getCardContent(DynamicLive.serializer()).cover.let(::listOf)
         }
-        DynamicType.LIVE_END -> {
-            appendLine("直播结束了")
+        DynamicType.SKETCH -> {
+            getCardContent(DynamicSketch.serializer()).sketch.coverUrl.let(::listOf)
         }
     }
-}
 
-internal fun DynamicInfo.getUserName() = describe.profile?.user?.uname ?: "【动态已删除】"
-
-internal fun DynamicInfo.getOffsetDateTime() = timestampToOffsetDateTime(describe.timestamp)
-
-internal fun DynamicInfo.getDynamicUrl() = "https://t.bilibili.com/${describe.dynamicId}"
-
-internal fun DynamicInfo.getImageUrls(): List<String> = when(describe.type) {
-    DynamicType.NONE, DynamicType.REPLY, DynamicType.TEXT -> {
-        emptyList()
-    }
-    DynamicType.PICTURE -> {
-        getCardContent(DynamicPicture.serializer()).item.pictures.map { it.source }
-    }
-    DynamicType.VIDEO -> {
-        getCardContent(DynamicVideo.serializer()).picture.let(::listOf)
-    }
-    DynamicType.ARTICLE -> {
-        getCardContent(DynamicArticle.serializer()).originImageUrls
-    }
-    DynamicType.MUSIC -> {
-        getCardContent(DynamicMusic.serializer()).cover.let(::listOf)
-    }
-    DynamicType.LIVE -> {
-        getCardContent(DynamicLive.serializer()).cover.let(::listOf)
-    }
-    DynamicType.SKETCH -> {
-        getCardContent(DynamicSketch.serializer()).sketch.coverUrl.let(::listOf)
-    }
-}
-
-internal suspend fun DynamicInfo.getImages() = getImageUrls().mapIndexed { index, picture ->
+internal suspend fun DynamicInfo.getImageFiles() = images.mapIndexed { index, picture ->
     runCatching {
         getBilibiliImage(
             url = Url(picture),
             type = CacheType.DYNAMIC,
-            name = "${getOffsetDateTime().toLocalDate()}/${describe.dynamicId}-${index}-${Url(picture).getFilename()}"
+            name = "${datetime.toLocalDate()}/${describe.dynamicId}-${index}-${Url(picture).filename}"
         )
     }
 }
 
-internal fun BiliVideoInfo.getDuration() = duration.seconds
+internal val BiliVideoInfo.length get() = duration.seconds
 
-internal fun BiliVideoInfo.getOffsetDateTime() = timestampToOffsetDateTime(pubdate)
+internal val BiliVideoInfo.time get() = timestampToOffsetDateTime(pubdate)
 
-internal fun BiliRoomInfo.getOffsetDateTime() = timestampToOffsetDateTime(liveTime)
+internal val BiliRoomInfo.time get() = timestampToOffsetDateTime(liveTime)
 
-internal fun VideoSimple.getOffsetDateTime() = timestampToOffsetDateTime(created)
+internal val VideoSimple.time get() = timestampToOffsetDateTime(created)
+
+internal val DynamicInfo.url get() = "https://t.bilibili.com/${describe.dynamicId}"
 
 internal val BiliVideoInfo.url get() = "https://www.bilibili.com/video/${bvid}"
 
@@ -241,40 +243,40 @@ internal val LiveRecord.url get() = "https://live.bilibili.com/record/${roomId}"
 
 internal val VideoSimple.url get() = "https://www.bilibili.com/video/${bvid}"
 
-internal val DynamicMusic.url get () = "https://www.bilibili.com/audio/au$id"
+internal val DynamicMusic.url get() = "https://www.bilibili.com/audio/au$id"
 
 internal suspend fun VideoSimple.getCover() = getBilibiliImage(
     url = Url(picture),
     type = CacheType.VIDEO,
-    name = "${mid}/${bvid}-cover-${Url(picture).getFilename()}",
+    name = "${mid}/${bvid}-cover-${Url(picture).filename}",
     refresh = false
 )
 
 internal suspend fun BiliRoomSimple.getCover() = getBilibiliImage(
     url = Url(cover),
     type = CacheType.LIVE,
-    name = "${roomId}/cover-${Url(cover).getFilename()}",
+    name = "${roomId}/cover-${Url(cover).filename}",
     refresh = false
 )
 
 internal suspend fun BiliVideoInfo.getCover() = getBilibiliImage(
     url = Url(picture),
     type = CacheType.VIDEO,
-    name = "${owner.mid}/${bvid}-cover-${Url(picture).getFilename()}",
+    name = "${owner.mid}/${bvid}-cover-${Url(picture).filename}",
     refresh = true
 )
 
 internal suspend fun LiveRecord.getCover() = getBilibiliImage(
     url = Url(cover),
     type = CacheType.RECORD,
-    name = "${roomId}/cover-${Url(cover).getFilename()}",
+    name = "${roomId}/cover-${Url(cover).filename}",
     refresh = false
 )
 
 internal suspend fun LiveRecommend.getCover() = getBilibiliImage(
     url = Url(cover),
     type = CacheType.LIVE,
-    name = "${roomId}/cover-${Url(cover).getFilename()}",
+    name = "${roomId}/cover-${Url(cover).filename}",
     refresh = false
 )
 
@@ -285,13 +287,3 @@ private fun noRedirectHttpClient() = HttpClient {
 
 internal suspend fun Url.getLocation() =
     noRedirectHttpClient().use { it.head<HttpMessage>(this).headers[HttpHeaders.Location] }
-
-internal fun Contact.toInfo() = ContactInfo(
-    id = id,
-    bot = bot.id,
-    type = when (this) {
-        is Group -> ContactType.GROUP
-        is Friend -> ContactType.FRIEND
-        else -> throw IllegalArgumentException("未知类型联系人: $this")
-    }
-)
