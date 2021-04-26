@@ -18,7 +18,11 @@ enum class DynamicType(val id: Int) {
     VIDEO(id = 8),
     ARTICLE(id = 64),
     MUSIC(id = 256),
-    LIVE(id = 4200);
+    EPISODE(id = 512),
+    DELETE(id = 1024),
+    SKETCH(id = 2048),
+    LIVE(id = 4200),
+    LIVE_END(id = 4308);
 
     companion object Serializer : KSerializer<DynamicType> {
         override val descriptor: SerialDescriptor

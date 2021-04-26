@@ -122,6 +122,9 @@ internal fun <T> DynamicInfo.getCardContent(deserializer: DeserializationStrateg
 
 internal fun DynamicInfo.toMessageText() = buildString {
     when (describe.type) {
+        DynamicType.NONE -> {
+            appendLine("不支持的类型${describe.type}")
+        }
         DynamicType.REPLY -> {
             getCardContent(DynamicReply.serializer()).let { card ->
                 appendLine("RT @${card.originUser.user.uname}: ")
@@ -138,6 +141,19 @@ internal fun DynamicInfo.toMessageText() = buildString {
                 appendLine(card.item.content)
             }
         }
+        DynamicType.VIDEO -> {
+            with(getCardContent(DynamicVideo.serializer())) {
+                appendLine(title)
+                appendLine(description)
+                appendLine(jumpUrl)
+            }
+        }
+        DynamicType.ARTICLE -> {
+            with(getCardContent(DynamicArticle.serializer())) {
+                appendLine(title)
+                appendLine(summary)
+            }
+        }
         DynamicType.MUSIC -> {
             getCardContent(DynamicMusic.serializer()).let { card ->
                 appendLine(card.title)
@@ -145,17 +161,20 @@ internal fun DynamicInfo.toMessageText() = buildString {
                 appendLine(card.url)
             }
         }
-        DynamicType.VIDEO -> {
-            getCardContent(DynamicVideo.serializer()).let { card ->
-                appendLine(card.title)
-                appendLine(card.description)
-                appendLine(card.jumpUrl)
+        DynamicType.EPISODE -> {
+            with(getCardContent(DynamicEpisode.serializer())) {
+                appendLine("《${info.title}》- $index")
+                appendLine(indexTitle)
             }
         }
-        DynamicType.ARTICLE -> {
-            getCardContent(DynamicArticle.serializer()).let { card ->
-                appendLine(card.title)
-                appendLine(card.summary)
+        DynamicType.DELETE -> {
+            appendLine("源动态已被作者删除")
+        }
+        DynamicType.SKETCH -> {
+            with(getCardContent(DynamicSketch.serializer())) {
+                appendLine(vest.content)
+                appendLine(sketch.title)
+                appendLine(sketch.targetUrl)
             }
         }
         DynamicType.LIVE -> {
@@ -165,8 +184,8 @@ internal fun DynamicInfo.toMessageText() = buildString {
                 appendLine(card.link)
             }
         }
-        DynamicType.NONE -> {
-            appendLine("不支持的类型${describe.type}")
+        DynamicType.LIVE_END -> {
+            appendLine("直播结束了")
         }
     }
 }
@@ -195,6 +214,9 @@ internal fun DynamicInfo.getImageUrls(): List<String> = when(describe.type) {
     }
     DynamicType.LIVE -> {
         getCardContent(DynamicLive.serializer()).cover.let(::listOf)
+    }
+    DynamicType.SKETCH -> {
+        getCardContent(DynamicSketch.serializer()).sketch.coverUrl.let(::listOf)
     }
 }
 
