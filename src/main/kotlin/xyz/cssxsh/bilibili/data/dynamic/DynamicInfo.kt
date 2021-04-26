@@ -3,6 +3,7 @@ package xyz.cssxsh.bilibili.data.dynamic
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonObject
+import xyz.cssxsh.bilibili.data.NumberToBooleanSerializer
 
 @Serializable
 data class DynamicInfo(
@@ -12,6 +13,9 @@ data class DynamicInfo(
     val card: String,
     @SerialName("desc")
     val describe: DynamicDescribe,
+    @SerialName("need_refresh")
+    @Serializable(with = NumberToBooleanSerializer::class)
+    val needRefresh: Boolean = false,
     @SerialName("display")
     private val display: JsonObject,
     @SerialName("extend_json")

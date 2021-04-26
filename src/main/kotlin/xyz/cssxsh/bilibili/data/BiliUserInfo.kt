@@ -41,6 +41,8 @@ data class BiliUserInfo(
     val sex: String,
     @SerialName("sign")
     val sign: String,
+    @SerialName("user_honour_info")
+    private val honour: JsonObject? = null,
     @SerialName("silence")
     @Serializable(with = NumberToBooleanSerializer::class)
     private val silence: Boolean,

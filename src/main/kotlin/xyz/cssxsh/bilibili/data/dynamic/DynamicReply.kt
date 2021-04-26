@@ -24,6 +24,7 @@ data class DynamicReply(
     @SerialName("origin_extension")
     private val originExtension: JsonObject? = null
 ) {
+
     @Serializable
     data class Item(
         @SerialName("at_uids")
@@ -43,7 +44,7 @@ data class DynamicReply(
         @SerialName("rp_id")
         private val replyId: Long,
         @SerialName("timestamp")
-        val timestamp: Int,
+        val timestamp: Long,
         @SerialName("uid")
         val uid: Long
     )

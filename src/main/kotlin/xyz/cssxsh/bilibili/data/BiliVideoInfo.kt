@@ -2,9 +2,9 @@ package xyz.cssxsh.bilibili.data
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import xyz.cssxsh.bilibili.data.video.*
-import xyz.cssxsh.bilibili.data.user.*
 
 @Serializable
 data class BiliVideoInfo(
@@ -67,5 +67,7 @@ data class BiliVideoInfo(
     @SerialName("videos")
     val videos: Int,
     @SerialName("user_garb")
-    private val userGarb: JsonObject? = null
+    private val userGarb: JsonObject? = null,
+    @SerialName("ugc_season")
+    private val ugcSeason: JsonElement? = null
 )

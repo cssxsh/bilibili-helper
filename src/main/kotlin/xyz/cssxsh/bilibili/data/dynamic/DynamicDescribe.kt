@@ -47,7 +47,7 @@ data class DynamicDescribe(
     @SerialName("r_type")
     private val rType: Int? = null,
     @SerialName("status")
-    val status: Int, // XXX
+    val status: Int? = null, // XXX
     @SerialName("stype")
     private val statusType: Int? = null,
     @SerialName("timestamp")
@@ -61,5 +61,5 @@ data class DynamicDescribe(
     @SerialName("user_profile")
     val profile: UserProfile? = null,
     @SerialName("view")
-    val view: Int
+    val view: Int? = null
 )

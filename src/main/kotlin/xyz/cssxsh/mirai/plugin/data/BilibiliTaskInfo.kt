@@ -11,7 +11,7 @@ data class BilibiliTaskInfo(
     @SerialName("dynamic_last")
     val dynamicLast: Long = System.currentTimeMillis() / 1_000,
     @SerialName("name")
-    val name: String = "???",
+    val name: String,
     @SerialName("interval")
     @Serializable(LongRangeSerializer::class)
     val interval: LongRange = (5).minutes.toLongMilliseconds()..(10).minutes.toLongMilliseconds(),

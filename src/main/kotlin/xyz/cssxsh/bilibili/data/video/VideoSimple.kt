@@ -31,6 +31,9 @@ data class VideoSimple(
     @SerialName("is_steins_gate")
     @Serializable(with = NumberToBooleanSerializer::class)
     val isSteinsGate: Boolean,
+    @SerialName("is_live_playback")
+    @Serializable(with = NumberToBooleanSerializer::class)
+    val isLivePlayback: Boolean,
     @SerialName("length")
     val length: String,
     @SerialName("mid")

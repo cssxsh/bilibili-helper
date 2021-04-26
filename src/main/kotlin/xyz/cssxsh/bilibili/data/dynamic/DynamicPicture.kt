@@ -33,11 +33,11 @@ data class DynamicPicture(
     @Serializable
     data class Item(
         @SerialName("at_control")
-        val atControl: String? = null,
+        private val atControl: String? = null,
         @SerialName("category")
         val category: String,
         @SerialName("ctrl")
-        val ctrl: String = "",
+        private val ctrl: String? = null,
         @SerialName("description")
         val description: String,
         @SerialName("id")
@@ -54,9 +54,9 @@ data class DynamicPicture(
         @SerialName("role")
         val role: List<JsonObject>,
         @SerialName("settings")
-        val settings: JsonObject,
+        private val settings: JsonObject,
         @SerialName("source")
-        val source: List<JsonObject>,
+        private val source: List<JsonObject>,
         @SerialName("title")
         val title: String,
         @SerialName("upload_time")
