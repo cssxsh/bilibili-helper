@@ -5,7 +5,6 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.json.Json
-import net.mamoe.mirai.contact.*
 import net.mamoe.mirai.utils.*
 import xyz.cssxsh.bilibili.data.*
 import xyz.cssxsh.bilibili.data.dynamic.*
@@ -18,8 +17,6 @@ import xyz.cssxsh.mirai.plugin.data.SeleniumToolConfig.deviceName
 import xyz.cssxsh.mirai.plugin.data.SeleniumToolConfig.driverType
 import xyz.cssxsh.mirai.plugin.data.SeleniumToolConfig.driverUrl
 import xyz.cssxsh.mirai.plugin.data.BilibiliHelperSettings.cacheDir
-import xyz.cssxsh.mirai.plugin.data.ContactInfo
-import xyz.cssxsh.mirai.plugin.data.ContactType
 import xyz.cssxsh.mirai.plugin.tools.*
 import java.io.File
 import java.net.URL

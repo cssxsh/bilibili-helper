@@ -178,7 +178,7 @@ object BilibiliSubscribeCommand : CompositeCommand(
     private fun addUser(uid: Long, name: String, subject: Contact): Unit = synchronized(taskJobs) {
         tasks.compute(uid) { _, info ->
             (info ?: BilibiliTaskInfo(name = name)).run {
-                copy(contacts = contacts + subject.toInfo())
+                copy(contacts = contacts + subject.toContactInfo())
             }
         }
         taskJobs.compute(uid) { _, job ->
@@ -189,7 +189,7 @@ object BilibiliSubscribeCommand : CompositeCommand(
     private fun removeUser(uid: Long, subject: Contact): Unit = synchronized(taskJobs) {
         tasks.compute(uid) { _, info ->
             info?.run {
-                copy(contacts = contacts - subject.toInfo())
+                copy(contacts = contacts - subject.toContactInfo())
             }
         }
         taskJobs[uid]?.takeIf {
