@@ -1,7 +1,6 @@
 package xyz.cssxsh.mirai.plugin.command
 
 import kotlinx.coroutines.*
-import net.mamoe.mirai.Bot
 import net.mamoe.mirai.console.command.*
 import net.mamoe.mirai.console.command.descriptor.ExperimentalCommandDescriptors
 import net.mamoe.mirai.console.util.ConsoleExperimentalApi
@@ -37,15 +36,6 @@ object BilibiliSubscribeCommand : CompositeCommand(
 
     private fun taskContactInfos(uid: Long) = tasks[uid]?.contacts.orEmpty()
 
-    private fun taskContacts(uid: Long) = taskContactInfos(uid).mapNotNull { info ->
-        Bot.findInstance(info.bot)?.takeIf { it.isOnline }?.run {
-            when (info.type) {
-                ContactType.GROUP -> getGroup(info.id)
-                ContactType.FRIEND -> getFriend(info.id)
-            }
-        }
-    }
-
     internal fun start(): Unit = synchronized(taskJobs) {
         tasks.forEach { (uid, _) ->
             taskJobs[uid] = addListener(uid)
@@ -62,13 +52,15 @@ object BilibiliSubscribeCommand : CompositeCommand(
     private suspend fun sendMessageToTaskContacts(
         uid: Long,
         block: suspend MessageChainBuilder.(contact: Contact) -> Unit
-    ) = taskContacts(uid).forEach { contact ->
+    ) = taskContactInfos(uid).forEach { info ->
         runCatching {
-            contact.sendMessage(buildMessageChain {
-                block(contact)
-            })
+            info.getContact().let { contact ->
+                contact.sendMessage(buildMessageChain {
+                    block(contact)
+                })
+            }
         }.onFailure {
-            logger.warning({ "对[${contact}]构建消息失败" }, it)
+            logger.warning({ "对[${info}]构建消息失败" }, it)
         }
     }
 
@@ -165,7 +157,7 @@ object BilibiliSubscribeCommand : CompositeCommand(
     }.onFailure { logger.warning({ "($uid)获取动态失败" }, it) }.isSuccess
 
     private fun addListener(uid: Long): Job = launch {
-        logger.info { "监听任务User(${uid})开始" }
+        logger.info { "监听任务User(${tasks.getValue(uid).name}#${uid})开始" }
         delay(tasks.getValue(uid).interval.random())
         while (isActive && taskContactInfos(uid).isNotEmpty()) {
             runCatching {
@@ -183,7 +175,7 @@ object BilibiliSubscribeCommand : CompositeCommand(
         }
     }
 
-    private fun addUid(uid: Long, name: String, subject: Contact): Unit = synchronized(taskJobs) {
+    private fun addUser(uid: Long, name: String, subject: Contact): Unit = synchronized(taskJobs) {
         tasks.compute(uid) { _, info ->
             (info ?: BilibiliTaskInfo(name = name)).run {
                 copy(contacts = contacts + subject.toInfo())
@@ -194,7 +186,7 @@ object BilibiliSubscribeCommand : CompositeCommand(
         }
     }
 
-    private fun removeUid(uid: Long, subject: Contact): Unit = synchronized(taskJobs) {
+    private fun removeUser(uid: Long, subject: Contact): Unit = synchronized(taskJobs) {
         tasks.compute(uid) { _, info ->
             info?.run {
                 copy(contacts = contacts - subject.toInfo())
@@ -207,18 +199,20 @@ object BilibiliSubscribeCommand : CompositeCommand(
 
     @SubCommand("add", "添加")
     suspend fun CommandSenderOnMessage<MessageEvent>.add(uid: Long) = runCatching {
-        client.getUserInfo(mid = uid).apply { addUid(uid = uid, name = name, subject = fromEvent.subject) }
+        client.getUserInfo(mid = uid).apply { addUser(uid = uid, name = name, subject = fromEvent.subject) }
     }.onSuccess { info ->
-        sendMessage(fromEvent.message.quote() + "对@${info.name}(${info.mid})的监听任务, 添加完成")
+        sendMessage(fromEvent.message.quote() + "对@${info.name}#${info.mid}的监听任务, 添加完成")
     }.onFailure {
         sendMessage(fromEvent.message.quote() + it.toString())
     }.isSuccess
 
     @SubCommand("stop", "停止")
     suspend fun CommandSenderOnMessage<MessageEvent>.stop(uid: Long) = runCatching {
-        removeUid(uid, fromEvent.subject)
-    }.onSuccess {
-        sendMessage(fromEvent.message.quote() + "对${uid}的监听任务, 取消完成")
+        tasks[uid].apply {
+            removeUser(uid, fromEvent.subject)
+        }
+    }.onSuccess { info ->
+        sendMessage(fromEvent.message.quote() + "对@${info?.name}#${uid}的监听任务, 取消完成")
     }.onFailure {
         sendMessage(fromEvent.message.quote() + it.toString())
     }.isSuccess
@@ -229,7 +223,7 @@ object BilibiliSubscribeCommand : CompositeCommand(
             appendLine("监听状态:")
             tasks.forEach { (uid, info) ->
                 if (info.contacts.isNotEmpty()) {
-                    appendLine("$uid -> ${taskJobs[uid]}")
+                    appendLine("@${info.name}#$uid -> ${taskJobs[uid]}")
                 }
             }
         }
