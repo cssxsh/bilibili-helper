@@ -1,0 +1,286 @@
+package xyz.cssxsh.mirai.plugin
+
+import kotlinx.coroutines.*
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import net.mamoe.mirai.console.util.CoroutineScopeUtils.childScope
+import net.mamoe.mirai.contact.Contact
+import net.mamoe.mirai.message.data.*
+import net.mamoe.mirai.utils.*
+import xyz.cssxsh.bilibili.api.*
+import xyz.cssxsh.bilibili.*
+import xyz.cssxsh.bilibili.data.*
+import xyz.cssxsh.mirai.plugin.data.*
+import java.time.LocalTime
+import java.time.OffsetDateTime
+import kotlin.time.Duration
+import kotlin.time.hours
+import kotlin.time.minutes
+import kotlin.time.seconds
+
+interface BiliTasker {
+
+    suspend fun addContact(id: Long, subject: Contact): BiliTask?
+
+    suspend fun removeContact(id: Long, subject: Contact): BiliTask?
+
+    suspend fun list(subject: Contact): String
+
+    suspend fun start()
+
+    suspend fun stop()
+
+
+    companion object: CoroutineScope by BiliHelperPlugin.childScope() {
+        private val all by lazy {
+            (Loader::class.sealedSubclasses + Waiter::class.sealedSubclasses).mapNotNull { it.objectInstance }
+        }
+
+        fun startAll() = launch {
+            all.forEach { it.start() }
+        }
+
+        fun stopAll() = launch {
+            all.forEach { it.stop() }
+        }
+    }
+}
+
+abstract class AbstractTasker<T> : BiliTasker, CoroutineScope {
+
+    protected val mutex = Mutex()
+
+    protected abstract val fast: Duration
+
+    protected abstract val slow: Duration
+
+    protected abstract val tasks: MutableMap<Long, BiliTask>
+
+    protected abstract suspend fun T.build(contact: Contact): Message
+
+    protected open suspend fun contacts(id: Long) = mutex.withLock { tasks[id]?.contacts.orEmpty() }
+
+    protected open suspend fun Set<Long>.send(item: T) = map { delegate ->
+        runCatching {
+            requireNotNull(findContact(delegate)) { "找不到联系人" }.let { contact ->
+                contact.sendMessage(item.build(contact))
+            }
+        }.onFailure {
+            logger.warning({ "对[${delegate}]构建消息失败" }, it)
+        }
+    }
+
+    private val taskJobs = mutableMapOf<Long, Job>()
+
+    protected abstract fun addListener(id: Long): Job
+
+    protected open fun removeListener(id: Long) = synchronized(taskJobs) { taskJobs.remove(id)?.cancel() }
+
+    abstract suspend fun initTask(id: Long): BiliTask
+
+    override suspend fun addContact(id: Long, subject: Contact) = mutex.withLock {
+        val old = tasks[id] ?: initTask(id)
+        tasks.compute(id) { _, _ ->
+            old.copy(contacts = old.contacts + subject.delegate)
+        }
+        taskJobs.compute(id) { _, job ->
+            job?.takeIf { it.isActive } ?: addListener(id)
+        }
+        tasks[id]
+    }
+
+    override suspend fun removeContact(id: Long, subject: Contact) = mutex.withLock {
+        tasks.compute(id) { _, info ->
+            info?.run {
+                copy(contacts = contacts - subject.delegate)
+            }
+        }
+        taskJobs[id]?.takeIf {
+            contacts(id).isNotEmpty()
+        }?.cancel()
+        tasks[id]
+    }
+
+    override suspend fun list(subject: Contact): String = mutex.withLock {
+        buildString {
+            appendLine("监听状态:")
+            tasks.forEach { (id, info) ->
+                if (subject.delegate in info.contacts) {
+                    appendLine("@${info.name}#$id -> ${taskJobs[id]}")
+                }
+            }
+        }
+    }
+
+    override suspend fun start(): Unit = mutex.withLock {
+        tasks.forEach { (id, _) ->
+            taskJobs[id] = addListener(id)
+        }
+    }
+
+    override suspend fun stop(): Unit = mutex.withLock {
+        coroutineContext.cancelChildren()
+        taskJobs.clear()
+    }
+}
+
+sealed class Loader<T> : AbstractTasker<T>() {
+
+    protected abstract suspend fun load(id: Long): List<T>
+
+    protected abstract fun List<T>.last(): OffsetDateTime
+
+    protected abstract fun List<T>.after(last: OffsetDateTime): List<T>
+
+    protected abstract suspend fun List<T>.near(): Boolean
+
+    override fun addListener(id: Long) = launch {
+        delay((fast.toLongMilliseconds()..slow.toLongMilliseconds()).random())
+        while (isActive && contacts(id).isNotEmpty()) {
+            runCatching {
+                val list = load(id)
+                mutex.withLock {
+                    val task = tasks.getValue(id)
+                    list.after(task.last).forEach { item ->
+                        task.contacts.send(item)
+                    }
+                    tasks[id] = task.copy(last = list.last())
+                }
+                if (list.near()) fast else slow
+            }.onSuccess { interval ->
+                delay(interval)
+            }.onFailure {
+                delay(slow)
+            }
+        }
+    }
+}
+
+sealed class Waiter<T> : AbstractTasker<T>() {
+
+    private val states = mutableMapOf<Long, Boolean>()
+
+    protected abstract suspend fun load(id: Long): T
+
+    protected abstract suspend fun T.success(): Boolean
+
+    protected abstract suspend fun T.near(): Boolean
+
+    override fun addListener(id: Long) = launch {
+        delay((fast.toLongMilliseconds()..slow.toLongMilliseconds()).random())
+        while (isActive && contacts(id).isNotEmpty()) {
+            runCatching {
+                val item = load(id)
+                mutex.withLock {
+                    val task = tasks.getValue(id)
+                    states.put(id, item.success()).let { old ->
+                        if (old != true && item.success()) {
+                            task.contacts.send(item)
+                            delay(slow)
+                        }
+                    }
+                }
+                if (item.near()) fast else slow
+            }.onSuccess { interval ->
+                delay(interval)
+            }.onFailure {
+                delay(fast)
+            }
+        }
+    }
+}
+
+private fun List<LocalTime>.near(slow: Duration): Boolean {
+    val now = LocalTime.now().toSecondOfDay()
+    return any { (it.toSecondOfDay() - now).seconds.absoluteValue < slow }
+}
+
+object BiliVideoLoader : Loader<Video>(), CoroutineScope by BiliHelperPlugin.childScope("VideoTasker") {
+    override val tasks: MutableMap<Long, BiliTask> by BiliTaskData::video
+
+    override val fast: Duration = (1).minutes
+
+    override val slow: Duration = (10).minutes
+
+    override suspend fun load(id: Long) = client.searchVideo(id).list.videos
+
+    override fun List<Video>.last(): OffsetDateTime = maxOfOrNull { it.datetime } ?: OffsetDateTime.now()
+
+    override fun List<Video>.after(last: OffsetDateTime) = filter { it.datetime > last }
+
+    override suspend fun List<Video>.near() = map { it.datetime.toLocalTime() }.near(slow)
+
+    override suspend fun Video.build(contact: Contact) = toMessage(contact)
+
+    override suspend fun initTask(id: Long): BiliTask = BiliTask(client.getUserInfo(id).name)
+}
+
+object BiliDynamicLoader : Loader<DynamicInfo>(), CoroutineScope by BiliHelperPlugin.childScope("DynamicTasker") {
+    override val tasks: MutableMap<Long, BiliTask> by BiliTaskData::dynamic
+
+    override val fast: Duration = (1).minutes
+
+    override val slow: Duration = (10).minutes
+
+    override suspend fun load(id: Long) = client.getSpaceHistory(id).dynamics
+
+    override fun List<DynamicInfo>.last(): OffsetDateTime = maxOfOrNull { it.datetime } ?: OffsetDateTime.now()
+
+    override fun List<DynamicInfo>.after(last: OffsetDateTime) = filter { it.datetime > last }
+
+    override suspend fun List<DynamicInfo>.near() = map { it.datetime.toLocalTime() }.near(slow)
+
+    override suspend fun DynamicInfo.build(contact: Contact) = toMessage(contact)
+
+    override suspend fun initTask(id: Long): BiliTask = BiliTask(client.getUserInfo(id).name)
+}
+
+object BiliLiveWaiter : Waiter<BiliUserInfo>(), CoroutineScope by BiliHelperPlugin.childScope("LiveWaiter") {
+    override val tasks: MutableMap<Long, BiliTask> by BiliTaskData::live
+
+    override val fast: Duration = (5).minutes
+
+    override val slow: Duration = (30).minutes
+
+    override suspend fun load(id: Long) = client.getUserInfo(id)
+
+    override suspend fun BiliUserInfo.success(): Boolean = liveRoom.liveStatus
+
+    override suspend fun BiliUserInfo.build(contact: Contact) = liveRoom.toMessage(contact)
+
+    override suspend fun BiliUserInfo.near(): Boolean = liveRoom.roundStatus.not()
+
+    override suspend fun initTask(id: Long): BiliTask = BiliTask(client.getUserInfo(id).name)
+}
+
+object BiliSeasonWaiter : Waiter<SeasonSection>(), CoroutineScope by BiliHelperPlugin.childScope("SeasonWaiter") {
+    override val tasks: MutableMap<Long, BiliTask> by BiliTaskData::season
+
+    override val fast: Duration = (1).minutes
+
+    override val slow: Duration = (3).hours
+
+    private val data = mutableMapOf<Long, Video>()
+
+    override suspend fun load(id: Long): SeasonSection = client.getSeasonSection(id).mainSection
+
+    override suspend fun SeasonSection.success(): Boolean {
+        val aid = episodes.maxOf { it.aid }
+        val video = data.getOrElse(aid) { client.getVideoInfo(aid) }
+        return video.datetime > OffsetDateTime.now()
+    }
+
+    override suspend fun SeasonSection.build(contact: Contact): Message {
+        val aid = episodes.maxOf { it.aid }
+        val video = data.getOrElse(aid) { client.getVideoInfo(aid) }
+        return video.toMessage(contact)
+    }
+
+    override suspend fun SeasonSection.near(): Boolean {
+        return episodes.map {
+            data.getOrElse(it.aid) { client.getVideoInfo(it.aid) }.datetime.toLocalTime()
+        }.near(slow)
+    }
+
+    override suspend fun initTask(id: Long): BiliTask = BiliTask(client.getSeasonSection(id).mainSection.title)
+}

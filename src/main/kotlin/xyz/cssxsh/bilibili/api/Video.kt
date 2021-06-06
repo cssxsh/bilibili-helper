@@ -1,44 +1,34 @@
 package xyz.cssxsh.bilibili.api
 
 import io.ktor.client.request.*
-import io.ktor.http.*
-import xyz.cssxsh.bilibili.BilibiliClient
+import xyz.cssxsh.bilibili.BiliClient
 import xyz.cssxsh.bilibili.data.*
 
-suspend fun BilibiliClient.getVideoInfo(
+suspend fun BiliClient.getVideoInfo(
     aid: Long,
-    url: String = BilibiliApi.VIDEO_INFO
-): BiliVideoInfo = useHttpClient { client ->
-    client.get<BiliTempInfo>(url) {
-        parameter("aid", aid)
-    }
-}.transferTo(BiliVideoInfo.serializer())
+    url: String = VIDEO_INFO
+): BiliVideoInfo = json(url) {
+    parameter("aid", aid)
+}
 
-suspend fun BilibiliClient.getVideoInfo(
+suspend fun BiliClient.getVideoInfo(
     bvid: String,
-    url: String = BilibiliApi.VIDEO_INFO
-): BiliVideoInfo = useHttpClient { client ->
-    client.get<BiliTempInfo>(url) {
-        parameter("bvid", bvid)
-    }
-}.transferTo(BiliVideoInfo.serializer())
+    url: String = VIDEO_INFO
+): BiliVideoInfo = json(url) {
+    parameter("bvid", bvid)
+}
 
-suspend fun BilibiliClient.searchVideo(
+suspend fun BiliClient.searchVideo(
     mid: Long,
     pageSize: Int = 30,
     pageNum: Int = 1,
-    url: String = BilibiliApi.SEARCH_URL
-): BiliSearchResult = useHttpClient { client ->
-    client.get<BiliTempInfo>(url) {
-        header(HttpHeaders.Origin, BilibiliApi.SPACE)
-        header(HttpHeaders.Referrer, BilibiliApi.SPACE)
-
-        parameter("mid", mid)
-        parameter("keyword", "")
-        parameter("order", "pubdate")
-        parameter("jsonp", "jsonp")
-        parameter("ps", pageSize)
-        parameter("pn", pageNum)
-        parameter("tid", 0)
-    }
-}.transferTo(BiliSearchResult.serializer())
+    url: String = SEARCH_URL
+): BiliSearchResult = json(url) {
+    parameter("mid", mid)
+    parameter("keyword", "")
+    parameter("order", "pubdate")
+    parameter("jsonp", "jsonp")
+    parameter("ps", pageSize)
+    parameter("pn", pageNum)
+    parameter("tid", 0)
+}

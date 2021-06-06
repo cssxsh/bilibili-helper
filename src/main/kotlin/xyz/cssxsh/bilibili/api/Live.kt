@@ -1,56 +1,41 @@
 package xyz.cssxsh.bilibili.api
 
 import io.ktor.client.request.*
-import io.ktor.http.*
-import xyz.cssxsh.bilibili.BilibiliClient
+import xyz.cssxsh.bilibili.BiliClient
 import xyz.cssxsh.bilibili.data.*
 
-suspend fun BilibiliClient.getRoomInfo(
+suspend fun BiliClient.getRoomInfo(
     roomId: Long,
-    url: String = BilibiliApi.ROOM_INIT
-): BiliRoomInfo = useHttpClient { client ->
-    client.get<BiliTempInfo>(url) {
-        header(HttpHeaders.Origin, BilibiliApi.SPACE)
-        header(HttpHeaders.Referrer, BilibiliApi.SPACE)
+    url: String = ROOM_INIT
+): BiliRoomInfo = json(url) {
+    parameter("id", roomId)
+}
 
-        parameter("id", roomId)
-    }
-}.transferTo(BiliRoomInfo.serializer())
-
-suspend fun BilibiliClient.getRoomInfoOld(
+suspend fun BiliClient.getRoomInfoOld(
     mid: Long,
-    url: String = BilibiliApi.ROOM_INFO_OLD
-): BiliRoomSimple = useHttpClient { client ->
-    client.get<BiliTempInfo>(url) {
-        header(HttpHeaders.Origin, BilibiliApi.SPACE)
-        header(HttpHeaders.Referrer, BilibiliApi.SPACE)
+    url: String = ROOM_INFO_OLD
+): BiliRoomSimple = json(url) {
+    parameter("mid", mid)
+}
 
-        parameter("mid", mid)
-    }
-}.transferTo(BiliRoomSimple.serializer())
-
-suspend fun BilibiliClient.getOffLiveList(
+suspend fun BiliClient.getOffLiveList(
     roomId: Long,
     count: Int,
     timestamp: Long = System.currentTimeMillis() / 1_000,
-    url: String = BilibiliApi.OFF_LIVE_LIST
-): BiliLiveOff = useHttpClient { client ->
-    client.get<BiliTempInfo>(url) {
-        parameter("room_id", roomId)
-        parameter("count", count)
-        parameter("rnd", timestamp)
-    }
-}.transferTo(BiliLiveOff.serializer())
+    url: String = OFF_LIVE_LIST
+): BiliLiveOff = json(url) {
+    parameter("room_id", roomId)
+    parameter("count", count)
+    parameter("rnd", timestamp)
+}
 
-suspend fun BilibiliClient.getRoundPlayVideo(
+suspend fun BiliClient.getRoundPlayVideo(
     roomId: Long,
     timestamp: Long = System.currentTimeMillis() / 1_000,
     type: String = "flv",
-    url: String = BilibiliApi.ROUND_PLAY_VIDEO
-): BiliRoundPlayVideo = useHttpClient { client ->
-    client.get<BiliTempInfo>(url) {
-        parameter("room_id", roomId)
-        parameter("a", timestamp)
-        parameter("type", type)
-    }
-}.transferTo(BiliRoundPlayVideo.serializer())
+    url: String = ROUND_PLAY_VIDEO
+): BiliRoundPlayVideo = json(url) {
+    parameter("room_id", roomId)
+    parameter("a", timestamp)
+    parameter("type", type)
+}

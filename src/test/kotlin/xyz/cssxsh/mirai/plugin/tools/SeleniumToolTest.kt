@@ -1,37 +1,43 @@
 package xyz.cssxsh.mirai.plugin.tools
 
+import io.github.karlatemp.mxlib.MxLib
+import io.github.karlatemp.mxlib.logger.NopLogger
+import io.github.karlatemp.mxlib.selenium.MxSelenium
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
+import org.openqa.selenium.remote.http.HttpClient
 import java.io.File
-import java.net.URL
+import java.util.logging.Level
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 internal class SeleniumToolTest {
+    private val dir = File("./test")
 
-    private val tool = SeleniumTool(
-        remote = URL("http://10.70.159.64:9515"),
-        type = SeleniumTool.DriverType.CHROME,
-        deviceName = "iPad"
-    )
+    init {
+        MxLib.setLoggerFactory { name -> NopLogger(name) }
+        setSeleniumLogLevel(Level.ALL)
+        MxLib.setDataStorage(dir)
+        // System.setProperty("webdriver.http.factory", "ktor")
+    }
 
-    private val dynamicIds = listOf(
+    private val list = listOf(
         450055453856015371,
         456805261245236351,
         468989129984490798
     )
 
-    private fun getDynamicUrl(id: Long) = "https://t.bilibili.com/h5/dynamic/detail/$id"
+    private fun dynamic(id: Long) = "https://t.bilibili.com/h5/dynamic/detail/$id"
 
     @Test
     fun getScreenShot(): Unit = runBlocking {
-        dynamicIds.forEach { id ->
-            tool.useDriver { driver ->
-                driver.getScreenShot(url = getDynamicUrl(id)).let {
-                    println("${id}: ${it.size}")
-                    File("test", "${id}.png").writeBytes(it)
-                }
+        val driver = MxSelenium.newDriver(null, DriverConsumer)
+        driver.get("https://t.bilibili.com/h5/dynamic/detail/508396365455813655")
+        list.forEach { id ->
+            driver.getScreenshot(dynamic(id)).let {
+                dir.resolve("${id}.png").writeBytes(it)
             }
         }
+        driver.quit()
     }
 }

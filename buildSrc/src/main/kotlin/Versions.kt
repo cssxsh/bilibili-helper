@@ -7,5 +7,6 @@ object Versions {
     const val ktor = "1.5.1"
     // other
     const val selenium = "3.141.59"
+    const val mxlib = "3.0-dev-16"
     const val junit = "5.2.0"
 }
