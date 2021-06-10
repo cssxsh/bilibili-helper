@@ -1,34 +1,48 @@
 package xyz.cssxsh.mirai.plugin.tools
 
-import kotlinx.coroutines.*
+import io.github.karlatemp.mxlib.MxLib
+import io.github.karlatemp.mxlib.logger.NopLogger
+import io.github.karlatemp.mxlib.selenium.MxSelenium
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withTimeout
 import org.openqa.selenium.Capabilities
 import org.openqa.selenium.OutputType
 import org.openqa.selenium.PageLoadStrategy
 import org.openqa.selenium.WindowType
+import org.openqa.selenium.chrome.ChromeDriverService
+import org.openqa.selenium.chrome.ChromeOptions
 import org.openqa.selenium.chromium.ChromiumOptions
-import org.openqa.selenium.devtools.CdpVersionFinder
 import org.openqa.selenium.firefox.FirefoxDriverLogLevel
 import org.openqa.selenium.firefox.FirefoxOptions
 import org.openqa.selenium.remote.ProtocolHandshake
 import org.openqa.selenium.remote.RemoteWebDriver
-import org.openqa.selenium.remote.http.WebSocket
-import org.openqa.selenium.remote.service.DriverService
 import xyz.cssxsh.mirai.plugin.DeviceName
+import java.io.File
+import java.net.URL
+import java.time.Duration
 import java.util.logging.Level
 import java.util.logging.Logger
-import kotlin.time.Duration
-import kotlin.time.minutes
-import kotlin.time.seconds
-import kotlin.time.toJavaDuration
+import kotlin.streams.asSequence
 
 private fun Class<*>.getLogger(): Logger {
     return declaredFields.first { it.type == Logger::class.java }.apply { isAccessible = true }.get(null) as Logger
 }
 
-internal fun setSeleniumLogLevel(level: Level) {
-    CdpVersionFinder::class.java.getLogger().level = level
-    ProtocolHandshake::class.java.getLogger().level = level
-    WebSocket::class.java.getLogger().level = level
+internal fun setupSelenium(dir: File) {
+    System.setProperty("webdriver.http.factory", "ktor")
+    System.setProperty("io.ktor.random.secure.random.provider", "DRBG")
+    MxLib.setLoggerFactory { name -> NopLogger(name) }
+    MxLib.setDataStorage(dir)
+    ProtocolHandshake::class.java.getLogger().parent.level = Level.OFF
+
+    val thread = Thread.currentThread()
+    val oc = thread.contextClassLoader
+    try {
+        thread.contextClassLoader = KtorHttpClientFactory::class.java.classLoader
+        MxSelenium.initialize()
+    } finally {
+        thread.contextClassLoader = oc
+    }
 }
 
 private object JavaScriptLoader {
@@ -74,22 +88,75 @@ private val IS_READY_SCRIPT by lazy { JavaScriptLoader.load("IsReady") }
 
 private val HAS_CONTENT_SCRIPT by lazy { JavaScriptLoader.load("HasContent") }
 
-private val Init = (10).seconds
+private val Init = Duration.ofSeconds(10)
 
-private val Timeout = (3).minutes
+private val Timeout = Duration.ofMinutes(3)
 
-private val Interval = (3).seconds
+private val Interval = Duration.ofSeconds(3)
 
 private const val HOME_PAGE = "https://t.bilibili.com/h5/dynamic/detail/508396365455813655"
 
-fun RemoteWebDriver.init() = apply {
-    // 诡异的等级
-    setLogLevel(Level.ALL)
-    manage().timeouts().apply {
-        pageLoadTimeout(Timeout.toJavaDuration())
-        setScriptTimeout(Interval.toJavaDuration())
+fun RemoteWebDriver(home: String = HOME_PAGE): RemoteWebDriver {
+
+    runCatching {
+        RemoteWebDriver(ProcessHandle.allProcesses().asSequence())
+    }.onSuccess {
+        return@RemoteWebDriver it
     }
-    get(HOME_PAGE)
+
+    val thread = Thread.currentThread()
+    val oc = thread.contextClassLoader
+
+    val driver = runCatching {
+        thread.contextClassLoader = KtorHttpClientFactory::class.java.classLoader
+
+        MxSelenium.newDriver(null, DriverConsumer).apply {
+            // 诡异的等级
+            setLogLevel(Level.ALL)
+            manage().timeouts().apply {
+                pageLoadTimeout(Timeout)
+                scriptTimeout = Interval
+            }
+            get(home)
+        }
+    }
+
+    thread.contextClassLoader = oc
+
+    return driver.getOrThrow()
+}
+
+fun RemoteWebDriver(processes: Sequence<ProcessHandle>): RemoteWebDriver {
+    val driver = System.getProperty(ChromeDriverService.CHROME_DRIVER_EXE_PROPERTY).substringAfterLast("\\")
+        .substringAfterLast("/")
+    val process = processes.first { it.info().command().orElse("").endsWith(driver) }
+    val regex = """(?<=--port=)\d+""".toRegex()
+
+    val port = regex.find(process.commandLine())?.value?.toInt() ?: 9515
+
+    val options = ChromeOptions().also(DriverConsumer)
+
+    return RemoteWebDriver(URL("http://localhost:$port"), options)
+}
+
+private fun ProcessHandle.commandLine(): String {
+    if (System.getProperty("os.name").lowercase().startsWith("windows")) {
+        val process = ProcessBuilder(
+            "wmic",
+            "process",
+            "where",
+            "ProcessID=${pid()}",
+            "get",
+            "commandline",
+            "/format:list"
+        ).redirectErrorStream(true).start()
+        for (line in process.inputStream.reader().readLines()) {
+            return """CommandLine=.+""".toRegex().matchEntire(line)?.value ?: continue
+        }
+        return ""
+    } else {
+        return info().commandLine().get()
+    }
 }
 
 suspend fun RemoteWebDriver.getScreenshot(url: String): ByteArray {
@@ -97,10 +164,10 @@ suspend fun RemoteWebDriver.getScreenshot(url: String): ByteArray {
     val new = switchTo().newWindow(WindowType.TAB)
     new.get(url)
     runCatching {
-        withTimeout(Timeout) {
-            delay(Init)
+        withTimeout(Timeout.toMillis()) {
+            delay(Init.toMillis())
             while (executeScript(IS_READY_SCRIPT) == false || executeScript(HAS_CONTENT_SCRIPT) == false) {
-                delay(Interval)
+                delay(Interval.toMillis())
             }
         }
     }

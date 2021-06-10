@@ -1,6 +1,5 @@
 package xyz.cssxsh.mirai.plugin.tools
 
-import com.google.auto.service.AutoService
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.*
 import io.ktor.client.features.*
@@ -17,17 +16,16 @@ import io.ktor.utils.io.jvm.javaio.*
 import kotlinx.coroutines.*
 import net.mamoe.mirai.console.util.CoroutineScopeUtils.overrideWithSupervisorJob
 import org.openqa.selenium.remote.http.*
+import org.openqa.selenium.remote.http.HttpClient.Factory
 import java.net.URI
 
 typealias SeleniumHttpClient = org.openqa.selenium.remote.http.HttpClient
-
-typealias SeleniumHttpClientFactory = org.openqa.selenium.remote.http.HttpClient.Factory
 
 typealias SeleniumHttpRequest = org.openqa.selenium.remote.http.HttpRequest
 
 typealias SeleniumHttpResponse = org.openqa.selenium.remote.http.HttpResponse
 
-fun HttpRequestBuilder.takeFrom(request: SeleniumHttpRequest, base: URI) = apply {
+private fun HttpRequestBuilder.takeFrom(request: SeleniumHttpRequest, base: URI) = apply {
     url {
         takeFrom(base.resolve(request.uri))
         request.queryParameterNames.forEach { name ->
@@ -51,7 +49,7 @@ fun HttpRequestBuilder.takeFrom(request: SeleniumHttpRequest, base: URI) = apply
     }
 }
 
-fun HttpResponse.toSeleniumHttpResponse() = SeleniumHttpResponse().also { response ->
+private fun HttpResponse.toSeleniumHttpResponse() = SeleniumHttpResponse().also { response ->
     response.status = status.value
     response.content = Contents.memoize { content.toInputStream() }
     headers.forEach { name, list ->
@@ -61,11 +59,12 @@ fun HttpResponse.toSeleniumHttpResponse() = SeleniumHttpResponse().also { respon
     }
 }
 
-private val KtorContext by KtorHttpClientFactory.Companion::KtorContext
+private val KtorContext by lazy {
+    Dispatchers.IO.overrideWithSupervisorJob("Selenium-HttpClient")
+}
 
-@Suppress("unused")
-class KtorHttpClient(private val config: ClientConfig) : SeleniumHttpClient {
-    internal val client = HttpClient(OkHttp) {
+private class KtorHttpClient(private val config: ClientConfig) : SeleniumHttpClient {
+    val client = HttpClient(OkHttp) {
         engine {
             proxy = config.proxy()
         }
@@ -73,6 +72,7 @@ class KtorHttpClient(private val config: ClientConfig) : SeleniumHttpClient {
         install(HttpTimeout) {
             connectTimeoutMillis = config.connectionTimeout().toMillis()
             requestTimeoutMillis = config.readTimeout().toMillis()
+            socketTimeoutMillis = config.readTimeout().toMillis()
         }
         install(WebSockets)
         install(UserAgent) {
@@ -102,16 +102,8 @@ class KtorHttpClient(private val config: ClientConfig) : SeleniumHttpClient {
     }
 }
 
-@AutoService(SeleniumHttpClientFactory::class)
-@HttpClientName(KtorHttpClientFactory.Name)
-class KtorHttpClientFactory : SeleniumHttpClientFactory {
-    companion object {
-        const val Name = "ktor"
-
-        val KtorContext by lazy {
-            Dispatchers.IO.overrideWithSupervisorJob("HttpClient") + CoroutineName("Selenium")
-        }
-    }
+@HttpClientName("ktor")
+class KtorHttpClientFactory : Factory {
 
     private val clients = mutableListOf<HttpClient>()
 
