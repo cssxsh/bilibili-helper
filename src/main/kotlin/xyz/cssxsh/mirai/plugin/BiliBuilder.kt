@@ -31,6 +31,7 @@ internal suspend fun BiliRoomInfo.toMessage(contact: Contact) = buildMessageChai
                     appendLine("主播: $name")
                     appendLine("标题: ${liveRoom.title}")
                     appendLine("人气: ${liveRoom.online}")
+                    appendLine("链接: ${liveRoom.link}")
                     add(liveRoom.getCover(contact))
                 }
             }.onFailure {
