@@ -89,12 +89,13 @@ abstract class AbstractTasker<T> : BiliTasker, CoroutineScope {
     override suspend fun removeContact(id: Long, subject: Contact) = mutex.withLock {
         tasks.compute(id) { _, info ->
             info?.run {
-                copy(contacts = contacts - subject.delegate)
+                copy(contacts = contacts - subject.delegate).apply {
+                    if (contacts.isEmpty()) {
+                        taskJobs[id]?.cancel()
+                    }
+                }
             }
         }
-        taskJobs[id]?.takeIf {
-            contacts(id).isNotEmpty()
-        }?.cancel()
         tasks[id]
     }
 
