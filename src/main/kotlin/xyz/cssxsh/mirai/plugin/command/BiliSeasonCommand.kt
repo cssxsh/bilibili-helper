@@ -2,7 +2,6 @@ package xyz.cssxsh.mirai.plugin.command
 
 import net.mamoe.mirai.console.command.CommandSenderOnMessage
 import net.mamoe.mirai.console.command.CompositeCommand
-import net.mamoe.mirai.console.command.descriptor.ExperimentalCommandDescriptors
 import net.mamoe.mirai.message.data.toPlainText
 import xyz.cssxsh.mirai.plugin.*
 
@@ -11,9 +10,6 @@ object BiliSeasonCommand: CompositeCommand(
     "bili-season", "B剧集", "B番剧",
     description = "B站剧集指令"
 ), BiliTasker by BiliSeasonWaiter {
-
-    @ExperimentalCommandDescriptors
-    override val prefixOptional: Boolean = true
 
     @SubCommand("add", "添加")
     suspend fun CommandSenderOnMessage<*>.add(id: Long) = sendMessage {

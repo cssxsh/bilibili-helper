@@ -2,7 +2,7 @@ package xyz.cssxsh.bilibili.data
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlin.time.seconds
+import java.time.Duration
 
 interface Video {
     val title: String
@@ -84,7 +84,9 @@ data class BiliVideoInfo(
 ) : Video {
     override val author: String by owner::name
     override val mid: Long by owner::mid
-    override val length: String get() = duration.seconds.toComponents { m, s, _ -> "%02d:%02d".format(m, s) }
+    override val length: String by lazy {
+        Duration.ofSeconds(duration.toLong()).run { "%02d:%02d".format(toMinutes(), toSecondsPart()) }
+    }
 }
 
 @Serializable

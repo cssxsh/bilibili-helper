@@ -14,7 +14,6 @@ internal object BiliListener: CoroutineScope by BiliHelperPlugin.childScope("Bil
             Repliers.forEach { (regex, replier) ->
                 regex findingReply replier
             }
-            SHORT_LINK_REGEX findingReply ShortLinkReplier
         }
     }
 

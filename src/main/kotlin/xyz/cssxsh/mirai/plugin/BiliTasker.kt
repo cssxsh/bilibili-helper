@@ -13,10 +13,7 @@ import xyz.cssxsh.bilibili.data.*
 import xyz.cssxsh.mirai.plugin.data.*
 import java.time.LocalTime
 import java.time.OffsetDateTime
-import kotlin.time.Duration
-import kotlin.time.hours
-import kotlin.time.minutes
-import kotlin.time.seconds
+import kotlin.math.abs
 
 interface BiliTasker {
 
@@ -50,9 +47,9 @@ abstract class AbstractTasker<T> : BiliTasker, CoroutineScope {
 
     protected val mutex = Mutex()
 
-    protected abstract val fast: Duration
+    protected abstract val fast: Long
 
-    protected abstract val slow: Duration
+    protected abstract val slow: Long
 
     protected abstract val tasks: MutableMap<Long, BiliTask>
 
@@ -135,7 +132,7 @@ sealed class Loader<T> : AbstractTasker<T>() {
     protected abstract suspend fun List<T>.near(): Boolean
 
     override fun addListener(id: Long) = launch {
-        delay((fast.toLongMilliseconds()..slow.toLongMilliseconds()).random())
+        delay((fast..slow).random())
         while (isActive && contacts(id).isNotEmpty()) {
             runCatching {
                 val list = load(id)
@@ -167,7 +164,7 @@ sealed class Waiter<T> : AbstractTasker<T>() {
     protected abstract suspend fun T.near(): Boolean
 
     override fun addListener(id: Long) = launch {
-        delay((fast.toLongMilliseconds()..slow.toLongMilliseconds()).random())
+        delay((fast..slow).random())
         while (isActive && contacts(id).isNotEmpty()) {
             runCatching {
                 val item = load(id)
@@ -190,17 +187,17 @@ sealed class Waiter<T> : AbstractTasker<T>() {
     }
 }
 
-private fun List<LocalTime>.near(slow: Duration): Boolean {
+private fun List<LocalTime>.near(slow: Long): Boolean {
     val now = LocalTime.now().toSecondOfDay()
-    return any { (it.toSecondOfDay() - now).seconds.absoluteValue < slow }
+    return any { abs(it.toSecondOfDay() - now) * 1000 < slow }
 }
 
 object BiliVideoLoader : Loader<Video>(), CoroutineScope by BiliHelperPlugin.childScope("VideoTasker") {
     override val tasks: MutableMap<Long, BiliTask> by BiliTaskData::video
 
-    override val fast: Duration = (1).minutes
+    override val fast = 1 * 60 * 1000L
 
-    override val slow: Duration = (10).minutes
+    override val slow = 10 * 60 * 1000L
 
     override suspend fun load(id: Long) = client.searchVideo(id).list.videos
 
@@ -218,9 +215,9 @@ object BiliVideoLoader : Loader<Video>(), CoroutineScope by BiliHelperPlugin.chi
 object BiliDynamicLoader : Loader<DynamicInfo>(), CoroutineScope by BiliHelperPlugin.childScope("DynamicTasker") {
     override val tasks: MutableMap<Long, BiliTask> by BiliTaskData::dynamic
 
-    override val fast: Duration = (1).minutes
+    override val fast = 1 * 60 * 1000L
 
-    override val slow: Duration = (10).minutes
+    override val slow = 10 * 60 * 1000L
 
     override suspend fun load(id: Long) = client.getSpaceHistory(id).dynamics
 
@@ -238,9 +235,9 @@ object BiliDynamicLoader : Loader<DynamicInfo>(), CoroutineScope by BiliHelperPl
 object BiliLiveWaiter : Waiter<BiliUserInfo>(), CoroutineScope by BiliHelperPlugin.childScope("LiveWaiter") {
     override val tasks: MutableMap<Long, BiliTask> by BiliTaskData::live
 
-    override val fast: Duration = (5).minutes
+    override val fast = 5 * 60 * 1000L
 
-    override val slow: Duration = (30).minutes
+    override val slow = 30 * 60 * 1000L
 
     override suspend fun load(id: Long) = client.getUserInfo(id)
 
@@ -256,9 +253,9 @@ object BiliLiveWaiter : Waiter<BiliUserInfo>(), CoroutineScope by BiliHelperPlug
 object BiliSeasonWaiter : Waiter<SeasonSection>(), CoroutineScope by BiliHelperPlugin.childScope("SeasonWaiter") {
     override val tasks: MutableMap<Long, BiliTask> by BiliTaskData::season
 
-    override val fast: Duration = (1).minutes
+    override val fast = 1 * 60 * 1000L
 
-    override val slow: Duration = (3).hours
+    override val slow = 3  * 60 * 60 * 1000L
 
     private val data = mutableMapOf<Long, Video>()
 

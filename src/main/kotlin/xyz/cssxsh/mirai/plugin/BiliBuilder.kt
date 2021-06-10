@@ -3,8 +3,11 @@ package xyz.cssxsh.mirai.plugin
 import io.ktor.client.*
 import io.ktor.client.request.*
 import io.ktor.http.*
+import net.mamoe.mirai.console.permission.PermissionService.Companion.testPermission
+import net.mamoe.mirai.console.permission.PermitteeId.Companion.permitteeId
 import net.mamoe.mirai.contact.Contact
 import net.mamoe.mirai.event.events.MessageEvent
+import net.mamoe.mirai.message.data.Message
 import net.mamoe.mirai.message.data.MessageSource.Key.quote
 import net.mamoe.mirai.message.data.buildMessageChain
 import net.mamoe.mirai.message.data.toPlainText
@@ -12,12 +15,17 @@ import net.mamoe.mirai.utils.*
 import xyz.cssxsh.bilibili.api.*
 import xyz.cssxsh.bilibili.data.*
 import xyz.cssxsh.bilibili.*
+import xyz.cssxsh.mirai.plugin.command.BiliInfoCommand
+
+private val permission by BiliInfoCommand::permission
 
 internal suspend fun Video.toMessage(contact: Contact) = content.toPlainText() + getCover(contact)
 
 internal suspend fun Live.toMessage(contact: Contact) = content.toPlainText() + getCover(contact)
 
-internal suspend fun DynamicInfo.toMessage(contact: Contact) = getScreenshot(contact) + getImageFiles(contact)
+internal suspend fun DynamicInfo.toMessage(contact: Contact): Message {
+    return (if (SetupSelenium) getScreenshot(contact) else content.toPlainText()) + getImageFiles(contact)
+}
 
 internal suspend fun BiliRoomInfo.toMessage(contact: Contact) = buildMessageChain {
     when (status) {
@@ -58,8 +66,9 @@ internal suspend fun Season.toMessage(contact: Contact) = content.toPlainText() 
 
 typealias MessageReplier = suspend MessageEvent.(MatchResult) -> Any?
 
-internal val DynamicReplier: MessageReplier = { result ->
+internal val DynamicReplier: MessageReplier = replier@{ result ->
     logger.info { "[${sender}] 匹配Dynamic(${result.value})" }
+    if (permission.testPermission(sender.permitteeId).not()) return@replier null
     runCatching {
         client.getDynamicInfo(result.value.toLong()).dynamic.toMessage(subject) + message.quote()
     }.onFailure {
@@ -69,8 +78,9 @@ internal val DynamicReplier: MessageReplier = { result ->
     }
 }
 
-internal val VideoReplier: MessageReplier = { result ->
+internal val VideoReplier: MessageReplier = replier@{ result ->
     logger.info { "[${sender}] 匹配Video(${result.value})" }
+    if (permission.testPermission(sender.permitteeId).not()) return@replier null
     runCatching {
         when (result.value.first()) {
             'B', 'b' -> client.getVideoInfo(result.value)
@@ -84,8 +94,9 @@ internal val VideoReplier: MessageReplier = { result ->
     }
 }
 
-internal val RoomReplier: MessageReplier = { result ->
+internal val RoomReplier: MessageReplier = replier@{ result ->
     logger.info { "[${sender}] 匹配Room(${result.value})" }
+    if (permission.testPermission(sender.permitteeId).not()) return@replier null
     runCatching {
         client.getRoomInfo(result.value.toLong()).toMessage(subject) + message.quote()
     }.onFailure {
@@ -95,23 +106,30 @@ internal val RoomReplier: MessageReplier = { result ->
     }
 }
 
-internal val SpaceReplier: MessageReplier = { result ->
+internal val SpaceReplier: MessageReplier = replier@{ result ->
     logger.info { "[${sender}] 匹配User(${result.value})" }
+    null
+    // if (permission.testPermission(sender.permitteeId).not()) return@replier null
     // TODO
 }
 
-internal val SeasonReplier: MessageReplier = { result ->
+internal val SeasonReplier: MessageReplier = replier@{ result ->
     logger.info { "[${sender}] 匹配Season(${result.value})" }
+    null
+    // if (permission.testPermission(sender.permitteeId).not()) return@replier null
     // TODO
 }
 
-internal val EpisodeReplier: MessageReplier = { result ->
+internal val EpisodeReplier: MessageReplier = replier@{ result ->
     logger.info { "[${sender}] 匹配Episode(${result.value})" }
+    null
+    // if (permission.testPermission(sender.permitteeId).not()) return@replier null
     // TODO
 }
 
-internal val MediaReplier: MessageReplier = { result ->
+internal val MediaReplier: MessageReplier = replier@{ result ->
     logger.info { "[${sender}] 匹配Media(${result.value})" }
+    if (permission.testPermission(sender.permitteeId).not()) return@replier null
     runCatching {
         client.getSeasonMedia(result.value.toLong()).media.toMessage(subject) + message.quote()
     }.onFailure {
@@ -128,15 +146,18 @@ private fun noRedirect() = HttpClient {
 
 private suspend fun Url.getLocation() = noRedirect().use { it.head<HttpMessage>(this).headers[HttpHeaders.Location] }
 
-internal val Repliers = mapOf(
-    DYNAMIC_REGEX to DynamicReplier,
-    VIDEO_REGEX to VideoReplier,
-    ROOM_REGEX to RoomReplier,
-    SPACE_REGEX to SpaceReplier,
-    SEASON_REGEX to SeasonReplier,
-    EPISODE_REGEX to EpisodeReplier,
-    MEDIA_REGEX to MediaReplier
-)
+internal val Repliers by lazy {
+    mapOf(
+        DYNAMIC_REGEX to DynamicReplier,
+        VIDEO_REGEX to VideoReplier,
+        ROOM_REGEX to RoomReplier,
+        SPACE_REGEX to SpaceReplier,
+        SEASON_REGEX to SeasonReplier,
+        EPISODE_REGEX to EpisodeReplier,
+        MEDIA_REGEX to MediaReplier,
+        SHORT_LINK_REGEX to ShortLinkReplier
+    )
+}
 
 internal val ShortLinkReplier: MessageReplier = replier@{ result ->
     logger.info { "[${sender}] 匹配SHORT_LINK(${result.value}) 尝试跳转" }

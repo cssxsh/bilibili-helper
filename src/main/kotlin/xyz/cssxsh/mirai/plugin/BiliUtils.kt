@@ -11,7 +11,6 @@ import xyz.cssxsh.bilibili.data.*
 import xyz.cssxsh.bilibili.*
 import xyz.cssxsh.mirai.plugin.data.*
 import xyz.cssxsh.mirai.plugin.tools.*
-import java.awt.Image
 import java.io.File
 
 internal val logger by BiliHelperPlugin::logger
@@ -19,6 +18,8 @@ internal val logger by BiliHelperPlugin::logger
 internal val client by BiliHelperPlugin::client
 
 internal val ImageCache by lazy { File(BiliHelperSettings.cache) }
+
+internal val SetupSelenium by BiliHelperPlugin::selenium
 
 internal val RemoteWebDriver by BiliHelperPlugin::driver
 

@@ -8,7 +8,7 @@ import kotlinx.serialization.descriptors.SerialKind
 import kotlinx.serialization.descriptors.buildSerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
-import kotlin.time.seconds
+import java.time.Duration
 
 @Serializable
 data class BiliDynamicList(
@@ -578,6 +578,8 @@ data class DynamicVideo(
 ) : Video {
     override val author: String by owner::name
     override val mid: Long by owner::mid
-    override val length: String get() = duration.seconds.toComponents { m, s, _ -> "%02d:%02d".format(m, s) }
+    override val length: String by lazy {
+        Duration.ofSeconds(duration.toLong()).run { "%02d:%02d".format(toMinutes(), toSecondsPart()) }
+    }
     override val bvid: String get() = "av${aid}" // XXX
 }

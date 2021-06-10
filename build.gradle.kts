@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "xyz.cssxsh.mirai.plugin"
-version = "0.1.0-dev-2"
+version = "0.1.0-dev-3"
 
 repositories {
     mavenLocal()
@@ -22,7 +22,6 @@ kotlin {
         all {
             languageSettings.useExperimentalAnnotation("kotlin.RequiresOptIn")
             languageSettings.useExperimentalAnnotation("kotlin.ExperimentalStdlibApi")
-            languageSettings.useExperimentalAnnotation("kotlin.time.ExperimentalTime")
             languageSettings.useExperimentalAnnotation("io.ktor.util.KtorExperimentalAPI")
             languageSettings.useExperimentalAnnotation("kotlinx.serialization.InternalSerializationApi")
             languageSettings.useExperimentalAnnotation("kotlinx.serialization.ExperimentalSerializationApi")
@@ -38,14 +37,36 @@ dependencies {
     implementation(ktor("client-serialization", Versions.ktor))
     implementation(ktor("client-encoding", Versions.ktor))
     // implementation(selenium("java", Versions.selenium))
-    implementation(mxlib("selenium", Versions.mxlib))
+    implementation(mxlib("selenium", Versions.mxlib)) {
+        exclude("org.seleniumhq.selenium","selenium-java")
+        exclude("junit", "junit")
+        exclude("classworlds", "classworlds")
+    }
+    implementation(selenium("java", Versions.selenium)) {
+        exclude("io.netty")
+    }
+    // excluce("io.netty:netty-all:4.1.56.Final")
     implementation(project(":tools"))
 
-
-    testImplementation("io.netty:netty-all:4.1.56.Final")
     testImplementation(junit("api", Versions.junit))
     testRuntimeOnly(junit("engine", Versions.junit))
     testRuntimeOnly("org.slf4j", "slf4j-simple", "1.7.25")
+}
+
+mirai {
+    configureShadow {
+        exclude("module-info.class")
+        exclude {
+            it.path.startsWith("kotlin")
+        }
+        exclude {
+            it.path.startsWith("io/ktor") &&
+                (it.path.startsWith("io/ktor/client/features/compression") || it.path.startsWith("io/ktor/client/features/json")).not()
+        }
+        exclude {
+            it.path.startsWith("io/netty")
+        }
+    }
 }
 
 tasks {
