@@ -99,7 +99,7 @@ private const val HOME_PAGE = "https://t.bilibili.com/h5/dynamic/detail/50839636
 fun RemoteWebDriver(home: String = HOME_PAGE): RemoteWebDriver {
 
     runCatching {
-        RemoteWebDriver(ProcessHandle.allProcesses().asSequence())
+        RemoteWebDriver(processes = ProcessHandle.allProcesses().asSequence())
     }.onSuccess {
         return@RemoteWebDriver it
     }
@@ -127,8 +127,7 @@ fun RemoteWebDriver(home: String = HOME_PAGE): RemoteWebDriver {
 }
 
 fun RemoteWebDriver(processes: Sequence<ProcessHandle>): RemoteWebDriver {
-    val driver = System.getProperty(ChromeDriverService.CHROME_DRIVER_EXE_PROPERTY).substringAfterLast("\\")
-        .substringAfterLast("/")
+    val driver = File(System.getProperty(ChromeDriverService.CHROME_DRIVER_EXE_PROPERTY)).name
     val process = processes.first { it.info().command().orElse("").endsWith(driver) }
     val regex = """(?<=--port=)\d+""".toRegex()
 

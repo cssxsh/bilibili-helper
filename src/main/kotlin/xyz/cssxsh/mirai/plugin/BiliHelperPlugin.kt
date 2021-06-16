@@ -27,7 +27,7 @@ object BiliHelperPlugin : KotlinPlugin(
         private set
 
     override fun PluginComponentStorage.onLoad() {
-        selenium = runCatching { setupSelenium(dataFolder) }.isSuccess
+        selenium = runCatching { setupSelenium(dataFolder) }.onFailure(logger::warning).isSuccess
     }
 
     override fun onEnable() {

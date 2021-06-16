@@ -8,7 +8,7 @@ group = "xyz.cssxsh.mirai.plugin"
 version = "0.1.0-dev-3"
 
 repositories {
-    mavenLocal()
+    // mavenLocal()
     maven(url = "https://maven.aliyun.com/repository/releases")
     maven(url = "https://maven.aliyun.com/repository/public")
     mavenCentral()
@@ -36,7 +36,6 @@ kotlin {
 dependencies {
     implementation(ktor("client-serialization", Versions.ktor))
     implementation(ktor("client-encoding", Versions.ktor))
-    // implementation(selenium("java", Versions.selenium))
     implementation(mxlib("selenium", Versions.mxlib)) {
         exclude("org.seleniumhq.selenium","selenium-java")
         exclude("junit", "junit")
@@ -45,7 +44,6 @@ dependencies {
     implementation(selenium("java", Versions.selenium)) {
         exclude("io.netty")
     }
-    // excluce("io.netty:netty-all:4.1.56.Final")
     implementation(project(":tools"))
 
     testImplementation(junit("api", Versions.junit))
