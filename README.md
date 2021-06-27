@@ -1,10 +1,13 @@
 # [BiliBili Helper](https://github.com/cssxsh/bilibili-helper)
+
 > 基于 [Mirai Console](https://github.com/mamoe/mirai-console) 的 [哔哩哔哩](https://www.bilibili.com/) 订阅插件
 
 [![Release](https://img.shields.io/github/v/release/cssxsh/bilibili-helper)](https://github.com/cssxsh/bilibili-helper/releases)
-[![Release](https://img.shields.io/github/downloads/cssxsh/bilibili-helper/total)](https://shields.io/category/downloads)
+[![Downloads](https://img.shields.io/github/downloads/cssxsh/bilibili-helper/total)](https://shields.io/category/downloads)
+[![MiraiForum](https://img.shields.io/badge/post-on%20MiraiForum-yellow)](https://mirai.mamoe.net/topic/287)
 
 ## 指令
+
 注意: 使用前请确保可以 [在聊天环境执行指令](https://github.com/project-mirai/chat-command)  
 带括号的`/`前缀是可选的  
 `<...>`中的是指令名，由空格隔开表示或，选择其中任一名称都可执行例如`/抽卡 十连`  
@@ -21,8 +24,7 @@
 | `/<bili-dynamic B动态> <stop 停止> <uid>` | 停止一个b站动态订阅      |
 | `/<bili-dynamic B动态> <list 列表>`       | 列出当前联系人的动态订阅 |
 
-动态订阅会优先使用截图的形式推送内容，截图需要谷歌浏览器或者火狐浏览器
-否则将推送文本内容
+动态订阅会优先使用截图的形式推送内容，截图需要谷歌浏览器或者火狐浏览器 否则将推送文本内容
 
 ### 直播订阅指令
 
@@ -40,8 +42,7 @@
 | `/<bili-video B视频> <stop 停止> <uid>` | 停止一个b站视频订阅      |
 | `/<bili-video B视频> <list 列表>`       | 列出当前联系人的视频订阅 |
 
-视频订阅不宜过多，否则会触发b站反爬策略，导致IP被锁定
-动态订阅一般会包含视频内容，推荐以此代替
+视频订阅不宜过多，否则会触发b站反爬策略，导致IP被锁定 动态订阅一般会包含视频内容，推荐以此代替
 
 ### 剧集订阅指令 (实验性)
 
@@ -67,9 +68,11 @@
 消息中包含 `BV12v411G7dP` `av2` 等等 id 信息时会自动触发解析
 
 ## 设置
+
 位于`Mirai-Console`运行目录下的`config/bilibili-helper`文件夹下
 
 ### 图片缓存位置
+
 `BiliHelperSettings.yml` 文件中的 `cache` 配置项 默认为 `ImageCache`
 
 ## 安装
@@ -80,5 +83,6 @@
 1. 从 [Releases](https://github.com/cssxsh/bilibili-helper/releases) 下载`jar`并将其放入`plugins`文件夹中
 
 ## TODO
+
 - [ ] 完善聚集订阅
 - [ ] 自动清理图片缓存
