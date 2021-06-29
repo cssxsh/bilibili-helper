@@ -3,14 +3,23 @@ package xyz.cssxsh.bilibili.data
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+interface UserInfo {
+    val name: String
+    val level: Int
+    val sign: String
+    val live: String
+    val face: String
+    val mid: Long
+}
+
 @Serializable
 data class BiliUserInfo(
     @SerialName("birthday")
     val birthday: String,
     @SerialName("coins")
-    val coins: Int,
+    val coins: Long,
     @SerialName("face")
-    val face: String,
+    override val face: String,
     @SerialName("fans_badge")
     val fansBadge: Boolean,
     @SerialName("is_followed")
@@ -18,15 +27,15 @@ data class BiliUserInfo(
     @SerialName("jointime")
     val joined: Long,
     @SerialName("level")
-    val level: Int,
+    override val level: Int,
     @SerialName("live_room")
     val liveRoom: BiliRoomSimple,
     @SerialName("mid")
-    val mid: Long,
+    override val mid: Long,
     @SerialName("moral")
     val moral: Int,
     @SerialName("name")
-    val name: String,
+    override val name: String,
     @SerialName("nameplate")
     val nameplate: UserNameplate,
     @SerialName("official")
@@ -38,7 +47,7 @@ data class BiliUserInfo(
     @SerialName("sex")
     val sex: String,
     @SerialName("sign")
-    val sign: String,
+    override val sign: String,
 //    @SerialName("user_honour_info")
 //    private val honour: JsonObject? = null,
 //    @SerialName("silence")
@@ -52,7 +61,9 @@ data class BiliUserInfo(
     val topPhoto: String,
 //    @SerialName("vip")
 //    private val vip: JsonObject
-)
+): UserInfo {
+    override val live: String get() = liveRoom.link
+}
 
 @Serializable
 data class UserNameplate(

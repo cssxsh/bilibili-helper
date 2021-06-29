@@ -11,8 +11,10 @@ interface Video {
     val mid: Long
     val created: Long
     val length: String
-    val bvid: String
+    val id: String
     val cover: String
+    val seasonId: Long?
+    val status: VideoStatus?
 }
 
 @Serializable
@@ -22,7 +24,7 @@ data class BiliVideoInfo(
 //    @SerialName("attribute")
 //    private val attribute: Int? = null,
     @SerialName("bvid")
-    override val bvid: String,
+    override val id: String,
     @SerialName("cid")
     val cid: Int,
     @SerialName("copyright")
@@ -34,7 +36,7 @@ data class BiliVideoInfo(
     @SerialName("dimension")
     val dimension: VideoDimension,
     @SerialName("duration")
-    val duration: Int,
+    val duration: Long,
     @SerialName("dynamic")
     val dynamic: String = "",
 //    @SerialName("label")
@@ -56,11 +58,11 @@ data class BiliVideoInfo(
 //    @SerialName("rights")
 //    private val rights: Map<String, Int>,
     @SerialName("season_id")
-    private val seasonId: Long? = null,
+    override val seasonId: Long? = null,
     @SerialName("staff")
     val staff: List<VideoStaff> = emptyList(),
     @SerialName("stat")
-    val status: VideoStatus,
+    override val status: VideoStatus,
 //    @SerialName("state")
 //    private val state: Int,
 //    @SerialName("stein_guide_cid")
@@ -68,7 +70,7 @@ data class BiliVideoInfo(
     @SerialName("subtitle")
     val subtitle: VideoSubtitle,
     @SerialName("tid")
-    val tid: Long,
+    val tid: Int,
     @SerialName("title")
     override val title: String,
     @SerialName("tname")
@@ -85,7 +87,7 @@ data class BiliVideoInfo(
     override val author: String by owner::name
     override val mid: Long by owner::mid
     override val length: String by lazy {
-        Duration.ofSeconds(duration.toLong()).run { "%02d:%02d".format(toMinutes(), toSecondsPart()) }
+        Duration.ofSeconds(duration).run { "%02d:%02d".format(toMinutes(), toSecondsPart()) }
     }
 }
 
@@ -179,34 +181,34 @@ data class VideoSubtitleAuthor(
 
 @Serializable
 data class VideoStatus(
-    @SerialName("aid")
-    val aid: Long,
-    @SerialName("argue_msg")
-    val argue: String = "",
+//    @SerialName("aid")
+//    val aid: Long,
+//    @SerialName("argue_msg")
+//    val argue: String = "",
     @SerialName("coin")
-    val coin: Int,
+    val coin: Long,
     @SerialName("danmaku")
-    val danmaku: Int,
+    val danmaku: Long,
     @SerialName("dislike")
     @Serializable(NumberToBooleanSerializer::class)
     val dislike: Boolean,
-    @SerialName("evaluation")
-    val evaluation: String = "",
+//    @SerialName("evaluation")
+//    val evaluation: String = "",
     @SerialName("favorite")
-    val favorite: Int,
+    val favorite: Long,
     @SerialName("his_rank")
     @Serializable(NumberToBooleanSerializer::class)
     val hisRank: Boolean,
     @SerialName("like")
-    val like: Int,
+    val like: Long,
     @SerialName("now_rank")
     val nowRank: Int,
     @SerialName("reply")
-    val reply: Int,
+    val reply: Long,
     @SerialName("share")
-    val share: Int,
+    val share: Long,
     @SerialName("view")
-    val view: Int
+    val view: Long
 )
 
 @Serializable
@@ -236,9 +238,9 @@ data class VideoSimple(
     @SerialName("author")
     override val author: String,
     @SerialName("bvid")
-    override val bvid: String,
+    override val id: String,
     @SerialName("comment")
-    val comment: Int,
+    val comment: Long,
     @SerialName("copyright")
     val copyright: String,
     @SerialName("created")
@@ -266,7 +268,7 @@ data class VideoSimple(
     @SerialName("pic")
     override val cover: String,
     @SerialName("play")
-    val play: Int,
+    val play: Long,
     @SerialName("review")
     val review: Int,
     @SerialName("subtitle")
@@ -274,9 +276,13 @@ data class VideoSimple(
     @SerialName("title")
     override val title: String,
     @SerialName("typeid")
-    val typeId: Int,
+    val tid: Int,
     @SerialName("video_review")
-    val videoReview: Int
+    val videoReview: Int,
+    @SerialName("season_id")
+    override val seasonId: Long? = null,
+    @SerialName("stat")
+    override val status: VideoStatus? = null
 ) : Video
 
 @Serializable

@@ -34,6 +34,7 @@ const val MUSIC_INFO = "https://www.bilibili.com/audio/music-service-c/web/song/
 
 // Media
 const val SEASON_MEDIA_INFO = "https://api.bilibili.com/pgc/review/user"
+const val SEASON_INFO = "https://api.bilibili.com/pgc/view/web/season"
 const val SEASON_RECOMMEND = "https://api.bilibili.com/pgc/season/web/related/recommend?season_id=38234"
 const val SEASON_SECTION = "https://api.bilibili.com/pgc/web/season/section"
 const val SEASON_EPISODE = "https://api.bilibili.com/pgc/view/web/section/order?ep_id=395214"
@@ -44,6 +45,10 @@ const val BANGUMI_TIMELINE_CN = "https://bangumi.bilibili.com/api/timeline_v2_cn
 const val TAG_INFO = "https://api.bilibili.com/x/tag/info?tag_name=MEGALOBOX"
 const val TAG_DETAIL = "https://api.bilibili.com/x/tag/detail?pn=0&ps=1&tag_id=18828932"
 const val TAG_VIDEO = "https://api.bilibili.com/x/web-interface/tag/top?pn=1&ps=10&tid=18828932"
+
+// Search
+const val SEARCH_ALL = "https://api.bilibili.com/x/web-interface/search/all/v2"
+const val SEARCH_TYPE = "https://api.bilibili.com/x/web-interface/search/type"
 
 internal suspend inline fun <reified T> BiliClient.json(
     url: String,

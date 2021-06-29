@@ -19,6 +19,8 @@ import xyz.cssxsh.mirai.plugin.command.BiliInfoCommand
 
 private val permission by BiliInfoCommand::permission
 
+internal suspend fun UserInfo.toMessage(contact: Contact) = content.toPlainText() + getFace(contact)
+
 internal suspend fun Video.toMessage(contact: Contact) = content.toPlainText() + getCover(contact)
 
 internal suspend fun Live.toMessage(contact: Contact) = content.toPlainText() + getCover(contact)
@@ -37,10 +39,7 @@ internal suspend fun BiliRoomInfo.toMessage(contact: Contact) = buildMessageChai
             runCatching {
                 with(client.getUserInfo(mid = uid)) {
                     appendLine("主播: $name")
-                    appendLine("标题: ${liveRoom.title}")
-                    appendLine("人气: ${liveRoom.online}")
-                    appendLine("链接: ${liveRoom.link}")
-                    add(liveRoom.getCover(contact))
+                    add(liveRoom.toMessage(contact))
                 }
             }.onFailure {
                 logger.warning({ "获取[${uid}]直播间信息失败" }, it)
@@ -62,7 +61,7 @@ internal suspend fun BiliRoomInfo.toMessage(contact: Contact) = buildMessageChai
     }
 }
 
-internal suspend fun Season.toMessage(contact: Contact) = content.toPlainText() + getCover(contact)
+internal suspend fun Media.toMessage(contact: Contact) = content.toPlainText() + getCover(contact)
 
 typealias MessageReplier = suspend MessageEvent.(MatchResult) -> Any?
 
@@ -108,23 +107,38 @@ internal val RoomReplier: MessageReplier = replier@{ result ->
 
 internal val SpaceReplier: MessageReplier = replier@{ result ->
     logger.info { "[${sender}] 匹配User(${result.value})" }
-    null
-    // if (permission.testPermission(sender.permitteeId).not()) return@replier null
-    // TODO
+    if (permission.testPermission(sender.permitteeId).not()) return@replier null
+    runCatching {
+        client.getUserInfo(result.value.toLong()).toMessage(subject) + message.quote()
+    }.onFailure {
+        logger.warning({ "构建User(${result.value})信息失败" }, it)
+    }.getOrElse {
+        it.message
+    }
 }
 
 internal val SeasonReplier: MessageReplier = replier@{ result ->
     logger.info { "[${sender}] 匹配Season(${result.value})" }
-    null
-    // if (permission.testPermission(sender.permitteeId).not()) return@replier null
-    // TODO
+    if (permission.testPermission(sender.permitteeId).not()) return@replier null
+    runCatching {
+        client.getSeasonInfo(result.value.toLong()).toMessage(subject) + message.quote()
+    }.onFailure {
+        logger.warning({ "构建Season(${result.value})信息失败" }, it)
+    }.getOrElse {
+        it.message
+    }
 }
 
 internal val EpisodeReplier: MessageReplier = replier@{ result ->
     logger.info { "[${sender}] 匹配Episode(${result.value})" }
-    null
-    // if (permission.testPermission(sender.permitteeId).not()) return@replier null
-    // TODO
+    if (permission.testPermission(sender.permitteeId).not()) return@replier null
+    runCatching {
+        client.getEpisodeInfo(result.value.toLong()).toMessage(subject) + message.quote()
+    }.onFailure {
+        logger.warning({ "构建Episode(${result.value})信息失败" }, it)
+    }.getOrElse {
+        it.message
+    }
 }
 
 internal val MediaReplier: MessageReplier = replier@{ result ->
@@ -133,7 +147,7 @@ internal val MediaReplier: MessageReplier = replier@{ result ->
     runCatching {
         client.getSeasonMedia(result.value.toLong()).media.toMessage(subject) + message.quote()
     }.onFailure {
-        logger.warning({ "构建Room(${result.value})信息失败" }, it)
+        logger.warning({ "构建Media(${result.value})信息失败" }, it)
     }.getOrElse {
         it.message
     }
@@ -144,7 +158,7 @@ private fun noRedirect() = HttpClient {
     expectSuccess = false
 }
 
-private suspend fun Url.getLocation() = noRedirect().use { it.head<HttpMessage>(this).headers[HttpHeaders.Location] }
+private suspend fun Url.getLocation() = noRedirect().use { it.head<HttpMessage>(this) }.headers[HttpHeaders.Location]
 
 internal val Repliers by lazy {
     mapOf(

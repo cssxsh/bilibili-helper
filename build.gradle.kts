@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "xyz.cssxsh.mirai.plugin"
-version = "0.1.0-dev-4"
+version = "0.1.0-dev-5"
 
 repositories {
     // mavenLocal()
@@ -44,7 +44,7 @@ dependencies {
     implementation(selenium("java", Versions.selenium)) {
         exclude("io.netty")
     }
-    implementation(project(":tools"))
+    // implementation(project(":tools"))
 
     testImplementation(junit("api", Versions.junit))
     testRuntimeOnly(junit("engine", Versions.junit))

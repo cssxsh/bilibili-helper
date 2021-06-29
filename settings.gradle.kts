@@ -18,5 +18,3 @@ pluginManagement {
     }
 }
 rootProject.name = "bilibili-helper"
-
-include("tools")

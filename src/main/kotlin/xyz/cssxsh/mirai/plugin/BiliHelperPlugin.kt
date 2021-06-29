@@ -42,6 +42,7 @@ object BiliHelperPlugin : KotlinPlugin(
         BiliVideoCommand.register()
         BiliLiveCommand.register()
         BiliSeasonCommand.register()
+        BiliSearchCommand.register()
 
         if (selenium) {
             driver = RemoteWebDriver()
@@ -56,6 +57,7 @@ object BiliHelperPlugin : KotlinPlugin(
         BiliVideoCommand.unregister()
         BiliLiveCommand.unregister()
         BiliSeasonCommand.unregister()
+        BiliSearchCommand.unregister()
 
         BiliListener.stop()
 

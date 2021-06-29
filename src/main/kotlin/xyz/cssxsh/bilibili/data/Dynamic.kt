@@ -106,8 +106,8 @@ data class DynamicDescribe(
 //    private val ridString: String? = null,
 //    @SerialName("r_type")
 //    private val rType: Int? = null,
-    @SerialName("status")
-    val status: Int? = null, // XXX
+//    @SerialName("status")
+//    val status: Int? = null,
 //    @SerialName("stype")
 //    private val statusType: Int? = null,
     @SerialName("timestamp")
@@ -215,14 +215,14 @@ data class DynamicEpisode(
 @Serializable
 data class SeasonInfo(
 //    @SerialName("bgm_type")
-//    val type: Int, // XXX
+//    val type: Int,
     @SerialName("cover")
     override val cover: String,
     @SerialName("is_finish")
     @Serializable(NumberToBooleanSerializer::class)
     val isFinish: Boolean,
     @SerialName("season_id")
-    override val seasonId: Int,
+    override val seasonId: Long,
     @SerialName("title")
     override val title: String,
     @SerialName("total_count")
@@ -276,8 +276,8 @@ data class DynamicLive(
     override val cover: String,
     @SerialName("face")
     val face: String,
-    @SerialName("first_live_time")
-    val firstLiveTime: String, // XXX
+//    @SerialName("first_live_time")
+//    val firstLiveTime: String,
     @SerialName("hidden_status")
     val hiddenStatus: String,
     @SerialName("link")
@@ -285,8 +285,8 @@ data class DynamicLive(
     @SerialName("live_status")
     @Serializable(NumberToBooleanSerializer::class)
     override val liveStatus: Boolean,
-    @SerialName("live_time")
-    val liveTime: String, // XXX
+//    @SerialName("live_time")
+//    val liveTime: String,
     @SerialName("lock_status")
     val lockStatus: String,
     @SerialName("on_flag")
@@ -320,8 +320,8 @@ data class DynamicLive(
     val userCover: String,
     @SerialName("verify")
     val verify: String,
-    @SerialName("virtual")
-    val virtual: Int // XXX
+//    @SerialName("virtual")
+//    val virtual: Int
 ) : Live
 
 @Serializable
@@ -566,20 +566,26 @@ data class DynamicVideo(
 //    @SerialName("state")
 //    private val state: Int,
     @SerialName("stat")
-    val status: VideoStatus,
+    override val status: VideoStatus,
     @SerialName("tid")
-    val tid: Long,
+    val tid: Int,
     @SerialName("title")
     override val title: String,
     @SerialName("tname")
     val type: String,
     @SerialName("videos")
-    val videos: Int
+    val videos: Int,
+    @SerialName("season_id")
+    override val seasonId: Long? = null
 ) : Video {
     override val author: String by owner::name
     override val mid: Long by owner::mid
     override val length: String by lazy {
         Duration.ofSeconds(duration.toLong()).run { "%02d:%02d".format(toMinutes(), toSecondsPart()) }
     }
-    override val bvid: String get() = "av${aid}" // XXX
+
+    /**
+     * AV ID
+     */
+    override val id: String get() = "av${aid}"
 }

@@ -2,6 +2,7 @@ package xyz.cssxsh.mirai.plugin.data
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import xyz.cssxsh.mirai.plugin.OffsetDateTimeSerializer
 import java.time.OffsetDateTime
 
 @Serializable

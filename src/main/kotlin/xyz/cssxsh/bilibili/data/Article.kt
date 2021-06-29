@@ -78,8 +78,8 @@ data class ArticleSimple(
     override val images: List<String>,
     @SerialName("publish_time")
     override val published: Long,
-    @SerialName("state")
-    val state: Int,
+//    @SerialName("state")
+//    val state: Int,
     @SerialName("summary")
     override val summary: String,
     @SerialName("title")

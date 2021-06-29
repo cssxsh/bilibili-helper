@@ -13,9 +13,27 @@ interface Episode {
 
 interface Season {
     val cover: String
-    val seasonId: Int
+    val seasonId: Long
     val title: String
     val type: String
+}
+
+interface Media : Season {
+    val mediaId: Long
+    val share: String
+    val new: NewEpisode?
+    val rating: Rating?
+}
+
+interface Rating {
+    val count: Long
+    val score: Double
+}
+
+interface NewEpisode {
+    val id: Long
+    val index: String
+    val show: String
 }
 
 @Serializable
@@ -33,38 +51,38 @@ data class SeasonMedia(
     @SerialName("cover")
     override val cover: String,
     @SerialName("media_id")
-    val mediaId: Int,
+    override val mediaId: Long,
     @SerialName("new_ep")
-    val new: SeasonNewEpisode,
+    override val new: MediaNewEpisode,
     @SerialName("rating")
-    val rating: SeasonRating? = null,
+    override val rating: SeasonRating? = null,
     @SerialName("season_id")
-    override val seasonId: Int,
+    override val seasonId: Long,
     @SerialName("share_url")
-    val share: String,
+    override val share: String,
     @SerialName("title")
     override val title: String,
     @SerialName("type_name")
     override val type: String
-) : Season
+) : Media
 
 @Serializable
-data class SeasonNewEpisode(
+data class MediaNewEpisode(
     @SerialName("id")
-    val id: Int,
+    override val id: Long,
     @SerialName("index")
-    val index: String,
+    override val index: String,
     @SerialName("index_show")
-    val show: String
-)
+    override val show: String
+): NewEpisode
 
 @Serializable
 data class SeasonRating(
     @SerialName("count")
-    val count: Int,
+    override val count: Long,
     @SerialName("score")
-    val score: Double
-)
+    override val score: Double
+): Rating
 
 @Serializable
 data class BiliSeasonSection(
@@ -79,7 +97,7 @@ data class SeasonSection(
     @SerialName("episodes")
     val episodes: List<SeasonEpisode>,
     @SerialName("id")
-    val id: Int,
+    val id: Long,
     @SerialName("title")
     val title: String,
     @SerialName("type")
@@ -97,7 +115,7 @@ data class SeasonEpisode(
 //    @SerialName("badge_type")
 //    val badgeType: Int,
     @SerialName("cid")
-    val cid: Int,
+    val cid: Long,
     @SerialName("cover")
     override val cover: String,
     @SerialName("from")
@@ -105,17 +123,18 @@ data class SeasonEpisode(
     @SerialName("id")
     override val episodeId: Long,
     @SerialName("is_premiere")
-    val isPremiere: Int,
+    @Serializable(NumberToBooleanSerializer::class)
+    val isPremiere: Boolean = false,
     @SerialName("long_title")
     override val title: String,
     @SerialName("share_url")
     override val share: String,
-    @SerialName("status")
-    val status: Int,// XXX
+//    @SerialName("status")
+//    val status: Int,
     @SerialName("title")
     override val index: String,
-    @SerialName("vid")
-    val vid: String
+//    @SerialName("vid")
+//    val vid: String,
 ) : Episode
 
 @Serializable
@@ -139,7 +158,8 @@ data class SeasonTimeline(
     @SerialName("favorites")
     val favorites: Int,
     @SerialName("is_finish")
-    val isFinish: Int,
+    @Serializable(NumberToBooleanSerializer::class)
+    val isFinish: Boolean,
     @SerialName("lastupdate")
     val last: Long,
 //    @SerialName("lastupdate_at")
@@ -151,7 +171,7 @@ data class SeasonTimeline(
 //    @SerialName("pub_time")
 //    val pubTime: String,
     @SerialName("season_id")
-    val seasonId: Int,
+    override val seasonId: Long,
     @SerialName("season_status")
     val seasonStatus: Int,
 //    @SerialName("spid")
@@ -160,10 +180,106 @@ data class SeasonTimeline(
     val squareCover: String,
     @SerialName("title")
     override val title: String,
+    @SerialName("type")
+    override val type: String = "番剧",
     @SerialName("viewRank")
     val viewRank: Int,
     @SerialName("weekday")
-    val weekday: Int
-) : Episode {
+    val weekday: Int,
+) : Season, Episode {
     override val share: String get() = "https://www.bilibili.com/bangumi/play/ep${episodeId}"
 }
+
+@Serializable
+data class BiliSeasonInfo(
+//    @SerialName("activity")
+//    val activity: Activity,
+//    @SerialName("alias")
+//    val alias: String,
+//    @SerialName("bkg_cover")
+//    val bkgCover: String,
+    @SerialName("cover")
+    override val cover: String,
+    @SerialName("episodes")
+    val episodes: List<SeasonEpisode>,
+    @SerialName("evaluate")
+    val evaluate: String,
+//    @SerialName("freya")
+//    val freya: Freya,
+//    @SerialName("jp_title")
+//    val jpTitle: String,
+    @SerialName("link")
+    val link: String,
+    @SerialName("media_id")
+    override val mediaId: Long,
+//    @SerialName("mode")
+//    val mode: Int,
+    @SerialName("new_ep")
+    override val new: SeasonNewEpisode,
+//    @SerialName("payment")
+//    val payment: Payment,
+//    @SerialName("positive")
+//    val positive: Positive,
+//    @SerialName("publish")
+//    val publish: Publish,
+    @SerialName("rating")
+    override val rating: SeasonRating? = null,
+//    @SerialName("record")
+//    val record: String,
+//    @SerialName("rights")
+//    val rights: Rights,
+    @SerialName("season_id")
+    override val seasonId: Long,
+//    @SerialName("season_title")
+//    val seasonTitle: String,
+//    @SerialName("seasons")
+//    val seasons: List<Season>,
+//    @SerialName("section")
+//    val section: List<Section>,
+//    @SerialName("series")
+//    val series: Series,
+//    @SerialName("share_copy")
+//    val shareCopy: String,
+//    @SerialName("share_sub_title")
+//    val shareSubTitle: String,
+    @SerialName("share_url")
+    override val share: String,
+//    @SerialName("show")
+//    val show: Show,
+//    @SerialName("square_cover")
+//    val squareCover: String,
+//    @SerialName("stat")
+//    val stat: Stat,
+//    @SerialName("status")
+//    val status: Int,
+    @SerialName("subtitle")
+    val subtitle: String,
+    @SerialName("title")
+    override val title: String,
+    @SerialName("total")
+    val total: Long,
+    @SerialName("up_info")
+    val upper: UpperSimple
+) : Media {
+    override val type: String get() = episodes.first().from.uppercase()
+}
+
+@Serializable
+data class UpperSimple(
+    @SerialName("avatar")
+    val avatar: String,
+    @SerialName("mid")
+    val mid: Long,
+    @SerialName("uname")
+    val uname: String = ""
+)
+
+@Serializable
+data class SeasonNewEpisode(
+    @SerialName("id")
+    override val id: Long,
+    @SerialName("title")
+    override val index: String,
+    @SerialName("desc")
+    override val show: String
+): NewEpisode

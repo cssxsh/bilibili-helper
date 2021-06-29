@@ -5,7 +5,6 @@ import kotlinx.coroutines.cancelChildren
 import net.mamoe.mirai.console.util.CoroutineScopeUtils.childScope
 import net.mamoe.mirai.event.globalEventChannel
 import net.mamoe.mirai.event.subscribeMessages
-import xyz.cssxsh.bilibili.SHORT_LINK_REGEX
 
 internal object BiliListener: CoroutineScope by BiliHelperPlugin.childScope("BiliListener") {
 
