@@ -8,7 +8,7 @@ data class BiliUserInfo(
     @SerialName("birthday")
     val birthday: String,
     @SerialName("coins")
-    val coins: Int,
+    val coins: Long,
     @SerialName("face")
     val face: String,
     @SerialName("fans_badge")
