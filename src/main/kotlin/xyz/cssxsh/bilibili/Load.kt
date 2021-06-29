@@ -9,6 +9,15 @@ import kotlin.properties.ReadOnlyProperty
 
 internal fun timestamp(sec: Long) = OffsetDateTime.ofInstant(Instant.ofEpochSecond(sec), ZoneOffset.systemDefault())
 
+val BiliUserInfo.content by ReadOnlyProperty { info, _ ->
+    buildString {
+        appendLine("名称: ${info.name}")
+        appendLine("等级: ${info.level}")
+        appendLine("性别: ${info.sex}")
+        appendLine("直播: ${info.liveRoom.link}")
+    }
+}
+
 val Article.link get() = "https://www.bilibili.com/read/cv$id"
 val Article.datetime: OffsetDateTime get() = timestamp(published)
 val Article.content by ReadOnlyProperty { info, _ ->

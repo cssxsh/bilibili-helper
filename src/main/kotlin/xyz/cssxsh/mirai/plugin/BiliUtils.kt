@@ -29,7 +29,8 @@ enum class CacheType {
     DYNAMIC,
     VIDEO,
     LIVE,
-    SEASON;
+    SEASON,
+    USER;
 }
 
 private val Url.filename get() = encodedPath.substringAfterLast("/")
@@ -71,6 +72,15 @@ internal suspend fun DynamicInfo.getScreenshot(contact: Contact, refresh: Boolea
     }
 }
 
+internal suspend fun BiliUserInfo.getFace(contact: Contact): Message {
+    return Url(face).runCatching {
+        getWebImage(url = this, path = "${CacheType.USER}/${mid}/face-${filename}").uploadAsImage(contact)
+    }.getOrElse {
+        logger.warning({ "获取[${mid}]头像失败" }, it)
+        "获取[${mid}]头像失败".toPlainText()
+    }
+}
+
 internal suspend fun DynamicInfo.getImageFiles(contact: Contact) = images.mapIndexed { index, picture ->
     Url(picture).runCatching {
         getWebImage(
@@ -87,19 +97,19 @@ internal suspend fun Live.getCover(contact: Contact): Message {
     return Url(cover).runCatching {
         getWebImage(url = this, path = "${CacheType.LIVE}/${roomId}/cover-${filename}").uploadAsImage(contact)
     }.getOrElse {
-        logger.warning({ "获取[${roomId}]直播间封面封面失败" }, it)
+        logger.warning({ "获取[${roomId}]直播间封面失败" }, it)
         "获取[${roomId}]直播间封面失败".toPlainText()
     }
 }
 
 internal suspend fun Video.getCover(contact: Contact): Message {
     return Url(cover).runCatching {
-        getWebImage(url = this, path = "${CacheType.VIDEO}/${mid}/${bvid}-cover-${filename}").uploadAsImage(
+        getWebImage(url = this, path = "${CacheType.VIDEO}/${mid}/${id}-cover-${filename}").uploadAsImage(
             contact
         )
     }.getOrElse {
-        logger.warning({ "获取[${title}](${bvid})}视频封面失败" }, it)
-        "获取[${title}](${bvid})}视频封面失败".toPlainText()
+        logger.warning({ "获取[${title}](${id})}视频封面失败" }, it)
+        "获取[${title}](${id})}视频封面失败".toPlainText()
     }
 }
 

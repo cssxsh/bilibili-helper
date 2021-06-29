@@ -19,6 +19,8 @@ import xyz.cssxsh.mirai.plugin.command.BiliInfoCommand
 
 private val permission by BiliInfoCommand::permission
 
+internal suspend fun BiliUserInfo.toMessage(contact: Contact) = content.toPlainText() + getFace(contact)
+
 internal suspend fun Video.toMessage(contact: Contact) = content.toPlainText() + getCover(contact)
 
 internal suspend fun Live.toMessage(contact: Contact) = content.toPlainText() + getCover(contact)
@@ -108,9 +110,14 @@ internal val RoomReplier: MessageReplier = replier@{ result ->
 
 internal val SpaceReplier: MessageReplier = replier@{ result ->
     logger.info { "[${sender}] 匹配User(${result.value})" }
-    null
-    // if (permission.testPermission(sender.permitteeId).not()) return@replier null
-    // TODO
+    if (permission.testPermission(sender.permitteeId).not()) return@replier null
+    runCatching {
+        client.getUserInfo(result.value.toLong()).toMessage(subject) + message.quote()
+    }.onFailure {
+        logger.warning({ "构建User(${result.value})信息失败" }, it)
+    }.getOrElse {
+        it.message
+    }
 }
 
 internal val SeasonReplier: MessageReplier = replier@{ result ->
