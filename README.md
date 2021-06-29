@@ -54,8 +54,8 @@
 | `/<bili-season B剧集> <stop 停止> [sid] [contact]?` | 停止一个b站剧集频订阅    |
 | `/<bili-season B剧集> <list 列表> [contact]?`       | 列出当前联系人的剧集订阅 |
 
-剧集订阅需要 Season ID 例如 `https://www.bilibili.com/bangumi/play/ss38353` 的 38353
-可以通过 搜索指令 搜索番剧 获得链接 since 0.1.0-dev-5
+剧集订阅需要 Season ID 例如 `https://www.bilibili.com/bangumi/play/ss38353` 的 38353  
+可以通过 搜索指令 搜索番剧 获得链接 since 0.1.0-dev-5  
 目前剧集订阅出于实验性阶段
 
 ### 信息解析指令
@@ -67,8 +67,8 @@
 | `/<bili-info B信息> <dynamic> [id] [contact]?` | 根据 id 获取动态信息   |
 | `/<bili-info B信息> <live> [id] [contact]?`    | 根据 id 获取直播信息   |
 
-消息中包含 `BV12v411G7dP` `av2` 等等 id 信息时会自动触发解析
-目前会触发的正则表达式
+消息中包含 `BV12v411G7dP` `av2` 等等 id 信息时会自动触发解析  
+目前会触发的正则表达式  
 ```
 val VIDEO_REGEX = """((video/|av|AV)\d+|(bv|BV)[0-9A-z]{10})""".toRegex()
 val DYNAMIC_REGEX = """(?<=t\.bilibili\.com/(h5/dynamic/detail/)?)([0-9]{18})""".toRegex()
@@ -80,13 +80,13 @@ val EPISODE_REGEX = """(?<=bilibili\.com/bangumi/play/ep)(\d+)""".toRegex()
 val MEDIA_REGEX = """(?<=bilibili\.com/bangumi/media/md)(\d+)""".toRegex()
 ```
 
-### 搜索指令
+### 搜索指令 since 0.1.0-dev-5
 
-| 指令                                                  | 描述     |
-|:------------------------------------------------------|:---------|
-| `/<bili-search B搜索> <user 用户> [id]`    | 搜索用户 |
-| `/<bili-search B搜索> <bangumi 番剧> [id]` | 搜索番剧 |
-| `/<bili-search B搜索> <ft 影视> [id]`      | 搜索影视 |
+| 指令                                            | 描述     |
+|:------------------------------------------------|:---------|
+| `/<bili-search B搜索> <user 用户> [keyword]`    | 搜索用户 |
+| `/<bili-search B搜索> <bangumi 番剧> [keyword]` | 搜索番剧 |
+| `/<bili-search B搜索> <ft 影视> [keyword]`      | 搜索影视 |
 
 ## 设置
 
@@ -105,5 +105,5 @@ val MEDIA_REGEX = """(?<=bilibili\.com/bangumi/media/md)(\d+)""".toRegex()
 
 ## TODO
 
-- [ ] 完善聚集订阅
+- [x] 完善剧集订阅
 - [ ] 自动清理图片缓存
