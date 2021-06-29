@@ -222,7 +222,7 @@ data class SeasonInfo(
     @Serializable(NumberToBooleanSerializer::class)
     val isFinish: Boolean,
     @SerialName("season_id")
-    override val seasonId: Int,
+    override val seasonId: Long,
     @SerialName("title")
     override val title: String,
     @SerialName("total_count")
@@ -320,8 +320,8 @@ data class DynamicLive(
     val userCover: String,
     @SerialName("verify")
     val verify: String,
-    @SerialName("virtual")
-    val virtual: Int // XXX
+//    @SerialName("virtual")
+//    val virtual: Int
 ) : Live
 
 @Serializable
@@ -566,20 +566,26 @@ data class DynamicVideo(
 //    @SerialName("state")
 //    private val state: Int,
     @SerialName("stat")
-    val status: VideoStatus,
+    override val status: VideoStatus,
     @SerialName("tid")
-    val tid: Long,
+    val tid: Int,
     @SerialName("title")
     override val title: String,
     @SerialName("tname")
     val type: String,
     @SerialName("videos")
-    val videos: Int
+    val videos: Int,
+    @SerialName("season_id")
+    override val seasonId: Long? = null
 ) : Video {
     override val author: String by owner::name
     override val mid: Long by owner::mid
     override val length: String by lazy {
         Duration.ofSeconds(duration.toLong()).run { "%02d:%02d".format(toMinutes(), toSecondsPart()) }
     }
-    override val bvid: String get() = "av${aid}" // XXX
+
+    /**
+     * AV ID
+     */
+    override val id: String get() = "av${aid}"
 }

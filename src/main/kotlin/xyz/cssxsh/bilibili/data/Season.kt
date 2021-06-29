@@ -13,7 +13,7 @@ interface Episode {
 
 interface Season {
     val cover: String
-    val seasonId: Int
+    val seasonId: Long
     val title: String
     val type: String
 }
@@ -39,7 +39,7 @@ data class SeasonMedia(
     @SerialName("rating")
     val rating: SeasonRating? = null,
     @SerialName("season_id")
-    override val seasonId: Int,
+    override val seasonId: Long,
     @SerialName("share_url")
     val share: String,
     @SerialName("title")
@@ -110,8 +110,8 @@ data class SeasonEpisode(
     override val title: String,
     @SerialName("share_url")
     override val share: String,
-    @SerialName("status")
-    val status: Int,// XXX
+//    @SerialName("status")
+//    val status: Int,
     @SerialName("title")
     override val index: String,
     @SerialName("vid")

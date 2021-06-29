@@ -108,7 +108,7 @@ val Season.content by ReadOnlyProperty { info, _ ->
 }
 val SeasonTimeline.link get() = "https://www.bilibili.com/bangumi/play/ss${seasonId}"
 
-val Video.link get() = "https://www.bilibili.com/video/${bvid}"
+val Video.link get() = "https://www.bilibili.com/video/${id}"
 val Video.datetime: OffsetDateTime get() = timestamp(created)
 val Video.content by ReadOnlyProperty { info, _ ->
     buildString {
@@ -117,6 +117,20 @@ val Video.content by ReadOnlyProperty { info, _ ->
         appendLine("时间: ${info.datetime}")
         appendLine("时长: ${info.length}")
         appendLine("链接: ${info.link}")
+        if (info.seasonId != null) appendLine("剧集: ${info.seasonId}")
+        info.status?.let { status ->
+            appendLine("硬币: ${status.coin}")
+            appendLine("弹幕: ${status.danmaku}")
+            appendLine("收藏: ${status.favorite}")
+            appendLine("点赞: ${status.like}")
+            appendLine("点踩: ${status.dislike}")
+            appendLine("评论: ${status.reply}")
+            appendLine("分享: ${status.share}")
+            appendLine("观看: ${status.view}")
+            if (status.hisRank) appendLine("排行: ${status.nowRank}")
+        }
+        appendLine("简介: ")
+        appendLine(info.description)
     }
 }
 
