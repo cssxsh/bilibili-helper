@@ -27,7 +27,6 @@ interface BiliTasker {
 
     suspend fun stop()
 
-
     companion object: CoroutineScope by BiliHelperPlugin.childScope() {
         private val all by lazy {
             (Loader::class.sealedSubclasses + Waiter::class.sealedSubclasses).mapNotNull { it.objectInstance }

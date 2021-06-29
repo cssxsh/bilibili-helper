@@ -44,7 +44,7 @@ dependencies {
     implementation(selenium("java", Versions.selenium)) {
         exclude("io.netty")
     }
-    implementation(project(":tools"))
+    // implementation(project(":tools"))
 
     testImplementation(junit("api", Versions.junit))
     testRuntimeOnly(junit("engine", Versions.junit))
