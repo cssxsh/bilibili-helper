@@ -2,7 +2,6 @@ package xyz.cssxsh.bilibili.data
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JsonObject
 
 enum class SearchType {
     /**
@@ -141,8 +140,8 @@ data class SearchSeason(
 //    val badges: List<SearchSeason.Badge>,
 //    @SerialName("button_text")
 //    val buttonText: String,
-    @SerialName("corner")
-    val corner: Int,
+//    @SerialName("corner")
+//    val corner: Int,
     @SerialName("cover")
     override val cover: String,
     @SerialName("cv")
@@ -153,8 +152,8 @@ data class SearchSeason(
 //    val displayInfo: List<SearchSeason.DisplayInfo>,
     @SerialName("ep_size")
     val size: Int,
-//    @SerialName("eps")
-//    val eps: List<JsonElement>,
+    @SerialName("eps")
+    val episodes: List<SearchSeasonEpisode>,
 //    @SerialName("fix_pubtime_str")
 //    val fixPubtimeStr: String,
 //    @SerialName("goto_url")
@@ -166,17 +165,19 @@ data class SearchSeason(
     @SerialName("is_avid")
     val isAvid: Boolean,
     @SerialName("is_follow")
-    val isFollow: Int,
+    @Serializable(NumberToBooleanSerializer::class)
+    val isFollow: Boolean,
     @SerialName("is_selection")
-    val isSelection: Int,
+    @Serializable(NumberToBooleanSerializer::class)
+    val isSelection: Boolean,
     @SerialName("media_id")
-    val mediaId: Int,
-    @SerialName("media_mode")
-    val mediaMode: Int,
+    override val mediaId: Long,
+//    @SerialName("media_mode")
+//    val mediaMode: Int,
     @SerialName("media_score")
-    val mediaScore: JsonObject? = null,
-    @SerialName("media_type")
-    val mediaType: Int,
+    override val rating: SearchSeasonRating? = null,
+//    @SerialName("media_type")
+//    val mediaType: Int,
 //    @SerialName("org_title")
 //    val orgTitle: String,
 //    @SerialName("pgc_season_id")
@@ -200,5 +201,47 @@ data class SearchSeason(
 //    @SerialName("type")
 //    override val type: String,
     @SerialName("url")
-    val url: String
-) : Season
+    override val share: String,
+    override val new: NewEpisode
+) : Media
+
+@Serializable
+data class SearchSeasonRating(
+    @SerialName("user_count")
+    override val count: Long,
+    @SerialName("score")
+    override val score: Double
+): Rating
+
+@Serializable
+data class SearchSeasonEpisode(
+    @SerialName("aid")
+    val aid: Long,
+    @SerialName("badge")
+    val badge: String,
+//    @SerialName("badge_info")
+//    val badgeInfo: BadgeInfo,
+//    @SerialName("badge_type")
+//    val badgeType: Int,
+    @SerialName("cid")
+    val cid: Long,
+    @SerialName("cover")
+    override val cover: String,
+    @SerialName("from")
+    val from: String,
+    @SerialName("id")
+    override val episodeId: Long,
+    @SerialName("is_premiere")
+    @Serializable(NumberToBooleanSerializer::class)
+    val isPremiere: Boolean = false,
+    @SerialName("long_title")
+    override val title: String,
+    @SerialName("share_url")
+    override val share: String,
+//    @SerialName("status")
+//    val status: Int,
+    @SerialName("title")
+    override val index: String,
+//    @SerialName("vid")
+//    val vid: String,
+) : Episode

@@ -91,31 +91,17 @@ val BiliRoomInfo.datetime: OffsetDateTime get() = timestamp(liveTime)
 val LiveRecord.link get() = "https://live.bilibili.com/record/${roomId}"
 
 val Season.link get() = "https://www.bilibili.com/bangumi/play/ss${seasonId}"
-val SeasonMedia.content by ReadOnlyProperty { info, _ ->
+val Media.content by ReadOnlyProperty { info, _ ->
     buildString {
         appendLine("${info.type}: ${info.title}")
-        appendLine("评分: ${info.rating?.score ?: "暂无评分"}")
-        appendLine("人数: ${info.rating?.score ?: "人数过少"}")
+        appendLine("评分: ${info.rating?.let { "${it.score}/${it.count}" } ?: "暂无评分"}")
         appendLine("详情: ${info.share}")
-        appendLine("最新: ${info.new.show}")
+        info.new?.let {
+            appendLine("最新: ${it.show}")
+        }
         appendLine("链接: ${info.link}")
     }
 }
-val SearchSeason.content by ReadOnlyProperty { info, _ ->
-    buildString {
-        appendLine("${info.type}: ${info.title.substringAfter(">").substringBeforeLast("<")}")
-        appendLine("评分: ${info.mediaScore ?: "暂无评分"}")
-        appendLine("类型: ${info.styles}")
-        appendLine("链接: ${info.link}")
-    }
-}
-val Episode.content by ReadOnlyProperty { info, _ ->
-    buildString {
-        appendLine("更新: ${info.index} - ${info.title}")
-        appendLine("链接: ${info.share}")
-    }
-}
-val SeasonTimeline.link get() = "https://www.bilibili.com/bangumi/play/ss${seasonId}"
 
 val Video.link get() = "https://www.bilibili.com/video/${id}"
 val Video.datetime: OffsetDateTime get() = timestamp(created)
@@ -132,7 +118,6 @@ val Video.content by ReadOnlyProperty { info, _ ->
             appendLine("弹幕: ${status.danmaku}")
             appendLine("收藏: ${status.favorite}")
             appendLine("点赞: ${status.like}")
-            appendLine("点踩: ${status.dislike}")
             appendLine("评论: ${status.reply}")
             appendLine("分享: ${status.share}")
             appendLine("观看: ${status.view}")

@@ -181,10 +181,10 @@ data class VideoSubtitleAuthor(
 
 @Serializable
 data class VideoStatus(
-    @SerialName("aid")
-    val aid: Long,
-    @SerialName("argue_msg")
-    val argue: String = "",
+//    @SerialName("aid")
+//    val aid: Long,
+//    @SerialName("argue_msg")
+//    val argue: String = "",
     @SerialName("coin")
     val coin: Long,
     @SerialName("danmaku")
@@ -192,8 +192,8 @@ data class VideoStatus(
     @SerialName("dislike")
     @Serializable(NumberToBooleanSerializer::class)
     val dislike: Boolean,
-    @SerialName("evaluation")
-    val evaluation: String = "",
+//    @SerialName("evaluation")
+//    val evaluation: String = "",
     @SerialName("favorite")
     val favorite: Long,
     @SerialName("his_rank")

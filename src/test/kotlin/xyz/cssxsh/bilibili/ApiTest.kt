@@ -54,6 +54,12 @@ internal class ApiTest {
         withLog(client.getSeasonMedia(28233903).media) { info ->
             appendLine(info.content)
         }
+        withLog(client.getSeasonInfo(38234)) { info ->
+            appendLine(info.content)
+        }
+        withLog(client.getEpisodeInfo(395240)) { info ->
+            appendLine(info.content)
+        }
         withLog(client.getSeasonSection(38221)) { info ->
             appendLine(info.mainSection.episodes.last())
         }

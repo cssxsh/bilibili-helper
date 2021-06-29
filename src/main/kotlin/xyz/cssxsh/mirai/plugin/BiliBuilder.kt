@@ -61,11 +61,7 @@ internal suspend fun BiliRoomInfo.toMessage(contact: Contact) = buildMessageChai
     }
 }
 
-internal suspend fun SeasonMedia.toMessage(contact: Contact) = content.toPlainText() + getCover(contact)
-
-internal suspend fun SearchSeason.toMessage(contact: Contact) = content.toPlainText() + getCover(contact)
-
-internal suspend fun Episode.toMessage(contact: Contact) = content.toPlainText() + getCover(contact)
+internal suspend fun Media.toMessage(contact: Contact) = content.toPlainText() + getCover(contact)
 
 typealias MessageReplier = suspend MessageEvent.(MatchResult) -> Any?
 
@@ -123,11 +119,11 @@ internal val SpaceReplier: MessageReplier = replier@{ result ->
 
 internal val SeasonReplier: MessageReplier = replier@{ result ->
     logger.info { "[${sender}] 匹配Season(${result.value})" }
-    // if (permission.testPermission(sender.permitteeId).not()) return@replier null
+    if (permission.testPermission(sender.permitteeId).not()) return@replier null
     runCatching {
-        client.getSeasonSection(result.value.toLong()).mainSection.episodes.first().toMessage(subject) + message.quote()
+        client.getSeasonInfo(result.value.toLong()).toMessage(subject) + message.quote()
     }.onFailure {
-        logger.warning({ "构建Room(${result.value})信息失败" }, it)
+        logger.warning({ "构建Season(${result.value})信息失败" }, it)
     }.getOrElse {
         it.message
     }
@@ -135,9 +131,14 @@ internal val SeasonReplier: MessageReplier = replier@{ result ->
 
 internal val EpisodeReplier: MessageReplier = replier@{ result ->
     logger.info { "[${sender}] 匹配Episode(${result.value})" }
-    null
-    // if (permission.testPermission(sender.permitteeId).not()) return@replier null
-    // TODO
+    if (permission.testPermission(sender.permitteeId).not()) return@replier null
+    runCatching {
+        client.getEpisodeInfo(result.value.toLong()).toMessage(subject) + message.quote()
+    }.onFailure {
+        logger.warning({ "构建Episode(${result.value})信息失败" }, it)
+    }.getOrElse {
+        it.message
+    }
 }
 
 internal val MediaReplier: MessageReplier = replier@{ result ->
@@ -146,7 +147,7 @@ internal val MediaReplier: MessageReplier = replier@{ result ->
     runCatching {
         client.getSeasonMedia(result.value.toLong()).media.toMessage(subject) + message.quote()
     }.onFailure {
-        logger.warning({ "构建Room(${result.value})信息失败" }, it)
+        logger.warning({ "构建Media(${result.value})信息失败" }, it)
     }.getOrElse {
         it.message
     }

@@ -34,6 +34,7 @@ const val MUSIC_INFO = "https://www.bilibili.com/audio/music-service-c/web/song/
 
 // Media
 const val SEASON_MEDIA_INFO = "https://api.bilibili.com/pgc/review/user"
+const val SEASON_INFO = "https://api.bilibili.com/pgc/view/web/season"
 const val SEASON_RECOMMEND = "https://api.bilibili.com/pgc/season/web/related/recommend?season_id=38234"
 const val SEASON_SECTION = "https://api.bilibili.com/pgc/web/season/section"
 const val SEASON_EPISODE = "https://api.bilibili.com/pgc/view/web/section/order?ep_id=395214"
