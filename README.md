@@ -75,6 +75,8 @@ val DYNAMIC_REGEX = """(?<=t\.bilibili\.com/(h5/dynamic/detail/)?)([0-9]{18})"""
 val ROOM_REGEX = """(?<=live\.bilibili\.com/)(\d+)""".toRegex()
 val SHORT_LINK_REGEX = """(?<=b23\.tv\\?/)[0-9A-z]+""".toRegex()
 val SPACE_REGEX = """(?<=space\.bilibili\.com/)(\d+)""".toRegex()
+val SEASON_REGEX = """(?<=bilibili\.com/bangumi/play/ss)(\d+)""".toRegex()
+val EPISODE_REGEX = """(?<=bilibili\.com/bangumi/play/ep)(\d+)""".toRegex()
 val MEDIA_REGEX = """(?<=bilibili\.com/bangumi/media/md)(\d+)""".toRegex()
 ```
 
