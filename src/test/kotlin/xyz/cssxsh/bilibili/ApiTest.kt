@@ -55,11 +55,11 @@ internal class ApiTest {
             appendLine(info.content)
         }
         withLog(client.getSeasonSection(38221)) { info ->
-            appendLine(info.mainSection.episodes.last().content)
+            appendLine(info.mainSection.episodes.last())
         }
         withLog(client.getSeasonTimeline()) { list ->
             list.forEach {
-                appendLine(it.content)
+                appendLine(it)
             }
         }
     }
@@ -71,7 +71,7 @@ internal class ApiTest {
 
     @Test
     fun video(): Unit = runBlocking {
-        withLog(client.searchVideo(mid = 26798384L).list.videos) { list ->
+        withLog(client.getVideos(mid = 26798384L).list.videos) { list ->
             list.forEach {
                 appendLine(it.content)
                 appendLine(it.cover)
@@ -87,6 +87,25 @@ internal class ApiTest {
         withLog(client.getVideoInfo(bvid = "BV1ex411J7GE")) {
             appendLine(it.content)
             appendLine(it.cover)
+        }
+    }
+
+    @Test
+    fun search(): Unit = runBlocking {
+        withLog(client.searchUser(keyword = "sss").result) {
+            it.forEach { user ->
+                appendLine(user.content)
+            }
+        }
+        withLog(client.searchBangumi(keyword = "SSSS").result) {
+            it.forEach { season ->
+                appendLine(season.content)
+            }
+        }
+        withLog(client.searchFT(keyword = "非自然死亡").result) {
+            it.forEach { season ->
+                appendLine(season.content)
+            }
         }
     }
 }

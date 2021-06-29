@@ -19,7 +19,7 @@ import xyz.cssxsh.mirai.plugin.command.BiliInfoCommand
 
 private val permission by BiliInfoCommand::permission
 
-internal suspend fun BiliUserInfo.toMessage(contact: Contact) = content.toPlainText() + getFace(contact)
+internal suspend fun UserInfo.toMessage(contact: Contact) = content.toPlainText() + getFace(contact)
 
 internal suspend fun Video.toMessage(contact: Contact) = content.toPlainText() + getCover(contact)
 
@@ -61,7 +61,11 @@ internal suspend fun BiliRoomInfo.toMessage(contact: Contact) = buildMessageChai
     }
 }
 
-internal suspend fun Season.toMessage(contact: Contact) = content.toPlainText() + getCover(contact)
+internal suspend fun SeasonMedia.toMessage(contact: Contact) = content.toPlainText() + getCover(contact)
+
+internal suspend fun SearchSeason.toMessage(contact: Contact) = content.toPlainText() + getCover(contact)
+
+internal suspend fun Episode.toMessage(contact: Contact) = content.toPlainText() + getCover(contact)
 
 typealias MessageReplier = suspend MessageEvent.(MatchResult) -> Any?
 
@@ -119,9 +123,14 @@ internal val SpaceReplier: MessageReplier = replier@{ result ->
 
 internal val SeasonReplier: MessageReplier = replier@{ result ->
     logger.info { "[${sender}] 匹配Season(${result.value})" }
-    null
     // if (permission.testPermission(sender.permitteeId).not()) return@replier null
-    // TODO
+    runCatching {
+        client.getSeasonSection(result.value.toLong()).mainSection.episodes.first().toMessage(subject) + message.quote()
+    }.onFailure {
+        logger.warning({ "构建Room(${result.value})信息失败" }, it)
+    }.getOrElse {
+        it.message
+    }
 }
 
 internal val EpisodeReplier: MessageReplier = replier@{ result ->
@@ -148,7 +157,7 @@ private fun noRedirect() = HttpClient {
     expectSuccess = false
 }
 
-private suspend fun Url.getLocation() = noRedirect().use { it.head<HttpMessage>(this).headers[HttpHeaders.Location] }
+private suspend fun Url.getLocation() = noRedirect().use { it.head<HttpMessage>(this) }.headers[HttpHeaders.Location]
 
 internal val Repliers by lazy {
     mapOf(

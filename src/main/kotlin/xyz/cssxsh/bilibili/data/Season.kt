@@ -115,7 +115,7 @@ data class SeasonEpisode(
     @SerialName("title")
     override val index: String,
     @SerialName("vid")
-    val vid: String
+    val vid: String,
 ) : Episode
 
 @Serializable
@@ -151,7 +151,7 @@ data class SeasonTimeline(
 //    @SerialName("pub_time")
 //    val pubTime: String,
     @SerialName("season_id")
-    val seasonId: Int,
+    val seasonId: Long,
     @SerialName("season_status")
     val seasonStatus: Int,
 //    @SerialName("spid")

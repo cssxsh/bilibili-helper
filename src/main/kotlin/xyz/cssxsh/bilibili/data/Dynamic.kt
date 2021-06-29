@@ -106,8 +106,8 @@ data class DynamicDescribe(
 //    private val ridString: String? = null,
 //    @SerialName("r_type")
 //    private val rType: Int? = null,
-    @SerialName("status")
-    val status: Int? = null, // XXX
+//    @SerialName("status")
+//    val status: Int? = null,
 //    @SerialName("stype")
 //    private val statusType: Int? = null,
     @SerialName("timestamp")
@@ -215,7 +215,7 @@ data class DynamicEpisode(
 @Serializable
 data class SeasonInfo(
 //    @SerialName("bgm_type")
-//    val type: Int, // XXX
+//    val type: Int,
     @SerialName("cover")
     override val cover: String,
     @SerialName("is_finish")
@@ -276,8 +276,8 @@ data class DynamicLive(
     override val cover: String,
     @SerialName("face")
     val face: String,
-    @SerialName("first_live_time")
-    val firstLiveTime: String, // XXX
+//    @SerialName("first_live_time")
+//    val firstLiveTime: String,
     @SerialName("hidden_status")
     val hiddenStatus: String,
     @SerialName("link")
@@ -285,8 +285,8 @@ data class DynamicLive(
     @SerialName("live_status")
     @Serializable(NumberToBooleanSerializer::class)
     override val liveStatus: Boolean,
-    @SerialName("live_time")
-    val liveTime: String, // XXX
+//    @SerialName("live_time")
+//    val liveTime: String,
     @SerialName("lock_status")
     val lockStatus: String,
     @SerialName("on_flag")

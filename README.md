@@ -78,6 +78,14 @@ val SPACE_REGEX = """(?<=space\.bilibili\.com/)(\d+)""".toRegex()
 val MEDIA_REGEX = """(?<=bilibili\.com/bangumi/media/md)(\d+)""".toRegex()
 ```
 
+### 搜索指令
+
+| 指令                                                  | 描述     |
+|:------------------------------------------------------|:---------|
+| `/<bili-search B搜索> <user 用户> [id] [contact]?`    | 搜索用户 |
+| `/<bili-search B搜索> <bangumi 番剧> [id] [contact]?` | 搜索番剧 |
+| `/<bili-search B搜索> <ft 影视> [id] [contact]?`      | 搜索影视 |
+
 ## 设置
 
 位于`Mirai-Console`运行目录下的`config/bilibili-helper`文件夹下

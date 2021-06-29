@@ -41,6 +41,7 @@ enum class CacheType {
     VIDEO,
     LIVE,
     SEASON,
+    EPISODE,
     USER;
 }
 
@@ -121,7 +122,7 @@ internal suspend fun DynamicInfo.getScreenshot(contact: Contact, refresh: Boolea
     }
 }
 
-internal suspend fun BiliUserInfo.getFace(contact: Contact): Message {
+internal suspend fun UserInfo.getFace(contact: Contact): Message {
     return Url(face).runCatching {
         getWebImage(url = this, path = "${CacheType.USER}/${mid}/face-${filename}").uploadAsImage(contact)
     }.getOrElse {
@@ -170,6 +171,17 @@ internal suspend fun Season.getCover(contact: Contact): Message {
     }.getOrElse {
         logger.warning({ "获取[${title}](${seasonId})}剧集封面失败" }, it)
         "获取[${title}](${seasonId})}剧集封面失败".toPlainText()
+    }
+}
+
+internal suspend fun Episode.getCover(contact: Contact): Message {
+    return Url(cover).runCatching {
+        getWebImage(url = this, path = "${CacheType.EPISODE}/${episodeId}/cover-${filename}").uploadAsImage(
+            contact
+        )
+    }.getOrElse {
+        logger.warning({ "获取[${title}](${episodeId})}剧集封面失败" }, it)
+        "获取[${title}](${episodeId})}剧集封面失败".toPlainText()
     }
 }
 

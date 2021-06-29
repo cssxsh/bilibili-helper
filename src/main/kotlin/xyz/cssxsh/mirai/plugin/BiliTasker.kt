@@ -199,7 +199,7 @@ object BiliVideoLoader : Loader<Video>(), CoroutineScope by BiliHelperPlugin.chi
 
     override val slow = 10 * 60 * 1000L
 
-    override suspend fun load(id: Long) = client.searchVideo(id).list.videos
+    override suspend fun load(id: Long) = client.getVideos(id).list.videos
 
     override fun List<Video>.last(): OffsetDateTime = maxOfOrNull { it.datetime } ?: OffsetDateTime.now()
 

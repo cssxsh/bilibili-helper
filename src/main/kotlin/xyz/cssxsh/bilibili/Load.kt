@@ -9,12 +9,17 @@ import kotlin.properties.ReadOnlyProperty
 
 internal fun timestamp(sec: Long) = OffsetDateTime.ofInstant(Instant.ofEpochSecond(sec), ZoneOffset.systemDefault())
 
-val BiliUserInfo.content by ReadOnlyProperty { info, _ ->
+val UserInfo.content by ReadOnlyProperty { info, _ ->
     buildString {
         appendLine("名称: ${info.name}")
         appendLine("等级: ${info.level}")
-        appendLine("性别: ${info.sex}")
-        appendLine("直播: ${info.liveRoom.link}")
+        if (info.live.endsWith("/0").not()) {
+            appendLine("直播: ${info.live}")
+        }
+        if (info.sign.isNotBlank()) {
+            appendLine("简介: ")
+            appendLine(info.sign)
+        }
     }
 }
 
@@ -51,8 +56,9 @@ val DynamicReply.content by ReadOnlyProperty { info, _ ->
 }
 val DynamicEpisode.content by ReadOnlyProperty { info, _ ->
     buildString {
-        append(info.season.content)
-        append((info as Episode).content)
+        appendLine("${info.season.type}: ${info.season.title}")
+        appendLine("更新: ${info.index} - ${info.title}")
+        appendLine("链接: ${info.share}")
         append(info.description)
     }
 }
@@ -84,7 +90,7 @@ val Live.content by ReadOnlyProperty { info, _ ->
 val BiliRoomInfo.datetime: OffsetDateTime get() = timestamp(liveTime)
 val LiveRecord.link get() = "https://live.bilibili.com/record/${roomId}"
 
-val SeasonMedia.link get() = "https://www.bilibili.com/bangumi/play/ss${seasonId}"
+val Season.link get() = "https://www.bilibili.com/bangumi/play/ss${seasonId}"
 val SeasonMedia.content by ReadOnlyProperty { info, _ ->
     buildString {
         appendLine("${info.type}: ${info.title}")
@@ -95,15 +101,18 @@ val SeasonMedia.content by ReadOnlyProperty { info, _ ->
         appendLine("链接: ${info.link}")
     }
 }
+val SearchSeason.content by ReadOnlyProperty { info, _ ->
+    buildString {
+        appendLine("${info.type}: ${info.title.substringAfter(">").substringBeforeLast("<")}")
+        appendLine("评分: ${info.mediaScore ?: "暂无评分"}")
+        appendLine("类型: ${info.styles}")
+        appendLine("链接: ${info.link}")
+    }
+}
 val Episode.content by ReadOnlyProperty { info, _ ->
     buildString {
         appendLine("更新: ${info.index} - ${info.title}")
         appendLine("链接: ${info.share}")
-    }
-}
-val Season.content by ReadOnlyProperty { info, _ ->
-    buildString {
-        appendLine("${info.type}: ${info.title}")
     }
 }
 val SeasonTimeline.link get() = "https://www.bilibili.com/bangumi/play/ss${seasonId}"

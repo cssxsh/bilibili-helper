@@ -18,14 +18,15 @@ suspend fun BiliClient.getVideoInfo(
     parameter("bvid", bvid)
 }
 
-suspend fun BiliClient.searchVideo(
+suspend fun BiliClient.getVideos(
     mid: Long,
+    keyword: String = "",
     pageSize: Int = 30,
     pageNum: Int = 1,
     url: String = SEARCH_URL
 ): BiliSearchResult = json(url) {
     parameter("mid", mid)
-    parameter("keyword", "")
+    parameter("keyword", keyword)
     parameter("order", "pubdate")
     parameter("jsonp", "jsonp")
     parameter("ps", pageSize)
