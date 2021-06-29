@@ -55,7 +55,7 @@
 | `/<bili-season B剧集> <list 列表> [contact]?`       | 列出当前联系人的剧集订阅 |
 
 剧集订阅需要 Season ID 例如 `https://www.bilibili.com/bangumi/play/ss38353` 的 38353
-
+可以通过 搜索指令 搜索番剧 获得链接 since 0.1.0-dev-5
 目前剧集订阅出于实验性阶段
 
 ### 信息解析指令
@@ -82,9 +82,9 @@ val MEDIA_REGEX = """(?<=bilibili\.com/bangumi/media/md)(\d+)""".toRegex()
 
 | 指令                                                  | 描述     |
 |:------------------------------------------------------|:---------|
-| `/<bili-search B搜索> <user 用户> [id] [contact]?`    | 搜索用户 |
-| `/<bili-search B搜索> <bangumi 番剧> [id] [contact]?` | 搜索番剧 |
-| `/<bili-search B搜索> <ft 影视> [id] [contact]?`      | 搜索影视 |
+| `/<bili-search B搜索> <user 用户> [id]`    | 搜索用户 |
+| `/<bili-search B搜索> <bangumi 番剧> [id]` | 搜索番剧 |
+| `/<bili-search B搜索> <ft 影视> [id]`      | 搜索影视 |
 
 ## 设置
 
