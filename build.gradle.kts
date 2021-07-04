@@ -1,15 +1,16 @@
 plugins {
-    kotlin("jvm")
-    kotlin("plugin.serialization")
-    id("net.mamoe.mirai-console")
+    kotlin("jvm") version Versions.kotlin
+    kotlin("plugin.serialization") version Versions.kotlin
+
+    id("net.mamoe.mirai-console") version Versions.mirai
 }
 
 group = "xyz.cssxsh.mirai.plugin"
 version = "0.1.0-dev-5"
 
 repositories {
-    // mavenLocal()
-    maven(url = "https://maven.aliyun.com/repository/releases")
+    mavenLocal()
+//    maven(url = "https://maven.aliyun.com/repository/releases")
     maven(url = "https://maven.aliyun.com/repository/public")
     mavenCentral()
     jcenter()
@@ -52,6 +53,7 @@ dependencies {
 }
 
 mirai {
+    jvmTarget = JavaVersion.VERSION_11
     configureShadow {
         exclude("module-info.class")
         exclude {
