@@ -10,6 +10,9 @@ import io.ktor.client.features.json.serializer.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.utils.io.core.*
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.supervisorScope
 import kotlinx.serialization.json.Json
 import xyz.cssxsh.bilibili.api.SPACE
 import java.io.IOException
@@ -48,15 +51,18 @@ class BiliClient(val ignore: suspend (exception: Throwable) -> Boolean = Default
         ContentEncoding()
     }
 
-    suspend fun <T> useHttpClient(block: suspend (HttpClient) -> T): T = client().use { client ->
-        var result: T? = null
-        while (result === null) {
-            result = runCatching {
-                block(client)
-            }.onFailure {
-                if (ignore(it).not()) throw it
-            }.getOrNull()
+    suspend fun <T> useHttpClient(block: suspend (HttpClient) -> T): T = supervisorScope {
+        client().use {
+            while (isActive) {
+                runCatching {
+                    block(it)
+                }.onFailure {
+                    if (ignore(it).not()) throw it
+                }.onSuccess {
+                    return@use it
+                }
+            }
+            throw CancellationException()
         }
-        result
     }
 }
