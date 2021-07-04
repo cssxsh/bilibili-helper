@@ -5,6 +5,7 @@ import net.mamoe.mirai.console.command.CommandManager.INSTANCE.unregister
 import net.mamoe.mirai.console.extension.PluginComponentStorage
 import net.mamoe.mirai.console.plugin.jvm.JvmPluginDescription
 import net.mamoe.mirai.console.plugin.jvm.KotlinPlugin
+import net.mamoe.mirai.utils.*
 import org.openqa.selenium.remote.RemoteWebDriver
 import xyz.cssxsh.bilibili.BiliClient
 import xyz.cssxsh.mirai.plugin.command.*
@@ -27,7 +28,15 @@ object BiliHelperPlugin : KotlinPlugin(
         private set
 
     override fun PluginComponentStorage.onLoad() {
-        selenium = runCatching { setupSelenium(dataFolder) }.onFailure(logger::warning).isSuccess
+        selenium = runCatching {
+            setupSelenium(dataFolder)
+        }.onFailure {
+            if (it is UnsupportedOperationException) {
+                logger.warning { "请安装 Chrome 或者 Firefox 浏览器 $it" }
+            } else {
+                logger.warning { "初始化浏览器驱动失败 $it" }
+            }
+        }.isSuccess
     }
 
     override fun onEnable() {
