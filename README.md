@@ -90,11 +90,18 @@ val MEDIA_REGEX = """(?<=bilibili\.com/bangumi/media/md)(\d+)""".toRegex()
 
 ## 设置
 
-位于`Mirai-Console`运行目录下的`config/bilibili-helper`文件夹下
+位于`Mirai-Console`运行目录下的`config/bilibili-helper`文件夹下 
 
-### 图片缓存位置
+### BiliHelperSettings.yml
 
-`BiliHelperSettings.yml` 文件中的 `cache` 配置项, 默认为 `ImageCache`
+1. `cache` 图片缓存位置, 默认为 `ImageCache`
+1. `api` API 访问间隔时间，单位秒, 默认为 `10` (since 0.1.0-dev-6)
+1. `video` 视频 订阅 访问间隔时间，单位分钟, 默认为 `10` (since 0.1.0-dev-6)
+1. `dynamic` 动态 订阅 访问间隔时间，单位分钟, 默认为 `10` (since 0.1.0-dev-6)
+1. `live` 直播 订阅 访问间隔时间，单位分钟, 默认为 `32` (since 0.1.0-dev-6)
+1. `season` 番剧 订阅 访问间隔时间，单位分钟, 默认为 `32` (since 0.1.0-dev-6)
+
+中的 
 
 ## 安装
 

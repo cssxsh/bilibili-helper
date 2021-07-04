@@ -6,12 +6,12 @@ plugins {
 }
 
 group = "xyz.cssxsh.mirai.plugin"
-version = "0.1.0-dev-5"
+version = "0.1.0-dev-6"
 
 repositories {
     mavenLocal()
 //    maven(url = "https://maven.aliyun.com/repository/releases")
-    maven(url = "https://maven.aliyun.com/repository/public")
+//    maven(url = "https://maven.aliyun.com/repository/public")
     mavenCentral()
     jcenter()
     maven(url = "https://maven.aliyun.com/repository/gradle-plugin")
