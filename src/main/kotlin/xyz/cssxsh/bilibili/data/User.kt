@@ -112,7 +112,7 @@ data class UserProfile(
     @SerialName("rank")
     val rank: String? = null,
     @SerialName("sign")
-    val sign: String,
+    val sign: String? = null,
 //    @SerialName("vip")
 //    private val vip: JsonObject? = null
 )
