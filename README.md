@@ -101,8 +101,6 @@ val MEDIA_REGEX = """(?<=bilibili\.com/bangumi/media/md)(\d+)""".toRegex()
 1. `live` 直播 订阅 访问间隔时间，单位分钟, 默认为 `32` (since 0.1.0-dev-6)
 1. `season` 番剧 订阅 访问间隔时间，单位分钟, 默认为 `32` (since 0.1.0-dev-6)
 
-中的 
-
 ## 安装
 
 ### 手动安装
