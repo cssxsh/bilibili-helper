@@ -17,7 +17,7 @@ import kotlinx.serialization.json.Json
 import xyz.cssxsh.bilibili.api.SPACE
 import java.io.IOException
 
-class BiliClient(val ignore: suspend (exception: Throwable) -> Boolean = DefaultIgnore) {
+class BiliClient(val ignore: suspend (exception: Throwable) -> Boolean = DefaultIgnore, interval: Long = 10 * 1000L) {
     companion object {
         val Json = Json {
             prettyPrint = true
@@ -50,6 +50,8 @@ class BiliClient(val ignore: suspend (exception: Throwable) -> Boolean = Default
         BrowserUserAgent()
         ContentEncoding()
     }
+
+    internal val mutex = BiliApiMutex(interval)
 
     suspend fun <T> useHttpClient(block: suspend (HttpClient) -> T): T = supervisorScope {
         client().use {
