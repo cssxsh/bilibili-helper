@@ -10,7 +10,7 @@
 
 注意: 使用前请确保可以 [在聊天环境执行指令](https://github.com/project-mirai/chat-command)  
 带括号的`/`前缀是可选的  
-`<...>`中的是指令名，由空格隔开表示或，选择其中任一名称都可执行例如`/抽卡 十连`  
+`<...>`中的是指令名，由空格隔开表示或，选择其中任一名称都可执行例如`/B动态 添加 692283831`  
 `[...]`表示参数，当`[...]`后面带`?`时表示参数可选  
 `{...}`表示连续的多个参数
 
@@ -94,7 +94,7 @@ val MEDIA_REGEX = """(?<=bilibili\.com/bangumi/media/md)(\d+)""".toRegex()
 
 ### 图片缓存位置
 
-`BiliHelperSettings.yml` 文件中的 `cache` 配置项 默认为 `ImageCache`
+`BiliHelperSettings.yml` 文件中的 `cache` 配置项, 默认为 `ImageCache`
 
 ## 安装
 
