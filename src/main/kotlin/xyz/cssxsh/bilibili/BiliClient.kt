@@ -17,7 +17,7 @@ import kotlinx.serialization.json.Json
 import xyz.cssxsh.bilibili.api.SPACE
 import java.io.IOException
 
-class BiliClient(val ignore: suspend (exception: Throwable) -> Boolean = DefaultIgnore, interval: Long = 10 * 1000L) {
+open class BiliClient {
     companion object {
         val Json = Json {
             prettyPrint = true
@@ -28,6 +28,8 @@ class BiliClient(val ignore: suspend (exception: Throwable) -> Boolean = Default
 
         val DefaultIgnore: suspend (Throwable) -> Boolean = { it is IOException || it is HttpRequestTimeoutException }
     }
+
+    protected open val ignore: suspend (exception: Throwable) -> Boolean = DefaultIgnore
 
     private val cookiesStorage = AcceptAllCookiesStorage()
 
@@ -51,20 +53,18 @@ class BiliClient(val ignore: suspend (exception: Throwable) -> Boolean = Default
         ContentEncoding()
     }
 
-    internal val mutex = BiliApiMutex(interval)
+    internal open val mutex = BiliApiMutex(10 * 1000L)
 
     suspend fun <T> useHttpClient(block: suspend (HttpClient) -> T): T = supervisorScope {
-        client().use {
-            while (isActive) {
-                runCatching {
-                    block(it)
-                }.onFailure {
-                    if (ignore(it).not()) throw it
-                }.onSuccess {
-                    return@use it
-                }
+        while (isActive) {
+            runCatching {
+                client().use { block(it) }
+            }.onFailure {
+                if (ignore(it).not()) throw it
+            }.onSuccess {
+                return@supervisorScope it
             }
-            throw CancellationException()
         }
+        throw CancellationException()
     }
 }

@@ -26,7 +26,17 @@ import java.time.format.DateTimeFormatter
 
 internal val logger by BiliHelperPlugin::logger
 
-internal val client by BiliHelperPlugin::client
+internal val client by lazy {
+    object : BiliClient() {
+        override val ignore: suspend (exception: Throwable) -> Boolean = { throwable ->
+            super.ignore(throwable).also {
+                if (it) logger.warning { "Ignore $throwable" }
+            }
+        }
+
+        override val mutex: BiliApiMutex = BiliApiMutex(interval = BiliHelperSettings.api * 1000)
+    }
+}
 
 internal val ImageCache by lazy { File(BiliHelperSettings.cache) }
 

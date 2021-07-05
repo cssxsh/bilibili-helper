@@ -19,8 +19,6 @@ object BiliHelperPlugin : KotlinPlugin(
     }
 ) {
 
-    val client by lazy { BiliClient(interval = BiliHelperSettings.api * 1000) }
-
     lateinit var driver: RemoteWebDriver
         private set
 
