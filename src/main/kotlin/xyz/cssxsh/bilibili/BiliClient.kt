@@ -11,13 +11,15 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.utils.io.core.*
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.supervisorScope
 import kotlinx.serialization.json.Json
 import xyz.cssxsh.bilibili.api.SPACE
 import java.io.IOException
+import kotlin.coroutines.CoroutineContext
 
-open class BiliClient {
+open class BiliClient: CoroutineScope, Closeable {
     companion object {
         val Json = Json {
             prettyPrint = true
@@ -29,11 +31,16 @@ open class BiliClient {
         val DefaultIgnore: suspend (Throwable) -> Boolean = { it is IOException || it is HttpRequestTimeoutException }
     }
 
+    override val coroutineContext: CoroutineContext
+        get() = client.coroutineContext
+
+    override fun close() = client.close()
+
     protected open val ignore: suspend (exception: Throwable) -> Boolean = DefaultIgnore
 
     private val cookiesStorage = AcceptAllCookiesStorage()
 
-    private fun client() = HttpClient(OkHttp) {
+    private val client = HttpClient(OkHttp) {
         defaultRequest {
             header(HttpHeaders.Origin, SPACE)
             header(HttpHeaders.Referrer, SPACE)
@@ -58,7 +65,7 @@ open class BiliClient {
     suspend fun <T> useHttpClient(block: suspend (HttpClient) -> T): T = supervisorScope {
         while (isActive) {
             runCatching {
-                client().use { block(it) }
+                block(client)
             }.onFailure {
                 if (ignore(it).not()) throw it
             }.onSuccess {
