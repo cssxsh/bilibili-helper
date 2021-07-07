@@ -192,12 +192,14 @@ private fun List<LocalTime>.near(slow: Long): Boolean {
     return any { abs(it.toSecondOfDay() - now) * 1000 < slow }
 }
 
+private const val minute = 60 * 1000L
+
 object BiliVideoLoader : Loader<Video>(), CoroutineScope by BiliHelperPlugin.childScope("VideoTasker") {
     override val tasks: MutableMap<Long, BiliTask> by BiliTaskData::video
 
-    override val fast = 1 * 60 * 1000L
+    override val fast get() = minute
 
-    override val slow = 10 * 60 * 1000L
+    override val slow get() = BiliHelperSettings.video * minute
 
     override suspend fun load(id: Long) = client.getVideos(id).list.videos
 
@@ -215,9 +217,9 @@ object BiliVideoLoader : Loader<Video>(), CoroutineScope by BiliHelperPlugin.chi
 object BiliDynamicLoader : Loader<DynamicInfo>(), CoroutineScope by BiliHelperPlugin.childScope("DynamicTasker") {
     override val tasks: MutableMap<Long, BiliTask> by BiliTaskData::dynamic
 
-    override val fast = 1 * 60 * 1000L
+    override val fast get() = minute
 
-    override val slow = 10 * 60 * 1000L
+    override val slow = BiliHelperSettings.dynamic * minute
 
     override suspend fun load(id: Long) = client.getSpaceHistory(id).dynamics
 
@@ -235,9 +237,9 @@ object BiliDynamicLoader : Loader<DynamicInfo>(), CoroutineScope by BiliHelperPl
 object BiliLiveWaiter : Waiter<BiliUserInfo>(), CoroutineScope by BiliHelperPlugin.childScope("LiveWaiter") {
     override val tasks: MutableMap<Long, BiliTask> by BiliTaskData::live
 
-    override val fast = 5 * 60 * 1000L
+    override val fast get() = minute
 
-    override val slow = 30 * 60 * 1000L
+    override val slow get() = BiliHelperSettings.live * minute
 
     override suspend fun load(id: Long) = client.getUserInfo(id)
 
@@ -245,7 +247,7 @@ object BiliLiveWaiter : Waiter<BiliUserInfo>(), CoroutineScope by BiliHelperPlug
 
     override suspend fun BiliUserInfo.build(contact: Contact) = liveRoom.toMessage(contact)
 
-    override suspend fun BiliUserInfo.near(): Boolean = liveRoom.roundStatus.not()
+    override suspend fun BiliUserInfo.near(): Boolean = false // TODO by live history
 
     override suspend fun initTask(id: Long): BiliTask = BiliTask(client.getUserInfo(id).name)
 }
@@ -253,9 +255,9 @@ object BiliLiveWaiter : Waiter<BiliUserInfo>(), CoroutineScope by BiliHelperPlug
 object BiliSeasonWaiter : Waiter<SeasonSection>(), CoroutineScope by BiliHelperPlugin.childScope("SeasonWaiter") {
     override val tasks: MutableMap<Long, BiliTask> by BiliTaskData::season
 
-    override val fast = 1 * 60 * 1000L
+    override val fast get() = minute
 
-    override val slow = 3  * 60 * 60 * 1000L
+    override val slow = BiliHelperSettings.season * minute
 
     private val data = mutableMapOf<Long, Video>()
 

@@ -1,6 +1,5 @@
 package xyz.cssxsh.mirai.plugin
 
-import io.ktor.client.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import net.mamoe.mirai.console.permission.PermissionService.Companion.testPermission
@@ -153,12 +152,14 @@ internal val MediaReplier: MessageReplier = replier@{ result ->
     }
 }
 
-private fun noRedirect() = HttpClient {
-    followRedirects = false
-    expectSuccess = false
+private suspend fun Url.location(): String? {
+    return client.useHttpClient {
+        it.config {
+            followRedirects = false
+            expectSuccess = false
+        }.head<HttpMessage>(this@location)
+    }.headers[HttpHeaders.Location]
 }
-
-private suspend fun Url.getLocation() = noRedirect().use { it.head<HttpMessage>(this) }.headers[HttpHeaders.Location]
 
 internal val Repliers by lazy {
     mapOf(
@@ -175,7 +176,7 @@ internal val Repliers by lazy {
 
 internal val ShortLinkReplier: MessageReplier = replier@{ result ->
     logger.info { "[${sender}] 匹配SHORT_LINK(${result.value}) 尝试跳转" }
-    val location = Url("https://b23.tv/${result.value}").getLocation() ?: return@replier null
+    val location = Url("https://b23.tv/${result.value}").location() ?: return@replier null
     for ((regex, replier) in Repliers) {
         val new = regex.find(location) ?: continue
         return@replier replier(new)
