@@ -10,6 +10,15 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import java.time.Duration
 
+interface DynamicCard {
+    val card: String
+    val detail: DynamicCardDetail
+}
+
+interface DynamicCardDetail {
+    val type: DynamicType
+}
+
 @Serializable
 data class BiliDynamicList(
     @SerialName("attentions")
@@ -113,7 +122,7 @@ data class DynamicDescribe(
     @SerialName("timestamp")
     val timestamp: Long,
     @SerialName("type")
-    val type: DynamicType,
+    override val type: DynamicType,
     @SerialName("uid")
     val uid: Long,
 //    @SerialName("uid_type")
@@ -122,7 +131,7 @@ data class DynamicDescribe(
     val profile: UserProfile? = null,
     @SerialName("view")
     val view: Int? = null
-)
+): DynamicCardDetail
 
 @Serializable
 data class DynamicArticle(
@@ -238,9 +247,9 @@ data class DynamicInfo(
 //    @SerialName("activity_infos")
 //    private val activityInfos: JsonObject? = null,
     @SerialName("card")
-    val card: String,
+    override val card: String,
     @SerialName("desc")
-    val describe: DynamicDescribe,
+    override val detail: DynamicDescribe,
     @SerialName("need_refresh")
     @Serializable(NumberToBooleanSerializer::class)
     val needRefresh: Boolean = false,
@@ -252,7 +261,7 @@ data class DynamicInfo(
 //    private val extension: JsonObject? = null,
 //    @SerialName("extra")
 //    private val extra: JsonObject? = null
-)
+): DynamicCard
 
 @Serializable
 data class DynamicLive(
@@ -414,9 +423,9 @@ data class DynamicPictureInfo(
 @Serializable
 data class DynamicReply(
     @SerialName("item")
-    val detail: DynamicReplyDetail,
+    override val detail: DynamicReplyDetail,
     @SerialName("origin")
-    val origin: String,
+    override val card: String,
 //    @SerialName("origin_extend_json")
 //    private val originExtendJson: String,
     @SerialName("origin_user")
@@ -429,7 +438,7 @@ data class DynamicReply(
 //    private val extension: JsonObject? = null,
 //    @SerialName("origin_extension")
 //    private val originExtension: JsonObject? = null
-)
+): DynamicCard
 
 @Serializable
 data class DynamicReplyDetail(
@@ -442,7 +451,7 @@ data class DynamicReplyDetail(
     @SerialName("orig_dy_id")
     val originDynamicId: Long,
     @SerialName("orig_type")
-    val originType: DynamicType,
+    override val type: DynamicType,
 //        @SerialName("pre_dy_id")
 //        private val previousDynamicId: Long,
     @SerialName("reply")
@@ -453,7 +462,7 @@ data class DynamicReplyDetail(
     val timestamp: Long,
     @SerialName("uid")
     val uid: Long
-)
+): DynamicCardDetail
 
 @Serializable
 data class DynamicSketch(

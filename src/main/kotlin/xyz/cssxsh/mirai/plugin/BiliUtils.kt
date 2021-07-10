@@ -123,11 +123,11 @@ internal suspend fun DynamicInfo.getScreenshot(contact: Contact, refresh: Boolea
     return runCatching {
         head.toPlainText() + getScreenshot(
             url = link,
-            path = "${CacheType.DYNAMIC}/${datetime.toLocalDate()}/${describe.dynamicId}.png",
+            path = "${CacheType.DYNAMIC}/${datetime.toLocalDate()}/${detail.dynamicId}.png",
             refresh = refresh
         ).uploadAsImage(contact)
     }.getOrElse {
-        logger.warning({ "获取动态${describe.dynamicId}快照失败" }, it)
+        logger.warning({ "获取动态${detail.dynamicId}快照失败" }, it)
         content.toPlainText()
     }
 }
@@ -145,11 +145,11 @@ internal suspend fun DynamicInfo.getImageFiles(contact: Contact) = images.mapInd
     Url(picture).runCatching {
         getWebImage(
             url = this,
-            path = "${CacheType.DYNAMIC}/${datetime.toLocalDate()}/${describe.dynamicId}-${index}-${filename}"
+            path = "${CacheType.DYNAMIC}/${datetime.toLocalDate()}/${detail.dynamicId}-${index}-${filename}"
         ).uploadAsImage(contact)
     }.getOrElse {
-        logger.warning({ "获取动态${describe.dynamicId}图片[${index}]失败" }, it)
-        "获取动态${describe.dynamicId}图片[${index}]失败".toPlainText()
+        logger.warning({ "获取动态${detail.dynamicId}图片[${index}]失败" }, it)
+        "获取动态${detail.dynamicId}图片[${index}]失败".toPlainText()
     }
 }
 

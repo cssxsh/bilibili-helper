@@ -34,9 +34,9 @@ val Article.content by ReadOnlyProperty { info, _ ->
     }
 }
 
-val DynamicInfo.link get() = "https://t.bilibili.com/${describe.dynamicId}"
-val DynamicInfo.username get() = describe.profile?.user?.uname ?: "【动态已删除】"
-val DynamicInfo.datetime: OffsetDateTime get() = timestamp(describe.timestamp)
+val DynamicInfo.link get() = "https://t.bilibili.com/${detail.dynamicId}"
+val DynamicInfo.username get() = detail.profile?.user?.uname ?: "【动态已删除】"
+val DynamicInfo.datetime: OffsetDateTime get() = timestamp(detail.timestamp)
 val DynamicInfo.head by ReadOnlyProperty { info, _ ->
     buildString {
         appendLine("@${info.username} 动态")
@@ -44,14 +44,13 @@ val DynamicInfo.head by ReadOnlyProperty { info, _ ->
         appendLine("链接: ${info.link}")
     }
 }
-val DynamicInfo.content get() = head + card.content(describe.type)
-val DynamicInfo.images get() = card.images(describe.type)
+val DynamicInfo.content get() = head + content()
+val DynamicInfo.images get() = images()
 val DynamicReply.content by ReadOnlyProperty { info, _ ->
     buildString {
         appendLine("RT @${info.originUser.user.uname}:")
         appendLine(info.detail.content)
-        // TODO Video Content
-        appendLine(info.origin.content(info.detail.originType))
+        appendLine(info.content())
     }
 }
 val DynamicEpisode.content by ReadOnlyProperty { info, _ ->
@@ -128,37 +127,33 @@ val Video.content by ReadOnlyProperty { info, _ ->
     }
 }
 
-private inline fun <reified T> String.decode(): T = BiliClient.Json.decodeFromString(this)
+private inline fun <reified T> DynamicCard.decode(): T = BiliClient.Json.decodeFromString(card)
 
-private fun String.content(type: DynamicType): String {
-    return when (type) {
-        DynamicType.NONE -> "不支持的类型${type}"
-        DynamicType.REPLY -> decode<DynamicReply>().content
-        DynamicType.PICTURE -> decode<DynamicPicture>().detail.description
-        DynamicType.TEXT -> decode<DynamicText>().detail.content
-        DynamicType.VIDEO -> decode<DynamicVideo>().content
-        DynamicType.ARTICLE -> decode<DynamicArticle>().content
-        DynamicType.MUSIC -> decode<DynamicMusic>().content
-        DynamicType.EPISODE, DynamicType.BANGUMI -> decode<DynamicEpisode>().content
-        DynamicType.DELETE -> "源动态已被作者删除"
-        DynamicType.SKETCH -> decode<DynamicSketch>().content
-        DynamicType.LIVE -> decode<DynamicLive>().content
-        DynamicType.LIVE_END -> "直播结束了"
-    }
+fun DynamicCard.content(): String = when (detail.type) {
+    DynamicType.NONE -> "不支持的类型${detail.type}"
+    DynamicType.REPLY -> decode<DynamicReply>().content
+    DynamicType.PICTURE -> decode<DynamicPicture>().detail.description
+    DynamicType.TEXT -> decode<DynamicText>().detail.content
+    DynamicType.VIDEO -> decode<DynamicVideo>().content
+    DynamicType.ARTICLE -> decode<DynamicArticle>().content
+    DynamicType.MUSIC -> decode<DynamicMusic>().content
+    DynamicType.EPISODE, DynamicType.BANGUMI -> decode<DynamicEpisode>().content
+    DynamicType.DELETE -> "源动态已被作者删除"
+    DynamicType.SKETCH -> decode<DynamicSketch>().content
+    DynamicType.LIVE -> decode<DynamicLive>().content
+    DynamicType.LIVE_END -> "直播结束了"
 }
 
-private fun String.images(type: DynamicType): List<String> {
-    return when (type) {
-        DynamicType.NONE, DynamicType.TEXT, DynamicType.DELETE, DynamicType.LIVE_END -> emptyList()
-        DynamicType.REPLY -> with(decode<DynamicReply>()) { origin.images(detail.originType) }
-        DynamicType.PICTURE -> decode<DynamicPicture>().detail.pictures.map { it.source }
-        DynamicType.VIDEO -> decode<DynamicVideo>().cover.let(::listOf)
-        DynamicType.ARTICLE -> decode<DynamicArticle>().originImageUrls
-        DynamicType.MUSIC -> decode<DynamicMusic>().cover.let(::listOf)
-        DynamicType.EPISODE, DynamicType.BANGUMI -> decode<DynamicEpisode>().cover.let(::listOf)
-        DynamicType.LIVE -> decode<DynamicLive>().cover.let(::listOf)
-        DynamicType.SKETCH -> decode<DynamicSketch>().detail.cover.let(::listOf)
-    }
+fun DynamicCard.images(): List<String> = when (detail.type) {
+    DynamicType.NONE, DynamicType.TEXT, DynamicType.DELETE, DynamicType.LIVE_END -> emptyList()
+    DynamicType.REPLY -> decode<DynamicReply>().images()
+    DynamicType.PICTURE -> decode<DynamicPicture>().detail.pictures.map { it.source }
+    DynamicType.VIDEO -> decode<DynamicVideo>().cover.let(::listOf)
+    DynamicType.ARTICLE -> decode<DynamicArticle>().originImageUrls
+    DynamicType.MUSIC -> decode<DynamicMusic>().cover.let(::listOf)
+    DynamicType.EPISODE, DynamicType.BANGUMI -> decode<DynamicEpisode>().cover.let(::listOf)
+    DynamicType.LIVE -> decode<DynamicLive>().cover.let(::listOf)
+    DynamicType.SKETCH -> decode<DynamicSketch>().detail.cover.let(::listOf)
 }
 
 val VIDEO_REGEX = """((video/|av|AV)\d+|(bv|BV)[0-9A-z]{10})""".toRegex()
