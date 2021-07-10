@@ -164,9 +164,7 @@ internal suspend fun Live.getCover(contact: Contact): Message {
 
 internal suspend fun Video.getCover(contact: Contact): Message {
     return Url(cover).runCatching {
-        getWebImage(url = this, path = "${CacheType.VIDEO}/${mid}/${id}-cover-${filename}").uploadAsImage(
-            contact
-        )
+        getWebImage(url = this, path = "${CacheType.VIDEO}/${mid}/${id}-cover-${filename}").uploadAsImage(contact)
     }.getOrElse {
         logger.warning({ "获取[${title}](${id})}视频封面失败" }, it)
         "获取[${title}](${id})}视频封面失败".toPlainText()
@@ -175,9 +173,7 @@ internal suspend fun Video.getCover(contact: Contact): Message {
 
 internal suspend fun Season.getCover(contact: Contact): Message {
     return Url(cover).runCatching {
-        getWebImage(url = this, path = "${CacheType.SEASON}/${seasonId}/cover-${filename}").uploadAsImage(
-            contact
-        )
+        getWebImage(url = this, path = "${CacheType.SEASON}/${seasonId}/cover-${filename}").uploadAsImage(contact)
     }.getOrElse {
         logger.warning({ "获取[${title}](${seasonId})}剧集封面失败" }, it)
         "获取[${title}](${seasonId})}剧集封面失败".toPlainText()
@@ -186,9 +182,7 @@ internal suspend fun Season.getCover(contact: Contact): Message {
 
 internal suspend fun Episode.getCover(contact: Contact): Message {
     return Url(cover).runCatching {
-        getWebImage(url = this, path = "${CacheType.EPISODE}/${episodeId}/cover-${filename}").uploadAsImage(
-            contact
-        )
+        getWebImage(url = this, path = "${CacheType.EPISODE}/${episodeId}/cover-${filename}").uploadAsImage(contact)
     }.getOrElse {
         logger.warning({ "获取[${title}](${episodeId})}剧集封面失败" }, it)
         "获取[${title}](${episodeId})}剧集封面失败".toPlainText()
