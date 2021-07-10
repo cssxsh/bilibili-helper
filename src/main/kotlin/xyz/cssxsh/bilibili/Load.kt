@@ -34,7 +34,7 @@ val Article.content by ReadOnlyProperty { info, _ ->
     }
 }
 
-val DynamicInfo.link get() = "https://t.bilibili.com/${detail.dynamicId}"
+val DynamicInfo.link get() = "https://t.bilibili.com/${detail.id}"
 val DynamicInfo.username get() = detail.profile?.user?.uname ?: "【动态已删除】"
 val DynamicInfo.datetime: OffsetDateTime get() = timestamp(detail.timestamp)
 val DynamicInfo.head by ReadOnlyProperty { info, _ ->
@@ -142,6 +142,7 @@ fun DynamicCard.content(): String = when (detail.type) {
     DynamicType.SKETCH -> decode<DynamicSketch>().content
     DynamicType.LIVE -> decode<DynamicLive>().content
     DynamicType.LIVE_END -> "直播结束了"
+    else -> "[${detail.type}] 不支持的类型${detail.type}"
 }
 
 fun DynamicCard.images(): List<String> = when (detail.type) {
@@ -154,6 +155,7 @@ fun DynamicCard.images(): List<String> = when (detail.type) {
     DynamicType.EPISODE, DynamicType.BANGUMI -> decode<DynamicEpisode>().cover.let(::listOf)
     DynamicType.LIVE -> decode<DynamicLive>().cover.let(::listOf)
     DynamicType.SKETCH -> decode<DynamicSketch>().detail.cover.let(::listOf)
+    else  -> emptyList()
 }
 
 val VIDEO_REGEX = """((video/|av|AV)\d+|(bv|BV)[0-9A-z]{10})""".toRegex()

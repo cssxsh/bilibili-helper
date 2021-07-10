@@ -1,13 +1,7 @@
 package xyz.cssxsh.bilibili.data
 
-import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.descriptors.SerialDescriptor
-import kotlinx.serialization.descriptors.SerialKind
-import kotlinx.serialization.descriptors.buildSerialDescriptor
-import kotlinx.serialization.encoding.Decoder
-import kotlinx.serialization.encoding.Encoder
 import java.time.Duration
 
 interface DynamicCard {
@@ -16,7 +10,7 @@ interface DynamicCard {
 }
 
 interface DynamicCardDetail {
-    val type: DynamicType
+    val type: Int
 }
 
 @Serializable
@@ -46,32 +40,20 @@ data class BiliDynamicInfo(
 //    private val result: Int
 )
 
-@Serializable(DynamicType.Serializer::class)
-enum class DynamicType(val id: Int) {
-    NONE(id = 0),
-    REPLY(id = 1),
-    PICTURE(id = 2),
-    TEXT(id = 4),
-    VIDEO(id = 8),
-    ARTICLE(id = 64),
-    MUSIC(id = 256),
-    EPISODE(id = 512),
-    DELETE(id = 1024),
-    SKETCH(id = 2048),
-    BANGUMI(id = 4101),
-    LIVE(id = 4200),
-    LIVE_END(id = 4308);
-
-    companion object Serializer : KSerializer<DynamicType> {
-        override val descriptor: SerialDescriptor
-            get() = buildSerialDescriptor("BiliCardTypeSerializer", SerialKind.ENUM)
-
-        override fun serialize(encoder: Encoder, value: DynamicType) = encoder.encodeInt(value.id)
-
-        override fun deserialize(decoder: Decoder): DynamicType = decoder.decodeInt().let { index ->
-            requireNotNull(values().find { it.id == index }) { "$index not in ${values().asList()}" }
-        }
-    }
+object DynamicType {
+    const val NONE = 0
+    const val REPLY = 1
+    const val PICTURE = 2
+    const val TEXT = 4
+    const val VIDEO = 8
+    const val ARTICLE = 64
+    const val MUSIC = 256
+    const val EPISODE = 512
+    const val DELETE = 1024
+    const val SKETCH = 2048
+    const val BANGUMI = 4101
+    const val LIVE = 4200
+    const val LIVE_END = 4308
 }
 
 @Serializable
@@ -83,7 +65,7 @@ data class DynamicDescribe(
     @SerialName("comment")
     val comment: Int = 0,
     @SerialName("dynamic_id")
-    val dynamicId: Long,
+    val id: Long,
 //    @SerialName("dynamic_id_str")
 //    private val dynamicIdString: String? = null,
 //    @SerialName("inner_id")
@@ -100,7 +82,7 @@ data class DynamicDescribe(
 //    @SerialName("orig_dy_id_str")
 //    private val originDynamicIdString: String? = null,
     @SerialName("orig_type")
-    val originType: DynamicType? = null,
+    val originType: Int? = null,
     @SerialName("previous")
     val previous: DynamicDescribe? = null,
     @SerialName("pre_dy_id")
@@ -122,7 +104,7 @@ data class DynamicDescribe(
     @SerialName("timestamp")
     val timestamp: Long,
     @SerialName("type")
-    override val type: DynamicType,
+    override val type: Int,
     @SerialName("uid")
     val uid: Long,
 //    @SerialName("uid_type")
@@ -131,7 +113,7 @@ data class DynamicDescribe(
     val profile: UserProfile? = null,
     @SerialName("view")
     val view: Int? = null
-): DynamicCardDetail
+) : DynamicCardDetail
 
 @Serializable
 data class DynamicArticle(
@@ -261,7 +243,7 @@ data class DynamicInfo(
 //    private val extension: JsonObject? = null,
 //    @SerialName("extra")
 //    private val extra: JsonObject? = null
-): DynamicCard
+) : DynamicCard
 
 @Serializable
 data class DynamicLive(
@@ -438,7 +420,7 @@ data class DynamicReply(
 //    private val extension: JsonObject? = null,
 //    @SerialName("origin_extension")
 //    private val originExtension: JsonObject? = null
-): DynamicCard
+) : DynamicCard
 
 @Serializable
 data class DynamicReplyDetail(
@@ -451,7 +433,7 @@ data class DynamicReplyDetail(
     @SerialName("orig_dy_id")
     val originDynamicId: Long,
     @SerialName("orig_type")
-    override val type: DynamicType,
+    override val type: Int,
 //        @SerialName("pre_dy_id")
 //        private val previousDynamicId: Long,
     @SerialName("reply")
@@ -462,7 +444,7 @@ data class DynamicReplyDetail(
     val timestamp: Long,
     @SerialName("uid")
     val uid: Long
-): DynamicCardDetail
+) : DynamicCardDetail
 
 @Serializable
 data class DynamicSketch(
