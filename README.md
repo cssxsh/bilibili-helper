@@ -68,7 +68,8 @@
 | `/<bili-info B信息> <live> [id] [contact]?`    | 根据 id 获取直播信息   |
 
 消息中包含 `BV12v411G7dP` `av2` 等等 id 信息时会自动触发解析  
-目前会触发的正则表达式  
+目前会触发的正则表达式
+
 ```
 val VIDEO_REGEX = """((video/|av|AV)\d+|(bv|BV)[0-9A-z]{10})""".toRegex()
 val DYNAMIC_REGEX = """(?<=t\.bilibili\.com/(h5/dynamic/detail/)?)([0-9]{18})""".toRegex()
@@ -90,7 +91,7 @@ val MEDIA_REGEX = """(?<=bilibili\.com/bangumi/media/md)(\d+)""".toRegex()
 
 ## 设置
 
-位于`Mirai-Console`运行目录下的`config/bilibili-helper`文件夹下 
+位于`Mirai-Console`运行目录下的`config/bilibili-helper`文件夹下
 
 ### BiliHelperSettings.yml
 
@@ -100,6 +101,10 @@ val MEDIA_REGEX = """(?<=bilibili\.com/bangumi/media/md)(\d+)""".toRegex()
 1. `dynamic` 动态 订阅 访问间隔时间，单位分钟, 默认为 `10` (since 0.1.0-dev-6)
 1. `live` 直播 订阅 访问间隔时间，单位分钟, 默认为 `30` (since 0.1.0-dev-6)
 1. `season` 番剧 订阅 访问间隔时间，单位分钟, 默认为 `30` (since 0.1.0-dev-6)
+
+### BiliCleanerConfig.yml
+
+1. `interval` 图片清理的间隔时间，单位 小时
 
 ## 安装
 

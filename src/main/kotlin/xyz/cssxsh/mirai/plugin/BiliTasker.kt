@@ -103,7 +103,7 @@ abstract class AbstractTasker<T> : BiliTasker, CoroutineScope {
             appendLine("监听状态:")
             tasks.forEach { (id, info) ->
                 if (subject.delegate in info.contacts) {
-                    appendLine("@${info.name}#$id -> ${taskJobs[id]}")
+                    appendLine("@${info.name}#$id -> ${info.last} | ${taskJobs[id]}")
                 }
             }
         }
@@ -131,7 +131,7 @@ sealed class Loader<T> : AbstractTasker<T>() {
 
     protected abstract suspend fun List<T>.near(): Boolean
 
-    override fun addListener(id: Long) = launch {
+    override fun addListener(id: Long) = launch(SupervisorJob()) {
         delay((fast..slow).random())
         while (isActive && contacts(id).isNotEmpty()) {
             runCatching {
@@ -163,7 +163,7 @@ sealed class Waiter<T> : AbstractTasker<T>() {
 
     protected abstract suspend fun T.near(): Boolean
 
-    override fun addListener(id: Long) = launch {
+    override fun addListener(id: Long) = launch(SupervisorJob()) {
         delay((fast..slow).random())
         while (isActive && contacts(id).isNotEmpty()) {
             runCatching {
@@ -192,14 +192,14 @@ private fun List<LocalTime>.near(slow: Long): Boolean {
     return any { abs(it.toSecondOfDay() - now) * 1000 < slow }
 }
 
-private const val minute = 60 * 1000L
+const val Minute = 60 * 1000L
 
 object BiliVideoLoader : Loader<Video>(), CoroutineScope by BiliHelperPlugin.childScope("VideoTasker") {
     override val tasks: MutableMap<Long, BiliTask> by BiliTaskData::video
 
-    override val fast get() = minute
+    override val fast get() = Minute
 
-    override val slow get() = BiliHelperSettings.video * minute
+    override val slow get() = BiliHelperSettings.video * Minute
 
     override suspend fun load(id: Long) = client.getVideos(id).list.videos
 
@@ -217,9 +217,9 @@ object BiliVideoLoader : Loader<Video>(), CoroutineScope by BiliHelperPlugin.chi
 object BiliDynamicLoader : Loader<DynamicInfo>(), CoroutineScope by BiliHelperPlugin.childScope("DynamicTasker") {
     override val tasks: MutableMap<Long, BiliTask> by BiliTaskData::dynamic
 
-    override val fast get() = minute
+    override val fast get() = Minute
 
-    override val slow = BiliHelperSettings.dynamic * minute
+    override val slow = BiliHelperSettings.dynamic * Minute
 
     override suspend fun load(id: Long) = client.getSpaceHistory(id).dynamics
 
@@ -237,9 +237,9 @@ object BiliDynamicLoader : Loader<DynamicInfo>(), CoroutineScope by BiliHelperPl
 object BiliLiveWaiter : Waiter<BiliUserInfo>(), CoroutineScope by BiliHelperPlugin.childScope("LiveWaiter") {
     override val tasks: MutableMap<Long, BiliTask> by BiliTaskData::live
 
-    override val fast get() = minute
+    override val fast get() = Minute
 
-    override val slow get() = BiliHelperSettings.live * minute
+    override val slow get() = BiliHelperSettings.live * Minute
 
     override suspend fun load(id: Long) = client.getUserInfo(id)
 
@@ -255,9 +255,9 @@ object BiliLiveWaiter : Waiter<BiliUserInfo>(), CoroutineScope by BiliHelperPlug
 object BiliSeasonWaiter : Waiter<SeasonSection>(), CoroutineScope by BiliHelperPlugin.childScope("SeasonWaiter") {
     override val tasks: MutableMap<Long, BiliTask> by BiliTaskData::season
 
-    override val fast get() = minute
+    override val fast get() = Minute
 
-    override val slow = BiliHelperSettings.season * minute
+    override val slow = BiliHelperSettings.season * Minute
 
     private val data = mutableMapOf<Long, Video>()
 

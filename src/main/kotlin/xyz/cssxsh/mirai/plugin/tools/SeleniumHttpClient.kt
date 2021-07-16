@@ -91,7 +91,7 @@ private class KtorHttpClient(private val config: ClientConfig) : SeleniumHttpCli
         val session = client.webSocketSession {
             takeFrom(request, config.baseUri())
             url {
-                protocol = when(protocol) {
+                protocol = when (protocol) {
                     URLProtocol.HTTPS, URLProtocol.WSS -> URLProtocol.WSS
                     URLProtocol.HTTP, URLProtocol.WS -> URLProtocol.WS
                     else -> throw IllegalArgumentException("$protocol Not WebSocket")
@@ -124,13 +124,14 @@ class KtorHttpClientFactory : Factory {
     }
 }
 
-class KtorWebSocket(private val session: DefaultClientWebSocketSession, private val listener: WebSocket.Listener) : WebSocket {
+class KtorWebSocket(private val session: DefaultClientWebSocketSession, private val listener: WebSocket.Listener) :
+    WebSocket {
 
     init {
         session.launch(KtorContext) {
             while (isActive) {
                 runCatching {
-                    when(val frame = session.incoming.receive()) {
+                    when (val frame = session.incoming.receive()) {
                         is Frame.Binary -> {
                             listener.onBinary(frame.data)
                         }
@@ -142,7 +143,8 @@ class KtorWebSocket(private val session: DefaultClientWebSocketSession, private 
                             listener.onClose(code.toInt(), reason)
                             return@launch
                         }
-                        else -> {}
+                        else -> {
+                        }
                     }
                 }.onFailure { cause ->
                     listener.onError(cause)
@@ -155,24 +157,28 @@ class KtorWebSocket(private val session: DefaultClientWebSocketSession, private 
     override fun close(): Unit = runBlocking(KtorContext) { session.close() }
 
     override fun send(message: Message?): WebSocket = apply {
-        if (message != null) runBlocking(KtorContext) {
+        runBlocking(KtorContext) {
             when (message) {
                 is BinaryMessage -> session.send(message.data())
                 is TextMessage -> session.send(message.text())
                 is CloseMessage -> session.close()
+                else -> {
+                }
             }
         }
     }
 
     override fun sendBinary(data: ByteArray?): WebSocket = apply {
-        if (data != null) runBlocking(KtorContext) {
+        if (data == null) return@apply
+        runBlocking(KtorContext) {
             session.send(data)
         }
     }
 
     override fun sendText(data: CharSequence?): WebSocket = apply {
-        if (data != null) runBlocking(KtorContext) {
-            session.send(data.toString())
+        if (data == null) return@apply
+        runBlocking(KtorContext) {
+            session.send(StringBuilder(data).toString())
         }
     }
 }

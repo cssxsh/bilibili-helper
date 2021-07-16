@@ -7,13 +7,12 @@ import net.mamoe.mirai.console.plugin.jvm.JvmPluginDescription
 import net.mamoe.mirai.console.plugin.jvm.KotlinPlugin
 import net.mamoe.mirai.utils.*
 import org.openqa.selenium.remote.RemoteWebDriver
-import xyz.cssxsh.bilibili.BiliClient
 import xyz.cssxsh.mirai.plugin.command.*
 import xyz.cssxsh.mirai.plugin.data.*
 import xyz.cssxsh.mirai.plugin.tools.*
 
 object BiliHelperPlugin : KotlinPlugin(
-    JvmPluginDescription("xyz.cssxsh.mirai.plugin.bilibili-helper", "0.1.0-dev-1") {
+    JvmPluginDescription("xyz.cssxsh.mirai.plugin.bilibili-helper", "1.0.0") {
         name("bilibili-helper")
         author("cssxsh")
     }
@@ -41,6 +40,7 @@ object BiliHelperPlugin : KotlinPlugin(
         BiliTaskData.reload()
         SeleniumToolConfig.reload()
         BiliHelperSettings.reload()
+        BiliCleanerConfig.reload()
 
         BiliListener.subscribe()
 
@@ -56,6 +56,7 @@ object BiliHelperPlugin : KotlinPlugin(
         }
 
         BiliTasker.startAll()
+        BiliCleaner.start()
     }
 
     override fun onDisable() {
@@ -73,5 +74,6 @@ object BiliHelperPlugin : KotlinPlugin(
         }
 
         BiliTasker.stopAll()
+        BiliCleaner.stop()
     }
 }
