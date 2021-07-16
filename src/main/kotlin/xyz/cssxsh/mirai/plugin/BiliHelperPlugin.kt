@@ -40,6 +40,7 @@ object BiliHelperPlugin : KotlinPlugin(
         BiliTaskData.reload()
         SeleniumToolConfig.reload()
         BiliHelperSettings.reload()
+        BiliCleanerConfig.reload()
 
         BiliListener.subscribe()
 
@@ -55,6 +56,7 @@ object BiliHelperPlugin : KotlinPlugin(
         }
 
         BiliTasker.startAll()
+        BiliCleaner.start()
     }
 
     override fun onDisable() {
@@ -72,5 +74,6 @@ object BiliHelperPlugin : KotlinPlugin(
         }
 
         BiliTasker.stopAll()
+        BiliCleaner.stop()
     }
 }

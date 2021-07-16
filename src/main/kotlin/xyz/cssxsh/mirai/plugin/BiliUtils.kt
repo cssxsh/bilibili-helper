@@ -2,6 +2,8 @@ package xyz.cssxsh.mirai.plugin
 
 import io.ktor.client.request.*
 import io.ktor.http.*
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
@@ -12,6 +14,7 @@ import net.mamoe.mirai.Bot
 import net.mamoe.mirai.contact.Contact
 import net.mamoe.mirai.contact.Group
 import net.mamoe.mirai.contact.getMember
+import net.mamoe.mirai.message.data.Image
 import net.mamoe.mirai.message.data.Message
 import net.mamoe.mirai.message.data.toPlainText
 import net.mamoe.mirai.utils.*
@@ -46,7 +49,7 @@ internal val RemoteWebDriver by BiliHelperPlugin::driver
 
 internal val DeviceName by lazy { SeleniumToolConfig.device }
 
-enum class CacheType {
+enum class CacheType : Mutex by Mutex() {
     DYNAMIC,
     VIDEO,
     LIVE,
@@ -57,7 +60,7 @@ enum class CacheType {
 
 private val Url.filename get() = encodedPath.substringAfterLast("/")
 
-object OffsetDateTimeSerializer: KSerializer<OffsetDateTime> {
+object OffsetDateTimeSerializer : KSerializer<OffsetDateTime> {
 
     private val formatter: DateTimeFormatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME
 
@@ -95,13 +98,13 @@ fun findContact(delegate: Long): Contact? {
     return null
 }
 
-private suspend fun getWebImage(url: Url, path: String, refresh: Boolean = false): File {
-    return ImageCache.resolve(path).apply {
-        if (exists().not() || refresh) {
+private suspend fun Url.cache(type: CacheType, path: String, contact: Contact): Image = type.withLock {
+    ImageCache.resolve(type.name).resolve(path).apply {
+        if (exists().not()) {
             parentFile.mkdirs()
-            writeBytes(client.useHttpClient { it.get(url) })
+            writeBytes(client.useHttpClient { it.get(this@cache) })
         }
-    }
+    }.uploadAsImage(contact)
 }
 
 private suspend fun getScreenshot(url: String, path: String, refresh: Boolean = false): File {
@@ -134,7 +137,7 @@ internal suspend fun DynamicInfo.getScreenshot(contact: Contact, refresh: Boolea
 
 internal suspend fun UserInfo.getFace(contact: Contact): Message {
     return Url(face).runCatching {
-        getWebImage(url = this, path = "${CacheType.USER}/${mid}/face-${filename}").uploadAsImage(contact)
+        cache(type = CacheType.USER, path = "${mid}/face-${filename}", contact = contact)
     }.getOrElse {
         logger.warning({ "获取[${mid}]头像失败" }, it)
         "获取[${mid}]头像失败".toPlainText()
@@ -143,10 +146,11 @@ internal suspend fun UserInfo.getFace(contact: Contact): Message {
 
 internal suspend fun DynamicInfo.getImageFiles(contact: Contact) = images.mapIndexed { index, picture ->
     Url(picture).runCatching {
-        getWebImage(
-            url = this,
-            path = "${CacheType.DYNAMIC}/${datetime.toLocalDate()}/${detail.id}-${index}-${filename}"
-        ).uploadAsImage(contact)
+        cache(
+            type = CacheType.DYNAMIC,
+            path = "${datetime.toLocalDate()}/${detail.id}-${index}-${filename}",
+            contact = contact
+        )
     }.getOrElse {
         logger.warning({ "获取动态${detail.id}图片[${index}]失败" }, it)
         "获取动态${detail.id}图片[${index}]失败".toPlainText()
@@ -155,7 +159,7 @@ internal suspend fun DynamicInfo.getImageFiles(contact: Contact) = images.mapInd
 
 internal suspend fun Live.getCover(contact: Contact): Message {
     return Url(cover).runCatching {
-        getWebImage(url = this, path = "${CacheType.LIVE}/${roomId}/cover-${filename}").uploadAsImage(contact)
+        cache(type = CacheType.LIVE, path = "${roomId}/cover-${filename}", contact = contact)
     }.getOrElse {
         logger.warning({ "获取[${roomId}]直播间封面失败" }, it)
         "获取[${roomId}]直播间封面失败".toPlainText()
@@ -164,7 +168,7 @@ internal suspend fun Live.getCover(contact: Contact): Message {
 
 internal suspend fun Video.getCover(contact: Contact): Message {
     return Url(cover).runCatching {
-        getWebImage(url = this, path = "${CacheType.VIDEO}/${mid}/${id}-cover-${filename}").uploadAsImage(contact)
+        cache(type = CacheType.VIDEO, path = "${mid}/${id}-cover-${filename}", contact = contact)
     }.getOrElse {
         logger.warning({ "获取[${title}](${id})}视频封面失败" }, it)
         "获取[${title}](${id})}视频封面失败".toPlainText()
@@ -173,7 +177,7 @@ internal suspend fun Video.getCover(contact: Contact): Message {
 
 internal suspend fun Season.getCover(contact: Contact): Message {
     return Url(cover).runCatching {
-        getWebImage(url = this, path = "${CacheType.SEASON}/${seasonId}/cover-${filename}").uploadAsImage(contact)
+        cache(type = CacheType.SEASON, path = "${seasonId}/cover-${filename}", contact = contact)
     }.getOrElse {
         logger.warning({ "获取[${title}](${seasonId})}剧集封面失败" }, it)
         "获取[${title}](${seasonId})}剧集封面失败".toPlainText()
@@ -182,7 +186,7 @@ internal suspend fun Season.getCover(contact: Contact): Message {
 
 internal suspend fun Episode.getCover(contact: Contact): Message {
     return Url(cover).runCatching {
-        getWebImage(url = this, path = "${CacheType.EPISODE}/${episodeId}/cover-${filename}").uploadAsImage(contact)
+        cache(type = CacheType.EPISODE, path = "${episodeId}/cover-${filename}", contact = contact)
     }.getOrElse {
         logger.warning({ "获取[${title}](${episodeId})}剧集封面失败" }, it)
         "获取[${title}](${episodeId})}剧集封面失败".toPlainText()
@@ -191,7 +195,7 @@ internal suspend fun Episode.getCover(contact: Contact): Message {
 
 internal suspend fun LiveRecord.getCover(contact: Contact): Message {
     return Url(cover).runCatching {
-        getWebImage(url = this, path = "${CacheType.LIVE}/${roomId}/cover-${filename}").uploadAsImage(contact)
+        cache(type = CacheType.LIVE, path = "${roomId}/cover-${filename}", contact = contact)
     }.getOrElse {
         logger.warning({ "获取[${roomId}]直播回放封面封面失败" }, it)
         "获取[${roomId}]直播回放封面失败".toPlainText()
