@@ -113,14 +113,9 @@ val Video.content by ReadOnlyProperty { info, _ ->
         appendLine("链接: ${info.link}")
         if (info.seasonId != null) appendLine("剧集: ${info.seasonId}")
         info.status?.let { status ->
-            appendLine("硬币: ${status.coin}")
-            appendLine("弹幕: ${status.danmaku}")
-            appendLine("收藏: ${status.favorite}")
-            appendLine("点赞: ${status.like}")
-            appendLine("评论: ${status.reply}")
-            appendLine("分享: ${status.share}")
-            appendLine("观看: ${status.view}")
-            if (status.hisRank) appendLine("排行: ${status.nowRank}")
+            appendLine("点赞: ${status.like} 硬币: ${status.coin} 收藏: ${status.favorite}")
+            appendLine("弹幕: ${status.danmaku} 评论: ${status.reply} 分享: ${status.share}")
+            appendLine("观看: ${status.view} ${if (status.hisRank) "排行: ${status.nowRank}" else ""}")
         }
         appendLine("简介: ")
         appendLine(info.description)
