@@ -9,20 +9,16 @@ import org.openqa.selenium.Capabilities
 import org.openqa.selenium.OutputType
 import org.openqa.selenium.PageLoadStrategy
 import org.openqa.selenium.WindowType
-import org.openqa.selenium.chrome.ChromeDriverService
-import org.openqa.selenium.chrome.ChromeOptions
 import org.openqa.selenium.chromium.ChromiumOptions
 import org.openqa.selenium.firefox.FirefoxDriverLogLevel
 import org.openqa.selenium.firefox.FirefoxOptions
 import org.openqa.selenium.remote.ProtocolHandshake
 import org.openqa.selenium.remote.RemoteWebDriver
-import xyz.cssxsh.mirai.plugin.DeviceName
+import xyz.cssxsh.mirai.plugin.*
 import java.io.File
-import java.net.URL
 import java.time.Duration
 import java.util.logging.Level
 import java.util.logging.Logger
-import kotlin.streams.asSequence
 
 private fun Class<*>.getLogger(): Logger {
     return declaredFields.first { it.type == Logger::class.java }.apply { isAccessible = true }.get(null) as Logger
@@ -98,12 +94,6 @@ private const val HOME_PAGE = "https://t.bilibili.com/h5/dynamic/detail/50839636
 
 fun RemoteWebDriver(home: String = HOME_PAGE): RemoteWebDriver {
 
-    runCatching {
-        RemoteWebDriver(processes = ProcessHandle.allProcesses().asSequence())
-    }.onSuccess {
-        return@RemoteWebDriver it
-    }
-
     val thread = Thread.currentThread()
     val oc = thread.contextClassLoader
 
@@ -124,38 +114,6 @@ fun RemoteWebDriver(home: String = HOME_PAGE): RemoteWebDriver {
     thread.contextClassLoader = oc
 
     return driver.getOrThrow()
-}
-
-fun RemoteWebDriver(processes: Sequence<ProcessHandle>): RemoteWebDriver {
-    val driver = File(System.getProperty(ChromeDriverService.CHROME_DRIVER_EXE_PROPERTY)).name
-    val process = processes.first { it.info().command().orElse("").endsWith(driver) }
-    val regex = """(?<=--port=)\d+""".toRegex()
-
-    val port = regex.find(process.commandLine())?.value?.toInt() ?: 9515
-
-    val options = ChromeOptions().also(DriverConsumer)
-
-    return RemoteWebDriver(URL("http://localhost:$port"), options)
-}
-
-private fun ProcessHandle.commandLine(): String {
-    if (System.getProperty("os.name").lowercase().startsWith("windows")) {
-        val process = ProcessBuilder(
-            "wmic",
-            "process",
-            "where",
-            "ProcessID=${pid()}",
-            "get",
-            "commandline",
-            "/format:list"
-        ).redirectErrorStream(true).start()
-        for (line in process.inputStream.reader().readLines()) {
-            return """CommandLine=.+""".toRegex().matchEntire(line)?.value ?: continue
-        }
-        return ""
-    } else {
-        return info().commandLine().get()
-    }
 }
 
 suspend fun RemoteWebDriver.getScreenshot(url: String): ByteArray {
