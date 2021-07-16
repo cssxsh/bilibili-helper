@@ -58,6 +58,11 @@ open class BiliClient: CoroutineScope, Closeable {
         }
         BrowserUserAgent()
         ContentEncoding()
+        engine {
+            config {
+                hostnameVerifier { _, _ -> true }
+            }
+        }
     }
 
     internal open val mutex = BiliApiMutex(10 * 1000L)
