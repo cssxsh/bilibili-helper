@@ -6,12 +6,11 @@ plugins {
 }
 
 group = "xyz.cssxsh.mirai.plugin"
-version = "1.0.1"
+version = "1.0.2"
 
 repositories {
     mavenLocal()
-//    maven(url = "https://maven.aliyun.com/repository/releases")
-//    maven(url = "https://maven.aliyun.com/repository/public")
+    maven(url = "https://maven.aliyun.com/repository/public")
     mavenCentral()
     jcenter()
     maven(url = "https://maven.aliyun.com/repository/gradle-plugin")
@@ -38,14 +37,18 @@ dependencies {
     implementation(ktor("client-serialization", Versions.ktor))
     implementation(ktor("client-encoding", Versions.ktor))
     implementation(mxlib("selenium", Versions.mxlib)) {
-        exclude("org.seleniumhq.selenium","selenium-java")
-        exclude("junit", "junit")
-        exclude("classworlds", "classworlds")
+        exclude("org.seleniumhq.selenium")
+        exclude("junit")
+        exclude("classworlds")
+    }
+    implementation(selenium("remote-driver", Versions.selenium)) {
+        exclude("io.netty")
+        exclude("org.asynchttpclient")
+        exclude("com.google.auto.service")
     }
     implementation(selenium("java", Versions.selenium)) {
-        exclude("io.netty")
+        exclude("org.seleniumhq.selenium", "selenium-remote-driver")
     }
-    // implementation(project(":tools"))
 
     testImplementation(junit("api", Versions.junit))
     testRuntimeOnly(junit("engine", Versions.junit))
@@ -62,9 +65,6 @@ mirai {
         exclude {
             it.path.startsWith("io/ktor") &&
                 (it.path.startsWith("io/ktor/client/features/compression") || it.path.startsWith("io/ktor/client/features/json")).not()
-        }
-        exclude {
-            it.path.startsWith("io/netty")
         }
     }
 }

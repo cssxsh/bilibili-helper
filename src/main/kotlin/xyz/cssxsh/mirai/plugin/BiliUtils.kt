@@ -107,8 +107,14 @@ private suspend fun Url.cache(type: CacheType, path: String, contact: Contact): 
     }.uploadAsImage(contact)
 }
 
-private suspend fun getScreenshot(url: String, path: String, refresh: Boolean = false): File {
-    return ImageCache.resolve(path).apply {
+private suspend fun getScreenshot(
+    url: String,
+    type: CacheType,
+    path: String,
+    refresh: Boolean,
+    contact: Contact
+): Image = type.withLock {
+    ImageCache.resolve(type.name).resolve(path).apply {
         if (exists().not() || refresh) {
             parentFile.mkdirs()
             runCatching {
@@ -119,16 +125,18 @@ private suspend fun getScreenshot(url: String, path: String, refresh: Boolean = 
                 writeBytes(it)
             }
         }
-    }
+    }.uploadAsImage(contact)
 }
 
 internal suspend fun DynamicInfo.getScreenshot(contact: Contact, refresh: Boolean = false): Message {
     return runCatching {
         head.toPlainText() + getScreenshot(
             url = link,
-            path = "${CacheType.DYNAMIC}/${datetime.toLocalDate()}/${detail.id}.png",
-            refresh = refresh
-        ).uploadAsImage(contact)
+            type = CacheType.DYNAMIC,
+            path = "${datetime.toLocalDate()}/${detail.id}.png",
+            refresh = refresh,
+            contact = contact
+        )
     }.getOrElse {
         logger.warning({ "获取动态${detail.id}快照失败" }, it)
         content.toPlainText()

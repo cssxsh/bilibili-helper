@@ -10,22 +10,35 @@ object BiliCleaner : CoroutineScope by BiliHelperPlugin.childScope("BiliCleaner"
 
     private val interval by BiliCleanerConfig::interval
 
-    private fun clean(type: CacheType, hour: Int) = launch(SupervisorJob()) {
-        if (hour <= 0) {
+    private val expires by BiliCleanerConfig::expires
+
+    private const val HOUR = 60 * 60 * 1000L
+
+    private fun clean(type: CacheType, interval: Int, expires: Int) = launch(SupervisorJob()) {
+        if (interval <= 0) {
             logger.info { "${type}缓存清理跳过" }
             return@launch
         }
-        logger.info { "${type}缓存清理任务开始运行，间隔${hour}h" }
+        logger.info { "${type}缓存清理任务开始运行，间隔${interval}h" }
         while (isActive) {
-            delay(hour * 60 * 60 * 1000L)
             type.withLock {
-                ImageCache.resolve(type.name).walkBottomUp().onLeave { it.delete() }
+                val now = System.currentTimeMillis()
+                ImageCache.resolve(type.name).listFiles().orEmpty().forEach { dir ->
+                    logger.info { dir.absolutePath }
+                    dir.listFiles().orEmpty().forEach { file ->
+                        if (now - file.lastModified() > expires * HOUR) file.delete()
+                    }
+                    if (dir.list().isNullOrEmpty()) dir.delete()
+                }
             }
+            delay(interval * HOUR)
         }
     }
 
     fun start() {
-        interval.forEach { (type, duration) -> clean(type, duration) }
+        CacheType.values().forEach { type ->
+            clean(type = type, interval = interval.getValue(type), expires = expires.getValue(type))
+        }
     }
 
     fun stop() {

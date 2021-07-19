@@ -105,6 +105,7 @@ val MEDIA_REGEX = """(?<=bilibili\.com/bangumi/media/md)(\d+)""".toRegex()
 ### BiliCleanerConfig.yml
 
 1. `interval` 图片清理的间隔时间，单位 小时
+1. `expires` 图片缓存过期时间，单位 小时
 
 ## 安装
 
