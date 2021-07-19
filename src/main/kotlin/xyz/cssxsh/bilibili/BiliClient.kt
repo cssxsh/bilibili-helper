@@ -11,15 +11,13 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.utils.io.core.*
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.supervisorScope
 import kotlinx.serialization.json.Json
-import xyz.cssxsh.bilibili.api.SPACE
+import xyz.cssxsh.bilibili.api.*
 import java.io.IOException
-import kotlin.coroutines.CoroutineContext
 
-open class BiliClient: CoroutineScope, Closeable {
+open class BiliClient: Closeable {
     companion object {
         val Json = Json {
             prettyPrint = true
@@ -31,16 +29,13 @@ open class BiliClient: CoroutineScope, Closeable {
         val DefaultIgnore: suspend (Throwable) -> Boolean = { it is IOException || it is HttpRequestTimeoutException }
     }
 
-    override val coroutineContext: CoroutineContext
-        get() = client.coroutineContext
-
-    override fun close() = client.close()
+    override fun close() = clients.forEach { it.close() }
 
     protected open val ignore: suspend (exception: Throwable) -> Boolean = DefaultIgnore
 
     private val cookiesStorage = AcceptAllCookiesStorage()
 
-    private val client = HttpClient(OkHttp) {
+    protected open fun client() = HttpClient(OkHttp) {
         defaultRequest {
             header(HttpHeaders.Origin, SPACE)
             header(HttpHeaders.Referrer, SPACE)
@@ -65,12 +60,14 @@ open class BiliClient: CoroutineScope, Closeable {
         }
     }
 
+    protected open val clients = MutableList(3) { client() }
+
     internal open val mutex = BiliApiMutex(10 * 1000L)
 
     suspend fun <T> useHttpClient(block: suspend (HttpClient) -> T): T = supervisorScope {
         while (isActive) {
             runCatching {
-                block(client)
+                block(clients.random())
             }.onFailure {
                 if (ignore(it).not()) throw it
             }.onSuccess {

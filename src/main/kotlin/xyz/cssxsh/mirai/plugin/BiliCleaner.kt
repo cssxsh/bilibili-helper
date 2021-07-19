@@ -15,7 +15,7 @@ object BiliCleaner : CoroutineScope by BiliHelperPlugin.childScope("BiliCleaner"
             logger.info { "${type}缓存清理跳过" }
             return@launch
         }
-        logger.info { "${type}缓存清理任务开始运行，间隔${hour}m" }
+        logger.info { "${type}缓存清理任务开始运行，间隔${hour}h" }
         while (isActive) {
             delay(hour * 60 * 60 * 1000L)
             type.withLock {

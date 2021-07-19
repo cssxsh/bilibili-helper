@@ -137,11 +137,10 @@ fun DynamicCard.content(): String = when (detail.type) {
     DynamicType.SKETCH -> decode<DynamicSketch>().content
     DynamicType.LIVE -> decode<DynamicLive>().content
     DynamicType.LIVE_END -> "直播结束了"
-    else -> "[${detail.type}] 不支持的类型${detail.type}"
+    else -> "[${detail.type}] 不支持的类型 请联系开发者"
 }
 
 fun DynamicCard.images(): List<String> = when (detail.type) {
-    DynamicType.NONE, DynamicType.TEXT, DynamicType.DELETE, DynamicType.LIVE_END -> emptyList()
     DynamicType.REPLY -> decode<DynamicReply>().images()
     DynamicType.PICTURE -> decode<DynamicPicture>().detail.pictures.map { it.source }
     DynamicType.VIDEO -> decode<DynamicVideo>().cover.let(::listOf)
@@ -153,9 +152,9 @@ fun DynamicCard.images(): List<String> = when (detail.type) {
     else  -> emptyList()
 }
 
-val VIDEO_REGEX = """((video/|av|AV)\d+|(bv|BV)[0-9A-z]{10})""".toRegex()
+val VIDEO_REGEX = """((video/|av|AV)\d+|(bv|BV)[0-9A-z]+)""".toRegex()
 
-val DYNAMIC_REGEX = """(?<=t\.bilibili\.com/(h5/dynamic/detail/)?)([0-9]{18})""".toRegex()
+val DYNAMIC_REGEX = """(?<=t\.bilibili\.com/(h5/dynamic/detail/)?)([0-9]+)""".toRegex()
 
 val ROOM_REGEX = """(?<=live\.bilibili\.com/)(\d+)""".toRegex()
 
