@@ -40,14 +40,13 @@ dependencies {
         exclude("org.seleniumhq.selenium")
         exclude("junit")
         exclude("classworlds")
-    }
-    implementation(selenium("remote-driver", Versions.selenium)) {
         exclude("io.netty")
-        exclude("org.asynchttpclient")
-        exclude("com.google.auto.service")
+        exclude("com.typesafe.netty")
     }
     implementation(selenium("java", Versions.selenium)) {
-        exclude("org.seleniumhq.selenium", "selenium-remote-driver")
+        exclude("io.netty")
+        exclude("com.typesafe.netty")
+        exclude("com.google.auto.service")
     }
 
     testImplementation(junit("api", Versions.junit))
