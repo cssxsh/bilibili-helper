@@ -428,20 +428,20 @@ data class DynamicReplyDetail(
     val atUsers: List<Long> = emptyList(),
     @SerialName("content")
     val content: String,
-//        @SerialName("ctrl")
-//        private val ctrl: String? = null,
+//    @SerialName("ctrl")
+//    private val ctrl: String? = null,
     @SerialName("orig_dy_id")
     val originDynamicId: Long,
     @SerialName("orig_type")
     override val type: Int,
-//        @SerialName("pre_dy_id")
-//        private val previousDynamicId: Long,
+//    @SerialName("pre_dy_id")
+//    private val previousDynamicId: Long,
     @SerialName("reply")
     val reply: Int,
-//        @SerialName("rp_id")
-//        private val replyId: Long,
-    @SerialName("timestamp")
-    val timestamp: Long,
+//    @SerialName("rp_id")
+//    private val replyId: Long,
+//    @SerialName("timestamp")
+//    val timestamp: Long,
     @SerialName("uid")
     val uid: Long
 ) : DynamicCardDetail
