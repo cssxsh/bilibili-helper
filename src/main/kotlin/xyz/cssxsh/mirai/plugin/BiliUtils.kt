@@ -11,12 +11,8 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import net.mamoe.mirai.Bot
-import net.mamoe.mirai.contact.Contact
-import net.mamoe.mirai.contact.Group
-import net.mamoe.mirai.contact.getMember
-import net.mamoe.mirai.message.data.Image
-import net.mamoe.mirai.message.data.Message
-import net.mamoe.mirai.message.data.toPlainText
+import net.mamoe.mirai.contact.*
+import net.mamoe.mirai.message.data.*
 import net.mamoe.mirai.utils.*
 import net.mamoe.mirai.utils.ExternalResource.Companion.uploadAsImage
 import xyz.cssxsh.bilibili.data.*
@@ -98,40 +94,37 @@ fun findContact(delegate: Long): Contact? {
     return null
 }
 
-private suspend fun Url.cache(type: CacheType, path: String, contact: Contact): Image = type.withLock {
+private suspend fun Url.cache(type: CacheType, path: String, contact: Contact) = type.withLock {
     ImageCache.resolve(type.name).resolve(path).apply {
         if (exists().not()) {
             parentFile.mkdirs()
             writeBytes(client.useHttpClient { it.get(this@cache) })
+        } else {
+            setLastModified(System.currentTimeMillis())
         }
     }.uploadAsImage(contact)
 }
 
-private suspend fun getScreenshot(
-    url: String,
-    type: CacheType,
-    path: String,
-    refresh: Boolean,
-    contact: Contact
-): Image = type.withLock {
+private suspend fun Url.screenshot(type: CacheType, path: String, refresh: Boolean, contact: Contact) = type.withLock {
     ImageCache.resolve(type.name).resolve(path).apply {
         if (exists().not() || refresh) {
             parentFile.mkdirs()
             runCatching {
-                RemoteWebDriver.getScreenshot(url)
+                RemoteWebDriver.getScreenshot(this@screenshot.toString())
             }.onFailure {
                 logger.warning({ "使用SeleniumTool失败" }, it)
             }.getOrThrow().let {
                 writeBytes(it)
             }
+        } else {
+            setLastModified(System.currentTimeMillis())
         }
     }.uploadAsImage(contact)
 }
 
 internal suspend fun DynamicInfo.getScreenshot(contact: Contact, refresh: Boolean = false): Message {
     return runCatching {
-        head.toPlainText() + getScreenshot(
-            url = link,
+        head.toPlainText() + Url(link).screenshot(
             type = CacheType.DYNAMIC,
             path = "${datetime.toLocalDate()}/${detail.id}.png",
             refresh = refresh,
