@@ -10,7 +10,7 @@ internal object BiliListener: CoroutineScope by BiliHelperPlugin.childScope("Bil
 
     fun subscribe() {
         globalEventChannel().subscribeMessages {
-            Repliers.forEach { (regex, replier) ->
+            UrlRepliers.forEach { (regex, replier) ->
                 regex findingReply replier
             }
         }
