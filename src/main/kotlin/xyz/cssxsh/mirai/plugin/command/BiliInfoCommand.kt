@@ -12,22 +12,22 @@ object BiliInfoCommand : CompositeCommand(
 ) {
 
     @SubCommand
-    suspend fun CommandSender.aid(id: Long, contact: Contact = Contact()) = contact.sendMessage(
-        client.getVideoInfo(aid = id).toMessage(contact = contact)
+    suspend fun CommandSender.aid(id: Long, contact: Contact = subject()) = contact.sendMessage(
+        client.getVideoInfo(id).toMessage(contact)
     )
 
     @SubCommand
-    suspend fun CommandSender.bvid(id: String, contact: Contact = Contact()) = contact.sendMessage(
-        client.getVideoInfo(bvid = id).toMessage(contact = contact)
+    suspend fun CommandSender.bvid(id: String, contact: Contact = subject()) = contact.sendMessage(
+        client.getVideoInfo(id).toMessage(contact)
     )
 
     @SubCommand
-    suspend fun CommandSender.dynamic(id: Long, contact: Contact = Contact()) = contact.sendMessage(
-        client.getDynamicInfo(id).dynamic.toMessage(contact = contact)
+    suspend fun CommandSender.dynamic(id: Long, contact: Contact = subject()) = contact.sendMessage(
+        client.getDynamicInfo(id).dynamic.toMessage(contact)
     )
 
     @SubCommand
-    suspend fun CommandSender.live(id: Long, contact: Contact = Contact()) = contact.sendMessage(
-        client.getRoomInfo(id).toMessage(contact = contact)
+    suspend fun CommandSender.live(id: Long, contact: Contact = subject()) = contact.sendMessage(
+        client.getRoomInfo(id).toMessage(contact)
     )
 }
