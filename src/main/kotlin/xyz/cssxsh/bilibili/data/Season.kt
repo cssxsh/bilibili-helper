@@ -106,8 +106,8 @@ data class SeasonSection(
 
 @Serializable
 data class SeasonEpisode(
-//    @SerialName("aid")
-//    val aid: Long,
+    @SerialName("aid")
+    val aid: Long,
 //    @SerialName("badge")
 //    val badge: String,
 //    @SerialName("badge_info")
