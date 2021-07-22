@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "xyz.cssxsh.mirai.plugin"
-version = "1.0.2"
+version = "1.0.3"
 
 repositories {
     mavenLocal()
@@ -47,6 +47,9 @@ dependencies {
         exclude("io.netty")
         exclude("com.typesafe.netty")
         exclude("com.google.auto.service")
+        exclude("com.google.guava")
+        exclude("org.asynchttpclient")
+        exclude("io.opentelemetry")
     }
 
     testImplementation(junit("api", Versions.junit))
