@@ -36,7 +36,7 @@ internal suspend fun BiliRoomInfo.toMessage(contact: Contact) = buildMessageChai
         1 -> {
             appendLine("开播时间: $datetime")
             runCatching {
-                with(client.getUserInfo(mid = uid)) {
+                with(client.getUserInfo(uid = uid)) {
                     appendLine("主播: $name")
                     add(liveRoom.toMessage(contact))
                 }
