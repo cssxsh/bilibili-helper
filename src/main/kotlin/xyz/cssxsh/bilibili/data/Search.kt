@@ -202,7 +202,7 @@ data class SearchSeason(
 //    override val type: String,
     @SerialName("url")
     override val share: String,
-    override val new: NewEpisode
+    override val new: NewEpisode? = null
 ) : Media
 
 @Serializable
