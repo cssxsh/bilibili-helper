@@ -42,7 +42,7 @@ internal class ApiTest {
     fun live(): Unit = runBlocking {
         client.getRoomInfo(roomId = 10112L)
 
-        client.getRoomInfoOld(mid = 26798384L)
+        client.getRoomInfoOld(uid = 26798384L)
 
         client.getOffLiveList(roomId = 10112L, count = 10)
 
@@ -51,16 +51,16 @@ internal class ApiTest {
 
     @Test
     fun season(): Unit = runBlocking {
-        withLog(client.getSeasonMedia(28233903).media) { info ->
+        withLog(client.getSeasonMedia(mediaId = 28233903).media) { info ->
             appendLine(info.content)
         }
-        withLog(client.getSeasonInfo(38234)) { info ->
+        withLog(client.getSeasonInfo(seasonId = 38234)) { info ->
             appendLine(info.content)
         }
-        withLog(client.getEpisodeInfo(395240)) { info ->
+        withLog(client.getEpisodeInfo(episode_id = 395240)) { info ->
             appendLine(info.content)
         }
-        withLog(client.getSeasonSection(38221)) { info ->
+        withLog(client.getSeasonSection(seasonId = 38221)) { info ->
             appendLine(info.mainSection.episodes.last())
         }
         withLog(client.getSeasonTimeline()) { list ->
@@ -72,12 +72,12 @@ internal class ApiTest {
 
     @Test
     fun user(): Unit = runBlocking {
-        client.getUserInfo(mid = 26798384L)
+        client.getUserInfo(uid = 26798384L)
     }
 
     @Test
     fun video(): Unit = runBlocking {
-        withLog(client.getVideos(mid = 26798384L).list.videos) { list ->
+        withLog(client.getVideos(uid = 26798384L).list.videos) { list ->
             list.forEach {
                 appendLine(it.content)
                 appendLine(it.cover)
@@ -98,7 +98,7 @@ internal class ApiTest {
 
     @Test
     fun search(): Unit = runBlocking {
-        withLog(client.searchUser(keyword = "sss").result) {
+        withLog(client.searchUser(keyword = "瓶子君152").result) {
             it.forEach { user ->
                 appendLine(user.content)
             }
@@ -108,7 +108,7 @@ internal class ApiTest {
                 appendLine(season.content)
             }
         }
-        withLog(client.searchFT(keyword = "非自然死亡").result) {
+        withLog(client.searchFT(keyword = "让子弹飞").result) {
             it.forEach { season ->
                 appendLine(season.content)
             }

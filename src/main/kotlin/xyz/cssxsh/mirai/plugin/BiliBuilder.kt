@@ -36,7 +36,7 @@ internal suspend fun BiliRoomInfo.toMessage(contact: Contact) = buildMessageChai
         1 -> {
             appendLine("开播时间: $datetime")
             runCatching {
-                with(client.getUserInfo(mid = uid)) {
+                with(client.getUserInfo(uid = uid)) {
                     appendLine("主播: $name")
                     add(liveRoom.toMessage(contact))
                 }
@@ -161,7 +161,7 @@ private suspend fun Url.location(): String? {
     }.headers[HttpHeaders.Location]
 }
 
-internal val Repliers by lazy {
+internal val UrlRepliers by lazy {
     mapOf(
         DYNAMIC_REGEX to DynamicReplier,
         VIDEO_REGEX to VideoReplier,
@@ -177,7 +177,7 @@ internal val Repliers by lazy {
 internal val ShortLinkReplier: MessageReplier = replier@{ result ->
     logger.info { "[${sender}] 匹配SHORT_LINK(${result.value}) 尝试跳转" }
     val location = Url("https://b23.tv/${result.value}").location() ?: return@replier null
-    for ((regex, replier) in Repliers) {
+    for ((regex, replier) in UrlRepliers) {
         val new = regex.find(location) ?: continue
         return@replier replier(new)
     }

@@ -11,17 +11,17 @@ object BiliDynamicCommand : CompositeCommand(
 ), BiliTasker by BiliDynamicLoader {
 
     @SubCommand("add", "添加")
-    suspend fun CommandSender.add(uid: Long, contact: Contact = Contact()) = sendMessage(
+    suspend fun CommandSender.add(uid: Long, contact: Contact = subject()) = sendMessage(
         addContact(uid, contact).let { "对@${it?.name}#${uid}的监听任务, 添加完成" }
     )
 
     @SubCommand("stop", "停止")
-    suspend fun CommandSenderOnMessage<*>.stop(uid: Long, contact: Contact = Contact()) = sendMessage(
+    suspend fun CommandSenderOnMessage<*>.stop(uid: Long, contact: Contact = subject()) = sendMessage(
         removeContact(uid, contact).let { "对@${it?.name}#${uid}的监听任务, 取消完成" }
     )
 
     @SubCommand("list", "列表")
-    suspend fun CommandSenderOnMessage<*>.detail(contact: Contact = Contact()) = sendMessage(
+    suspend fun CommandSenderOnMessage<*>.detail(contact: Contact = subject()) = sendMessage(
         list(contact)
     )
 }

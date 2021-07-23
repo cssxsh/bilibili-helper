@@ -108,18 +108,18 @@ data class SeasonSection(
 data class SeasonEpisode(
     @SerialName("aid")
     val aid: Long,
-    @SerialName("badge")
-    val badge: String,
+//    @SerialName("badge")
+//    val badge: String,
 //    @SerialName("badge_info")
 //    val badgeInfo: BadgeInfo,
 //    @SerialName("badge_type")
 //    val badgeType: Int,
-    @SerialName("cid")
-    val cid: Long,
+//    @SerialName("cid")
+//    val cid: Long,
     @SerialName("cover")
     override val cover: String,
     @SerialName("from")
-    val from: String,
+    val from: String = "",
     @SerialName("id")
     override val episodeId: Long,
     @SerialName("is_premiere")

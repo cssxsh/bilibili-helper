@@ -202,7 +202,7 @@ data class SearchSeason(
 //    override val type: String,
     @SerialName("url")
     override val share: String,
-    override val new: NewEpisode
+    override val new: NewEpisode? = null
 ) : Media
 
 @Serializable
@@ -215,20 +215,20 @@ data class SearchSeasonRating(
 
 @Serializable
 data class SearchSeasonEpisode(
-    @SerialName("aid")
-    val aid: Long,
-    @SerialName("badge")
-    val badge: String,
+//    @SerialName("aid")
+//    val aid: Long,
+//    @SerialName("badge")
+//    val badge: String,
 //    @SerialName("badge_info")
 //    val badgeInfo: BadgeInfo,
 //    @SerialName("badge_type")
 //    val badgeType: Int,
-    @SerialName("cid")
-    val cid: Long,
+//    @SerialName("cid")
+//    val cid: Long,
     @SerialName("cover")
     override val cover: String,
     @SerialName("from")
-    val from: String,
+    val from: String = "",
     @SerialName("id")
     override val episodeId: Long,
     @SerialName("is_premiere")
@@ -236,8 +236,8 @@ data class SearchSeasonEpisode(
     val isPremiere: Boolean = false,
     @SerialName("long_title")
     override val title: String,
-    @SerialName("share_url")
-    override val share: String,
+    @SerialName("url")
+    override val share: String = "",
 //    @SerialName("status")
 //    val status: Int,
     @SerialName("title")

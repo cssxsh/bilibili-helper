@@ -19,13 +19,13 @@ suspend fun BiliClient.getVideoInfo(
 }
 
 suspend fun BiliClient.getVideos(
-    mid: Long,
+    uid: Long,
     keyword: String = "",
     pageSize: Int = 30,
     pageNum: Int = 1,
     url: String = SEARCH_URL
 ): BiliSearchResult = json(url) {
-    parameter("mid", mid)
+    parameter("mid", uid)
     parameter("keyword", keyword)
     parameter("order", "pubdate")
     parameter("jsonp", "jsonp")

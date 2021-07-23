@@ -117,4 +117,4 @@ val MEDIA_REGEX = """(?<=bilibili\.com/bangumi/media/md)(\d+)""".toRegex()
 ## TODO
 
 - [x] 完善剧集订阅
-- [ ] 自动清理图片缓存
+- [x] 自动清理图片缓存

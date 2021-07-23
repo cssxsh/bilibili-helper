@@ -12,10 +12,10 @@ suspend fun BiliClient.getRoomInfo(
 }
 
 suspend fun BiliClient.getRoomInfoOld(
-    mid: Long,
+    uid: Long,
     url: String = ROOM_INFO_OLD
 ): BiliRoomSimple = json(url) {
-    parameter("mid", mid)
+    parameter("mid", uid)
 }
 
 suspend fun BiliClient.getOffLiveList(
