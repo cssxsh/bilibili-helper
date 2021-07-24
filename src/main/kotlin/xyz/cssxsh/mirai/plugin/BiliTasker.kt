@@ -245,7 +245,9 @@ object BiliLiveWaiter : Waiter<BiliUserInfo>(), CoroutineScope by BiliHelperPlug
 
     override suspend fun BiliUserInfo.success(): Boolean = liveRoom.liveStatus
 
-    override suspend fun BiliUserInfo.build(contact: Contact) = liveRoom.toMessage(contact)
+    override suspend fun BiliUserInfo.build(contact: Contact): Message {
+        return "主播: $name#$mid \n".toPlainText() + liveRoom.toMessage(contact)
+    }
 
     override suspend fun BiliUserInfo.near(): Boolean = false // TODO by live history
 
