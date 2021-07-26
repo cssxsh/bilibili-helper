@@ -21,8 +21,6 @@ interface Video {
 data class BiliVideoInfo(
     @SerialName("aid")
     val aid: Long,
-//    @SerialName("attribute")
-//    private val attribute: Int? = null,
     @SerialName("bvid")
     override val id: String,
     @SerialName("cid")
@@ -39,12 +37,6 @@ data class BiliVideoInfo(
     val duration: Long,
     @SerialName("dynamic")
     val dynamic: String = "",
-//    @SerialName("label")
-//    private val label: JsonObject? = null,
-//    @SerialName("mission_id")
-//    private val missionId: Long? = null,
-//    @SerialName("no_cache")
-//    private val noCache: Boolean,
     @SerialName("owner")
     val owner: VideoOwner,
     @SerialName("pages")
@@ -55,18 +47,12 @@ data class BiliVideoInfo(
     val pubdate: Long,
     @SerialName("redirect_url")
     val redirect: String? = null,
-//    @SerialName("rights")
-//    private val rights: Map<String, Int>,
     @SerialName("season_id")
     override val seasonId: Long? = null,
     @SerialName("staff")
     val staff: List<VideoStaff> = emptyList(),
     @SerialName("stat")
     override val status: VideoStatus,
-//    @SerialName("state")
-//    private val state: Int,
-//    @SerialName("stein_guide_cid")
-//    private val steinGuideCid: Int? = null,
     @SerialName("subtitle")
     val subtitle: VideoSubtitle,
     @SerialName("tid")
@@ -76,13 +62,7 @@ data class BiliVideoInfo(
     @SerialName("tname")
     val type: String,
     @SerialName("videos")
-    val videos: Int,
-//    @SerialName("user_garb")
-//    private val userGarb: JsonObject? = null,
-//    @SerialName("ugc_season")
-//    private val ugcSeason: JsonElement? = null,
-//    @SerialName("desc_v2")
-//    private val descV2: JsonElement? = null,
+    val videos: Int
 ) : Video {
     override val author: String by owner::name
     override val mid: Long by owner::mid
@@ -93,8 +73,6 @@ data class BiliVideoInfo(
 
 @Serializable
 data class BiliSearchResult(
-//    @SerialName("episodic_button")
-//    private val episodicButton: JsonObject? = null,
     @SerialName("list")
     val list: VideoInfoList,
     @SerialName("page")
@@ -181,10 +159,6 @@ data class VideoSubtitleAuthor(
 
 @Serializable
 data class VideoStatus(
-//    @SerialName("aid")
-//    val aid: Long,
-//    @SerialName("argue_msg")
-//    val argue: String = "",
     @SerialName("coin")
     val coin: Long,
     @SerialName("danmaku")
@@ -192,8 +166,6 @@ data class VideoStatus(
     @SerialName("dislike")
     @Serializable(NumberToBooleanSerializer::class)
     val dislike: Boolean,
-//    @SerialName("evaluation")
-//    val evaluation: String = "",
     @SerialName("favorite")
     val favorite: Long,
     @SerialName("his_rank")
@@ -217,8 +189,6 @@ data class VideoStaff(
     val face: String,
     @SerialName("follower")
     val follower: Int,
-//    @SerialName("label_style")
-//    private val labelStyle: Int,
     @SerialName("mid")
     val mid: Long,
     @SerialName("name")
@@ -226,9 +196,7 @@ data class VideoStaff(
     @SerialName("official")
     val official: UserOfficial,
     @SerialName("title")
-    val title: String,
-//    @SerialName("vip")
-//    private val vip: JsonObject
+    val title: String
 )
 
 @Serializable

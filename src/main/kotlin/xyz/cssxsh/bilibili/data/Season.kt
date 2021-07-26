@@ -46,14 +46,12 @@ data class BiliSectionMedia(
 
 @Serializable
 data class SeasonMedia(
-//        @SerialName("areas")
-//        val areas: List<Area>,
     @SerialName("cover")
     override val cover: String,
     @SerialName("media_id")
     override val mediaId: Long,
     @SerialName("new_ep")
-    override val new: MediaNewEpisode,
+    override val new: MediaNewEpisode? = null,
     @SerialName("rating")
     override val rating: SeasonRating? = null,
     @SerialName("season_id")
@@ -108,14 +106,6 @@ data class SeasonSection(
 data class SeasonEpisode(
     @SerialName("aid")
     val aid: Long,
-//    @SerialName("badge")
-//    val badge: String,
-//    @SerialName("badge_info")
-//    val badgeInfo: BadgeInfo,
-//    @SerialName("badge_type")
-//    val badgeType: Int,
-//    @SerialName("cid")
-//    val cid: Long,
     @SerialName("cover")
     override val cover: String,
     @SerialName("from")
@@ -129,24 +119,12 @@ data class SeasonEpisode(
     override val title: String,
     @SerialName("share_url")
     override val share: String,
-//    @SerialName("status")
-//    val status: Int,
     @SerialName("title")
     override val index: String,
-//    @SerialName("vid")
-//    val vid: String,
 ) : Episode
 
 @Serializable
 data class SeasonTimeline(
-//    @SerialName("area")
-//    val area: String,
-//    @SerialName("arealimit")
-//    val arealimit: Int,
-//    @SerialName("attention")
-//    val attention: Int,
-//    @SerialName("bangumi_id")
-//    val bangumiId: Int,
     @SerialName("bgmcount")
     override val index: String,
     @SerialName("cover")
@@ -162,20 +140,14 @@ data class SeasonTimeline(
     val isFinish: Boolean,
     @SerialName("lastupdate")
     val last: Long,
-//    @SerialName("lastupdate_at")
-//    val lastupdateAt: String,
     @SerialName("new")
     val new: Boolean,
     @SerialName("play_count")
     val play: Int,
-//    @SerialName("pub_time")
-//    val pubTime: String,
     @SerialName("season_id")
     override val seasonId: Long,
     @SerialName("season_status")
     val seasonStatus: Int,
-//    @SerialName("spid")
-//    val spid: Int,
     @SerialName("square_cover")
     val squareCover: String,
     @SerialName("title")
@@ -192,66 +164,24 @@ data class SeasonTimeline(
 
 @Serializable
 data class BiliSeasonInfo(
-//    @SerialName("activity")
-//    val activity: Activity,
-//    @SerialName("alias")
-//    val alias: String,
-//    @SerialName("bkg_cover")
-//    val bkgCover: String,
     @SerialName("cover")
     override val cover: String,
     @SerialName("episodes")
     val episodes: List<SeasonEpisode>,
     @SerialName("evaluate")
     val evaluate: String,
-//    @SerialName("freya")
-//    val freya: Freya,
-//    @SerialName("jp_title")
-//    val jpTitle: String,
     @SerialName("link")
     val link: String,
     @SerialName("media_id")
     override val mediaId: Long,
-//    @SerialName("mode")
-//    val mode: Int,
     @SerialName("new_ep")
-    override val new: SeasonNewEpisode,
-//    @SerialName("payment")
-//    val payment: Payment,
-//    @SerialName("positive")
-//    val positive: Positive,
-//    @SerialName("publish")
-//    val publish: Publish,
+    override val new: SeasonNewEpisode? = null,
     @SerialName("rating")
     override val rating: SeasonRating? = null,
-//    @SerialName("record")
-//    val record: String,
-//    @SerialName("rights")
-//    val rights: Rights,
     @SerialName("season_id")
     override val seasonId: Long,
-//    @SerialName("season_title")
-//    val seasonTitle: String,
-//    @SerialName("seasons")
-//    val seasons: List<Season>,
-//    @SerialName("section")
-//    val section: List<Section>,
-//    @SerialName("series")
-//    val series: Series,
-//    @SerialName("share_copy")
-//    val shareCopy: String,
-//    @SerialName("share_sub_title")
-//    val shareSubTitle: String,
     @SerialName("share_url")
     override val share: String,
-//    @SerialName("show")
-//    val show: Show,
-//    @SerialName("square_cover")
-//    val squareCover: String,
-//    @SerialName("stat")
-//    val stat: Stat,
-//    @SerialName("status")
-//    val status: Int,
     @SerialName("subtitle")
     val subtitle: String,
     @SerialName("title")
