@@ -84,6 +84,52 @@ data class DynamicDescribe(
 ) : DynamicCardDetail
 
 @Serializable
+data class EmojiInfo(
+    @SerialName("emoji_details")
+    val details: List<EmojiDetail> = emptyList()
+)
+
+@Serializable
+data class EmojiDetail(
+    @SerialName("attr")
+    val attr: Int,
+    @SerialName("emoji_name")
+    val name: String,
+    @SerialName("id")
+    val id: Int,
+    @SerialName("mtime")
+    val mtime: Int,
+    @SerialName("package_id")
+    val packageId: Int,
+    @SerialName("state")
+    val state: Int,
+    @SerialName("text")
+    val text: String,
+    @SerialName("type")
+    val type: Int,
+    @SerialName("url")
+    val url: String
+)
+
+@Serializable
+data class DynamicDisplay(
+    @SerialName("emoji_info")
+    val emoji: EmojiInfo,
+    @SerialName("origin")
+    val origin: DynamicDisplay? = null
+)
+
+@Serializable
+data class DynamicInfo(
+    @SerialName("card")
+    override val card: String,
+    @SerialName("desc")
+    override val detail: DynamicDescribe,
+    @SerialName("display")
+    val display: DynamicDisplay
+) : DynamicCard
+
+@Serializable
 data class DynamicArticle(
     @SerialName("act_id")
     val actId: Int,
@@ -179,14 +225,6 @@ data class SeasonInfo(
     @SerialName("type_name")
     override val type: String
 ) : Season
-
-@Serializable
-data class DynamicInfo(
-    @SerialName("card")
-    override val card: String,
-    @SerialName("desc")
-    override val detail: DynamicDescribe
-) : DynamicCard
 
 @Serializable
 data class DynamicLive(

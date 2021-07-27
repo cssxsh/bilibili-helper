@@ -25,7 +25,7 @@ internal suspend fun Video.toMessage(contact: Contact) = content.toPlainText() +
 internal suspend fun Live.toMessage(contact: Contact) = content.toPlainText() + getCover(contact)
 
 internal suspend fun DynamicInfo.toMessage(contact: Contact): Message {
-    return (if (SetupSelenium) getScreenshot(contact) else content.toPlainText()) + getImageFiles(contact)
+    return (if (SetupSelenium) screenshot(contact) else emoji(contact)) + getImages(contact)
 }
 
 internal suspend fun BiliRoomInfo.toMessage(contact: Contact) = buildMessageChain {
