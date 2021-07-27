@@ -3,7 +3,6 @@ package xyz.cssxsh.mirai.plugin
 import net.mamoe.mirai.console.command.CommandManager.INSTANCE.register
 import net.mamoe.mirai.console.command.CommandManager.INSTANCE.unregister
 import net.mamoe.mirai.console.data.PluginConfig
-import net.mamoe.mirai.console.extension.PluginComponentStorage
 import net.mamoe.mirai.console.plugin.jvm.JvmPluginDescription
 import net.mamoe.mirai.console.plugin.jvm.KotlinPlugin
 import net.mamoe.mirai.utils.*
@@ -22,11 +21,8 @@ object BiliHelperPlugin : KotlinPlugin(
     lateinit var driver: RemoteWebDriver
         private set
 
-    var selenium: Boolean = false
-        private set
-
-    override fun PluginComponentStorage.onLoad() {
-        selenium = runCatching {
+    val selenium: Boolean by lazy {
+        SeleniumToolConfig.setup && runCatching {
             setupSelenium(dataFolder)
         }.onFailure {
             if (it is UnsupportedOperationException) {

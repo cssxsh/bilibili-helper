@@ -107,6 +107,11 @@ val MEDIA_REGEX = """(?<=bilibili\.com/bangumi/media/md)(\d+)""".toRegex()
 1. `interval` 图片清理的间隔时间，单位 小时
 1. `expires` 图片缓存过期时间，单位 小时
 
+### SeleniumConfig.yml
+
+1. `device_name` 截图设备类型，默认 `iPad`
+1. `setup` 是否启用截图，默认 `true`
+
 ## 安装
 
 ### 手动安装

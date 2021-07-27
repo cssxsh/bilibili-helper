@@ -7,4 +7,6 @@ import net.mamoe.mirai.console.data.value
 object SeleniumToolConfig : ReadOnlyPluginConfig("SeleniumConfig") {
     @ValueName("device_name")
     val device: String by value("iPad")
+    @ValueName("setup")
+    val setup: Boolean by value(true)
 }
