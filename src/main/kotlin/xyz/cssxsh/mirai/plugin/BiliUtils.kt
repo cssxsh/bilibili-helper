@@ -43,8 +43,6 @@ internal val SetupSelenium by BiliHelperPlugin::selenium
 
 internal val RemoteWebDriver by BiliHelperPlugin::driver
 
-internal val DeviceName by lazy { SeleniumToolConfig.device }
-
 enum class CacheType : Mutex by Mutex() {
     DYNAMIC,
     VIDEO,
@@ -111,7 +109,11 @@ private suspend fun Url.screenshot(type: CacheType, path: String, refresh: Boole
         if (exists().not() || refresh) {
             parentFile.mkdirs()
             runCatching {
-                RemoteWebDriver.getScreenshot(this@screenshot.toString())
+                RemoteWebDriver.getScreenshot(
+                    url = this@screenshot.toString(),
+                    width = SeleniumToolConfig.width,
+                    height = SeleniumToolConfig.height
+                )
             }.onFailure {
                 logger.warning({ "使用SeleniumTool失败" }, it)
             }.getOrThrow().let {

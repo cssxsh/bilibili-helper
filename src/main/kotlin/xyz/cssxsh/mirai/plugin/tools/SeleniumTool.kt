@@ -5,16 +5,12 @@ import io.github.karlatemp.mxlib.logger.NopLogger
 import io.github.karlatemp.mxlib.selenium.MxSelenium
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeout
-import org.openqa.selenium.Capabilities
-import org.openqa.selenium.OutputType
-import org.openqa.selenium.PageLoadStrategy
-import org.openqa.selenium.WindowType
+import org.openqa.selenium.*
 import org.openqa.selenium.chromium.ChromiumOptions
 import org.openqa.selenium.firefox.FirefoxDriverLogLevel
 import org.openqa.selenium.firefox.FirefoxOptions
 import org.openqa.selenium.remote.ProtocolHandshake
 import org.openqa.selenium.remote.RemoteWebDriver
-import xyz.cssxsh.mirai.plugin.*
 import java.io.File
 import java.time.Duration
 import java.util.logging.Level
@@ -60,21 +56,14 @@ internal val DriverConsumer: (Capabilities) -> Unit = { capabilities ->
                 "excludeSwitches",
                 listOf("enable-automation", "ignore-certificate-errors")
             )
-            if (DeviceName.isNotBlank()) {
-                setExperimentalOption("mobileEmulation", mapOf("deviceName" to DeviceName))
-            }
         }
         is FirefoxOptions -> capabilities.apply {
             setHeadless(true)
             setPageLoadStrategy(PageLoadStrategy.NORMAL)
             setLogLevel(FirefoxDriverLogLevel.FATAL)
             setAcceptInsecureCerts(true)
-            if (DeviceName.isNotBlank()) {
-                setCapability(
-                    FirefoxOptions.FIREFOX_OPTIONS,
-                    mapOf("mobileEmulation" to mapOf("deviceName" to DeviceName))
-                )
-            }
+            // XXX 手动关闭 webgl
+            addPreference("webgl.disabled", true)
         }
         else -> throw IllegalArgumentException("未设置参数的浏览器")
     }
@@ -92,7 +81,7 @@ private val Interval = Duration.ofSeconds(3)
 
 private const val HOME_PAGE = "https://t.bilibili.com/h5/dynamic/detail/508396365455813655"
 
-fun RemoteWebDriver(home: String = HOME_PAGE): RemoteWebDriver {
+fun RemoteWebDriver(ua: String? = null, home: String = HOME_PAGE): RemoteWebDriver {
 
     val thread = Thread.currentThread()
     val oc = thread.contextClassLoader
@@ -100,7 +89,7 @@ fun RemoteWebDriver(home: String = HOME_PAGE): RemoteWebDriver {
     val driver = runCatching {
         thread.contextClassLoader = KtorHttpClientFactory::class.java.classLoader
 
-        MxSelenium.newDriver(null, DriverConsumer).apply {
+        MxSelenium.newDriver(ua, DriverConsumer).apply {
             // 诡异的等级
             setLogLevel(Level.ALL)
             manage().timeouts().apply {
@@ -116,9 +105,10 @@ fun RemoteWebDriver(home: String = HOME_PAGE): RemoteWebDriver {
     return driver.getOrThrow()
 }
 
-suspend fun RemoteWebDriver.getScreenshot(url: String): ByteArray {
+suspend fun RemoteWebDriver.getScreenshot(url: String, width: Int, height: Int): ByteArray {
     val pre = windowHandle
     val new = switchTo().newWindow(WindowType.TAB)
+    manage().window().size = Dimension(width, height)
     new.get(url)
     runCatching {
         withTimeout(Timeout.toMillis()) {

@@ -109,7 +109,9 @@ val MEDIA_REGEX = """(?<=bilibili\.com/bangumi/media/md)(\d+)""".toRegex()
 
 ### SeleniumConfig.yml
 
-1. `device_name` 截图设备类型，默认 `iPad`
+1. `ua` 截图设备UA
+1. `width` 截图宽度
+1. `height` 截图高度
 1. `setup` 是否启用截图，默认 `true`
 
 ## 安装
