@@ -19,12 +19,10 @@ data class BiliArticleInfo(
     val last: ArticleSimple,
     @SerialName("list")
     val list: ArticleList?,
-//    @SerialName("next")
-//    private val next: JsonElement?,
     @SerialName("now")
-    val now: Int,
+    val now: Long,
     @SerialName("total")
-    val total: Int
+    val total: Long
 )
 
 @Serializable
@@ -38,32 +36,28 @@ data class ArticleAuthor(
     @SerialName("nameplate")
     val nameplate: UserNameplate,
     @SerialName("official_verify")
-    val official: ArticleOfficialVerify,
-    @SerialName("pendant")
-    val pendant: UserPendant,
-//    @SerialName("vip")
-//    private val vip: JsonObject
+    val official: UserOfficial
 )
 
 @Serializable
 data class ArticleStatus(
     @SerialName("coin")
-    val coin: Int,
+    val coin: Long,
     @SerialName("dislike")
     @Serializable(NumberToBooleanSerializer::class)
     val dislike: Boolean,
     @SerialName("dynamic")
-    val dynamic: Int,
+    val dynamic: Long,
     @SerialName("favorite")
-    val favorite: Int,
+    val favorite: Long,
     @SerialName("like")
-    val like: Int,
+    val like: Long,
     @SerialName("reply")
-    val reply: Int,
+    val reply: Long,
     @SerialName("share")
-    val share: Int,
+    val share: Long,
     @SerialName("view")
-    val view: Int
+    val view: Long
 )
 
 @Serializable
@@ -78,8 +72,6 @@ data class ArticleSimple(
     override val images: List<String>,
     @SerialName("publish_time")
     override val published: Long,
-//    @SerialName("state")
-//    val state: Int,
     @SerialName("summary")
     override val summary: String,
     @SerialName("title")
@@ -87,14 +79,6 @@ data class ArticleSimple(
     @SerialName("words")
     val words: Int
 ): Article
-
-@Serializable
-data class ArticleOfficialVerify(
-    @SerialName("desc")
-    val description: String,
-    @SerialName("type")
-    val type: Int
-)
 
 @Serializable
 data class ArticleMedia(
@@ -115,7 +99,7 @@ data class ArticleMedia(
     @SerialName("type_id")
     val typeId: Int,
     @SerialName("type_name")
-    val typeName: String
+    val type: String
 )
 
 @Serializable
@@ -123,7 +107,7 @@ data class ArticleList(
     @SerialName("apply_time")
     val apply: String,
     @SerialName("articles_count")
-    val articlesCount: Int,
+    val count: Int,
     @SerialName("check_time")
     val checked: String,
     @SerialName("ctime")

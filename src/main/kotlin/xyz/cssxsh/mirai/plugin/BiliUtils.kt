@@ -51,7 +51,8 @@ enum class CacheType : Mutex by Mutex() {
     LIVE,
     SEASON,
     EPISODE,
-    USER;
+    USER,
+    EMOJI;
 }
 
 private val Url.filename get() = encodedPath.substringAfterLast("/")
@@ -122,7 +123,11 @@ private suspend fun Url.screenshot(type: CacheType, path: String, refresh: Boole
     }.uploadAsImage(contact)
 }
 
-internal suspend fun DynamicInfo.getScreenshot(contact: Contact, refresh: Boolean = false): Message {
+private suspend fun EmojiDetail.cache(contact: Contact): Image {
+    return Url(url).cache(type = CacheType.EMOJI, path = "$name.${url.substringAfterLast('.')}", contact = contact)
+}
+
+internal suspend fun DynamicInfo.screenshot(contact: Contact, refresh: Boolean = false): Message {
     return runCatching {
         head.toPlainText() + Url(link).screenshot(
             type = CacheType.DYNAMIC,
@@ -136,6 +141,38 @@ internal suspend fun DynamicInfo.getScreenshot(contact: Contact, refresh: Boolea
     }
 }
 
+internal suspend fun DynamicInfo.emoji(contact: Contact): Message {
+    val details = display.emoji.details + display.origin?.emoji?.details.orEmpty()
+    if (details.isEmpty()) return content.toPlainText()
+
+    return buildMessageChain {
+        var pos = 0
+        while (pos < content.length) {
+            val start = content.indexOf('[', pos).takeIf { it != -1 } ?: break
+            val emoticon = details.find { content.startsWith(it.text, start) }
+
+            if (emoticon == null) {
+                add(content.substring(pos, start + 1))
+                pos = start + 1
+                continue
+            }
+
+            runCatching {
+                emoticon.cache(contact)
+            }.onSuccess {
+                add(content.substring(pos, start))
+                add(it)
+            }.onFailure {
+                logger.warning("获取BILI表情${emoticon.text}图片失败, $it")
+                add(content.substring(pos, start + emoticon.text.length))
+            }
+            pos = start + emoticon.text.length
+        }
+
+        appendLine(content.substring(pos))
+    }
+}
+
 internal suspend fun UserInfo.getFace(contact: Contact): Message {
     return Url(face).runCatching {
         cache(type = CacheType.USER, path = "${mid}/face-${filename}", contact = contact)
@@ -145,7 +182,7 @@ internal suspend fun UserInfo.getFace(contact: Contact): Message {
     }
 }
 
-internal suspend fun DynamicInfo.getImageFiles(contact: Contact) = images.mapIndexed { index, picture ->
+internal suspend fun DynamicInfo.getImages(contact: Contact) = images.mapIndexed { index, picture ->
     Url(picture).runCatching {
         cache(
             type = CacheType.DYNAMIC,

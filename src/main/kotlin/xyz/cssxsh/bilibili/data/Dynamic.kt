@@ -15,29 +15,19 @@ interface DynamicCardDetail {
 
 @Serializable
 data class BiliDynamicList(
-    @SerialName("attentions")
-    val attentions: UserAttentions? = null,
     @SerialName("cards")
     val dynamics: List<DynamicInfo> = emptyList(),
-//    @SerialName("_gt_")
-//    private val gt: Int,
     @SerialName("has_more")
     @Serializable(NumberToBooleanSerializer::class)
-    val hasMore: Boolean,
+    val more: Boolean,
     @SerialName("next_offset")
-    val nextOffset: Long
+    val next: Long
 )
 
 @Serializable
 data class BiliDynamicInfo(
-    @SerialName("attentions")
-    val attentions: UserAttentions? = null,
     @SerialName("card")
     val dynamic: DynamicInfo,
-//    @SerialName("_gt_")
-//    private val gt: Int,
-//    @SerialName("result")
-//    private val result: Int
 )
 
 object DynamicType {
@@ -58,62 +48,86 @@ object DynamicType {
 
 @Serializable
 data class DynamicDescribe(
-//    @SerialName("acl")
-//    private val acl: Int? = null,
     @SerialName("bvid")
     val bvid: String? = null,
     @SerialName("comment")
     val comment: Int = 0,
     @SerialName("dynamic_id")
     val id: Long,
-//    @SerialName("dynamic_id_str")
-//    private val dynamicIdString: String? = null,
-//    @SerialName("inner_id")
-//    private val innerId: Long? = null,
     @SerialName("is_liked")
     @Serializable(NumberToBooleanSerializer::class)
     val isLiked: Boolean = false,
     @SerialName("like")
-    val like: Int = 0,
+    val like: Long = 0,
     @SerialName("origin")
     val origin: DynamicDescribe? = null,
     @SerialName("orig_dy_id")
     val originDynamicId: Long? = null,
-//    @SerialName("orig_dy_id_str")
-//    private val originDynamicIdString: String? = null,
     @SerialName("orig_type")
     val originType: Int? = null,
     @SerialName("previous")
     val previous: DynamicDescribe? = null,
     @SerialName("pre_dy_id")
     val previousDynamicId: Long? = null,
-//    @SerialName("pre_dy_id_str")
-//    private val previousDynamicIdString: String? = null,
     @SerialName("repost")
-    val repost: Int = 0,
-//    @SerialName("rid")
-//    private val rid: Long? = null,
-//    @SerialName("rid_str")
-//    private val ridString: String? = null,
-//    @SerialName("r_type")
-//    private val rType: Int? = null,
-//    @SerialName("status")
-//    val status: Int? = null,
-//    @SerialName("stype")
-//    private val statusType: Int? = null,
+    val repost: Long = 0,
     @SerialName("timestamp")
     val timestamp: Long,
     @SerialName("type")
     override val type: Int,
     @SerialName("uid")
     val uid: Long,
-//    @SerialName("uid_type")
-//    private val uidType: Int? = null,
     @SerialName("user_profile")
     val profile: UserProfile? = null,
     @SerialName("view")
-    val view: Int? = null
+    val view: Long = 0
 ) : DynamicCardDetail
+
+@Serializable
+data class EmojiInfo(
+    @SerialName("emoji_details")
+    val details: List<EmojiDetail> = emptyList()
+)
+
+@Serializable
+data class EmojiDetail(
+    @SerialName("attr")
+    val attr: Int,
+    @SerialName("emoji_name")
+    val name: String,
+    @SerialName("id")
+    val id: Int,
+    @SerialName("mtime")
+    val mtime: Int,
+    @SerialName("package_id")
+    val packageId: Int,
+    @SerialName("state")
+    val state: Int,
+    @SerialName("text")
+    val text: String,
+    @SerialName("type")
+    val type: Int,
+    @SerialName("url")
+    val url: String
+)
+
+@Serializable
+data class DynamicDisplay(
+    @SerialName("emoji_info")
+    val emoji: EmojiInfo,
+    @SerialName("origin")
+    val origin: DynamicDisplay? = null
+)
+
+@Serializable
+data class DynamicInfo(
+    @SerialName("card")
+    override val card: String,
+    @SerialName("desc")
+    override val detail: DynamicDescribe,
+    @SerialName("display")
+    val display: DynamicDisplay
+) : DynamicCard
 
 @Serializable
 data class DynamicArticle(
@@ -121,12 +135,10 @@ data class DynamicArticle(
     val actId: Int,
     @SerialName("apply_time")
     val apply: String,
-//    @SerialName("authenMark")
-//    private val authenMark: JsonElement?,
     @SerialName("author")
     val author: ArticleAuthor,
     @SerialName("banner_url")
-    val bannerUrl: String,
+    val banner: String,
     @SerialName("categories")
     override val categories: List<ArticleCategory>? = null,
     @SerialName("category")
@@ -134,11 +146,9 @@ data class DynamicArticle(
     @SerialName("check_time")
     val check: String,
     @SerialName("cover_avid")
-    val coverAvid: Int,
+    val avid: Long = 0,
     @SerialName("ctime")
     val created: Long,
-//    @SerialName("dispute")
-//    private val dispute: JsonElement?,
     @SerialName("id")
     override val id: Long,
     @SerialName("image_urls")
@@ -167,20 +177,16 @@ data class DynamicArticle(
     val templateId: Int,
     @SerialName("title")
     override val title: String,
-//    @SerialName("top_video_info")
-//    private val topVideoInfo: JsonElement?,
     @SerialName("words")
     val words: Int
 ) : Article
 
 @Serializable
 data class DynamicEpisode(
-//    @SerialName("aid")
-//    val aid: Long,
     @SerialName("apiSeasonInfo")
     val season: SeasonInfo,
     @SerialName("bullet_count")
-    val bulletCount: Int,
+    val bullet: Long,
     @SerialName("cover")
     override val cover: String,
     @SerialName("episode_id")
@@ -189,24 +195,20 @@ data class DynamicEpisode(
     override val index: String,
     @SerialName("index_title")
     override val title: String,
-//    @SerialName("item")
-//    val item: JsonObject? = null,
     @SerialName("new_desc")
     val description: String,
     @SerialName("online_finish")
     val onlineFinish: Int,
     @SerialName("play_count")
-    val playCount: Int,
+    val play: Long,
     @SerialName("reply_count")
-    val replyCount: Int,
+    val reply: Long,
     @SerialName("url")
     override val share: String
 ) : Episode
 
 @Serializable
 data class SeasonInfo(
-//    @SerialName("bgm_type")
-//    val type: Int,
     @SerialName("cover")
     override val cover: String,
     @SerialName("is_finish")
@@ -225,69 +227,24 @@ data class SeasonInfo(
 ) : Season
 
 @Serializable
-data class DynamicInfo(
-//    @SerialName("activity_infos")
-//    private val activityInfos: JsonObject? = null,
-    @SerialName("card")
-    override val card: String,
-    @SerialName("desc")
-    override val detail: DynamicDescribe,
-    @SerialName("need_refresh")
-    @Serializable(NumberToBooleanSerializer::class)
-    val needRefresh: Boolean = false,
-//    @SerialName("display")
-//    private val display: JsonObject,
-//    @SerialName("extend_json")
-//    private val extendJson: String,
-//    @SerialName("extension")
-//    private val extension: JsonObject? = null,
-//    @SerialName("extra")
-//    private val extra: JsonObject? = null
-) : DynamicCard
-
-@Serializable
 data class DynamicLive(
-//    @SerialName("area")
-//    val area: Int,
-//    @SerialName("area_v2_id")
-//    val areaId: Int,
-//    @SerialName("area_v2_name")
-//    val areaName: String,
-//    @SerialName("area_v2_parent_id")
-//    val areaParentId: Int,
-//    @SerialName("area_v2_parent_name")
-//    val areaParentName: String,
-//    @SerialName("attentions")
-//    val attentions: Int,
     @SerialName("background")
     val background: String,
-    @SerialName("broadcast_type")
-    val broadcastType: Int,
     @SerialName("cover")
     override val cover: String,
     @SerialName("face")
     val face: String,
-//    @SerialName("first_live_time")
-//    val firstLiveTime: String,
-    @SerialName("hidden_status")
-    val hiddenStatus: String,
     @SerialName("link")
     override val link: String,
     @SerialName("live_status")
     @Serializable(NumberToBooleanSerializer::class)
     override val liveStatus: Boolean,
-//    @SerialName("live_time")
-//    val liveTime: String,
     @SerialName("lock_status")
     val lockStatus: String,
     @SerialName("on_flag")
     val onFlag: Int,
     @SerialName("online")
-    override val online: Int,
-    @SerialName("room_shield")
-    val roomShield: Int,
-    @SerialName("room_silent")
-    val roomSilent: Int,
+    override val online: Long,
     @SerialName("roomid")
     override val roomId: Long,
     @SerialName("round_status")
@@ -295,24 +252,18 @@ data class DynamicLive(
     val roundStatus: Boolean,
     @SerialName("short_id")
     val shortId: Int,
-    @SerialName("slide_link")
-    val slideLink: String,
     @SerialName("tags")
     val tags: String,
     @SerialName("title")
     override val title: String,
-    @SerialName("try_time")
-    val tryTime: String,
     @SerialName("uid")
     val uid: Long,
     @SerialName("uname")
     val uname: String,
     @SerialName("user_cover")
-    val userCover: String,
+    val avatar: String,
     @SerialName("verify")
-    val verify: String,
-//    @SerialName("virtual")
-//    val virtual: Int
+    val verify: String
 ) : Live
 
 @Serializable
@@ -328,9 +279,9 @@ data class DynamicMusic(
     @SerialName("intro")
     val intro: String,
     @SerialName("playCnt")
-    val play: Int,
+    val play: Long,
     @SerialName("replyCnt")
-    val reply: Int,
+    val reply: Long,
     @SerialName("schema")
     val schema: String,
     @SerialName("title")
@@ -342,7 +293,7 @@ data class DynamicMusic(
     @SerialName("upper")
     val upper: String,
     @SerialName("upperAvatar")
-    val upperAvatar: String
+    val avatar: String
 )
 
 @Serializable
@@ -350,11 +301,7 @@ data class DynamicPicture(
     @SerialName("item")
     val detail: DynamicPictureDetail,
     @SerialName("user")
-    val user: UserSimple,
-//    @SerialName("activity_infos")
-//    private val activityInfos: JsonObject? = null,
-//    @SerialName("extension")
-//    private val extension: JsonObject? = null
+    val user: UserSimple
 )
 
 @Serializable
@@ -363,8 +310,6 @@ data class DynamicPictureDetail(
     private val atControl: String? = null,
     @SerialName("category")
     val category: String,
-//        @SerialName("ctrl")
-//        private val ctrl: String? = null,
     @SerialName("description")
     val description: String,
     @SerialName("id")
@@ -377,13 +322,7 @@ data class DynamicPictureDetail(
     @SerialName("pictures_count")
     val picturesCount: Int,
     @SerialName("reply")
-    val reply: Int,
-//        @SerialName("role")
-//        val role: List<JsonObject>,
-//        @SerialName("settings")
-//        private val settings: JsonObject,
-//        @SerialName("source")
-//        private val source: List<JsonObject>,
+    val reply: Long,
     @SerialName("title")
     val title: String,
     @SerialName("upload_time")
@@ -408,18 +347,10 @@ data class DynamicReply(
     override val detail: DynamicReplyDetail,
     @SerialName("origin")
     override val card: String,
-//    @SerialName("origin_extend_json")
-//    private val originExtendJson: String,
     @SerialName("origin_user")
     val originUser: UserProfile,
     @SerialName("user")
-    val user: UserSimple,
-//    @SerialName("activity_infos")
-//    private val activityInfos: JsonObject? = null,
-//    @SerialName("extension")
-//    private val extension: JsonObject? = null,
-//    @SerialName("origin_extension")
-//    private val originExtension: JsonObject? = null
+    val user: UserSimple
 ) : DynamicCard
 
 @Serializable
@@ -428,20 +359,12 @@ data class DynamicReplyDetail(
     val atUsers: List<Long> = emptyList(),
     @SerialName("content")
     val content: String,
-//    @SerialName("ctrl")
-//    private val ctrl: String? = null,
     @SerialName("orig_dy_id")
     val originDynamicId: Long,
     @SerialName("orig_type")
     override val type: Int,
-//    @SerialName("pre_dy_id")
-//    private val previousDynamicId: Long,
     @SerialName("reply")
-    val reply: Int,
-//    @SerialName("rp_id")
-//    private val replyId: Long,
-//    @SerialName("timestamp")
-//    val timestamp: Long,
+    val reply: Long,
     @SerialName("uid")
     val uid: Long
 ) : DynamicCardDetail
@@ -460,10 +383,6 @@ data class DynamicSketch(
 
 @Serializable
 data class DynamicSketchDetail(
-    @SerialName("biz_id")
-    val bizId: Int,
-    @SerialName("biz_type")
-    val bizType: Int,
     @SerialName("cover_url")
     val cover: String,
     @SerialName("desc_text")
@@ -480,8 +399,6 @@ data class DynamicSketchDetail(
 data class DynamicSketchVest(
     @SerialName("content")
     val content: String,
-//        @SerialName("ctrl")
-//        private val ctrl: String? = null,
     @SerialName("uid")
     val uid: Long
 )
@@ -491,11 +408,7 @@ data class DynamicText(
     @SerialName("item")
     val detail: DynamicTextDetail,
     @SerialName("user")
-    val user: UserSimple,
-//    @SerialName("activity_infos")
-//    private val activityInfos: JsonObject? = null,
-//    @SerialName("extension")
-//    private val extension: JsonObject? = null
+    val user: UserSimple
 )
 
 @Serializable
@@ -504,16 +417,8 @@ data class DynamicTextDetail(
     val atUsers: List<Long> = emptyList(),
     @SerialName("content")
     val content: String,
-//        @SerialName("ctrl")
-//        private val ctrl: String? = null,
-//        @SerialName("orig_dy_id")
-//        private val originDynamicId: Long,
-//        @SerialName("pre_dy_id")
-//        private val previousDynamicId: Long,
     @SerialName("reply")
     val reply: Int,
-//        @SerialName("rp_id")
-//        private val replyId: Long,
     @SerialName("timestamp")
     val timestamp: Long,
     @SerialName("uid")
@@ -524,8 +429,6 @@ data class DynamicTextDetail(
 data class DynamicVideo(
     @SerialName("aid")
     val aid: Long,
-//    @SerialName("attribute")
-//    private val attribute: Int? = null,
     @SerialName("cid")
     val cid: Int,
     @SerialName("copyright")
@@ -542,20 +445,12 @@ data class DynamicVideo(
     val dynamic: String = "",
     @SerialName("jump_url")
     val jumpUrl: String,
-//    @SerialName("mission_id")
-//    private val missionId: Long? = null,
     @SerialName("owner")
     val owner: VideoOwner,
     @SerialName("pic")
     override val cover: String,
-//    @SerialName("player_info")
-//    private val playerInfo: JsonObject,
     @SerialName("pubdate")
     val pubdate: Long,
-//    @SerialName("rights")
-//    private val rights: Map<String, Int> = emptyMap(),
-//    @SerialName("state")
-//    private val state: Int,
     @SerialName("stat")
     override val status: VideoStatus,
     @SerialName("tid")

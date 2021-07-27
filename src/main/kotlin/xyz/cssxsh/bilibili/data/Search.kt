@@ -66,12 +66,6 @@ enum class SearchType {
 
 @Serializable
 data class SearchResult<T>(
-//    @SerialName("cost_time")
-//    val costTime: CostTime,
-//    @SerialName("egg_hit")
-//    val eggHit: Int,
-//    @SerialName("exp_list")
-//    val expList: Map<Int,Boolean>,
     @SerialName("numPages")
     val pages: Int,
     @SerialName("numResults")
@@ -81,15 +75,7 @@ data class SearchResult<T>(
     @SerialName("pagesize")
     val size: Int,
     @SerialName("result")
-    val result: List<T> = emptyList(),
-//    @SerialName("rqt_type")
-//    val rqtType: String,
-//    @SerialName("seid")
-//    val seid: String,
-//    @SerialName("show_column")
-//    val showColumn: Int,
-//    @SerialName("suggest_keyword")
-//    val suggestKeyword: String
+    val result: List<T> = emptyList()
 )
 
 @Serializable
@@ -98,8 +84,6 @@ data class SearchUser(
     val fans: Int,
     @SerialName("gender")
     val gender: Int,
-//    @SerialName("hit_columns")
-//    val hitColumns: List<String>,
     @SerialName("is_live")
     @Serializable(NumberToBooleanSerializer::class)
     val isLive: Boolean,
@@ -110,10 +94,6 @@ data class SearchUser(
     override val level: Int,
     @SerialName("mid")
     override val mid: Long,
-//    @SerialName("official_verify")
-//    val officialVerify: OfficialVerify,
-//    @SerialName("res")
-//    val list: List<VideoSimple>,
     @SerialName("room_id")
     val roomId: Long,
     @SerialName("type")
@@ -134,34 +114,16 @@ data class SearchUser(
 
 @Serializable
 data class SearchSeason(
-//    @SerialName("areas")
-//    val areas: String,
-//    @SerialName("badges")
-//    val badges: List<SearchSeason.Badge>,
-//    @SerialName("button_text")
-//    val buttonText: String,
-//    @SerialName("corner")
-//    val corner: Int,
     @SerialName("cover")
     override val cover: String,
     @SerialName("cv")
     val cv: String,
     @SerialName("desc")
     val description: String,
-//    @SerialName("display_info")
-//    val displayInfo: List<SearchSeason.DisplayInfo>,
     @SerialName("ep_size")
     val size: Int,
     @SerialName("eps")
-    val episodes: List<SearchSeasonEpisode>,
-//    @SerialName("fix_pubtime_str")
-//    val fixPubtimeStr: String,
-//    @SerialName("goto_url")
-//    val gotoUrl: String,
-//    @SerialName("hit_columns")
-//    val hitColumns: List<String>,
-//    @SerialName("hit_epids")
-//    val hitEpids: String,
+    val episodes: List<SearchSeasonEpisode>? = null,
     @SerialName("is_avid")
     val isAvid: Boolean,
     @SerialName("is_follow")
@@ -172,16 +134,8 @@ data class SearchSeason(
     val isSelection: Boolean,
     @SerialName("media_id")
     override val mediaId: Long,
-//    @SerialName("media_mode")
-//    val mediaMode: Int,
     @SerialName("media_score")
     override val rating: SearchSeasonRating? = null,
-//    @SerialName("media_type")
-//    val mediaType: Int,
-//    @SerialName("org_title")
-//    val orgTitle: String,
-//    @SerialName("pgc_season_id")
-//    val pgcSeasonId: Int,
     @SerialName("pubtime")
     val published: Long,
     @SerialName("season_id")
@@ -198,8 +152,6 @@ data class SearchSeason(
     val styles: String,
     @SerialName("title")
     override val title: String,
-//    @SerialName("type")
-//    override val type: String,
     @SerialName("url")
     override val share: String,
     override val new: NewEpisode? = null
@@ -215,16 +167,6 @@ data class SearchSeasonRating(
 
 @Serializable
 data class SearchSeasonEpisode(
-//    @SerialName("aid")
-//    val aid: Long,
-//    @SerialName("badge")
-//    val badge: String,
-//    @SerialName("badge_info")
-//    val badgeInfo: BadgeInfo,
-//    @SerialName("badge_type")
-//    val badgeType: Int,
-//    @SerialName("cid")
-//    val cid: Long,
     @SerialName("cover")
     override val cover: String,
     @SerialName("from")
@@ -238,10 +180,6 @@ data class SearchSeasonEpisode(
     override val title: String,
     @SerialName("url")
     override val share: String = "",
-//    @SerialName("status")
-//    val status: Int,
     @SerialName("title")
     override val index: String,
-//    @SerialName("vid")
-//    val vid: String,
 ) : Episode

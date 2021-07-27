@@ -25,7 +25,7 @@ internal suspend fun Video.toMessage(contact: Contact) = content.toPlainText() +
 internal suspend fun Live.toMessage(contact: Contact) = content.toPlainText() + getCover(contact)
 
 internal suspend fun DynamicInfo.toMessage(contact: Contact): Message {
-    return (if (SetupSelenium) getScreenshot(contact) else content.toPlainText()) + getImageFiles(contact)
+    return (if (SetupSelenium) screenshot(contact) else emoji(contact)) + getImages(contact)
 }
 
 internal suspend fun BiliRoomInfo.toMessage(contact: Contact) = buildMessageChain {
@@ -37,7 +37,7 @@ internal suspend fun BiliRoomInfo.toMessage(contact: Contact) = buildMessageChai
             appendLine("开播时间: $datetime")
             runCatching {
                 with(client.getUserInfo(uid = uid)) {
-                    appendLine("主播: $name")
+                    appendLine("主播: $name#$uid")
                     add(liveRoom.toMessage(contact))
                 }
             }.onFailure {
@@ -50,7 +50,7 @@ internal suspend fun BiliRoomInfo.toMessage(contact: Contact) = buildMessageChai
             runCatching {
                 with(client.getRoundPlayVideo(roomId = roomId)) {
                     appendLine("标题: $title")
-                    appendLine("链接: $url")
+                    appendLine("链接: $link")
                 }
             }.onFailure {
                 logger.warning({ "获取[${roomId}]轮播信息失败" }, it)
