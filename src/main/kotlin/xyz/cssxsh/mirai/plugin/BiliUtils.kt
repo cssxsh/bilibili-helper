@@ -122,7 +122,11 @@ private suspend fun Url.screenshot(type: CacheType, path: String, refresh: Boole
 }
 
 private suspend fun EmojiDetail.cache(contact: Contact): Image {
-    return Url(url).cache(type = CacheType.EMOJI, path = "$name.${url.substringAfterLast('.')}", contact = contact)
+    return Url(url).cache(
+        type = CacheType.EMOJI,
+        path = "$packageId/$name.${url.substringAfterLast('.')}",
+        contact = contact
+    )
 }
 
 internal suspend fun DynamicInfo.screenshot(contact: Contact, refresh: Boolean = false): Message {
