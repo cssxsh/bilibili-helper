@@ -109,11 +109,7 @@ private suspend fun Url.screenshot(type: CacheType, path: String, refresh: Boole
         if (exists().not() || refresh) {
             parentFile.mkdirs()
             runCatching {
-                RemoteWebDriver.getScreenshot(
-                    url = this@screenshot.toString(),
-                    width = SeleniumToolConfig.width,
-                    height = SeleniumToolConfig.height
-                )
+                RemoteWebDriver.getScreenshot(url = this@screenshot.toString())
             }.onFailure {
                 logger.warning({ "使用SeleniumTool失败" }, it)
             }.getOrThrow().let {

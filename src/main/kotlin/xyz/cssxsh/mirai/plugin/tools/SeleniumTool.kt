@@ -81,7 +81,7 @@ private val Interval = Duration.ofSeconds(3)
 
 private const val HOME_PAGE = "https://t.bilibili.com/h5/dynamic/detail/508396365455813655"
 
-fun RemoteWebDriver(ua: String? = null, home: String = HOME_PAGE): RemoteWebDriver {
+fun RemoteWebDriver(ua: String, width: Int, height: Int, home: String = HOME_PAGE): RemoteWebDriver {
 
     val thread = Thread.currentThread()
     val oc = thread.contextClassLoader
@@ -92,6 +92,7 @@ fun RemoteWebDriver(ua: String? = null, home: String = HOME_PAGE): RemoteWebDriv
         MxSelenium.newDriver(ua, DriverConsumer).apply {
             // 诡异的等级
             setLogLevel(Level.ALL)
+            manage().window().size = Dimension(width, height)
             manage().timeouts().apply {
                 pageLoadTimeout(Timeout)
                 scriptTimeout = Interval
@@ -105,10 +106,9 @@ fun RemoteWebDriver(ua: String? = null, home: String = HOME_PAGE): RemoteWebDriv
     return driver.getOrThrow()
 }
 
-suspend fun RemoteWebDriver.getScreenshot(url: String, width: Int, height: Int): ByteArray {
+suspend fun RemoteWebDriver.getScreenshot(url: String): ByteArray {
     val pre = windowHandle
     val new = switchTo().newWindow(WindowType.TAB)
-    manage().window().size = Dimension(width, height)
     new.get(url)
     runCatching {
         withTimeout(Timeout.toMillis()) {

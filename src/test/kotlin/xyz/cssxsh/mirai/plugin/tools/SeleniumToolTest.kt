@@ -10,7 +10,7 @@ internal class SeleniumToolTest {
     private val dir = File("./test")
 
     init {
-        System.setProperty("mxlib.selenium.browser", "firefox")
+        // System.setProperty("mxlib.selenium.browser", "firefox")
         setupSelenium(dir)
     }
 
@@ -26,10 +26,10 @@ internal class SeleniumToolTest {
 
     @Test
     fun getScreenShot(): Unit = runBlocking {
-        val driver = RemoteWebDriver(ua = ipad)
+        val driver = RemoteWebDriver(ua = ipad, width = 768, height = 1024)
         driver.get("https://t.bilibili.com/h5/dynamic/detail/508396365455813655")
         list.forEach { id ->
-            driver.getScreenshot(url = dynamic(id), width = 768, height = 1024).let {
+            driver.getScreenshot(url = dynamic(id)).let {
                 dir.resolve("${id}.png").writeBytes(it)
             }
         }
