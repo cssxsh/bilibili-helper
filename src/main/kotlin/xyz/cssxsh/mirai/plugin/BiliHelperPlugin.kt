@@ -54,11 +54,7 @@ object BiliHelperPlugin : KotlinPlugin(
         BiliSearchCommand.register()
 
         if (selenium) {
-            driver = RemoteWebDriver(
-                ua = SeleniumToolConfig.ua,
-                width = SeleniumToolConfig.width,
-                height = SeleniumToolConfig.height
-            )
+            driver = RemoteWebDriver(config = SeleniumToolConfig)
         }
 
         BiliTasker.startAll()
