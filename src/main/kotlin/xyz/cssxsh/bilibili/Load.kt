@@ -82,7 +82,7 @@ val Live.content by ReadOnlyProperty { info, _ ->
     buildString {
         appendLine("房间: ${info.title}")
         appendLine("开播: ${info.liveStatus}")
-        appendLine("链接: ${info.link}")
+        appendLine("链接: ${info.link.substringBefore('?')}")
         appendLine("人气: ${info.online}")
     }
 }
