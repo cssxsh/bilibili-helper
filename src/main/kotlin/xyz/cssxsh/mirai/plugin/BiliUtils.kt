@@ -50,14 +50,6 @@ internal var cookies by object : ReadWriteProperty<Any?, List<Cookie>> {
 
 internal val client by lazy {
     object : BiliClient() {
-        init {
-            storage.container.addAll(cookies)
-        }
-
-        override fun close() {
-            super.close()
-            cookies = storage.container
-        }
 
         override val ignore: suspend (exception: Throwable) -> Boolean = { throwable ->
             super.ignore(throwable).also {
@@ -68,6 +60,10 @@ internal val client by lazy {
         override val mutex: BiliApiMutex = BiliApiMutex(interval = BiliHelperSettings.api * 1000)
     }
 }
+
+internal fun BiliClient.load() { storage.container.addAll(cookies) }
+
+internal fun BiliClient.save() { cookies = storage.container }
 
 internal val ImageCache by lazy { File(BiliHelperSettings.cache) }
 

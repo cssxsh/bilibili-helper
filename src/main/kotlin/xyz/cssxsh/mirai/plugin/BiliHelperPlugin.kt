@@ -44,6 +44,7 @@ object BiliHelperPlugin : KotlinPlugin(
         BiliCleanerConfig.reload()
         BiliCleanerConfig.save()
 
+        client.load()
         BiliListener.subscribe()
 
         BiliInfoCommand.register()
@@ -77,6 +78,6 @@ object BiliHelperPlugin : KotlinPlugin(
 
         BiliTasker.stopAll()
         BiliCleaner.stop()
-        client.close()
+        client.save()
     }
 }
