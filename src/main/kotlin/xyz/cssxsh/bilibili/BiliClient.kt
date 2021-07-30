@@ -17,7 +17,7 @@ import kotlinx.serialization.json.Json
 import xyz.cssxsh.bilibili.api.*
 import java.io.IOException
 
-open class BiliClient: Closeable {
+open class BiliClient : Closeable {
     companion object {
         val Json = Json {
             prettyPrint = true
@@ -33,7 +33,9 @@ open class BiliClient: Closeable {
 
     protected open val ignore: suspend (exception: Throwable) -> Boolean = DefaultIgnore
 
-    private val cookiesStorage = AcceptAllCookiesStorage()
+    val storage = AcceptAllCookiesStorage()
+
+    protected open val timeout = 5_000L
 
     protected open fun client() = HttpClient(OkHttp) {
         defaultRequest {
@@ -44,12 +46,12 @@ open class BiliClient: Closeable {
             serializer = KotlinxSerializer(Json)
         }
         install(HttpTimeout) {
-            socketTimeoutMillis = 5_000
-            connectTimeoutMillis = 5_000
-            requestTimeoutMillis = 5_000
+            socketTimeoutMillis = timeout
+            connectTimeoutMillis = timeout
+            requestTimeoutMillis = timeout
         }
         install(HttpCookies) {
-            storage = cookiesStorage
+            storage = this@BiliClient.storage
         }
         BrowserUserAgent()
         ContentEncoding()

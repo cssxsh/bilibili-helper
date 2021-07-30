@@ -50,6 +50,7 @@ val DynamicReply.content by ReadOnlyProperty { info, _ ->
     buildString {
         appendLine("RT @${info.originUser.user.uname}:")
         appendLine(info.detail.content)
+        appendLine("<======================>")
         appendLine(info.content())
     }
 }
@@ -82,7 +83,7 @@ val Live.content by ReadOnlyProperty { info, _ ->
     buildString {
         appendLine("房间: ${info.title}")
         appendLine("开播: ${info.liveStatus}")
-        appendLine("链接: ${info.link}")
+        appendLine("链接: ${info.link.substringBefore('?')}")
         appendLine("人气: ${info.online}")
     }
 }
@@ -152,7 +153,7 @@ fun DynamicCard.images(): List<String> = when (detail.type) {
     else  -> emptyList()
 }
 
-val VIDEO_REGEX = """((video/|av|AV)\d+|(bv|BV)[0-9A-z]+)""".toRegex()
+val VIDEO_REGEX = """((av|AV)\d+|(bv|BV)[0-9A-z]{3,15})""".toRegex()
 
 val DYNAMIC_REGEX = """(?<=t\.bilibili\.com/(h5/dynamic/detail/)?)([0-9]+)""".toRegex()
 

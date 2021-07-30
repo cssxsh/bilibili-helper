@@ -1,9 +1,13 @@
 package xyz.cssxsh.bilibili
 
+import io.ktor.client.request.*
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.json.JsonPrimitive
 import org.junit.jupiter.api.Test
 import org.slf4j.LoggerFactory
 import xyz.cssxsh.bilibili.api.*
+import xyz.cssxsh.bilibili.data.*
+import java.io.File
 
 internal class ApiTest {
 
@@ -111,6 +115,19 @@ internal class ApiTest {
         withLog(client.searchFT(keyword = "让子弹飞").result) {
             it.forEach { season ->
                 appendLine(season.content)
+            }
+        }
+    }
+
+    @Test
+    fun suit(): Unit = runBlocking {
+        val dir = File("F:\\BilibiliCache\\EMOJI\\")
+        client.getGarbSuit(itemId = 2452).emoji.flatMap { it.items.orEmpty() }.forEach { item ->
+            val image = (item.properties["image"] as JsonPrimitive).content
+            dir.resolve("${item.name}.${image.substringAfterLast('.')}").apply {
+                if (exists().not()) {
+                    writeBytes(client.useHttpClient { it.get(image) })
+                }
             }
         }
     }

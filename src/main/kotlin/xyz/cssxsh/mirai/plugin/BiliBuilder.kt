@@ -6,15 +6,13 @@ import net.mamoe.mirai.console.permission.PermissionService.Companion.testPermis
 import net.mamoe.mirai.console.permission.PermitteeId.Companion.permitteeId
 import net.mamoe.mirai.contact.Contact
 import net.mamoe.mirai.event.events.MessageEvent
-import net.mamoe.mirai.message.data.Message
+import net.mamoe.mirai.message.data.*
 import net.mamoe.mirai.message.data.MessageSource.Key.quote
-import net.mamoe.mirai.message.data.buildMessageChain
-import net.mamoe.mirai.message.data.toPlainText
 import net.mamoe.mirai.utils.*
 import xyz.cssxsh.bilibili.api.*
 import xyz.cssxsh.bilibili.data.*
 import xyz.cssxsh.bilibili.*
-import xyz.cssxsh.mirai.plugin.command.BiliInfoCommand
+import xyz.cssxsh.mirai.plugin.command.*
 
 private val permission by BiliInfoCommand::permission
 
@@ -61,6 +59,18 @@ internal suspend fun BiliRoomInfo.toMessage(contact: Contact) = buildMessageChai
 }
 
 internal suspend fun Media.toMessage(contact: Contact) = content.toPlainText() + getCover(contact)
+
+internal suspend fun SearchResult<*>.toMessage(contact: Contact): Message {
+    if (result.isEmpty()) return "搜索结果为空".toPlainText()
+    return result.map {
+        when (it) {
+            is UserInfo -> it.toMessage(contact)
+            is Media -> it.toMessage(contact)
+            is Video -> it.toMessage(contact)
+            else -> "未知类型，请联系开发者".toPlainText()
+        } + "\n------------------------\n"
+    }.toMessageChain()
+}
 
 typealias MessageReplier = suspend MessageEvent.(MatchResult) -> Any?
 

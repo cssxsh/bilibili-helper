@@ -44,6 +44,7 @@ object BiliHelperPlugin : KotlinPlugin(
         BiliCleanerConfig.reload()
         BiliCleanerConfig.save()
 
+        client.load()
         BiliListener.subscribe()
 
         BiliInfoCommand.register()
@@ -54,7 +55,7 @@ object BiliHelperPlugin : KotlinPlugin(
         BiliSearchCommand.register()
 
         if (selenium) {
-            driver = RemoteWebDriver()
+            driver = RemoteWebDriver(config = SeleniumToolConfig)
         }
 
         BiliTasker.startAll()
@@ -77,5 +78,6 @@ object BiliHelperPlugin : KotlinPlugin(
 
         BiliTasker.stopAll()
         BiliCleaner.stop()
+        client.save()
     }
 }

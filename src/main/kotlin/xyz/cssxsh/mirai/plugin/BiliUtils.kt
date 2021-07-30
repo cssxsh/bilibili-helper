@@ -5,6 +5,7 @@ import io.ktor.http.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
@@ -22,11 +23,34 @@ import xyz.cssxsh.mirai.plugin.tools.*
 import java.io.File
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
+import kotlin.properties.ReadWriteProperty
+import kotlin.reflect.KProperty
 
 internal val logger by BiliHelperPlugin::logger
 
+internal var cookies by object : ReadWriteProperty<Any?, List<Cookie>> {
+    private val json by lazy {
+        BiliHelperPlugin.dataFolder.resolve("cookies.json").apply {
+            if (exists().not()) writeText("[]")
+        }
+    }
+
+    override fun getValue(thisRef: Any?, property: KProperty<*>): List<Cookie> {
+        return BiliClient.Json.decodeFromString<List<EditThisCookie>>(json.readText()).mapNotNull {
+            it.runCatching { toCookie() }.getOrNull()
+        }
+    }
+
+    override fun setValue(thisRef: Any?, property: KProperty<*>, value: List<Cookie>) {
+        json.writeText(BiliClient.Json.encodeToString(value.mapIndexed { index, cookie ->
+            cookie.toEditThisCookie(index)
+        }))
+    }
+}
+
 internal val client by lazy {
     object : BiliClient() {
+
         override val ignore: suspend (exception: Throwable) -> Boolean = { throwable ->
             super.ignore(throwable).also {
                 if (it) logger.warning { "Ignore $throwable" }
@@ -37,13 +61,15 @@ internal val client by lazy {
     }
 }
 
+internal fun BiliClient.load() { storage.container.addAll(cookies) }
+
+internal fun BiliClient.save() { cookies = storage.container }
+
 internal val ImageCache by lazy { File(BiliHelperSettings.cache) }
 
 internal val SetupSelenium by BiliHelperPlugin::selenium
 
 internal val RemoteWebDriver by BiliHelperPlugin::driver
-
-internal val DeviceName by lazy { SeleniumToolConfig.device }
 
 enum class CacheType : Mutex by Mutex() {
     DYNAMIC,
@@ -111,7 +137,7 @@ private suspend fun Url.screenshot(type: CacheType, path: String, refresh: Boole
         if (exists().not() || refresh) {
             parentFile.mkdirs()
             runCatching {
-                RemoteWebDriver.getScreenshot(this@screenshot.toString())
+                RemoteWebDriver.getScreenshot(url = this@screenshot.toString())
             }.onFailure {
                 logger.warning({ "使用SeleniumTool失败" }, it)
             }.getOrThrow().let {
@@ -124,7 +150,11 @@ private suspend fun Url.screenshot(type: CacheType, path: String, refresh: Boole
 }
 
 private suspend fun EmojiDetail.cache(contact: Contact): Image {
-    return Url(url).cache(type = CacheType.EMOJI, path = "$name.${url.substringAfterLast('.')}", contact = contact)
+    return Url(url).cache(
+        type = CacheType.EMOJI,
+        path = "${packageId}/${name}.${url.substringAfterLast('.')}",
+        contact = contact
+    )
 }
 
 internal suspend fun DynamicInfo.screenshot(contact: Contact, refresh: Boolean = false): Message {

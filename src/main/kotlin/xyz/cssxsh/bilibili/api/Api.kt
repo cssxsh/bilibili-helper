@@ -50,6 +50,9 @@ const val TAG_VIDEO = "https://api.bilibili.com/x/web-interface/tag/top?pn=1&ps=
 const val SEARCH_ALL = "https://api.bilibili.com/x/web-interface/search/all/v2"
 const val SEARCH_TYPE = "https://api.bilibili.com/x/web-interface/search/type"
 
+// Suit
+const val SUIT_ITEMS = "https://api.bilibili.com/x/garb/mall/item/suit/v2"
+
 internal suspend inline fun <reified T> BiliClient.json(
     url: String,
     crossinline block: HttpRequestBuilder.() -> Unit

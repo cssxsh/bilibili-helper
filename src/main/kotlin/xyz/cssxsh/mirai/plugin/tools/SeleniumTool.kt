@@ -5,16 +5,11 @@ import io.github.karlatemp.mxlib.logger.NopLogger
 import io.github.karlatemp.mxlib.selenium.MxSelenium
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeout
-import org.openqa.selenium.Capabilities
-import org.openqa.selenium.OutputType
-import org.openqa.selenium.PageLoadStrategy
-import org.openqa.selenium.WindowType
-import org.openqa.selenium.chromium.ChromiumOptions
-import org.openqa.selenium.firefox.FirefoxDriverLogLevel
-import org.openqa.selenium.firefox.FirefoxOptions
-import org.openqa.selenium.remote.ProtocolHandshake
-import org.openqa.selenium.remote.RemoteWebDriver
-import xyz.cssxsh.mirai.plugin.*
+import org.openqa.selenium.*
+import org.openqa.selenium.chromium.*
+import org.openqa.selenium.firefox.*
+import org.openqa.selenium.interactions.*
+import org.openqa.selenium.remote.*
 import java.io.File
 import java.time.Duration
 import java.util.logging.Level
@@ -49,10 +44,19 @@ private object JavaScriptLoader {
     }
 }
 
-internal val DriverConsumer: (Capabilities) -> Unit = { capabilities ->
+interface RemoteWebDriverConfig {
+    val userAgent: String
+    val width: Int
+    val height: Int
+    val pixelRatio: Int
+}
+
+typealias DriverConsumer = (Capabilities) -> Unit
+
+private fun RemoteWebDriverConfig.toConsumer(): DriverConsumer = { capabilities ->
     when (capabilities) {
         is ChromiumOptions<*> -> capabilities.apply {
-            setHeadless(true)
+            //setHeadless(true)
             setPageLoadStrategy(PageLoadStrategy.NORMAL)
             setAcceptInsecureCerts(true)
             addArguments("--silent")
@@ -60,21 +64,34 @@ internal val DriverConsumer: (Capabilities) -> Unit = { capabilities ->
                 "excludeSwitches",
                 listOf("enable-automation", "ignore-certificate-errors")
             )
-            if (DeviceName.isNotBlank()) {
-                setExperimentalOption("mobileEmulation", mapOf("deviceName" to DeviceName))
-            }
+            addArguments("--hide-scrollbars")
+            setExperimentalOption(
+                "mobileEmulation",
+                mapOf(
+                    "deviceMetrics" to mapOf(
+                        "width" to width,
+                        "height" to height,
+                        "pixelRatio" to pixelRatio
+                    ),
+                    "userAgent" to userAgent
+                )
+            )
         }
         is FirefoxOptions -> capabilities.apply {
             setHeadless(true)
             setPageLoadStrategy(PageLoadStrategy.NORMAL)
             setLogLevel(FirefoxDriverLogLevel.FATAL)
             setAcceptInsecureCerts(true)
-            if (DeviceName.isNotBlank()) {
-                setCapability(
-                    FirefoxOptions.FIREFOX_OPTIONS,
-                    mapOf("mobileEmulation" to mapOf("deviceName" to DeviceName))
-                )
-            }
+            // XXX 手动关闭 webgl
+            addPreference("webgl.disabled", true)
+            addPreference("devtools.responsive.touchSimulation.enabled", true)
+            addPreference("devtools.responsive.viewport.width", width)
+            addPreference("devtools.responsive.viewport.height", height)
+            addPreference("devtools.responsive.viewport.pixelRatio", pixelRatio)
+            addPreference("devtools.responsive.userAgent", userAgent)
+            // XXX responsive 无法调用
+            addPreference("general.useragent.override", userAgent)
+            addArguments("--width=${width}", "--height=${height}")
         }
         else -> throw IllegalArgumentException("未设置参数的浏览器")
     }
@@ -92,7 +109,7 @@ private val Interval = Duration.ofSeconds(3)
 
 private const val HOME_PAGE = "https://t.bilibili.com/h5/dynamic/detail/508396365455813655"
 
-fun RemoteWebDriver(home: String = HOME_PAGE): RemoteWebDriver {
+fun RemoteWebDriver(config: RemoteWebDriverConfig, home: String = HOME_PAGE): RemoteWebDriver {
 
     val thread = Thread.currentThread()
     val oc = thread.contextClassLoader
@@ -100,7 +117,7 @@ fun RemoteWebDriver(home: String = HOME_PAGE): RemoteWebDriver {
     val driver = runCatching {
         thread.contextClassLoader = KtorHttpClientFactory::class.java.classLoader
 
-        MxSelenium.newDriver(null, DriverConsumer).apply {
+        MxSelenium.newDriver(null, config.toConsumer()).apply {
             // 诡异的等级
             setLogLevel(Level.ALL)
             manage().timeouts().apply {
@@ -116,10 +133,16 @@ fun RemoteWebDriver(home: String = HOME_PAGE): RemoteWebDriver {
     return driver.getOrThrow()
 }
 
+private fun WebDriver.responsive() {
+    val actions = Actions(this)
+    actions.keyDown(Keys.CONTROL).keyDown(Keys.SHIFT).sendKeys("m").keyUp(Keys.SHIFT).keyUp(Keys.CONTROL).perform()
+}
+
 suspend fun RemoteWebDriver.getScreenshot(url: String): ByteArray {
-    val pre = windowHandle
-    val new = switchTo().newWindow(WindowType.TAB)
-    new.get(url)
+    val home = windowHandle
+    val tab = switchTo().newWindow(WindowType.TAB) as RemoteWebDriver
+    tab.get(url)
+    // tab.responsive()
     runCatching {
         withTimeout(Timeout.toMillis()) {
             delay(Init.toMillis())
@@ -129,7 +152,7 @@ suspend fun RemoteWebDriver.getScreenshot(url: String): ByteArray {
         }
     }
     val bytes = getScreenshotAs(OutputType.BYTES)
-    new.close()
-    switchTo().window(pre)
+    tab.close()
+    switchTo().window(home)
     return bytes
 }

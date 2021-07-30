@@ -98,7 +98,7 @@ data class EmojiDetail(
     @SerialName("id")
     val id: Int,
     @SerialName("mtime")
-    val mtime: Int,
+    val mtime: Long,
     @SerialName("package_id")
     val packageId: Int,
     @SerialName("state")
@@ -114,7 +114,7 @@ data class EmojiDetail(
 @Serializable
 data class DynamicDisplay(
     @SerialName("emoji_info")
-    val emoji: EmojiInfo,
+    val emoji: EmojiInfo = EmojiInfo(),
     @SerialName("origin")
     val origin: DynamicDisplay? = null
 )
@@ -306,8 +306,6 @@ data class DynamicPicture(
 
 @Serializable
 data class DynamicPictureDetail(
-    @SerialName("at_control")
-    private val atControl: String? = null,
     @SerialName("category")
     val category: String,
     @SerialName("description")
@@ -319,8 +317,6 @@ data class DynamicPictureDetail(
     val isFavourite: Boolean,
     @SerialName("pictures")
     val pictures: List<DynamicPictureInfo>,
-    @SerialName("pictures_count")
-    val picturesCount: Int,
     @SerialName("reply")
     val reply: Long,
     @SerialName("title")
@@ -418,9 +414,7 @@ data class DynamicTextDetail(
     @SerialName("content")
     val content: String,
     @SerialName("reply")
-    val reply: Int,
-    @SerialName("timestamp")
-    val timestamp: Long,
+    val reply: Long,
     @SerialName("uid")
     val uid: Long
 )
