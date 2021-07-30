@@ -77,5 +77,6 @@ object BiliHelperPlugin : KotlinPlugin(
 
         BiliTasker.stopAll()
         BiliCleaner.stop()
+        client.close()
     }
 }

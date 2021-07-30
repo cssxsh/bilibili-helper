@@ -114,6 +114,16 @@ val MEDIA_REGEX = """(?<=bilibili\.com/bangumi/media/md)(\d+)""".toRegex()
 1. `height` 截图高度
 1. `setup` 是否启用截图，默认 `true`
 
+## Cookies
+
+位于 `data/bilibili-helper/cookies.json`  
+导入 cookies文件 不是必须的，这是实验性功能，主要是防止b站反爬IP锁定  
+从 浏览器插件 [EditThisCookie](http://www.editthiscookie.com/) 导出Json 填入文件  
+EditThisCookie 安装地址
+[Chrome](https://chrome.google.com/webstore/detail/editthiscookie/fngmhnnpilhplaeedifhccceomclgfbg)
+[Firefox](https://addons.mozilla.org/firefox/downloads/file/3449327/editthiscookie2-1.5.0-fx.xpi)
+[Edge](https://microsoftedge.microsoft.com/addons/getproductdetailsbycrxid/ajfboaconbpkglpfanbmlfgojgndmhmc?hl=zh-CN&gl=CN)
+
 ## 安装
 
 ### 手动安装
