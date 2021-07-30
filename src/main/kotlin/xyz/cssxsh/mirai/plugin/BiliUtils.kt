@@ -156,7 +156,7 @@ private suspend fun Url.screenshot(type: CacheType, path: String, refresh: Boole
 private suspend fun EmojiDetail.cache(contact: Contact): Image {
     return Url(url).cache(
         type = CacheType.EMOJI,
-        path = "$packageId/$name.${url.substringAfterLast('.')}",
+        path = "${packageId}/${name}.${url.substringAfterLast('.')}",
         contact = contact
     )
 }
