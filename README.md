@@ -14,9 +14,8 @@
 `[...]`表示参数，当`[...]`后面带`?`时表示参数可选  
 `{...}`表示连续的多个参数
 
-参数 `uid` 例如 `https://space.bilibili.com/508963009/` 的数字 `508963009`
-
-参数 `contact` 为QQ号或者群号，可以省略，会从当前聊天环境获取，比如群聊中会自动填充为当前群号 since 0.1.0-dev-5
+参数 `uid` 例如 `https://space.bilibili.com/508963009/` 的数字 `508963009`  
+参数 `contact` 为QQ号或者群号，可以省略，会从当前聊天环境获取，比如群聊中会自动填充为当前群号 since 0.1.0-dev-5  
 
 ### 动态订阅指令
 
@@ -60,13 +59,14 @@
 
 ### 信息解析指令
 
-| 指令                                           | 描述                   |
-|:-----------------------------------------------|:-----------------------|
-| `/<bili-info B信息> <aid> [id] [contact]?`     | 根据 avid 获取视频信息 |
-| `/<bili-info B信息> <bvid> [id] [contact]?`    | 根据 bvid 获取视频信息 |
-| `/<bili-info B信息> <dynamic> [id] [contact]?` | 根据 id 获取动态信息   |
-| `/<bili-info B信息> <live> [id] [contact]?`    | 根据 id 获取直播信息   |
+| 指令                                | 描述                   |
+|:------------------------------------|:-----------------------|
+| `/<bili-info B信息> <aid> [id]`     | 根据 avid 获取视频信息 |
+| `/<bili-info B信息> <bvid> [id]`    | 根据 bvid 获取视频信息 |
+| `/<bili-info B信息> <dynamic> [id]` | 根据 id 获取动态信息   |
+| `/<bili-info B信息> <live> [id]`    | 根据 id 获取直播信息   |
 
+返回结果包含图片，需要在聊天环境执行指令  
 消息中包含 `BV12v411G7dP` `av2` 等等 id 信息时会自动触发解析  
 目前会触发的正则表达式
 
@@ -88,6 +88,8 @@ val MEDIA_REGEX = """(?<=bilibili\.com/bangumi/media/md)(\d+)""".toRegex()
 | `/<bili-search B搜索> <user 用户> [keyword]`    | 搜索用户 |
 | `/<bili-search B搜索> <bangumi 番剧> [keyword]` | 搜索番剧 |
 | `/<bili-search B搜索> <ft 影视> [keyword]`      | 搜索影视 |
+
+返回结果包含图片，需要在聊天环境执行指令  
 
 ## 设置
 
