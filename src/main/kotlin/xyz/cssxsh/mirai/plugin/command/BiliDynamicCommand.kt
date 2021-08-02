@@ -16,12 +16,12 @@ object BiliDynamicCommand : CompositeCommand(
     )
 
     @SubCommand("stop", "停止")
-    suspend fun CommandSenderOnMessage<*>.stop(uid: Long, contact: Contact = subject()) = sendMessage(
+    suspend fun CommandSender.stop(uid: Long, contact: Contact = subject()) = sendMessage(
         removeContact(uid, contact).let { "对@${it?.name}#${uid}的监听任务, 取消完成" }
     )
 
     @SubCommand("list", "列表")
-    suspend fun CommandSenderOnMessage<*>.detail(contact: Contact = subject()) = sendMessage(
+    suspend fun CommandSender.detail(contact: Contact = subject()) = sendMessage(
         list(contact)
     )
 }

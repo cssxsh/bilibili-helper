@@ -14,9 +14,8 @@
 `[...]`表示参数，当`[...]`后面带`?`时表示参数可选  
 `{...}`表示连续的多个参数
 
-参数 `uid` 例如 `https://space.bilibili.com/508963009/` 的数字 `508963009`
-
-参数 `contact` 为QQ号或者群号，可以省略，会从当前聊天环境获取，比如群聊中会自动填充为当前群号 since 0.1.0-dev-5
+参数 `uid` 例如 `https://space.bilibili.com/508963009/` 的数字 `508963009`  
+参数 `contact` 为QQ号或者群号，可以省略，会从当前聊天环境获取，比如群聊中会自动填充为当前群号 since 0.1.0-dev-5  
 
 ### 动态订阅指令
 
@@ -83,11 +82,11 @@ val MEDIA_REGEX = """(?<=bilibili\.com/bangumi/media/md)(\d+)""".toRegex()
 
 ### 搜索指令 since 0.1.0-dev-5
 
-| 指令                                            | 描述     |
-|:------------------------------------------------|:---------|
-| `/<bili-search B搜索> <user 用户> [keyword]`    | 搜索用户 |
-| `/<bili-search B搜索> <bangumi 番剧> [keyword]` | 搜索番剧 |
-| `/<bili-search B搜索> <ft 影视> [keyword]`      | 搜索影视 |
+| 指令                                                       | 描述     |
+|:-----------------------------------------------------------|:---------|
+| `/<bili-search B搜索> <user 用户> [keyword] [contact]?`    | 搜索用户 |
+| `/<bili-search B搜索> <bangumi 番剧> [keyword] [contact]?` | 搜索番剧 |
+| `/<bili-search B搜索> <ft 影视> [keyword] [contact]?`      | 搜索影视 |
 
 ## 设置
 

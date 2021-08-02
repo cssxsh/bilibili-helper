@@ -21,7 +21,7 @@ object BiliLiveCommand : CompositeCommand(
     )
 
     @SubCommand("list", "列表")
-    suspend fun CommandSenderOnMessage<*>.detail(contact: Contact = subject()) = sendMessage(
+    suspend fun CommandSender.detail(contact: Contact = subject()) = sendMessage(
         list(contact)
     )
 }
