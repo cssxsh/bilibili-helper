@@ -149,10 +149,24 @@ private suspend fun Url.screenshot(type: CacheType, path: String, refresh: Boole
     }.uploadAsImage(contact)
 }
 
+private val FULLWIDTH_CHARS = mapOf(
+    '\\' to '＼',
+    '/' to '／',
+    ':' to '：',
+    '*' to '＊',
+    '?' to '？',
+    '"' to '＂',
+    '<' to '＜',
+    '>' to '＞',
+    '|' to '｜'
+)
+
+internal fun String.toFullWidth(): String = fold("") { acc, char -> acc + (FULLWIDTH_CHARS[char] ?: char) }
+
 private suspend fun EmojiDetail.cache(contact: Contact): Image {
     return Url(url).cache(
         type = CacheType.EMOJI,
-        path = "${packageId}/${name}.${url.substringAfterLast('.')}",
+        path = "${packageId}/${text.toFullWidth()}.${url.substringAfterLast('.')}",
         contact = contact
     )
 }
