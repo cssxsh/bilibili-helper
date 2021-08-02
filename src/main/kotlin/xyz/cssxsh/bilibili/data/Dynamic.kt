@@ -90,28 +90,6 @@ data class EmojiInfo(
 )
 
 @Serializable
-data class EmojiDetail(
-    @SerialName("attr")
-    val attr: Int,
-    @SerialName("emoji_name")
-    val name: String,
-    @SerialName("id")
-    val id: Int,
-    @SerialName("mtime")
-    val mtime: Long,
-    @SerialName("package_id")
-    val packageId: Int,
-    @SerialName("state")
-    val state: Int,
-    @SerialName("text")
-    val text: String,
-    @SerialName("type")
-    val type: Int,
-    @SerialName("url")
-    val url: String
-)
-
-@Serializable
 data class DynamicDisplay(
     @SerialName("emoji_info")
     val emoji: EmojiInfo = EmojiInfo(),

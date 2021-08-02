@@ -3,6 +3,7 @@ package xyz.cssxsh.bilibili.data
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
 
 @Serializable
 data class GarbSuit(
@@ -49,3 +50,5 @@ data class GarbSuitItem(
 )
 
 val GarbSuit.emoji get() = items["emoji_package"].orEmpty()
+
+val GarbSuitItem.image get() = (properties["image"] as JsonPrimitive).content
