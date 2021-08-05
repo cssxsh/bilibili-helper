@@ -112,14 +112,18 @@ val Video.content by ReadOnlyProperty { info, _ ->
         appendLine("时间: ${info.datetime}")
         appendLine("时长: ${info.length}")
         appendLine("链接: ${info.link}")
-        if (info.seasonId != null) appendLine("剧集: ${info.seasonId}")
+        info.seasonId?.let { id ->
+            appendLine("剧集: $id")
+        }
         info.status?.let { status ->
             appendLine("点赞: ${status.like} 硬币: ${status.coin} 收藏: ${status.favorite}")
             appendLine("弹幕: ${status.danmaku} 评论: ${status.reply} 分享: ${status.share}")
             appendLine("观看: ${status.view} ${if (status.hisRank) "排行: ${status.nowRank}" else ""}")
         }
-        appendLine("简介: ")
-        appendLine(info.description)
+        if (info.description.isNotBlank()) {
+            appendLine("简介: ")
+            appendLine(info.description)
+        }
     }
 }
 
@@ -150,7 +154,7 @@ fun DynamicCard.images(): List<String> = when (detail.type) {
     DynamicType.EPISODE, DynamicType.BANGUMI -> decode<DynamicEpisode>().cover.let(::listOf)
     DynamicType.LIVE -> decode<DynamicLive>().cover.let(::listOf)
     DynamicType.SKETCH -> decode<DynamicSketch>().detail.cover.let(::listOf)
-    else  -> emptyList()
+    else -> emptyList()
 }
 
 val VIDEO_REGEX = """((av|AV)\d+|(bv|BV)[0-9A-z]{8,12})""".toRegex()
