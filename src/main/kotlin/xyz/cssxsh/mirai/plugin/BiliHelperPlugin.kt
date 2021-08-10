@@ -26,9 +26,9 @@ object BiliHelperPlugin : KotlinPlugin(
             setupSelenium(dataFolder)
         }.onFailure {
             if (it is UnsupportedOperationException) {
-                logger.warning { "请安装 Chrome 或者 Firefox 浏览器 $it" }
+                logger.warning { "截图模式，请安装 Chrome 或者 Firefox 浏览器 $it" }
             } else {
-                logger.warning { "初始化浏览器驱动失败 $it" }
+                logger.warning { "截图模式，初始化浏览器驱动失败 $it" }
             }
         }.isSuccess
     }
