@@ -70,7 +70,7 @@
 消息中包含 `BV12v411G7dP` `av2` 等等 id 信息时会自动触发解析  
 目前会触发的正则表达式
 
-```
+```kotlin
 val VIDEO_REGEX = """((video/|av|AV)\d+|(bv|BV)[0-9A-z]{10})""".toRegex()
 val DYNAMIC_REGEX = """(?<=t\.bilibili\.com/(h5/dynamic/detail/)?)([0-9]{18})""".toRegex()
 val ROOM_REGEX = """(?<=live\.bilibili\.com/)(\d+)""".toRegex()
