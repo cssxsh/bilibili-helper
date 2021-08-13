@@ -64,6 +64,7 @@ private val KtorContext by lazy {
 }
 
 private class KtorHttpClient(private val config: ClientConfig) : SeleniumHttpClient {
+    @OptIn(KtorExperimentalAPI::class)
     val client = HttpClient(OkHttp) {
         engine {
             proxy = config.proxy()

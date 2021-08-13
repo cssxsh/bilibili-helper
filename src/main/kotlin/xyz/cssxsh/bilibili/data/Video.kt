@@ -1,8 +1,7 @@
 package xyz.cssxsh.bilibili.data
 
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
-import java.time.Duration
+import kotlinx.serialization.*
+import java.time.*
 
 interface Video {
     val title: String

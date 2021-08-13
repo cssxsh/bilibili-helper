@@ -10,12 +10,10 @@ import io.ktor.client.features.json.serializer.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.utils.io.core.*
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.supervisorScope
-import kotlinx.serialization.json.Json
+import io.ktor.utils.io.errors.*
+import kotlinx.coroutines.*
+import kotlinx.serialization.json.*
 import xyz.cssxsh.bilibili.api.*
-import java.io.IOException
 
 open class BiliClient : Closeable {
     companion object {

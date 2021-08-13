@@ -2,11 +2,10 @@ package xyz.cssxsh.mirai.plugin
 
 import net.mamoe.mirai.console.command.CommandManager.INSTANCE.register
 import net.mamoe.mirai.console.command.CommandManager.INSTANCE.unregister
-import net.mamoe.mirai.console.data.PluginConfig
-import net.mamoe.mirai.console.plugin.jvm.JvmPluginDescription
-import net.mamoe.mirai.console.plugin.jvm.KotlinPlugin
+import net.mamoe.mirai.console.data.*
+import net.mamoe.mirai.console.plugin.jvm.*
 import net.mamoe.mirai.utils.*
-import org.openqa.selenium.remote.RemoteWebDriver
+import org.openqa.selenium.remote.*
 import xyz.cssxsh.mirai.plugin.command.*
 import xyz.cssxsh.mirai.plugin.data.*
 import xyz.cssxsh.mirai.plugin.tools.*

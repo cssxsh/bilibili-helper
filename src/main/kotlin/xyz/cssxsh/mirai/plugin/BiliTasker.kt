@@ -1,19 +1,18 @@
 package xyz.cssxsh.mirai.plugin
 
 import kotlinx.coroutines.*
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.sync.*
+import net.mamoe.mirai.console.util.*
 import net.mamoe.mirai.console.util.CoroutineScopeUtils.childScope
-import net.mamoe.mirai.contact.Contact
+import net.mamoe.mirai.contact.*
 import net.mamoe.mirai.message.data.*
 import net.mamoe.mirai.utils.*
 import xyz.cssxsh.bilibili.api.*
 import xyz.cssxsh.bilibili.*
 import xyz.cssxsh.bilibili.data.*
 import xyz.cssxsh.mirai.plugin.data.*
-import java.time.LocalTime
-import java.time.OffsetDateTime
-import kotlin.math.abs
+import java.time.*
+import kotlin.math.*
 
 interface BiliTasker {
 
@@ -27,16 +26,16 @@ interface BiliTasker {
 
     suspend fun stop()
 
-    companion object : CoroutineScope by BiliHelperPlugin.childScope() {
+    companion object {
         private val all by lazy {
             (Loader::class.sealedSubclasses + Waiter::class.sealedSubclasses).mapNotNull { it.objectInstance }
         }
 
-        fun startAll() = launch {
+        fun startAll() = runBlocking {
             all.forEach { it.start() }
         }
 
-        fun stopAll() = launch {
+        fun stopAll() = runBlocking {
             all.forEach { it.stop() }
         }
     }
