@@ -26,7 +26,10 @@ import java.time.format.DateTimeFormatter
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
-internal val logger by BiliHelperPlugin::logger
+internal val logger by lazy {
+    val open = System.getProperty("xyz.cssxsh.mirai.plugin.logger", "${true}").toBoolean()
+    if (open) BiliHelperPlugin.logger else SilentLogger
+}
 
 internal var cookies by object : ReadWriteProperty<Any?, List<Cookie>> {
     private val json by lazy {
@@ -61,9 +64,13 @@ internal val client by lazy {
     }
 }
 
-internal fun BiliClient.load() { storage.container.addAll(cookies) }
+internal fun BiliClient.load() {
+    storage.container.addAll(cookies)
+}
 
-internal fun BiliClient.save() { cookies = storage.container }
+internal fun BiliClient.save() {
+    cookies = storage.container
+}
 
 internal val ImageCache by lazy { File(BiliHelperSettings.cache) }
 
