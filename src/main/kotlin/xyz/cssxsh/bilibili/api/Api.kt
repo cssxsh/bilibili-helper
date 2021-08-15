@@ -57,7 +57,6 @@ internal suspend inline fun <reified T> BiliClient.json(
     url: String,
     crossinline block: HttpRequestBuilder.() -> Unit
 ): T = useHttpClient { client ->
-    mutex.wait()
     with(client.get<TempData>(url, block)) {
         val temp = data ?: result
         BiliClient.Json.decodeFromJsonElement(requireNotNull(temp) { message })
