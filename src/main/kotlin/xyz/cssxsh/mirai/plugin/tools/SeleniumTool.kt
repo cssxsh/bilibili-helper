@@ -17,7 +17,8 @@ private fun Class<*>.getLogger(): Logger {
     return declaredFields.first { it.type == Logger::class.java }.apply { isAccessible = true }.get(null) as Logger
 }
 
-internal fun setupSelenium(dir: File) {
+internal fun setupSelenium(dir: File, browser: String = "") {
+    if (browser.isNotBlank()) System.setProperty("mxlib.selenium.browser", browser)
     System.setProperty("webdriver.http.factory", "ktor")
     System.setProperty("io.ktor.random.secure.random.provider", "DRBG")
     MxLib.setLoggerFactory { name -> NopLogger(name) }
@@ -47,6 +48,7 @@ interface RemoteWebDriverConfig {
     val width: Int
     val height: Int
     val pixelRatio: Int
+    val browser: String
 }
 
 typealias DriverConsumer = (Capabilities) -> Unit

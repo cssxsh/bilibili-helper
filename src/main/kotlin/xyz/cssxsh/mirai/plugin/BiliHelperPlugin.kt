@@ -21,8 +21,8 @@ object BiliHelperPlugin : KotlinPlugin(
         private set
 
     val selenium: Boolean by lazy {
-        SeleniumToolConfig.setup && runCatching {
-            setupSelenium(dataFolder)
+        SeleniumToolConfig.setup && SeleniumToolConfig.runCatching {
+            setupSelenium(dataFolder, browser)
         }.onFailure {
             if (it is UnsupportedOperationException) {
                 logger.warning { "截图模式，请安装 Chrome 或者 Firefox 浏览器 $it" }
