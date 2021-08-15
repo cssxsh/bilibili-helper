@@ -37,7 +37,7 @@ open class BiliClient : Closeable {
 
     val AcceptAllCookiesStorage.container: MutableList<Cookie> by reflect()
 
-    protected open val timeout = 5_000L
+    protected open val timeout = 15_000L
 
     protected open val client = HttpClient(OkHttp) {
         defaultRequest {
