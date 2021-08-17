@@ -14,7 +14,6 @@ import io.ktor.utils.io.core.*
 import io.ktor.utils.io.errors.*
 import kotlinx.coroutines.*
 import kotlinx.serialization.json.*
-import okhttp3.*
 import xyz.cssxsh.bilibili.api.*
 
 open class BiliClient : Closeable {
@@ -29,7 +28,7 @@ open class BiliClient : Closeable {
         val DefaultIgnore: suspend (Throwable) -> Boolean = { it is IOException || it is HttpRequestTimeoutException }
     }
 
-    override fun close() = client.close()
+    override fun close() = clients.forEach { it.close() }
 
     protected open val ignore: suspend (exception: Throwable) -> Boolean = DefaultIgnore
 
@@ -39,7 +38,7 @@ open class BiliClient : Closeable {
 
     protected open val timeout = 15_000L
 
-    protected open val client = HttpClient(OkHttp) {
+    protected open fun client() = HttpClient(OkHttp) {
         defaultRequest {
             header(HttpHeaders.Origin, SPACE)
             header(HttpHeaders.Referrer, SPACE)
@@ -61,10 +60,13 @@ open class BiliClient : Closeable {
             config {
                 hostnameVerifier { _, _ -> true }
                 // XXX okhttp3.internal.http2.StreamResetException
-                protocols(listOf(Protocol.HTTP_1_1))
+                // XXX unexpected end of stream with Protocol.HTTP_1_1
+                // protocols(listOf(Protocol.HTTP_1_1))
             }
         }
     }
+
+    protected open val clients = MutableList(3) { client() }
 
     protected open val mutex = BiliApiMutex(10 * 1000L)
 
@@ -72,7 +74,7 @@ open class BiliClient : Closeable {
         while (isActive) {
             runCatching {
                 mutex.wait()
-                block(client)
+                block(clients.random())
             }.onFailure {
                 if (ignore(it).not()) throw it
             }.onSuccess {
