@@ -48,7 +48,7 @@ val DynamicReply.content by ReadOnlyProperty { info, _ ->
     buildString {
         appendLine("RT @${info.originUser.user.uname}:")
         appendLine(info.detail.content)
-        appendLine("<======================>")
+        appendLine("<===================>")
         appendLine(info.content())
     }
 }
