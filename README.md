@@ -12,7 +12,8 @@
 带括号的`/`前缀是可选的  
 `<...>`中的是指令名，由空格隔开表示或，选择其中任一名称都可执行例如`/B动态 添加 692283831`  
 `[...]`表示参数，当`[...]`后面带`?`时表示参数可选  
-`{...}`表示连续的多个参数
+`{...}`表示连续的多个参数  
+直播 [@全体成员](#LiveAtAll) 详见配置  
 
 参数 `uid` 例如 `https://space.bilibili.com/508963009/` 的数字 `508963009`  
 参数 `contact` 为QQ号或者群号，可以省略，会从当前聊天环境获取，比如群聊中会自动填充为当前群号 since 0.1.0-dev-5  
@@ -89,7 +90,7 @@ val MEDIA_REGEX = """(?<=bilibili\.com/bangumi/media/md)(\d+)""".toRegex()
 | `/<bili-search B搜索> <bangumi 番剧> [keyword]` | 搜索番剧 |
 | `/<bili-search B搜索> <ft 影视> [keyword]`      | 搜索影视 |
 
-返回结果包含图片，需要在聊天环境执行指令  
+返回结果包含图片，需要在聊天环境执行指令
 
 ## 设置
 
@@ -115,6 +116,12 @@ val MEDIA_REGEX = """(?<=bilibili\.com/bangumi/media/md)(\d+)""".toRegex()
 1. `width` 截图宽度
 1. `height` 截图高度
 1. `setup` 是否启用截图，默认 `true`
+
+### LiveAtAll
+
+此配置通过权限设置，权限ID为 `xyz.cssxsh.mirai.plugin.bilibili-helper:live.atall`  
+配置对象为群，即 `g*`, `g12345`  
+举例，`perm add g12345 xyz.cssxsh.mirai.plugin.bilibili-helper:live.atall`  
 
 ## Cookies
 

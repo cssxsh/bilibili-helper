@@ -2,7 +2,8 @@ package xyz.cssxsh.mirai.plugin
 
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.*
-import net.mamoe.mirai.console.util.*
+import net.mamoe.mirai.console.permission.PermissionService.Companion.testPermission
+import net.mamoe.mirai.console.permission.PermitteeId.Companion.permitteeId
 import net.mamoe.mirai.console.util.CoroutineScopeUtils.childScope
 import net.mamoe.mirai.contact.*
 import net.mamoe.mirai.message.data.*
@@ -244,8 +245,17 @@ object BiliLiveWaiter : Waiter<BiliUserInfo>(), CoroutineScope by BiliHelperPlug
 
     override suspend fun BiliUserInfo.success(): Boolean = liveRoom.liveStatus
 
+    private fun withAtAll(contact: Contact): Message {
+        return if (contact is Group && LiveAtAll.testPermission(contact.permitteeId)) {
+            @Suppress("INVISIBLE_REFERENCE", "INVISIBLE_MEMBER")
+            AtAll + net.mamoe.mirai.internal.message.ForceAsLongMessage
+        } else {
+            EmptyMessageChain
+        }
+    }
+
     override suspend fun BiliUserInfo.build(contact: Contact): Message {
-        return "主播: $name#$mid \n".toPlainText() + liveRoom.toMessage(contact)
+        return "主播: $name#$mid \n".toPlainText() + liveRoom.toMessage(contact) + withAtAll(contact)
     }
 
     override suspend fun BiliUserInfo.near(): Boolean = false // TODO by live history
