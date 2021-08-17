@@ -1,9 +1,9 @@
 package xyz.cssxsh.bilibili.api
 
 import io.ktor.client.request.*
-import kotlinx.serialization.json.decodeFromJsonElement
-import xyz.cssxsh.bilibili.BiliClient
-import xyz.cssxsh.bilibili.data.TempData
+import kotlinx.serialization.json.*
+import xyz.cssxsh.bilibili.*
+import xyz.cssxsh.bilibili.data.*
 
 // Base
 const val INDEX_PAGE = "https://www.bilibili.com"
@@ -57,7 +57,6 @@ internal suspend inline fun <reified T> BiliClient.json(
     url: String,
     crossinline block: HttpRequestBuilder.() -> Unit
 ): T = useHttpClient { client ->
-    mutex.wait()
     with(client.get<TempData>(url, block)) {
         val temp = data ?: result
         BiliClient.Json.decodeFromJsonElement(requireNotNull(temp) { message })

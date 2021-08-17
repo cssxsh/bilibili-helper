@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "xyz.cssxsh.mirai.plugin"
-version = "1.0.7"
+version = "1.0.8"
 
 repositories {
     mavenLocal()
@@ -20,11 +20,11 @@ repositories {
 kotlin {
     sourceSets {
         all {
-            languageSettings.useExperimentalAnnotation("kotlin.RequiresOptIn")
-            languageSettings.useExperimentalAnnotation("kotlin.ExperimentalStdlibApi")
-            languageSettings.useExperimentalAnnotation("io.ktor.util.KtorExperimentalAPI")
-            languageSettings.useExperimentalAnnotation("kotlinx.serialization.InternalSerializationApi")
-            languageSettings.useExperimentalAnnotation("kotlinx.serialization.ExperimentalSerializationApi")
+//            languageSettings.useExperimentalAnnotation("kotlin.RequiresOptIn")
+//            languageSettings.useExperimentalAnnotation("kotlin.ExperimentalStdlibApi")
+//            languageSettings.useExperimentalAnnotation("io.ktor.util.KtorExperimentalAPI")
+//            languageSettings.useExperimentalAnnotation("kotlinx.serialization.InternalSerializationApi")
+//            languageSettings.useExperimentalAnnotation("kotlinx.serialization.ExperimentalSerializationApi")
             languageSettings.useExperimentalAnnotation("net.mamoe.mirai.console.util.ConsoleExperimentalApi")
         }
         test {

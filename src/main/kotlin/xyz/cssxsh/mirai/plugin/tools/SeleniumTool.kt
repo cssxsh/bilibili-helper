@@ -1,25 +1,24 @@
 package xyz.cssxsh.mirai.plugin.tools
 
-import io.github.karlatemp.mxlib.MxLib
-import io.github.karlatemp.mxlib.logger.NopLogger
-import io.github.karlatemp.mxlib.selenium.MxSelenium
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.withTimeout
+import io.github.karlatemp.mxlib.*
+import io.github.karlatemp.mxlib.logger.*
+import io.github.karlatemp.mxlib.selenium.*
+import kotlinx.coroutines.*
 import org.openqa.selenium.*
 import org.openqa.selenium.chromium.*
 import org.openqa.selenium.firefox.*
 import org.openqa.selenium.interactions.*
 import org.openqa.selenium.remote.*
-import java.io.File
-import java.time.Duration
-import java.util.logging.Level
-import java.util.logging.Logger
+import java.io.*
+import java.time.*
+import java.util.logging.*
 
 private fun Class<*>.getLogger(): Logger {
     return declaredFields.first { it.type == Logger::class.java }.apply { isAccessible = true }.get(null) as Logger
 }
 
-internal fun setupSelenium(dir: File) {
+internal fun setupSelenium(dir: File, browser: String = "") {
+    if (browser.isNotBlank()) System.setProperty("mxlib.selenium.browser", browser)
     System.setProperty("webdriver.http.factory", "ktor")
     System.setProperty("io.ktor.random.secure.random.provider", "DRBG")
     MxLib.setLoggerFactory { name -> NopLogger(name) }
@@ -49,6 +48,7 @@ interface RemoteWebDriverConfig {
     val width: Int
     val height: Int
     val pixelRatio: Int
+    val browser: String
 }
 
 typealias DriverConsumer = (Capabilities) -> Unit

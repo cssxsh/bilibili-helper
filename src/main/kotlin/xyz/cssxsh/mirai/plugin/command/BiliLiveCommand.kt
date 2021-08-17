@@ -1,7 +1,7 @@
 package xyz.cssxsh.mirai.plugin.command
 
 import net.mamoe.mirai.console.command.*
-import net.mamoe.mirai.contact.Contact
+import net.mamoe.mirai.contact.*
 import xyz.cssxsh.mirai.plugin.*
 
 object BiliLiveCommand : CompositeCommand(

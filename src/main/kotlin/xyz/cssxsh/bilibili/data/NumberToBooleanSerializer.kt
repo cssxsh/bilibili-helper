@@ -1,14 +1,11 @@
 package xyz.cssxsh.bilibili.data
 
-import kotlinx.serialization.KSerializer
-import kotlinx.serialization.Serializer
-import kotlinx.serialization.descriptors.PrimitiveKind
-import kotlinx.serialization.descriptors.SerialDescriptor
-import kotlinx.serialization.descriptors.buildSerialDescriptor
-import kotlinx.serialization.encoding.Decoder
-import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.*
+import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.encoding.*
 
 @Serializer(forClass = Boolean::class)
+@OptIn(InternalSerializationApi::class, ExperimentalSerializationApi::class)
 internal object NumberToBooleanSerializer : KSerializer<Boolean> {
     override val descriptor: SerialDescriptor
         get() = buildSerialDescriptor(Boolean::class.qualifiedName!!, PrimitiveKind.INT)

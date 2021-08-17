@@ -1,11 +1,8 @@
 package xyz.cssxsh.mirai.plugin
 
-import io.ktor.client.features.cookies.*
 import io.ktor.http.*
 import io.ktor.util.date.*
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
-import kotlin.properties.ReadOnlyProperty
+import kotlinx.serialization.*
 
 @Serializable
 data class EditThisCookie(
@@ -56,9 +53,3 @@ fun Cookie.toEditThisCookie(id: Int = 0) = EditThisCookie(
     httpOnly = httpOnly,
     id = id
 )
-
-private inline fun <reified T : Any, reified R> reflect() = ReadOnlyProperty<T, R> { thisRef, property ->
-    thisRef::class.java.getDeclaredField(property.name).apply { isAccessible = true }.get(thisRef) as R
-}
-
-internal val AcceptAllCookiesStorage.container: MutableList<Cookie> by reflect()

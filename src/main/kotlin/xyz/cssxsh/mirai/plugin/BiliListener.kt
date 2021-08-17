@@ -1,10 +1,8 @@
 package xyz.cssxsh.mirai.plugin
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.cancelChildren
+import kotlinx.coroutines.*
 import net.mamoe.mirai.console.util.CoroutineScopeUtils.childScope
-import net.mamoe.mirai.event.globalEventChannel
-import net.mamoe.mirai.event.subscribeMessages
+import net.mamoe.mirai.event.*
 
 internal object BiliListener: CoroutineScope by BiliHelperPlugin.childScope("BiliListener") {
 

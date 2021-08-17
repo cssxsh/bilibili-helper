@@ -2,16 +2,11 @@ package xyz.cssxsh.mirai.plugin
 
 import io.ktor.client.request.*
 import io.ktor.http.*
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
-import kotlinx.serialization.KSerializer
+import kotlinx.coroutines.sync.*
 import kotlinx.serialization.*
-import kotlinx.serialization.descriptors.PrimitiveKind
-import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
-import kotlinx.serialization.descriptors.SerialDescriptor
-import kotlinx.serialization.encoding.Decoder
-import kotlinx.serialization.encoding.Encoder
-import net.mamoe.mirai.Bot
+import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.encoding.*
+import net.mamoe.mirai.*
 import net.mamoe.mirai.contact.*
 import net.mamoe.mirai.message.data.*
 import net.mamoe.mirai.utils.*
@@ -21,12 +16,15 @@ import xyz.cssxsh.bilibili.*
 import xyz.cssxsh.mirai.plugin.data.*
 import xyz.cssxsh.mirai.plugin.tools.*
 import java.io.File
-import java.time.OffsetDateTime
-import java.time.format.DateTimeFormatter
-import kotlin.properties.ReadWriteProperty
-import kotlin.reflect.KProperty
+import java.time.*
+import java.time.format.*
+import kotlin.properties.*
+import kotlin.reflect.*
 
-internal val logger by BiliHelperPlugin::logger
+internal val logger by lazy {
+    val open = System.getProperty("xyz.cssxsh.mirai.plugin.logger", "${true}").toBoolean()
+    if (open) BiliHelperPlugin.logger else SilentLogger
+}
 
 internal var cookies by object : ReadWriteProperty<Any?, List<Cookie>> {
     private val json by lazy {
@@ -61,9 +59,13 @@ internal val client by lazy {
     }
 }
 
-internal fun BiliClient.load() { storage.container.addAll(cookies) }
+internal fun BiliClient.load() {
+    storage.container.addAll(cookies)
+}
 
-internal fun BiliClient.save() { cookies = storage.container }
+internal fun BiliClient.save() {
+    cookies = storage.container
+}
 
 internal val ImageCache by lazy { File(BiliHelperSettings.cache) }
 
