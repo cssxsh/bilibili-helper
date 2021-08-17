@@ -244,8 +244,17 @@ object BiliLiveWaiter : Waiter<BiliUserInfo>(), CoroutineScope by BiliHelperPlug
 
     override suspend fun BiliUserInfo.success(): Boolean = liveRoom.liveStatus
 
+    private fun withAtAll(contact: Contact): Message {
+        return if (contact is Group && LiveAtAll.testPermission(contact.permitteeId)) {
+            @Suppress("INVISIBLE_REFERENCE", "INVISIBLE_MEMBER")
+            AtAll + net.mamoe.mirai.internal.message.ForceAsLongMessage
+        } else {
+            EmptyMessageChain
+        }
+    }
+
     override suspend fun BiliUserInfo.build(contact: Contact): Message {
-        return "主播: $name#$mid \n".toPlainText() + liveRoom.toMessage(contact)
+        return "主播: $name#$mid \n".toPlainText() + liveRoom.toMessage(contact) + withAtAll(contact)
     }
 
     override suspend fun BiliUserInfo.near(): Boolean = false // TODO by live history
