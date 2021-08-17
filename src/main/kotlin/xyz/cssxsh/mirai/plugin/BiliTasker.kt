@@ -245,6 +245,10 @@ object BiliLiveWaiter : Waiter<BiliUserInfo>(), CoroutineScope by BiliHelperPlug
 
     override suspend fun BiliUserInfo.success(): Boolean = liveRoom.liveStatus
 
+    init {
+        LiveAtAll
+    }
+
     private fun withAtAll(contact: Contact): Message {
         return if (contact is Group && LiveAtAll.testPermission(contact.permitteeId)) {
             @Suppress("INVISIBLE_REFERENCE", "INVISIBLE_MEMBER")
