@@ -16,7 +16,7 @@ import kotlinx.coroutines.*
 import kotlinx.serialization.json.*
 import xyz.cssxsh.bilibili.api.*
 
-open class BiliClient : Closeable {
+open class BiliClient(private val timeout: Long = 15_000L) : Closeable {
     companion object {
         val Json = Json {
             prettyPrint = true
@@ -35,8 +35,6 @@ open class BiliClient : Closeable {
     val storage = AcceptAllCookiesStorage()
 
     val AcceptAllCookiesStorage.container: MutableList<Cookie> by reflect()
-
-    protected open val timeout = 15_000L
 
     protected open fun client() = HttpClient(OkHttp) {
         defaultRequest {

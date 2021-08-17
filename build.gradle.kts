@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "xyz.cssxsh.mirai.plugin"
-version = "1.0.8"
+version = "1.1.0"
 
 repositories {
     mavenLocal()
@@ -51,6 +51,7 @@ dependencies {
         exclude("org.asynchttpclient")
         exclude("io.opentelemetry")
     }
+    compileOnly("net.mamoe:mirai-core-jvm:2.6.7")
 
     testImplementation(junit("api", Versions.junit))
     testRuntimeOnly(junit("engine", Versions.junit))
