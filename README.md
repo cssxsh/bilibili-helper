@@ -119,8 +119,9 @@ val MEDIA_REGEX = """(?<=bilibili\.com/bangumi/media/md)(\d+)""".toRegex()
 
 ### LiveAtAll
 
-此配置跳过权限设置，权限ID为 `xyz.cssxsh.mirai.plugin.bilibili-helper:live.atall`  
+此配置通过权限设置，权限ID为 `xyz.cssxsh.mirai.plugin.bilibili-helper:live.atall`  
 配置对象为群，即 `g*`, `g12345`  
+举例，`perm add g12345 xyz.cssxsh.mirai.plugin.bilibili-helper:live.atall`  
 
 ## Cookies
 

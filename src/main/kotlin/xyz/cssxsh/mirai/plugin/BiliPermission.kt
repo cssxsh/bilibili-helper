@@ -9,5 +9,5 @@ private fun AbstractJvmPlugin.registerPermission(name: String, description: Stri
 }
 
 internal val LiveAtAll by lazy {
-    BiliHelperPlugin.registerPermission("live.atall", "不发送上线通知")
+    BiliHelperPlugin.registerPermission("live.atall", "直播 @全体成员")
 }
