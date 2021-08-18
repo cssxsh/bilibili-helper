@@ -29,7 +29,7 @@ interface BiliTasker {
 
     companion object {
         private val all by lazy {
-            (Loader::class.sealedSubclasses + Waiter::class.sealedSubclasses).mapNotNull { it.objectInstance }
+            AbstractTasker::class.sealedSubclasses.flatMap { it.sealedSubclasses }.mapNotNull { it.objectInstance }
         }
 
         fun startAll() = runBlocking {
@@ -42,7 +42,7 @@ interface BiliTasker {
     }
 }
 
-abstract class AbstractTasker<T> : BiliTasker, CoroutineScope {
+sealed class AbstractTasker<T> : BiliTasker, CoroutineScope {
 
     protected val mutex = Mutex()
 
@@ -173,6 +173,7 @@ sealed class Waiter<T> : AbstractTasker<T>() {
                     states.put(id, item.success()).let { old ->
                         if (old != true && item.success()) {
                             task.contacts.send(item)
+                            tasks[id] = task.copy(last = OffsetDateTime.now())
                             delay(slow)
                         }
                     }
@@ -260,7 +261,8 @@ object BiliLiveWaiter : Waiter<BiliUserInfo>(), CoroutineScope by BiliHelperPlug
         return "主播: $name#$mid \n".toPlainText() + liveRoom.toMessage(contact) + withAtAll(contact)
     }
 
-    override suspend fun BiliUserInfo.near(): Boolean = false // TODO by live history
+    // TODO by live history
+    override suspend fun BiliUserInfo.near(): Boolean = LocalTime.now().minute < 5
 
     override suspend fun initTask(id: Long): BiliTask = BiliTask(client.getUserInfo(id).name)
 }
