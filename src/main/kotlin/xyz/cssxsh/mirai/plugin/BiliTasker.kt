@@ -245,9 +245,7 @@ object BiliLiveWaiter : Waiter<BiliUserInfo>(), CoroutineScope by BiliHelperPlug
 
     override suspend fun BiliUserInfo.success(): Boolean = liveRoom.liveStatus
 
-    init {
-        LiveAtAll
-    }
+    private val LiveAtAll = BiliHelperPlugin.registerPermission("live.atall", "直播 @全体成员")
 
     private fun withAtAll(contact: Contact): Message {
         return if (contact is Group && LiveAtAll.testPermission(contact.permitteeId)) {
