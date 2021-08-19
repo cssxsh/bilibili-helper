@@ -72,8 +72,8 @@
 目前会触发的正则表达式
 
 ```
-val VIDEO_REGEX = """((video/|av|AV)\d+|(bv|BV)[0-9A-z]{10})""".toRegex()
-val DYNAMIC_REGEX = """(?<=t\.bilibili\.com/(h5/dynamic/detail/)?)([0-9]{18})""".toRegex()
+val VIDEO_REGEX = """((av|AV)\d+|BV[0-9A-z]{8,12})""".toRegex()
+val DYNAMIC_REGEX = """(?<=t\.bilibili\.com/(h5/dynamic/detail/)?)(\d+)""".toRegex()
 val ROOM_REGEX = """(?<=live\.bilibili\.com/)(\d+)""".toRegex()
 val SHORT_LINK_REGEX = """(?<=b23\.tv\\?/)[0-9A-z]+""".toRegex()
 val SPACE_REGEX = """(?<=space\.bilibili\.com/)(\d+)""".toRegex()
