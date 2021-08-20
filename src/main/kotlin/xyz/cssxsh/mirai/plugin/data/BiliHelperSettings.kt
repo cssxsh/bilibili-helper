@@ -16,7 +16,7 @@ object BiliHelperSettings : ReadOnlyPluginConfig("BiliHelperSettings") {
     val dynamic: Long by value(10L)
 
     @ValueDescription("直播 订阅 访问间隔时间，单位分钟")
-    val live: Long by value(30L)
+    val live: Long by value(10L)
 
     @ValueDescription("番剧 订阅 访问间隔时间，单位分钟")
     val season: Long by value(30L)

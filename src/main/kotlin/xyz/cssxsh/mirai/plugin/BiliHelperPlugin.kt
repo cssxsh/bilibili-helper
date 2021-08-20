@@ -11,7 +11,7 @@ import xyz.cssxsh.mirai.plugin.data.*
 import xyz.cssxsh.mirai.plugin.tools.*
 
 object BiliHelperPlugin : KotlinPlugin(
-    JvmPluginDescription("xyz.cssxsh.mirai.plugin.bilibili-helper", "1.1.0") {
+    JvmPluginDescription("xyz.cssxsh.mirai.plugin.bilibili-helper", "1.1.1") {
         name("bilibili-helper")
         author("cssxsh")
     }
@@ -54,6 +54,9 @@ object BiliHelperPlugin : KotlinPlugin(
         BiliSearchCommand.register()
 
         if (selenium) {
+            if ("iPad" in SeleniumToolConfig.userAgent) {
+                logger.error { "最近b站 网页版动态无法处理 IPad UserAgent，请更改为其他 UserAgent" }
+            }
             driver = RemoteWebDriver(config = SeleniumToolConfig)
         }
 

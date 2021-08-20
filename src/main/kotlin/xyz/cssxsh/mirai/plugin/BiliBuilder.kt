@@ -21,7 +21,7 @@ internal suspend fun UserInfo.toMessage(contact: Contact) = content.toPlainText(
 internal suspend fun Video.toMessage(contact: Contact) = content.toPlainText() + getCover(contact)
 
 internal suspend fun Live.toMessage(contact: Contact) = buildMessageChain {
-    appendLine(content)
+    add(content)
     runCatching {
         with(client.getRoomInfo(roomId = roomId)) {
             appendLine("开播时间: $datetime")

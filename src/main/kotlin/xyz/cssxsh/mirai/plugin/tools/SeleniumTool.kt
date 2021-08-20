@@ -48,6 +48,7 @@ interface RemoteWebDriverConfig {
     val width: Int
     val height: Int
     val pixelRatio: Int
+    val headless: Boolean
     val browser: String
 }
 
@@ -56,7 +57,7 @@ typealias DriverConsumer = (Capabilities) -> Unit
 private fun RemoteWebDriverConfig.toConsumer(): DriverConsumer = { capabilities ->
     when (capabilities) {
         is ChromiumOptions<*> -> capabilities.apply {
-            //setHeadless(true)
+            setHeadless(headless)
             setPageLoadStrategy(PageLoadStrategy.NORMAL)
             setAcceptInsecureCerts(true)
             addArguments("--silent")
@@ -78,7 +79,7 @@ private fun RemoteWebDriverConfig.toConsumer(): DriverConsumer = { capabilities 
             )
         }
         is FirefoxOptions -> capabilities.apply {
-            setHeadless(true)
+            setHeadless(headless)
             setPageLoadStrategy(PageLoadStrategy.NORMAL)
             setLogLevel(FirefoxDriverLogLevel.FATAL)
             setAcceptInsecureCerts(true)
@@ -105,9 +106,9 @@ private val Init = Duration.ofSeconds(10)
 
 private val Timeout = Duration.ofMinutes(3)
 
-private val Interval = Duration.ofSeconds(3)
+private val Interval = Duration.ofSeconds(10)
 
-private const val HOME_PAGE = "https://t.bilibili.com/h5/dynamic/detail/508396365455813655"
+private const val HOME_PAGE = "https://m.bilibili.com/detail/508396365455813655"
 
 fun RemoteWebDriver(config: RemoteWebDriverConfig, home: String = HOME_PAGE): RemoteWebDriver {
 
@@ -124,7 +125,11 @@ fun RemoteWebDriver(config: RemoteWebDriverConfig, home: String = HOME_PAGE): Re
                 pageLoadTimeout(Timeout)
                 scriptTimeout = Interval
             }
-            get(home)
+            runBlocking {
+                withTimeout(Timeout.toMillis()) {
+                    get(home)
+                }
+            }
         }
     }
 
@@ -141,10 +146,10 @@ private fun WebDriver.responsive() {
 suspend fun RemoteWebDriver.getScreenshot(url: String): ByteArray {
     val home = windowHandle
     val tab = switchTo().newWindow(WindowType.TAB) as RemoteWebDriver
-    tab.get(url)
     // tab.responsive()
     runCatching {
         withTimeout(Timeout.toMillis()) {
+            tab.get(url)
             delay(Init.toMillis())
             while (executeScript(IS_READY_SCRIPT) == false || executeScript(HAS_CONTENT_SCRIPT) == false) {
                 delay(Interval.toMillis())

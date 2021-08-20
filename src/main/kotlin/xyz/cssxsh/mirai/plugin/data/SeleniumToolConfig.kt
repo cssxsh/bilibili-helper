@@ -23,6 +23,10 @@ object SeleniumToolConfig : ReadOnlyPluginConfig("SeleniumConfig"), RemoteWebDri
     @ValueDescription("截图像素比")
     override val pixelRatio: Int by value(3)
 
+    @ValueName("headless")
+    @ValueDescription("无头模式（后台模式）")
+    override val headless: Boolean by value(true)
+
     @ValueName("browser")
     @ValueDescription("指定使用的浏览器，Chrome/firefox")
     override val browser: String by value("")

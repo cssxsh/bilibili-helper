@@ -98,24 +98,26 @@ val MEDIA_REGEX = """(?<=bilibili\.com/bangumi/media/md)(\d+)""".toRegex()
 
 ### BiliHelperSettings.yml
 
-1. `cache` 图片缓存位置, 默认为 `ImageCache`
-1. `api` API 访问间隔时间，单位秒, 默认为 `10` (since 0.1.0-dev-6)
-1. `video` 视频 订阅 访问间隔时间，单位分钟, 默认为 `10` (since 0.1.0-dev-6)
-1. `dynamic` 动态 订阅 访问间隔时间，单位分钟, 默认为 `10` (since 0.1.0-dev-6)
-1. `live` 直播 订阅 访问间隔时间，单位分钟, 默认为 `30` (since 0.1.0-dev-6)
-1. `season` 番剧 订阅 访问间隔时间，单位分钟, 默认为 `30` (since 0.1.0-dev-6)
+* `cache` 图片缓存位置, 默认为 `ImageCache`
+* `api` API 访问间隔时间，单位秒, 默认为 `10` (since 0.1.0-dev-6)
+* `video` 视频 订阅 访问间隔时间，单位分钟, 默认为 `10` (since 0.1.0-dev-6)
+* `dynamic` 动态 订阅 访问间隔时间，单位分钟, 默认为 `10` (since 0.1.0-dev-6)
+* `live` 直播 订阅 访问间隔时间，单位分钟, 默认为 `30` (since 0.1.0-dev-6)
+* `season` 番剧 订阅 访问间隔时间，单位分钟, 默认为 `30` (since 0.1.0-dev-6)
 
 ### BiliCleanerConfig.yml
 
-1. `interval` 图片清理的间隔时间，单位 小时
-1. `expires` 图片缓存过期时间，单位 小时
+* `interval` 图片清理的间隔时间，单位 小时
+* `expires` 图片缓存过期时间，单位 小时
 
 ### SeleniumConfig.yml
 
-1. `ua` 截图设备UA
-1. `width` 截图宽度
-1. `height` 截图高度
-1. `setup` 是否启用截图，默认 `true`
+* `ua` 截图设备UA
+* `width` 截图宽度
+* `height` 截图高度
+* `pixel_ratio` 截图像素比
+* `headless` 无头模式（后台模式）
+* `setup` 是否启用截图，默认 `true`
 
 ### LiveAtAll
 
