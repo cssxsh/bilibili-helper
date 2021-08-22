@@ -74,7 +74,7 @@ private fun RemoteWebDriverConfig.toConsumer(): DriverConsumer = { capabilities 
                         "height" to height,
                         "pixelRatio" to pixelRatio
                     ),
-                    "userAgent" to userAgent
+                    "userAgent" to "$userAgent MicroMessenger"
                 )
             )
         }
@@ -89,9 +89,9 @@ private fun RemoteWebDriverConfig.toConsumer(): DriverConsumer = { capabilities 
             addPreference("devtools.responsive.viewport.width", width)
             addPreference("devtools.responsive.viewport.height", height)
             addPreference("devtools.responsive.viewport.pixelRatio", pixelRatio)
-            addPreference("devtools.responsive.userAgent", userAgent)
+            addPreference("devtools.responsive.userAgent", "$userAgent MicroMessenger")
             // XXX responsive 无法调用
-            addPreference("general.useragent.override", userAgent)
+            addPreference("general.useragent.override", "$userAgent MicroMessenger")
             addArguments("--width=${width}", "--height=${height}")
         }
         else -> throw IllegalArgumentException("未设置参数的浏览器")
@@ -102,15 +102,20 @@ private val IS_READY_SCRIPT by lazy { JavaScriptLoader.load("IsReady") }
 
 private val HAS_CONTENT_SCRIPT by lazy { JavaScriptLoader.load("HasContent") }
 
+private val BROWSER_VERSION by lazy { JavaScriptLoader.load("BrowserVersion") }
+
 private val Init = Duration.ofSeconds(10)
 
 private val Timeout = Duration.ofMinutes(3)
 
 private val Interval = Duration.ofSeconds(10)
 
-private const val HOME_PAGE = "https://m.bilibili.com/detail/508396365455813655"
+internal const val HOME_PAGE = "https://t.bilibili.com/h5/dynamic/detail/508396365455813655"
 
-fun RemoteWebDriver(config: RemoteWebDriverConfig, home: String = HOME_PAGE): RemoteWebDriver {
+internal const val IPAD =
+    "Mozilla/5.0 (iPad; CPU OS 11_0 like Mac OS X) AppleWebKit/604.1.34 (KHTML, like Gecko) Version/11.0 Mobile/15A5341f Safari/604.1"
+
+fun RemoteWebDriver(config: RemoteWebDriverConfig): RemoteWebDriver {
 
     val thread = Thread.currentThread()
     val oc = thread.contextClassLoader
@@ -125,11 +130,6 @@ fun RemoteWebDriver(config: RemoteWebDriverConfig, home: String = HOME_PAGE): Re
                 pageLoadTimeout(Timeout)
                 scriptTimeout = Interval
             }
-            runBlocking {
-                withTimeout(Timeout.toMillis()) {
-                    get(home)
-                }
-            }
         }
     }
 
@@ -141,6 +141,14 @@ fun RemoteWebDriver(config: RemoteWebDriverConfig, home: String = HOME_PAGE): Re
 private fun WebDriver.responsive() {
     val actions = Actions(this)
     actions.keyDown(Keys.CONTROL).keyDown(Keys.SHIFT).sendKeys("m").keyUp(Keys.SHIFT).keyUp(Keys.CONTROL).perform()
+}
+
+suspend fun RemoteWebDriver.home(page: String = HOME_PAGE): Map<String, Boolean> {
+    withTimeout(Timeout.toMillis()) {
+        get(page)
+    }
+    @Suppress("UNCHECKED_CAST")
+    return executeScript(BROWSER_VERSION) as Map<String, Boolean>
 }
 
 suspend fun RemoteWebDriver.getScreenshot(url: String): ByteArray {

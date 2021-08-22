@@ -1,5 +1,6 @@
 package xyz.cssxsh.mirai.plugin
 
+import kotlinx.coroutines.*
 import net.mamoe.mirai.console.command.CommandManager.INSTANCE.register
 import net.mamoe.mirai.console.command.CommandManager.INSTANCE.unregister
 import net.mamoe.mirai.console.data.*
@@ -54,10 +55,11 @@ object BiliHelperPlugin : KotlinPlugin(
         BiliSearchCommand.register()
 
         if (selenium) {
-            if ("iPad" in SeleniumToolConfig.userAgent) {
-                logger.error { "最近b站 网页版动态无法处理 IPad UserAgent，请更改为其他 UserAgent" }
-            }
             driver = RemoteWebDriver(config = SeleniumToolConfig)
+            launch(SupervisorJob()) {
+                val version = driver.home()
+                logger.info { "driver agent $version" }
+            }
         }
 
         BiliTasker.startAll()

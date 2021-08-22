@@ -112,7 +112,7 @@ val MEDIA_REGEX = """(?<=bilibili\.com/bangumi/media/md)(\d+)""".toRegex()
 
 ### SeleniumConfig.yml
 
-* `ua` 截图设备UA
+* `user_agent` 截图设备UA 默认 iPad `Mozilla/5.0 (iPad; CPU OS 11_0 like Mac OS X) AppleWebKit/604.1.34 (KHTML, like Gecko) Version/11.0 Mobile/15A5341f Safari/604.1`
 * `width` 截图宽度
 * `height` 截图高度
 * `pixel_ratio` 截图像素比
