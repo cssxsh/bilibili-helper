@@ -4,9 +4,6 @@ import net.mamoe.mirai.console.data.*
 import xyz.cssxsh.mirai.plugin.tools.*
 
 object SeleniumToolConfig : ReadOnlyPluginConfig("SeleniumConfig"), RemoteWebDriverConfig {
-    private const val IPAD =
-        "Mozilla/5.0 (iPad; CPU OS 11_0 like Mac OS X) AppleWebKit/604.1.34 (KHTML, like Gecko) Version/11.0 Mobile/15A5341f Safari/604.1"
-
     @ValueName("user_agent")
     @ValueDescription("截图UA")
     override val userAgent: String by value(IPAD)
