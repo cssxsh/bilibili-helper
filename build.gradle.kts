@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "xyz.cssxsh.mirai.plugin"
-version = "1.1.1"
+version = "1.1.2"
 
 repositories {
     mavenLocal()
