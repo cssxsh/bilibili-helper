@@ -57,8 +57,13 @@ object BiliHelperPlugin : KotlinPlugin(
         if (selenium) {
             driver = RemoteWebDriver(config = SeleniumToolConfig)
             launch(SupervisorJob()) {
-                val version = driver.home()
-                logger.info { "driver agent $version" }
+                driver.runCatching {
+                    home()
+                }.onSuccess { version ->
+                    logger.info { "driver agent $version" }
+                }.onFailure {
+                    logger.warning { "设置主页失败" }
+                }
             }
         }
 
