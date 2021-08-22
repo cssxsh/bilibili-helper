@@ -13,10 +13,10 @@
 `<...>`中的是指令名，由空格隔开表示或，选择其中任一名称都可执行例如`/B动态 添加 692283831`  
 `[...]`表示参数，当`[...]`后面带`?`时表示参数可选  
 `{...}`表示连续的多个参数  
-直播 [@全体成员](#LiveAtAll) 详见配置  
+直播 [@全体成员](#LiveAtAll) 详见配置
 
 参数 `uid` 例如 `https://space.bilibili.com/508963009/` 的数字 `508963009`  
-参数 `contact` 为QQ号或者群号，可以省略，会从当前聊天环境获取，比如群聊中会自动填充为当前群号 since 0.1.0-dev-5  
+参数 `contact` 为QQ号或者群号，可以省略，会从当前聊天环境获取，比如群聊中会自动填充为当前群号
 
 ### 动态订阅指令
 
@@ -99,11 +99,11 @@ val MEDIA_REGEX = """(?<=bilibili\.com/bangumi/media/md)(\d+)""".toRegex()
 ### BiliHelperSettings.yml
 
 * `cache` 图片缓存位置, 默认为 `ImageCache`
-* `api` API 访问间隔时间，单位秒, 默认为 `10` (since 0.1.0-dev-6)
-* `video` 视频 订阅 访问间隔时间，单位分钟, 默认为 `10` (since 0.1.0-dev-6)
-* `dynamic` 动态 订阅 访问间隔时间，单位分钟, 默认为 `10` (since 0.1.0-dev-6)
-* `live` 直播 订阅 访问间隔时间，单位分钟, 默认为 `30` (since 0.1.0-dev-6)
-* `season` 番剧 订阅 访问间隔时间，单位分钟, 默认为 `30` (since 0.1.0-dev-6)
+* `api` API 访问间隔时间，单位秒, 默认为 `10`
+* `video` 视频 订阅 访问间隔时间，单位分钟, 默认为 `10`
+* `dynamic` 动态 订阅 访问间隔时间，单位分钟, 默认为 `10`
+* `live` 直播 订阅 访问间隔时间，单位分钟, 默认为 `30`
+* `season` 番剧 订阅 访问间隔时间，单位分钟, 默认为 `30`
 
 ### BiliCleanerConfig.yml
 
@@ -112,7 +112,9 @@ val MEDIA_REGEX = """(?<=bilibili\.com/bangumi/media/md)(\d+)""".toRegex()
 
 ### SeleniumConfig.yml
 
-* `user_agent` 截图设备UA 默认 iPad `Mozilla/5.0 (iPad; CPU OS 11_0 like Mac OS X) AppleWebKit/604.1.34 (KHTML, like Gecko) Version/11.0 Mobile/15A5341f Safari/604.1`
+* `user_agent` 截图设备UA
+  网页识别设备类型，进而影响截图的效果
+  默认 iPad `Mozilla/5.0 (iPad; CPU OS 11_0 like Mac OS X) AppleWebKit/604.1.34 (KHTML, like Gecko) Version/11.0 Mobile/15A5341f Safari/604.1`
 * `width` 截图宽度
 * `height` 截图高度
 * `pixel_ratio` 截图像素比
@@ -123,7 +125,7 @@ val MEDIA_REGEX = """(?<=bilibili\.com/bangumi/media/md)(\d+)""".toRegex()
 
 此配置通过权限设置，权限ID为 `xyz.cssxsh.mirai.plugin.bilibili-helper:live.atall`  
 配置对象为群，即 `g*`, `g12345`  
-举例，`perm add g12345 xyz.cssxsh.mirai.plugin.bilibili-helper:live.atall`  
+举例，`perm add g12345 xyz.cssxsh.mirai.plugin.bilibili-helper:live.atall`
 
 ## Cookies
 
