@@ -1,2 +1,2 @@
 // no-unused-vars
-const BrowserVersion = () => (window['selfBrowser'] || {})["version"] || {}
+const BrowserVersion = () => (window['selfBrowser'] || {})['version'] || {}
