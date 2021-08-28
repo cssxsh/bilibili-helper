@@ -5,6 +5,8 @@ import net.mamoe.mirai.console.command.CommandManager.INSTANCE.register
 import net.mamoe.mirai.console.command.CommandManager.INSTANCE.unregister
 import net.mamoe.mirai.console.data.*
 import net.mamoe.mirai.console.plugin.jvm.*
+import net.mamoe.mirai.event.events.*
+import net.mamoe.mirai.event.*
 import net.mamoe.mirai.utils.*
 import org.openqa.selenium.remote.*
 import xyz.cssxsh.mirai.plugin.command.*
@@ -67,8 +69,10 @@ object BiliHelperPlugin : KotlinPlugin(
             }
         }
 
-        BiliTasker.startAll()
-        BiliCleaner.start()
+        globalEventChannel().subscribeOnce<BotOnlineEvent> {
+            BiliTasker.startAll()
+            BiliCleaner.start()
+        }
     }
 
     override fun onDisable() {

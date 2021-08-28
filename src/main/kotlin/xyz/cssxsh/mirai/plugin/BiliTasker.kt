@@ -44,6 +44,8 @@ interface BiliTasker {
 
 sealed class AbstractTasker<T> : BiliTasker, CoroutineScope {
 
+    protected val name get() = coroutineContext[CoroutineName]?.name
+
     protected val mutex = Mutex()
 
     protected abstract val fast: Long
@@ -68,7 +70,21 @@ sealed class AbstractTasker<T> : BiliTasker, CoroutineScope {
 
     private val taskJobs = mutableMapOf<Long, Job>()
 
-    protected abstract fun addListener(id: Long): Job
+    protected abstract suspend fun listen(id: Long): Long
+
+    protected open fun addListener(id: Long) = launch(SupervisorJob()) {
+        logger.info { "$name with $id start" }
+        while (isActive && contacts(id).isNotEmpty()) {
+            runCatching {
+                listen(id)
+            }.onSuccess { interval ->
+                delay(interval)
+            }.onFailure {
+                logger.warning { "$name with $id fail $it" }
+                delay(slow)
+            }
+        }
+    }
 
     protected open fun removeListener(id: Long) = synchronized(taskJobs) { taskJobs.remove(id)?.cancel() }
 
@@ -131,25 +147,16 @@ sealed class Loader<T> : AbstractTasker<T>() {
 
     protected abstract suspend fun List<T>.near(): Boolean
 
-    override fun addListener(id: Long) = launch(SupervisorJob()) {
-        delay((fast..slow).random())
-        while (isActive && contacts(id).isNotEmpty()) {
-            runCatching {
-                val list = load(id)
-                mutex.withLock {
-                    val task = tasks.getValue(id)
-                    list.after(task.last).forEach { item ->
-                        task.contacts.send(item)
-                    }
-                    tasks[id] = task.copy(last = list.last())
-                }
-                if (list.near()) fast else slow
-            }.onSuccess { interval ->
-                delay(interval)
-            }.onFailure {
-                delay(slow)
+    override suspend fun listen(id: Long): Long {
+        val list = load(id)
+        mutex.withLock {
+            val task = tasks.getValue(id)
+            list.after(task.last).forEach { item ->
+                task.contacts.send(item)
             }
+            tasks[id] = task.copy(last = list.last())
         }
+        return if (list.near()) fast else slow
     }
 }
 
@@ -163,28 +170,19 @@ sealed class Waiter<T> : AbstractTasker<T>() {
 
     protected abstract suspend fun T.near(): Boolean
 
-    override fun addListener(id: Long) = launch(SupervisorJob()) {
-        delay((fast..slow).random())
-        while (isActive && contacts(id).isNotEmpty()) {
-            runCatching {
-                val item = load(id)
-                mutex.withLock {
-                    val task = tasks.getValue(id)
-                    states.put(id, item.success()).let { old ->
-                        if (old != true && item.success()) {
-                            task.contacts.send(item)
-                            tasks[id] = task.copy(last = OffsetDateTime.now())
-                            delay(slow)
-                        }
-                    }
+    override suspend fun listen(id: Long): Long {
+        val item = load(id)
+        mutex.withLock {
+            val task = tasks.getValue(id)
+            states.put(id, item.success()).let { old ->
+                if (old != true && item.success()) {
+                    task.contacts.send(item)
+                    tasks[id] = task.copy(last = OffsetDateTime.now())
+                    delay(slow)
                 }
-                if (item.near()) fast else slow
-            }.onSuccess { interval ->
-                delay(interval)
-            }.onFailure {
-                delay(fast)
             }
         }
+        return if (item.near()) fast else slow
     }
 }
 

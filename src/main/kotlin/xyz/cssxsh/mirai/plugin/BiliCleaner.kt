@@ -24,10 +24,9 @@ object BiliCleaner : CoroutineScope by BiliHelperPlugin.childScope("BiliCleaner"
             type.withLock {
                 val now = System.currentTimeMillis()
                 ImageCache.resolve(type.name).listFiles().orEmpty().forEach { dir ->
-                    dir.listFiles().orEmpty().forEach { file ->
+                    dir.listFiles()?.forEach { file ->
                         if (now - file.lastModified() > expires * HOUR) file.delete()
-                    }
-                    if (dir.list().isNullOrEmpty()) dir.delete()
+                    } ?: dir.delete()
                 }
             }
             delay(interval * HOUR)
