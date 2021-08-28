@@ -26,6 +26,7 @@ internal val logger by lazy {
     if (open) BiliHelperPlugin.logger else SilentLogger
 }
 
+@OptIn(ExperimentalSerializationApi::class)
 internal var cookies by object : ReadWriteProperty<Any?, List<Cookie>> {
     private val json by lazy {
         BiliHelperPlugin.dataFolder.resolve("cookies.json").apply {
