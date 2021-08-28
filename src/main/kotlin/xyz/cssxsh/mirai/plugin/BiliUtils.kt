@@ -69,6 +69,8 @@ internal fun BiliClient.save() {
 
 internal val ImageCache by lazy { File(BiliHelperSettings.cache) }
 
+internal val ImageLimit by lazy { BiliHelperSettings.limit }
+
 internal val SetupSelenium by BiliHelperPlugin::selenium
 
 internal val RemoteWebDriver by BiliHelperPlugin::driver
@@ -229,6 +231,7 @@ internal suspend fun UserInfo.getFace(contact: Contact): Message {
 }
 
 internal suspend fun DynamicInfo.getImages(contact: Contact) = images.mapIndexed { index, picture ->
+    if (ImageLimit >= 0 && index < ImageLimit) return@mapIndexed "图片[${index + 1}]省略".toPlainText()
     Url(picture).runCatching {
         cache(
             type = CacheType.DYNAMIC,
