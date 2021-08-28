@@ -66,15 +66,21 @@ open class BiliClient(private val timeout: Long = 15_000L) : Closeable {
 
     protected open val clients = MutableList(3) { client() }
 
+    protected open var index = 0
+
     protected open val mutex = BiliApiMutex(10 * 1000L)
 
     suspend fun <T> useHttpClient(block: suspend (HttpClient) -> T): T = supervisorScope {
         while (isActive) {
             runCatching {
                 mutex.wait()
-                block(clients.random())
+                block(clients[index])
             }.onFailure {
-                if (ignore(it).not()) throw it
+                if (isActive && ignore(it)) {
+                    index = (index + 1) % clients.size
+                } else {
+                    throw it
+                }
             }.onSuccess {
                 return@supervisorScope it
             }
