@@ -49,7 +49,6 @@ internal var cookies by object : ReadWriteProperty<Any?, List<Cookie>> {
 
 internal val client by lazy {
     object : BiliClient() {
-
         override val ignore: suspend (exception: Throwable) -> Boolean = { throwable ->
             super.ignore(throwable).also {
                 if (it) logger.warning { "Ignore $throwable" }
@@ -232,7 +231,7 @@ internal suspend fun UserInfo.getFace(contact: Contact): Message {
 }
 
 internal suspend fun DynamicInfo.getImages(contact: Contact) = images.mapIndexed { index, picture ->
-    if (ImageLimit >= 0 && index >= ImageLimit) return@mapIndexed "图片[${index + 1}]省略".toPlainText()
+    if (ImageLimit in 0..index) return@mapIndexed "图片[${index + 1}]省略".toPlainText()
     Url(picture).runCatching {
         cache(
             type = CacheType.DYNAMIC,
