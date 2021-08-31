@@ -177,7 +177,7 @@ private suspend fun EmojiDetail.cache(contact: Contact): Image {
 
 internal suspend fun DynamicInfo.screenshot(contact: Contact, refresh: Boolean = false): Message {
     return runCatching {
-        head.toPlainText() + Url(link).screenshot(
+        head.toPlainText() + Url(h5).screenshot(
             type = CacheType.DYNAMIC,
             path = "${datetime.toLocalDate()}/${detail.id}.png",
             refresh = refresh,

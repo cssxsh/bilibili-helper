@@ -1,16 +1,15 @@
 package xyz.cssxsh.mirai.plugin.tools
 
-import kotlinx.coroutines.runBlocking
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
-import java.io.File
+import kotlinx.coroutines.*
+import org.junit.jupiter.api.*
+import java.io.*
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 internal class SeleniumToolTest {
-    private val dir = File("./test")
+    private val dir = File("test")
 
     init {
-        // System.setProperty("mxlib.selenium.browser", "firefox")
+        // System.setProperty("mxlib.selenium.browser", "AppX90nv6nhay5n6a98fnetv7tpk64pp35es");
+        // System.setProperty("webdriver.edge.driver", dir.resolve("msedgedriver.exe").absolutePath);
         setupSelenium(dir)
     }
 
@@ -20,23 +19,30 @@ internal class SeleniumToolTest {
         468989129984490798
     )
 
-    private fun dynamic(id: Long) = "https://t.bilibili.com/$id"
+    private fun dynamic(id: Long) = "https://t.bilibili.com/h5/dynamic/detail/$id"
 
     private val config = object : RemoteWebDriverConfig {
-        override val userAgent: String = "Mozilla/5.0 (iPad; CPU OS 11_0 like Mac OS X) AppleWebKit/604.1.34 (KHTML, like Gecko) Version/11.0 Mobile/15A5341f Safari/604.1"
+        override val userAgent: String = UserAgents.MAC
         override val width: Int = 768
         override val height: Int = 1024
         override val pixelRatio: Int = 3
+        override val headless: Boolean = false
+        override val browser: String = ""
+    }
+
+    @Test
+    fun home(): Unit = runBlocking {
+        val driver = RemoteWebDriver(config = config)
+        val version = driver.home()
+        println(version)
+        driver.quit()
     }
 
     @Test
     fun getScreenShot(): Unit = runBlocking {
-        val driver = RemoteWebDriver(config = config)
-        driver.get("https://t.bilibili.com/h5/dynamic/detail/508396365455813655")
+       val driver = RemoteWebDriver(config = config)
         list.forEach { id ->
-            driver.getScreenshot(url = dynamic(id)).let {
-                dir.resolve("${id}.png").writeBytes(it)
-            }
+            dir.resolve("${id}.png").writeBytes(driver.getScreenshot(url = dynamic(id)))
         }
         driver.quit()
     }

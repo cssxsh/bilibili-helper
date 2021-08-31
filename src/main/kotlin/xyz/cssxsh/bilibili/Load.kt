@@ -33,6 +33,7 @@ val Article.content by ReadOnlyProperty { info, _ ->
 }
 
 val DynamicInfo.link get() = "https://t.bilibili.com/${detail.id}"
+val DynamicInfo.h5 get() = "https://t.bilibili.com/h5/dynamic/detail/${detail.id}"
 val DynamicInfo.username get() = detail.profile?.user?.uname ?: "【动态已删除】"
 val DynamicInfo.datetime: OffsetDateTime get() = timestamp(detail.timestamp)
 val DynamicInfo.head by ReadOnlyProperty { info, _ ->

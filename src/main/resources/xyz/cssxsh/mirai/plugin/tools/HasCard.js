@@ -1,0 +1,1 @@
+const HasCard = () => document.getElementsByClassName('card').length !== 0

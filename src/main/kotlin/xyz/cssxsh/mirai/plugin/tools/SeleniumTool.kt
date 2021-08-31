@@ -100,9 +100,11 @@ private fun RemoteWebDriverConfig.toConsumer(): DriverConsumer = { capabilities 
 
 private val IS_READY_SCRIPT by lazy { JavaScriptLoader.load("IsReady") }
 
-private val HAS_CONTENT_SCRIPT by lazy { JavaScriptLoader.load("HasContent") }
+private val HAS_CARD_SCRIPT by lazy { JavaScriptLoader.load("HasCard") }
 
-private val BROWSER_VERSION by lazy { JavaScriptLoader.load("BrowserVersion") }
+private val BROWSER_VERSION_SCRIPT by lazy { JavaScriptLoader.load("BrowserVersion") }
+
+private val HIDE_OPEN_APP_SCRIPT by lazy { JavaScriptLoader.load("HideOpenApp") }
 
 private val Init = Duration.ofSeconds(10)
 
@@ -112,8 +114,16 @@ private val Interval = Duration.ofSeconds(10)
 
 internal const val HOME_PAGE = "https://t.bilibili.com/h5/dynamic/detail/508396365455813655"
 
-internal const val IPAD =
-    "Mozilla/5.0 (iPad; CPU OS 11_0 like Mac OS X) AppleWebKit/604.1.34 (KHTML, like Gecko) Version/11.0 Mobile/15A5341f Safari/604.1"
+object UserAgents {
+    const val IPAD =
+        "Mozilla/5.0 (iPad; CPU OS 11_0 like Mac OS X) AppleWebKit/604.1.34 (KHTML, like Gecko) Version/11.0 Mobile/15A5341f Safari/604.1"
+
+    const val IPHONE =
+        "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1"
+
+    const val MAC =
+        "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_8; en-us) AppleWebKit/534.50 (KHTML, like Gecko) Version/5.1 Safari/534.50"
+}
 
 fun RemoteWebDriver(config: RemoteWebDriverConfig): RemoteWebDriver {
 
@@ -148,7 +158,7 @@ suspend fun RemoteWebDriver.home(page: String = HOME_PAGE): Map<String, Boolean>
         get(page)
     }
     @Suppress("UNCHECKED_CAST")
-    return executeScript(BROWSER_VERSION) as Map<String, Boolean>
+    return executeScript(BROWSER_VERSION_SCRIPT) as Map<String, Boolean>
 }
 
 suspend fun RemoteWebDriver.getScreenshot(url: String): ByteArray {
@@ -159,10 +169,11 @@ suspend fun RemoteWebDriver.getScreenshot(url: String): ByteArray {
         withTimeout(Timeout.toMillis()) {
             tab.get(url)
             delay(Init.toMillis())
-            while (executeScript(IS_READY_SCRIPT) == false || executeScript(HAS_CONTENT_SCRIPT) == false) {
+            while (executeScript(IS_READY_SCRIPT) == false || executeScript(HAS_CARD_SCRIPT) == false) {
                 delay(Interval.toMillis())
             }
         }
+        executeScript(HIDE_OPEN_APP_SCRIPT)
     }
     val bytes = getScreenshotAs(OutputType.BYTES)
     tab.close()

@@ -1,8 +1,7 @@
-
 function findVue() {
     let Vue = null;
     try {
-        for(const element of document.body.children) {
+        for (const element of document.body.children) {
             Vue = Vue || element['__vue__'];
         }
     } finally {
@@ -10,8 +9,9 @@ function findVue() {
     }
     return Vue;
 }
+
 function vmMounted(vm) {
-    let mounted = vm['_isMounted'];
+    let mounted = vm['_isMounted'] || true;
     try {
         if (Array.isArray(vm['$children'])) {
             for (const child of vm['$children']) {
@@ -23,12 +23,13 @@ function vmMounted(vm) {
     }
     return mounted;
 }
+
 function imagesComplete() {
     const images = document.getElementsByTagName("img");
     let complete = images.length !== 0;
     let count = 0;
     try {
-        for(const element of images) {
+        for (const element of images) {
             complete = complete && element.complete;
             element.complete && count++;
         }

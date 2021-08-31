@@ -6,7 +6,7 @@ import xyz.cssxsh.mirai.plugin.tools.*
 object SeleniumToolConfig : ReadOnlyPluginConfig("SeleniumConfig"), RemoteWebDriverConfig {
     @ValueName("user_agent")
     @ValueDescription("截图UA")
-    override val userAgent: String by value(IPAD)
+    override val userAgent: String by value(UserAgents.IPAD)
 
     @ValueName("width")
     @ValueDescription("截图宽度")
