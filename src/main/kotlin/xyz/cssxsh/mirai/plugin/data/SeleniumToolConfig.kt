@@ -28,6 +28,10 @@ object SeleniumToolConfig : ReadOnlyPluginConfig("SeleniumConfig"), RemoteWebDri
     @ValueDescription("指定使用的浏览器，Chrome/firefox")
     override val browser: String by value("")
 
+    @ValueName("home")
+    @ValueDescription("浏览器会保持打开主页，以加快其他页面加载速度")
+    val home: String by value(DEFAULT_HOME_PAGE)
+
     @ValueName("hide")
     @ValueDescription("隐藏的web组件(jQ选择器)")
     val hide: Array<String> by value(DEFAULT_HIDE_SELECTOR)

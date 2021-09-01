@@ -60,7 +60,7 @@ object BiliHelperPlugin : KotlinPlugin(
             driver = RemoteWebDriver(config = SeleniumToolConfig)
             launch(SupervisorJob()) {
                 driver.runCatching {
-                    home()
+                    home(page = SeleniumToolConfig.home)
                 }.onSuccess { version ->
                     logger.info { "driver agent $version" }
                 }.onFailure {

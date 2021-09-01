@@ -114,7 +114,7 @@ private val Timeout = Duration.ofMinutes(3)
 
 private val Interval = Duration.ofSeconds(10)
 
-internal const val HOME_PAGE = "https://t.bilibili.com/h5/dynamic/detail/508396365455813655"
+const val DEFAULT_HOME_PAGE = "https://t.bilibili.com/h5/dynamic/detail/508396365455813655"
 
 object UserAgents {
     const val IPAD =
@@ -155,7 +155,7 @@ private fun WebDriver.responsive() {
     actions.keyDown(Keys.CONTROL).keyDown(Keys.SHIFT).sendKeys("m").keyUp(Keys.SHIFT).keyUp(Keys.CONTROL).perform()
 }
 
-suspend fun RemoteWebDriver.home(page: String = HOME_PAGE): Map<String, Boolean> {
+suspend fun RemoteWebDriver.home(page: String = DEFAULT_HOME_PAGE): Map<String, Boolean> {
     withTimeout(Timeout.toMillis()) {
         get(page)
     }
