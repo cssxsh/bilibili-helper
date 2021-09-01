@@ -46,7 +46,7 @@
 
 视频订阅不宜过多，否则会触发b站反爬策略，导致IP被锁定 动态订阅一般会包含视频内容，推荐以此代替
 
-### 剧集订阅指令 (实验性)
+### 剧集订阅指令
 
 | 指令                                                | 描述                     |
 |:----------------------------------------------------|:-------------------------|
@@ -54,8 +54,8 @@
 | `/<bili-season B剧集> <stop 停止> [sid] [contact]?` | 停止一个b站剧集频订阅    |
 | `/<bili-season B剧集> <list 列表> [contact]?`       | 列出当前联系人的剧集订阅 |
 
-剧集订阅需要 Season ID 例如 `https://www.bilibili.com/bangumi/play/ss38353` 的 38353  
-可以通过 搜索指令 搜索番剧 获得链接 since 0.1.0-dev-5  
+剧集订阅需要 Season ID 例如 <https://www.bilibili.com/bangumi/play/ss38353> 的 38353  
+可以通过 搜索指令 搜索番剧 获得链接  
 目前剧集订阅出于实验性阶段
 
 ### 信息解析指令
@@ -82,7 +82,7 @@ val EPISODE_REGEX = """(?<=bilibili\.com/bangumi/play/ep)(\d+)""".toRegex()
 val MEDIA_REGEX = """(?<=bilibili\.com/bangumi/media/md)(\d+)""".toRegex()
 ```
 
-### 搜索指令 since 0.1.0-dev-5
+### 搜索指令
 
 | 指令                                            | 描述     |
 |:------------------------------------------------|:---------|
@@ -112,16 +112,15 @@ val MEDIA_REGEX = """(?<=bilibili\.com/bangumi/media/md)(\d+)""".toRegex()
 
 ### SeleniumConfig.yml
 
-* `user_agent` 截图设备UA
-  网页识别设备类型，进而影响截图的效果
-  iPad `Mozilla/5.0 (iPad; CPU OS 11_0 like Mac OS X) AppleWebKit/604.1.34 (KHTML, like Gecko) Version/11.0 Mobile/15A5341f Safari/604.1`
-  iPhone `Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1`
-  Mac `Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_8; en-us) AppleWebKit/534.50 (KHTML, like Gecko) Version/5.1 Safari/534.50`
+* `user_agent` 截图设备UA 网页识别设备类型，进而影响截图的效果  
+  iPad `Mozilla/5.0 (iPad; CPU OS 11_0 like Mac OS X) AppleWebKit/604.1.34 (KHTML, like Gecko) Version/11.0 Mobile/15A5341f Safari/604.1`  
+  iPhone `Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1`  
+  Mac `Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_8; en-us) AppleWebKit/534.50 (KHTML, like Gecko) Version/5.1 Safari/534.50`  
 * `width` 截图宽度
 * `height` 截图高度
 * `pixel_ratio` 截图像素比
 * `headless` 无头模式(后台模式)
-* `hide` 隐藏的web组件(jQ选择器)
+* `hide` 隐藏的web组件(jQ选择器)  
   添加 `".international-header", ".top-bar", ".m-navbar"` 可以屏蔽顶边栏
 * `setup` 是否启用截图，默认 `true`
 
