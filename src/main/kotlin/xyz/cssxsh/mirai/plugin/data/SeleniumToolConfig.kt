@@ -28,6 +28,10 @@ object SeleniumToolConfig : ReadOnlyPluginConfig("SeleniumConfig"), RemoteWebDri
     @ValueDescription("指定使用的浏览器，Chrome/firefox")
     override val browser: String by value("")
 
+    @ValueName("hide")
+    @ValueDescription("隐藏的web组件(jQ选择器)")
+    val hide: Array<String> by value(DEFAULT_HIDE_SELECTOR)
+
     @ValueName("setup")
     @ValueDescription("是否截图模式")
     val setup: Boolean by value(true)

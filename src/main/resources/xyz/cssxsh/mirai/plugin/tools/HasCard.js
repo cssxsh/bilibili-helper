@@ -1,1 +1,1 @@
-const HasCard = () => document.getElementsByClassName('card').length !== 0
+const HasCard = () => $('.card').length !== 0

@@ -22,13 +22,15 @@ internal class SeleniumToolTest {
     private fun dynamic(id: Long) = "https://t.bilibili.com/h5/dynamic/detail/$id"
 
     private val config = object : RemoteWebDriverConfig {
-        override val userAgent: String = UserAgents.MAC
+        override val userAgent: String = UserAgents.IPAD
         override val width: Int = 768
         override val height: Int = 1024
         override val pixelRatio: Int = 3
         override val headless: Boolean = false
         override val browser: String = ""
     }
+
+    private val selector = DEFAULT_HIDE_SELECTOR + arrayOf(".international-header", ".top-bar", ".m-navbar")
 
     @Test
     fun home(): Unit = runBlocking {
@@ -42,7 +44,7 @@ internal class SeleniumToolTest {
     fun getScreenShot(): Unit = runBlocking {
        val driver = RemoteWebDriver(config = config)
         list.forEach { id ->
-            dir.resolve("${id}.png").writeBytes(driver.getScreenshot(url = dynamic(id)))
+            dir.resolve("${id}.png").writeBytes(driver.getScreenshot(url = dynamic(id), hide = selector))
         }
         driver.quit()
     }

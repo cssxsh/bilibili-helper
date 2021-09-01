@@ -104,7 +104,9 @@ private val HAS_CARD_SCRIPT by lazy { JavaScriptLoader.load("HasCard") }
 
 private val BROWSER_VERSION_SCRIPT by lazy { JavaScriptLoader.load("BrowserVersion") }
 
-private val HIDE_OPEN_APP_SCRIPT by lazy { JavaScriptLoader.load("HideOpenApp") }
+private val HIDE by lazy { JavaScriptLoader.load("Hide") }
+
+val DEFAULT_HIDE_SELECTOR = arrayOf(".open-app", ".launch-app-btn", ".unlogin-popover", ".no-login")
 
 private val Init = Duration.ofSeconds(10)
 
@@ -161,7 +163,16 @@ suspend fun RemoteWebDriver.home(page: String = HOME_PAGE): Map<String, Boolean>
     return executeScript(BROWSER_VERSION_SCRIPT) as Map<String, Boolean>
 }
 
-suspend fun RemoteWebDriver.getScreenshot(url: String): ByteArray {
+internal fun RemoteWebDriver.isReady(): Boolean {
+    return executeScript(IS_READY_SCRIPT) == true && executeScript(HAS_CARD_SCRIPT) == true
+}
+
+internal fun RemoteWebDriver.hide(vararg css: String): List<RemoteWebElement> {
+    @Suppress("UNCHECKED_CAST")
+    return executeScript(HIDE, *css) as ArrayList<RemoteWebElement>
+}
+
+suspend fun RemoteWebDriver.getScreenshot(url: String, vararg hide: String): ByteArray {
     val home = windowHandle
     val tab = switchTo().newWindow(WindowType.TAB) as RemoteWebDriver
     // tab.responsive()
@@ -169,11 +180,13 @@ suspend fun RemoteWebDriver.getScreenshot(url: String): ByteArray {
         withTimeout(Timeout.toMillis()) {
             tab.get(url)
             delay(Init.toMillis())
-            while (executeScript(IS_READY_SCRIPT) == false || executeScript(HAS_CARD_SCRIPT) == false) {
+            while (isReady().not()) {
                 delay(Interval.toMillis())
             }
         }
-        executeScript(HIDE_OPEN_APP_SCRIPT)
+        hide(*hide)
+    }.onFailure {
+        it.printStackTrace()
     }
     val bytes = getScreenshotAs(OutputType.BYTES)
     tab.close()
