@@ -6,7 +6,6 @@ import net.mamoe.mirai.event.*
 
 internal object BiliListener : CoroutineScope by BiliHelperPlugin.childScope("BiliListener") {
 
-
     fun subscribe(): Unit = with(globalEventChannel()) {
         subscribeMessages {
             UrlRepliers.forEach { (regex, replier) ->

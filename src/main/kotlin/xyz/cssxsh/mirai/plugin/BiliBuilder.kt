@@ -2,8 +2,8 @@ package xyz.cssxsh.mirai.plugin
 
 import io.ktor.client.request.*
 import io.ktor.http.*
+import net.mamoe.mirai.console.command.CommandSender.Companion.toCommandSender
 import net.mamoe.mirai.console.permission.PermissionService.Companion.testPermission
-import net.mamoe.mirai.console.permission.PermitteeId.Companion.permitteeId
 import net.mamoe.mirai.contact.*
 import net.mamoe.mirai.event.events.*
 import net.mamoe.mirai.message.data.*
@@ -87,7 +87,7 @@ typealias MessageReplier = suspend MessageEvent.(MatchResult) -> Any?
 
 internal val DynamicReplier: MessageReplier = replier@{ result ->
     logger.info { "[${sender}] 匹配Dynamic(${result.value})" }
-    if (permission.testPermission(sender.permitteeId).not()) return@replier null
+    if (permission.testPermission(toCommandSender()).not()) return@replier null
     runCatching {
         message.quote() + client.getDynamicInfo(result.value.toLong()).dynamic.toMessage(subject)
     }.onFailure {
@@ -99,7 +99,7 @@ internal val DynamicReplier: MessageReplier = replier@{ result ->
 
 internal val VideoReplier: MessageReplier = replier@{ result ->
     logger.info { "[${sender}] 匹配Video(${result.value})" }
-    if (permission.testPermission(sender.permitteeId).not()) return@replier null
+    if (permission.testPermission(toCommandSender()).not()) return@replier null
     runCatching {
         message.quote() + when (result.value.first()) {
             'B', 'b' -> client.getVideoInfo(result.value)
@@ -115,7 +115,7 @@ internal val VideoReplier: MessageReplier = replier@{ result ->
 
 internal val RoomReplier: MessageReplier = replier@{ result ->
     logger.info { "[${sender}] 匹配Room(${result.value})" }
-    if (permission.testPermission(sender.permitteeId).not()) return@replier null
+    if (permission.testPermission(toCommandSender()).not()) return@replier null
     runCatching {
         message.quote() + client.getRoomInfo(result.value.toLong()).toMessage(subject)
     }.onFailure {
@@ -127,7 +127,7 @@ internal val RoomReplier: MessageReplier = replier@{ result ->
 
 internal val SpaceReplier: MessageReplier = replier@{ result ->
     logger.info { "[${sender}] 匹配User(${result.value})" }
-    if (permission.testPermission(sender.permitteeId).not()) return@replier null
+    if (permission.testPermission(toCommandSender()).not()) return@replier null
     runCatching {
         message.quote() + client.getUserInfo(result.value.toLong()).toMessage(subject)
     }.onFailure {
@@ -139,7 +139,7 @@ internal val SpaceReplier: MessageReplier = replier@{ result ->
 
 internal val SeasonReplier: MessageReplier = replier@{ result ->
     logger.info { "[${sender}] 匹配Season(${result.value})" }
-    if (permission.testPermission(sender.permitteeId).not()) return@replier null
+    if (permission.testPermission(toCommandSender()).not()) return@replier null
     runCatching {
         message.quote() + client.getSeasonInfo(result.value.toLong()).toMessage(subject)
     }.onFailure {
@@ -151,7 +151,7 @@ internal val SeasonReplier: MessageReplier = replier@{ result ->
 
 internal val EpisodeReplier: MessageReplier = replier@{ result ->
     logger.info { "[${sender}] 匹配Episode(${result.value})" }
-    if (permission.testPermission(sender.permitteeId).not()) return@replier null
+    if (permission.testPermission(toCommandSender()).not()) return@replier null
     runCatching {
         message.quote() + client.getEpisodeInfo(result.value.toLong()).toMessage(subject)
     }.onFailure {
@@ -163,7 +163,7 @@ internal val EpisodeReplier: MessageReplier = replier@{ result ->
 
 internal val MediaReplier: MessageReplier = replier@{ result ->
     logger.info { "[${sender}] 匹配Media(${result.value})" }
-    if (permission.testPermission(sender.permitteeId).not()) return@replier null
+    if (permission.testPermission(toCommandSender()).not()) return@replier null
     runCatching {
         message.quote() + client.getSeasonMedia(result.value.toLong()).media.toMessage(subject)
     }.onFailure {
