@@ -60,7 +60,7 @@ sealed class AbstractTasker<T> : BiliTasker, CoroutineScope {
 
     protected open suspend fun Set<Long>.send(item: T) = map { delegate ->
         runCatching {
-            requireNotNull(findContact(delegate)) { "找不到联系人" }.let { contact ->
+            requireNotNull(findContact(delegate)) { "找不到联系人 $delegate" }.let { contact ->
                 contact.sendMessage(item.build(contact))
             }
         }.onFailure {
