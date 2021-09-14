@@ -19,14 +19,12 @@ object BiliCleaner : CoroutineScope by BiliHelperPlugin.childScope("BiliCleaner"
             logger.info { "${type}缓存清理跳过" }
             return@launch
         }
-        logger.info { "${type}缓存清理任务开始运行，间隔${interval}h" }
         while (isActive) {
+            logger.info { "${type}缓存清理任务开始运行，间隔${interval}h" }
             type.withLock {
                 val now = System.currentTimeMillis()
-                ImageCache.resolve(type.name).listFiles().orEmpty().forEach { dir ->
-                    dir.listFiles()?.forEach { file ->
-                        if (now - file.lastModified() > expires * HOUR) file.delete()
-                    } ?: dir.delete()
+                type.directory.listFiles { dir ->
+                    dir.listFiles().orEmpty().all { file -> now - file.lastModified() > expires * HOUR && file.delete() } && dir.delete()
                 }
             }
             delay(interval * HOUR)

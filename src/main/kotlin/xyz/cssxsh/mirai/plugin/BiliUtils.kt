@@ -83,6 +83,8 @@ enum class CacheType : Mutex by Mutex() {
     EPISODE,
     USER,
     EMOJI;
+
+    val directory get() = ImageCache.resolve(name)
 }
 
 private val Url.filename get() = encodedPath.substringAfterLast("/")
@@ -126,7 +128,7 @@ fun findContact(delegate: Long): Contact? {
 }
 
 private suspend fun Url.cache(type: CacheType, path: String, contact: Contact) = type.withLock {
-    ImageCache.resolve(type.name).resolve(path).apply {
+    type.directory.resolve(path).apply {
         if (exists().not()) {
             parentFile.mkdirs()
             writeBytes(client.useHttpClient { it.get(this@cache) })
@@ -137,7 +139,7 @@ private suspend fun Url.cache(type: CacheType, path: String, contact: Contact) =
 }
 
 private suspend fun Url.screenshot(type: CacheType, path: String, refresh: Boolean, contact: Contact) = type.withLock {
-    ImageCache.resolve(type.name).resolve(path).apply {
+    type.directory.resolve(path).apply {
         if (exists().not() || refresh) {
             parentFile.mkdirs()
             runCatching {
