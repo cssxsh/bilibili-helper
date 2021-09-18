@@ -14,7 +14,7 @@ import xyz.cssxsh.mirai.plugin.data.*
 import xyz.cssxsh.mirai.plugin.tools.*
 
 object BiliHelperPlugin : KotlinPlugin(
-    JvmPluginDescription("xyz.cssxsh.mirai.plugin.bilibili-helper", "1.1.6") {
+    JvmPluginDescription("xyz.cssxsh.mirai.plugin.bilibili-helper", "1.1.7") {
         name("bilibili-helper")
         author("cssxsh")
     }

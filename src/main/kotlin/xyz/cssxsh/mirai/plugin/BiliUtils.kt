@@ -59,13 +59,9 @@ internal val client by lazy {
     }
 }
 
-internal fun BiliClient.load() {
-    storage.container.addAll(cookies)
-}
+internal fun BiliClient.load() { storage.container.addAll(cookies) }
 
-internal fun BiliClient.save() {
-    cookies = storage.container
-}
+internal fun BiliClient.save() { cookies = storage.container }
 
 internal val ImageCache by lazy { File(BiliHelperSettings.cache) }
 

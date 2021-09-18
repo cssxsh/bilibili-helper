@@ -6,15 +6,23 @@ plugins {
 }
 
 group = "xyz.cssxsh.mirai.plugin"
-version = "1.1.6"
+version = "1.1.7"
 
 repositories {
     mavenLocal()
     maven(url = "https://maven.aliyun.com/repository/public")
     mavenCentral()
-    jcenter()
     maven(url = "https://maven.aliyun.com/repository/gradle-plugin")
     gradlePluginPortal()
+}
+
+mavenCentralPublish {
+    useCentralS01()
+    singleDevGithubProject("cssxsh", "bilibili-helper")
+    licenseFromGitHubProject("AGPL-3.0", "master")
+    publication {
+        artifact(tasks.getByName("buildPlugin"))
+    }
 }
 
 kotlin {
@@ -51,7 +59,7 @@ dependencies {
         exclude("org.asynchttpclient")
         exclude("io.opentelemetry")
     }
-    compileOnly("net.mamoe:mirai-core-jvm:2.6.7")
+    compileOnly("net.mamoe:mirai-core-jvm:${Versions.mirai}")
 
     testImplementation(junit("api", Versions.junit))
     testRuntimeOnly(junit("engine", Versions.junit))
