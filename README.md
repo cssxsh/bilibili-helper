@@ -142,6 +142,10 @@ EditThisCookie 安装地址
 
 ## 安装
 
+### MCL 指令安装
+
+`./mcl --update-package xyz.cssxsh:bilibili-helper --channel stable --type plugin`
+
 ### 手动安装
 
 1. 运行 [Mirai Console](https://github.com/mamoe/mirai-console) 生成`plugins`文件夹
