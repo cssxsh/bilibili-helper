@@ -174,8 +174,8 @@ internal val MediaReplier: MessageReplier = replier@{ result ->
 }
 
 private suspend fun Url.location(): String? {
-    return client.useHttpClient {
-        it.config {
+    return client.useHttpClient { http, _ ->
+        http.config {
             followRedirects = false
             expectSuccess = false
         }.head<HttpMessage>(this@location)

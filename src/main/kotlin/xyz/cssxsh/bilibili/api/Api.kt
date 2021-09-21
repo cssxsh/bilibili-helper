@@ -56,7 +56,8 @@ const val SUIT_ITEMS = "https://api.bilibili.com/x/garb/mall/item/suit/v2"
 internal suspend inline fun <reified T> BiliClient.json(
     url: String,
     crossinline block: HttpRequestBuilder.() -> Unit
-): T = useHttpClient { client ->
+): T = useHttpClient { client, mutex ->
+    mutex.wait()
     with(client.get<TempData>(url, block)) {
         val temp = data ?: result
         BiliClient.Json.decodeFromJsonElement(requireNotNull(temp) { message })

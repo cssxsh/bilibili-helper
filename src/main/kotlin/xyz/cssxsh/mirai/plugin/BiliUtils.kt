@@ -127,7 +127,7 @@ private suspend fun Url.cache(type: CacheType, path: String, contact: Contact) =
     type.directory.resolve(path).apply {
         if (exists().not()) {
             parentFile.mkdirs()
-            writeBytes(client.useHttpClient { it.get(this@cache) })
+            writeBytes(client.useHttpClient { http, _ -> http.get(this@cache) })
         } else {
             setLastModified(System.currentTimeMillis())
         }
