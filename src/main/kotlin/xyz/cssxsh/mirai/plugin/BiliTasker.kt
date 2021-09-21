@@ -273,24 +273,24 @@ object BiliSeasonWaiter : Waiter<SeasonSection>(), CoroutineScope by BiliHelperP
 
     private val data = mutableMapOf<Long, Video>()
 
+    private suspend fun video(aid: Long) = data.getOrPut(aid) { client.getVideoInfo(aid) }
+
     override suspend fun load(id: Long): SeasonSection = client.getSeasonSection(id).mainSection
 
     override suspend fun SeasonSection.success(): Boolean {
-        val aid = episodes.maxOf { it.aid }
-        val video = data.getOrElse(aid) { client.getVideoInfo(aid) }
-        return video.datetime > OffsetDateTime.now()
+        val aid = episodes.maxOfOrNull { it.aid } ?: return false
+        val video = video(aid)
+        return video.datetime > tasks.getValue(id).last
     }
 
     override suspend fun SeasonSection.build(contact: Contact): Message {
         val aid = episodes.maxOf { it.aid }
-        val video = data.getOrElse(aid) { client.getVideoInfo(aid) }
-        return video.toMessage(contact)
+        val video = video(aid)
+        return "$title 有更新".toPlainText() + video.toMessage(contact)
     }
 
     override suspend fun SeasonSection.near(): Boolean {
-        return episodes.map {
-            data.getOrElse(it.aid) { client.getVideoInfo(it.aid) }.datetime.toLocalTime()
-        }.near(slow)
+        return episodes.map { video(it.aid).datetime.toLocalTime() }.near(slow)
     }
 
     override suspend fun initTask(id: Long): BiliTask = BiliTask(client.getSeasonSection(id).mainSection.title)
