@@ -186,9 +186,8 @@ sealed class Waiter<T> : AbstractTasker<T>() {
     }
 }
 
-private fun List<LocalTime>.near(slow: Long): Boolean {
-    val now = LocalTime.now().toSecondOfDay()
-    return any { abs(it.toSecondOfDay() - now) * 1000 < slow }
+private fun List<LocalTime>.near(slow: Long, now: LocalTime = LocalTime.now()): Boolean {
+    return any { abs(it.toSecondOfDay() - now.toSecondOfDay()) * 1000 < slow }
 }
 
 const val Minute = 60 * 1000L

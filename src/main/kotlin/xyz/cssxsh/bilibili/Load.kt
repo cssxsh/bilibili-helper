@@ -126,6 +126,7 @@ val Video.content by ReadOnlyProperty { info, _ ->
     }
 }
 
+@OptIn(ExperimentalSerializationApi::class)
 private inline fun <reified T> DynamicCard.decode(): T = BiliClient.Json.decodeFromString(card)
 
 fun DynamicCard.content(): String = when (detail.type) {

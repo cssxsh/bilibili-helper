@@ -438,7 +438,7 @@ data class DynamicVideo(
     override val author: String by owner::name
     override val mid: Long by owner::mid
     override val length: String by lazy {
-        Duration.ofSeconds(duration).run { "%02d:%02d".format(toMinutes(), toSecondsPart()) }
+        with(Duration.ofSeconds(duration)) { "%02d:%02d".format(toMinutes(), toSecondsPart()) }
     }
 
     /**
