@@ -117,7 +117,7 @@ sealed class AbstractTasker<T> : BiliTasker, CoroutineScope {
     override suspend fun list(subject: Contact): String = mutex.withLock {
         buildString {
             appendLine("监听状态:")
-            tasks.forEach { (id, info) ->
+            for ((id, info) in tasks) {
                 if (subject.delegate in info.contacts) {
                     appendLine("@${info.name}#$id -> ${info.last} | ${taskJobs[id]}")
                 }
@@ -126,7 +126,7 @@ sealed class AbstractTasker<T> : BiliTasker, CoroutineScope {
     }
 
     override suspend fun start(): Unit = mutex.withLock {
-        tasks.forEach { (id, _) ->
+        for ((id, _) in tasks) {
             taskJobs[id] = addListener(id)
         }
     }

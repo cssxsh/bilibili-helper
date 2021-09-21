@@ -8,7 +8,7 @@ internal object BiliListener : CoroutineScope by BiliHelperPlugin.childScope("Bi
 
     fun subscribe(): Unit = with(globalEventChannel()) {
         subscribeMessages {
-            UrlRepliers.forEach { (regex, replier) ->
+            for ((regex, replier) in UrlRepliers) {
                 regex findingReply replier
             }
         }
