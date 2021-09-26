@@ -13,6 +13,7 @@ import xyz.cssxsh.bilibili.api.*
 import xyz.cssxsh.bilibili.data.*
 import xyz.cssxsh.bilibili.*
 import xyz.cssxsh.mirai.plugin.command.*
+import java.time.*
 
 private val permission by BiliInfoCommand::permission
 
@@ -20,12 +21,11 @@ internal suspend fun UserInfo.toMessage(contact: Contact) = content.toPlainText(
 
 internal suspend fun Video.toMessage(contact: Contact) = content.toPlainText() + getCover(contact)
 
-internal suspend fun Live.toMessage(contact: Contact) = buildMessageChain {
+internal suspend fun Live.toMessage(contact: Contact, start: OffsetDateTime? = null) = buildMessageChain {
     add(content)
     runCatching {
-        with(client.getRoomInfo(roomId = roomId)) {
-            appendLine("开播时间: $datetime")
-        }
+        val datetime = start ?: client.getRoomInfo(roomId = roomId).datetime
+        appendLine("开播时间: $datetime")
     }.onFailure {
         appendLine("开播时间: $it")
     }

@@ -170,6 +170,8 @@ sealed class Waiter<T> : AbstractTasker<T>() {
 
     protected abstract suspend fun T.near(): Boolean
 
+    protected abstract suspend fun T.last(): OffsetDateTime
+
     override suspend fun listen(id: Long): Long {
         val item = load(id)
         mutex.withLock {
@@ -177,7 +179,7 @@ sealed class Waiter<T> : AbstractTasker<T>() {
             states.put(id, item.success()).let { old ->
                 if (old != true && item.success()) {
                     task.contacts.send(item)
-                    tasks[id] = task.copy(last = OffsetDateTime.now())
+                    tasks[id] = task.copy(last = item.last())
                     delay(slow)
                 }
             }
@@ -239,6 +241,8 @@ object BiliLiveWaiter : Waiter<BiliUserInfo>(), CoroutineScope by BiliHelperPlug
 
     override val slow get() = BiliHelperSettings.live * Minute
 
+    private val record = mutableMapOf<Long, OffsetDateTime>()
+
     override suspend fun load(id: Long) = client.getUserInfo(id)
 
     override suspend fun BiliUserInfo.success(): Boolean = liveRoom.liveStatus
@@ -255,11 +259,15 @@ object BiliLiveWaiter : Waiter<BiliUserInfo>(), CoroutineScope by BiliHelperPlug
     }
 
     override suspend fun BiliUserInfo.build(contact: Contact): Message {
-        return "主播: $name#$mid \n".toPlainText() + liveRoom.toMessage(contact) + withAtAll(contact)
+        val datetime = client.getRoomInfo(roomId = liveRoom.roomId).datetime
+        record[mid] = datetime
+        return "主播: $name#$mid \n".toPlainText() + liveRoom.toMessage(contact, datetime) + withAtAll(contact)
     }
 
     // TODO by live history
     override suspend fun BiliUserInfo.near(): Boolean = LocalTime.now().minute < 5
+
+    override suspend fun BiliUserInfo.last(): OffsetDateTime = record.getValue(mid)
 
     override suspend fun initTask(id: Long): BiliTask = BiliTask(client.getUserInfo(id).name)
 }
@@ -292,6 +300,8 @@ object BiliSeasonWaiter : Waiter<SeasonSection>(), CoroutineScope by BiliHelperP
     override suspend fun SeasonSection.near(): Boolean {
         return episodes.map { video(it.aid).datetime.toLocalTime() }.near(slow)
     }
+
+    override suspend fun SeasonSection.last(): OffsetDateTime = data.getValue(episodes.maxOf { it.aid }).datetime
 
     override suspend fun initTask(id: Long): BiliTask = BiliTask(client.getSeasonSection(id).mainSection.title)
 }
