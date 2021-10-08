@@ -129,7 +129,7 @@ val Video.content by ReadOnlyProperty { info, _ ->
 @OptIn(ExperimentalSerializationApi::class)
 private inline fun <reified T> DynamicCard.decode(): T = BiliClient.Json.decodeFromString(card)
 
-fun DynamicCard.content(): String = when (detail.type) {
+private fun DynamicCard.content(): String = when (detail.type) {
     DynamicType.NONE -> "不支持的类型${detail.type}"
     DynamicType.REPLY -> decode<DynamicReply>().content
     DynamicType.PICTURE -> decode<DynamicPicture>().detail.description
@@ -142,10 +142,10 @@ fun DynamicCard.content(): String = when (detail.type) {
     DynamicType.SKETCH -> decode<DynamicSketch>().content
     DynamicType.LIVE -> decode<DynamicLive>().content
     DynamicType.LIVE_END -> "直播结束了"
-    else -> "[${detail.type}] 不支持的类型 请联系开发者"
+    else -> "<${detail.id}>[${detail.type}] 不支持的类型 请联系开发者"
 }
 
-fun DynamicCard.images(): List<String> = when (detail.type) {
+private fun DynamicCard.images(): List<String> = when (detail.type) {
     DynamicType.REPLY -> decode<DynamicReply>().images()
     DynamicType.PICTURE -> decode<DynamicPicture>().detail.pictures.map { it.source }
     DynamicType.VIDEO -> decode<DynamicVideo>().cover.let(::listOf)

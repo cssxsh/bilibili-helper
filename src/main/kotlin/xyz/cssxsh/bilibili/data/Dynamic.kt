@@ -9,6 +9,7 @@ interface DynamicCard {
 }
 
 interface DynamicCardDetail {
+    val id: Long
     val type: Int
 }
 
@@ -52,7 +53,7 @@ data class DynamicDescribe(
     @SerialName("comment")
     val comment: Int = 0,
     @SerialName("dynamic_id")
-    val id: Long,
+    override val id: Long,
     @SerialName("is_liked")
     @Serializable(NumberToBooleanSerializer::class)
     val isLiked: Boolean = false,
@@ -333,7 +334,7 @@ data class DynamicReplyDetail(
     @SerialName("content")
     val content: String,
     @SerialName("orig_dy_id")
-    val originDynamicId: Long,
+    override val id: Long,
     @SerialName("orig_type")
     override val type: Int,
     @SerialName("reply")
