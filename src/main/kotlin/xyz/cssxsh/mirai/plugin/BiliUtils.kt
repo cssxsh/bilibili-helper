@@ -149,13 +149,7 @@ private suspend fun Url.screenshot(type: CacheType, path: String, refresh: Boole
     type.directory.resolve(path).apply {
         if (exists().not() || refresh) {
             parentFile.mkdirs()
-            runCatching {
-                RemoteWebDriver.getScreenshot(url = this@screenshot.toString(), hide = SeleniumToolConfig.hide)
-            }.onFailure {
-                logger.warning({ "使用SeleniumTool失败" }, it)
-            }.getOrThrow().let {
-                writeBytes(it)
-            }
+            writeBytes(RemoteWebDriver.getScreenshot(url = this@screenshot.toString(), hide = SeleniumToolConfig.hide))
         } else {
             setLastModified(System.currentTimeMillis())
         }
@@ -240,7 +234,7 @@ internal suspend fun UserInfo.getFace(contact: Contact): Message {
 }
 
 internal suspend fun DynamicInfo.getImages(contact: Contact) = images.mapIndexed { index, picture ->
-    if (ImageLimit in 0..index) return@mapIndexed "图片[${index + 1}]省略".toPlainText()
+    if (index >= ImageLimit) return@mapIndexed "图片[${index + 1}]省略".toPlainText()
     Url(picture).runCatching {
         cache(
             type = CacheType.DYNAMIC,
