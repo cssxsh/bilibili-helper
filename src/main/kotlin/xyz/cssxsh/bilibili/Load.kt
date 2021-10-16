@@ -34,11 +34,12 @@ val Article.content by ReadOnlyProperty { info, _ ->
 
 val DynamicInfo.link get() = "https://t.bilibili.com/${detail.id}"
 val DynamicInfo.h5 get() = "https://t.bilibili.com/h5/dynamic/detail/${detail.id}"
-val DynamicInfo.username get() = detail.profile?.user?.uname ?: "【动态已删除】"
+val DynamicInfo.username get() = detail.profile?.user?.uname
+val DynamicInfo.uid get() = detail.profile?.user?.uid
 val DynamicInfo.datetime: OffsetDateTime get() = timestamp(detail.timestamp)
 val DynamicInfo.head by ReadOnlyProperty { info, _ ->
     buildString {
-        appendLine("@${info.username} 动态")
+        appendLine("@${info.username}#${info.uid} 动态")
         appendLine("时间: ${info.datetime}")
         appendLine("链接: ${info.link}")
     }
@@ -47,7 +48,7 @@ val DynamicInfo.content get() = head + content()
 val DynamicInfo.images get() = images()
 val DynamicReply.content by ReadOnlyProperty { info, _ ->
     buildString {
-        appendLine("RT @${info.originUser.user.uname}:")
+        appendLine("RT @${info.originUser.user.uname}#${info.originUser.user.uid}:")
         appendLine(info.detail.content)
         appendLine("<===================>")
         appendLine(info.content())
@@ -107,7 +108,7 @@ val Video.datetime: OffsetDateTime get() = timestamp(created)
 val Video.content by ReadOnlyProperty { info, _ ->
     buildString {
         appendLine("视频: ${info.title}")
-        appendLine("作者: ${info.author}")
+        appendLine("作者: ${info.author}#${info.mid}")
         appendLine("时间: ${info.datetime}")
         appendLine("时长: ${info.length}")
         appendLine("链接: ${info.link}")
