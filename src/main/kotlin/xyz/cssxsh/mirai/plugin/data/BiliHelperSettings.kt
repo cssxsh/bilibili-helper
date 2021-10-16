@@ -7,7 +7,7 @@ object BiliHelperSettings : ReadOnlyPluginConfig("BiliHelperSettings") {
     val cache: String by value("ImageCache")
 
     @ValueDescription("动态 订阅 输出图片数量，负数表示输出全部")
-    val limit: Int by value(-1)
+    val limit: Int by value(16)
 
     @ValueDescription("API 访问间隔时间，单位秒")
     val api: Long by value(10L)

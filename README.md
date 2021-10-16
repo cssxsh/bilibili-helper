@@ -99,6 +99,7 @@ val MEDIA_REGEX = """(?<=bilibili\.com/bangumi/media/md)(\d+)""".toRegex()
 ### BiliHelperSettings.yml
 
 * `cache` 图片缓存位置, 默认为 `ImageCache`
+* `limit` 动态 订阅 输出图片数量上限, 默认为 `16`
 * `api` API 访问间隔时间，单位秒, 默认为 `10`
 * `video` 视频 订阅 访问间隔时间，单位分钟, 默认为 `10`
 * `dynamic` 动态 订阅 访问间隔时间，单位分钟, 默认为 `10`
