@@ -10,21 +10,24 @@ const val INDEX_PAGE = "https://www.bilibili.com"
 const val SPACE = "https://space.bilibili.com"
 
 // User
-const val ACC_INFO = "https://api.bilibili.com/x/space/acc/info"
+const val SPACE_INFO = "https://api.bilibili.com/x/space/acc/info"
+const val SPACE_FOLLOWINGS = "https://api.bilibili.com/x/relation/followings?vmid=4771356&pn=1&ps=20&order=desc&order_type=attention&jsonp=jsonp"
+const val SPACE_TAGS = "https://api.bilibili.com/x/relation/tags?jsonp=jsonp"
 
 // Video
-const val SEARCH_URL = "https://api.bilibili.com/x/space/arc/search"
+const val VIDEO_USER = "https://api.bilibili.com/x/space/arc/search"
 const val VIDEO_INFO = "https://api.bilibili.com/x/web-interface/view"
 
 // Dynamic
-const val SPACE_HISTORY = "https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/space_history"
-const val GET_DYNAMIC_DETAIL = "https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/get_dynamic_detail"
+const val DYNAMIC_HISTORY = "https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/space_history"
+const val DYNAMIC_INFO = "https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/get_dynamic_detail"
 
 // Live
 const val ROOM_INIT = "https://api.live.bilibili.com/room/v1/Room/room_init"
 const val ROOM_INFO_OLD = "https://api.live.bilibili.com/room/v1/Room/getRoomInfoOld"
-const val OFF_LIVE_LIST = "https://api.live.bilibili.com/xlive/web-room/v1/index/getOffLiveList"
-const val ROUND_PLAY_VIDEO = "https://api.live.bilibili.com/live/getRoundPlayVideo"
+const val ROOM_OFF_LIVE = "https://api.live.bilibili.com/xlive/web-room/v1/index/getOffLiveList"
+const val ROOM_ROUND_PLAY = "https://api.live.bilibili.com/live/getRoundPlayVideo"
+const val ROOM_EMOTICONS = "https://api.live.bilibili.com/xlive/web-ucenter/v2/emoticon/GetEmoticons?platform=pc&room_id=21919321"
 
 // Article
 const val ARTICLE_INFO = "https://api.bilibili.com/x/article/listinfo"

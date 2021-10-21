@@ -6,7 +6,7 @@ import xyz.cssxsh.bilibili.data.*
 
 suspend fun BiliClient.getUserInfo(
     uid: Long,
-    url: String = ACC_INFO
+    url: String = SPACE_INFO
 ): BiliUserInfo = json(url) {
     parameter("mid", uid)
     parameter("jsonp", "jsonp")

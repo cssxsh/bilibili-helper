@@ -22,7 +22,7 @@ suspend fun BiliClient.getOffLiveList(
     roomId: Long,
     count: Int,
     timestamp: Long = System.currentTimeMillis() / 1_000,
-    url: String = OFF_LIVE_LIST
+    url: String = ROOM_OFF_LIVE
 ): BiliLiveOff = json(url) {
     parameter("room_id", roomId)
     parameter("count", count)
@@ -33,7 +33,7 @@ suspend fun BiliClient.getRoundPlayVideo(
     roomId: Long,
     timestamp: Long = System.currentTimeMillis() / 1_000,
     type: String = "flv",
-    url: String = ROUND_PLAY_VIDEO
+    url: String = ROOM_ROUND_PLAY
 ): BiliRoundPlayVideo = json(url) {
     parameter("room_id", roomId)
     parameter("a", timestamp)

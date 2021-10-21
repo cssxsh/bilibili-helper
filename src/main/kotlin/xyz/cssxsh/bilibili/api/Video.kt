@@ -23,7 +23,7 @@ suspend fun BiliClient.getVideos(
     keyword: String = "",
     pageSize: Int = 30,
     pageNum: Int = 1,
-    url: String = SEARCH_URL
+    url: String = VIDEO_USER
 ): BiliSearchResult = json(url) {
     parameter("mid", uid)
     parameter("keyword", keyword)

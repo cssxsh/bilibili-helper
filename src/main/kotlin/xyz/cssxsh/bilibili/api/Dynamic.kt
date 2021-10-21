@@ -6,7 +6,7 @@ import xyz.cssxsh.bilibili.data.*
 
 suspend fun BiliClient.getSpaceHistory(
     uid: Long,
-    url: String = SPACE_HISTORY
+    url: String = DYNAMIC_HISTORY
 ): BiliDynamicList = json(url) {
     parameter("visitor_uid", uid)
     parameter("host_uid", uid)
@@ -16,7 +16,7 @@ suspend fun BiliClient.getSpaceHistory(
 
 suspend fun BiliClient.getDynamicInfo(
     dynamicId: Long,
-    url: String = GET_DYNAMIC_DETAIL
+    url: String = DYNAMIC_INFO
 ): BiliDynamicInfo = json(url) {
     parameter("dynamic_id", dynamicId)
 }
