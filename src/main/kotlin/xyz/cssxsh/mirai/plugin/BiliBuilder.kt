@@ -23,11 +23,11 @@ internal suspend fun Video.toMessage(contact: Contact) = content.toPlainText() +
 
 internal suspend fun Live.toMessage(contact: Contact, start: OffsetDateTime? = null) = buildMessageChain {
     add(content)
-    runCatching {
+    try {
         val datetime = start ?: client.getRoomInfo(roomId = roomId).datetime
         appendLine("开播时间: $datetime")
-    }.onFailure {
-        appendLine("开播时间: $it")
+    } catch (e: Throwable) {
+        appendLine("开播时间: $e")
     }
     add(getCover(contact))
 }
@@ -43,26 +43,26 @@ internal suspend fun BiliRoomInfo.toMessage(contact: Contact) = buildMessageChai
         }
         1 -> {
             appendLine("开播时间: $datetime")
-            runCatching {
+            try {
                 with(client.getUserInfo(uid = uid)) {
                     appendLine("主播: $name#$uid")
                     appendLine(liveRoom.content)
                     add(liveRoom.getCover(contact))
                 }
-            }.onFailure {
-                logger.warning({ "获取[${uid}]直播间信息失败" }, it)
+            } catch (e: Throwable) {
+                logger.warning({ "获取[${uid}]直播间信息失败" }, e)
                 appendLine("获取[${uid}]直播间信息失败")
             }
         }
         2 -> {
             appendLine("轮播中")
-            runCatching {
+            try {
                 with(client.getRoundPlayVideo(roomId = roomId)) {
                     appendLine("标题: $title")
                     appendLine("链接: $link")
                 }
-            }.onFailure {
-                logger.warning({ "获取[${roomId}]轮播信息失败" }, it)
+            } catch (e: Throwable) {
+                logger.warning({ "获取[${roomId}]轮播信息失败" }, e)
                 appendLine("获取[${roomId}]轮播信息失败")
             }
         }
@@ -88,88 +88,81 @@ typealias MessageReplier = suspend MessageEvent.(MatchResult) -> Any?
 internal val DynamicReplier: MessageReplier = replier@{ result ->
     logger.info { "[${sender}] 匹配Dynamic(${result.value})" }
     if (permission.testPermission(toCommandSender()).not()) return@replier null
-    runCatching {
+    try {
         message.quote() + client.getDynamicInfo(result.value.toLong()).dynamic.toMessage(subject)
-    }.onFailure {
-        logger.warning({ "构建Dynamic(${result.value})信息失败" }, it)
-    }.getOrElse {
-        it.message
+    } catch (e: Throwable) {
+        logger.warning({ "构建Dynamic(${result.value})信息失败" }, e)
+        e.message
     }
 }
 
 internal val VideoReplier: MessageReplier = replier@{ result ->
     logger.info { "[${sender}] 匹配Video(${result.value})" }
     if (permission.testPermission(toCommandSender()).not()) return@replier null
-    runCatching {
+    try {
         message.quote() + when (result.value.first()) {
             'B', 'b' -> client.getVideoInfo(result.value)
             'A', 'a' -> client.getVideoInfo(result.value.substring(2).toLong())
             else -> throw IllegalArgumentException("未知视频ID(${result.value})")
         }.toMessage(contact = subject)
-    }.onFailure {
-        logger.warning({ "构建Video(${result.value})信息失败" }, it)
-    }.getOrElse {
-        it.message
+    } catch (e: Throwable) {
+        logger.warning({ "构建Video(${result.value})信息失败" }, e)
+        e.message
     }
 }
 
 internal val RoomReplier: MessageReplier = replier@{ result ->
     logger.info { "[${sender}] 匹配Room(${result.value})" }
     if (permission.testPermission(toCommandSender()).not()) return@replier null
-    runCatching {
+    try {
         message.quote() + client.getRoomInfo(result.value.toLong()).toMessage(subject)
-    }.onFailure {
-        logger.warning({ "构建Room(${result.value})信息失败" }, it)
-    }.getOrElse {
-        it.message
+    } catch (e: Throwable) {
+        logger.warning({ "构建Room(${result.value})信息失败" }, e)
+        e.message
     }
 }
 
 internal val SpaceReplier: MessageReplier = replier@{ result ->
     logger.info { "[${sender}] 匹配User(${result.value})" }
     if (permission.testPermission(toCommandSender()).not()) return@replier null
-    runCatching {
+    try {
         message.quote() + client.getUserInfo(result.value.toLong()).toMessage(subject)
-    }.onFailure {
-        logger.warning({ "构建User(${result.value})信息失败" }, it)
-    }.getOrElse {
-        it.message
+    } catch (e: Throwable) {
+        logger.warning({ "构建User(${result.value})信息失败" }, e)
+        e.message
     }
 }
 
 internal val SeasonReplier: MessageReplier = replier@{ result ->
     logger.info { "[${sender}] 匹配Season(${result.value})" }
     if (permission.testPermission(toCommandSender()).not()) return@replier null
-    runCatching {
+    try {
         message.quote() + client.getSeasonInfo(result.value.toLong()).toMessage(subject)
-    }.onFailure {
-        logger.warning({ "构建Season(${result.value})信息失败" }, it)
-    }.getOrElse {
-        it.message
+    } catch (e: Throwable) {
+        logger.warning({ "构建Season(${result.value})信息失败" }, e)
+        e.message
     }
 }
 
 internal val EpisodeReplier: MessageReplier = replier@{ result ->
     logger.info { "[${sender}] 匹配Episode(${result.value})" }
     if (permission.testPermission(toCommandSender()).not()) return@replier null
-    runCatching {
+    try {
         message.quote() + client.getEpisodeInfo(result.value.toLong()).toMessage(subject)
-    }.onFailure {
-        logger.warning({ "构建Episode(${result.value})信息失败" }, it)
-    }.getOrElse {
-        it.message
+    } catch (e: Throwable) {
+        logger.warning({ "构建Episode(${result.value})信息失败" }, e)
+        e.message
     }
 }
 
 internal val MediaReplier: MessageReplier = replier@{ result ->
     logger.info { "[${sender}] 匹配Media(${result.value})" }
     if (permission.testPermission(toCommandSender()).not()) return@replier null
-    runCatching {
+    try {
         message.quote() + client.getSeasonMedia(result.value.toLong()).media.toMessage(subject)
-    }.onFailure {
-        logger.warning({ "构建Media(${result.value})信息失败" }, it)
-    }.getOrElse {
-        it.message
+    } catch (e: Throwable) {
+        logger.warning({ "构建Media(${result.value})信息失败" }, e)
+        e.message
     }
 }
 
