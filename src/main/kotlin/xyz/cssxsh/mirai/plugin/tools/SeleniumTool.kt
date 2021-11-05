@@ -176,7 +176,7 @@ suspend fun RemoteWebDriver.getScreenshot(url: String, vararg hide: String): Byt
     val home = windowHandle
     val tab = switchTo().newWindow(WindowType.TAB) as RemoteWebDriver
     // tab.responsive()
-    runCatching {
+    try {
         withTimeout(Timeout.toMillis()) {
             tab.get(url)
             delay(Init.toMillis())
@@ -185,8 +185,8 @@ suspend fun RemoteWebDriver.getScreenshot(url: String, vararg hide: String): Byt
             }
         }
         hide(*hide)
-    }.onFailure {
-        it.printStackTrace()
+    } catch (e: Throwable) {
+        e.printStackTrace()
     }
     val bytes = getScreenshotAs(OutputType.BYTES)
     tab.close()

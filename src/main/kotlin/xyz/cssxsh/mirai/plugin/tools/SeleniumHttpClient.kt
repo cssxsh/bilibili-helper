@@ -7,7 +7,6 @@ import io.ktor.client.features.websocket.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.*
-import io.ktor.http.HttpHeaders.UnsafeHeadersList
 import io.ktor.http.HttpMethod
 import io.ktor.http.cio.websocket.*
 import io.ktor.http.content.*
@@ -28,17 +27,17 @@ typealias SeleniumHttpResponse = org.openqa.selenium.remote.http.HttpResponse
 private fun HttpRequestBuilder.takeFrom(request: SeleniumHttpRequest, base: URI) = apply {
     url {
         takeFrom(base.resolve(request.uri))
-        request.queryParameterNames.forEach { name ->
+        for (name in request.queryParameterNames) {
             parameters.appendAll(name, request.getQueryParameters(name))
         }
     }
     method = HttpMethod.parse(request.method.name)
     headers {
-        (request.headerNames - UnsafeHeadersList).forEach { name ->
+        for (name in (request.headerNames - HttpHeaders.UnsafeHeadersList)) {
             appendAll(name, request.getHeaders(name))
         }
     }
-    request.attributeNames.forEach { name ->
+    for (name in request.attributeNames) {
         attributes.put(AttributeKey(name), request.getAttribute(name))
     }
     if (method == HttpMethod.Post) {
@@ -53,7 +52,7 @@ private fun HttpResponse.toSeleniumHttpResponse() = SeleniumHttpResponse().also 
     response.status = status.value
     response.content = Contents.memoize { content.toInputStream() }
     headers.forEach { name, list ->
-        list.forEach { value ->
+        for (value in list) {
             response.addHeader(name, value)
         }
     }
@@ -109,7 +108,7 @@ class KtorHttpClientFactory : Factory {
     private val clients = mutableListOf<HttpClient>()
 
     override fun cleanupIdleClients() = synchronized(clients) {
-        clients.forEach { client ->
+        for (client in clients) {
             client.close()
         }
         clients.clear()
@@ -131,7 +130,7 @@ class KtorWebSocket(private val session: DefaultClientWebSocketSession, private 
     init {
         session.launch(KtorContext) {
             while (isActive) {
-                runCatching {
+                try {
                     when (val frame = session.incoming.receive()) {
                         is Frame.Binary -> {
                             listener.onBinary(frame.data)
@@ -147,7 +146,7 @@ class KtorWebSocket(private val session: DefaultClientWebSocketSession, private 
                         else -> {
                         }
                     }
-                }.onFailure { cause ->
+                } catch (cause: Throwable) {
                     listener.onError(cause)
                     return@launch
                 }
