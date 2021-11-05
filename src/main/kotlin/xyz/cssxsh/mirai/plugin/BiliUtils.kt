@@ -30,13 +30,17 @@ internal val logger by lazy {
 internal var cookies by object : ReadWriteProperty<Any?, List<Cookie>> {
     private val json by lazy {
         BiliHelperPlugin.dataFolder.resolve("cookies.json").apply {
-            if (exists().not()) writeText("[]")
+            if (exists().not()) createNewFile()
         }
     }
 
     override fun getValue(thisRef: Any?, property: KProperty<*>): List<Cookie> {
-        return BiliClient.Json.decodeFromString<List<EditThisCookie>>(json.readText()).mapNotNull {
-            it.runCatching { toCookie() }.getOrNull()
+        return BiliClient.Json.decodeFromString<List<EditThisCookie>>(json.readText().ifBlank { "[]" }).mapNotNull {
+            try {
+                it.toCookie()
+            } catch (e: Throwable) {
+                null
+            }
         }
     }
 
