@@ -12,12 +12,12 @@ object BiliLiveCommand : CompositeCommand(
 
     @SubCommand("add", "添加")
     suspend fun CommandSender.add(uid: Long, contact: Contact = subject()) = sendMessage(
-        addContact(uid, contact).let { "对@${it?.name}#${uid}的监听任务, 添加完成" }
+        task(uid, contact).let { "对@${it?.name}#${uid}的监听任务, 添加完成" }
     )
 
     @SubCommand("stop", "停止")
     suspend fun CommandSender.stop(uid: Long, contact: Contact = subject()) = sendMessage(
-        removeContact(uid, contact).let { "对@${it?.name}#${uid}的监听任务, 取消完成" }
+        remove(uid, contact).let { "对@${it?.name}#${uid}的监听任务, 取消完成" }
     )
 
     @SubCommand("list", "列表")

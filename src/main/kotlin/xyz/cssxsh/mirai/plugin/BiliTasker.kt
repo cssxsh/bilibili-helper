@@ -17,9 +17,9 @@ import kotlin.math.*
 
 interface BiliTasker {
 
-    suspend fun addContact(id: Long, subject: Contact): BiliTask?
+    suspend fun task(id: Long, subject: Contact): BiliTask?
 
-    suspend fun removeContact(id: Long, subject: Contact): BiliTask?
+    suspend fun remove(id: Long, subject: Contact): BiliTask?
 
     suspend fun list(subject: Contact): String
 
@@ -32,12 +32,16 @@ interface BiliTasker {
             AbstractTasker::class.sealedSubclasses.flatMap { it.sealedSubclasses }.mapNotNull { it.objectInstance }
         }
 
-        fun startAll() = runBlocking {
-            all.forEach { it.start() }
+        suspend fun startAll() {
+            for (item in all) {
+                item.start()
+            }
         }
 
-        fun stopAll() = runBlocking {
-            all.forEach { it.stop() }
+        suspend fun stopAll() {
+            for (item in all) {
+                item.stop()
+            }
         }
     }
 }
@@ -56,57 +60,56 @@ sealed class AbstractTasker<T> : BiliTasker, CoroutineScope {
 
     protected abstract suspend fun T.build(contact: Contact): Message
 
-    protected open suspend fun contacts(id: Long) = mutex.withLock { tasks[id]?.contacts.orEmpty() }
+    protected open fun empty(id: Long) = tasks[id]?.contacts.isNullOrEmpty()
 
-    protected open suspend fun Set<Long>.send(item: T) = map { delegate ->
-        runCatching {
+    protected open suspend fun BiliTask.send(item: T) = contacts.map { delegate ->
+        try {
             requireNotNull(findContact(delegate)) { "找不到联系人 $delegate" }.let { contact ->
                 contact.sendMessage(item.build(contact))
             }
-        }.onFailure {
-            logger.warning({ "对[${delegate}]构建消息失败" }, it)
+        } catch (e: Throwable) {
+            logger.warning({ "对[${delegate}]构建消息失败" }, e)
         }
     }
 
-    private val taskJobs = mutableMapOf<Long, Job>()
+    private val jobs = mutableMapOf<Long, Job>()
 
     protected abstract suspend fun listen(id: Long): Long
 
     protected open fun addListener(id: Long) = launch(SupervisorJob()) {
         logger.info { "$name with $id start" }
-        while (isActive && contacts(id).isNotEmpty()) {
-            runCatching {
+        while (isActive && empty(id)) {
+            val interval = try {
                 listen(id)
-            }.onSuccess { interval ->
-                delay(interval)
-            }.onFailure {
-                logger.warning { "$name with $id fail $it" }
-                delay(slow)
+            } catch (e: Throwable) {
+                logger.warning { "$name with $id fail $e" }
+                slow
             }
+            delay(interval)
         }
     }
 
-    protected open fun removeListener(id: Long) = synchronized(taskJobs) { taskJobs.remove(id)?.cancel() }
+    protected open fun removeListener(id: Long) = jobs.remove(id)?.cancel()
 
     abstract suspend fun initTask(id: Long): BiliTask
 
-    override suspend fun addContact(id: Long, subject: Contact) = mutex.withLock {
+    override suspend fun task(id: Long, subject: Contact) = mutex.withLock {
         val old = tasks[id] ?: initTask(id)
         tasks.compute(id) { _, _ ->
             old.copy(contacts = old.contacts + subject.delegate)
         }
-        taskJobs.compute(id) { _, job ->
+        jobs.compute(id) { _, job ->
             job?.takeIf { it.isActive } ?: addListener(id)
         }
         tasks[id]
     }
 
-    override suspend fun removeContact(id: Long, subject: Contact) = mutex.withLock {
+    override suspend fun remove(id: Long, subject: Contact) = mutex.withLock {
         tasks.compute(id) { _, info ->
             info?.run {
                 copy(contacts = contacts - subject.delegate).apply {
                     if (contacts.isEmpty()) {
-                        taskJobs[id]?.cancel()
+                        jobs[id]?.cancel()
                     }
                 }
             }
@@ -119,7 +122,7 @@ sealed class AbstractTasker<T> : BiliTasker, CoroutineScope {
             appendLine("监听状态:")
             for ((id, info) in tasks) {
                 if (subject.delegate in info.contacts) {
-                    appendLine("@${info.name}#$id -> ${info.last} | ${taskJobs[id]}")
+                    appendLine("@${info.name}#$id -> ${info.last} | ${jobs[id]}")
                 }
             }
         }
@@ -127,13 +130,13 @@ sealed class AbstractTasker<T> : BiliTasker, CoroutineScope {
 
     override suspend fun start(): Unit = mutex.withLock {
         for ((id, _) in tasks) {
-            taskJobs[id] = addListener(id)
+            jobs[id] = addListener(id)
         }
     }
 
     override suspend fun stop(): Unit = mutex.withLock {
         coroutineContext.cancelChildren()
-        taskJobs.clear()
+        jobs.clear()
     }
 }
 
@@ -149,13 +152,12 @@ sealed class Loader<T> : AbstractTasker<T>() {
 
     override suspend fun listen(id: Long): Long {
         val list = load(id)
-        mutex.withLock {
-            val task = tasks.getValue(id)
-            list.after(task.last).forEach { item ->
-                task.contacts.send(item)
-            }
-            tasks[id] = task.copy(last = list.last())
+        val task = tasks.getValue(id)
+        for (item in list.after(task.last)) {
+            task.send(item)
         }
+        tasks[id] = task.copy(last = list.last())
+
         return if (list.near()) fast else slow
     }
 }
@@ -174,16 +176,14 @@ sealed class Waiter<T> : AbstractTasker<T>() {
 
     override suspend fun listen(id: Long): Long {
         val item = load(id)
-        mutex.withLock {
-            val task = tasks.getValue(id)
-            states.put(id, item.success()).let { old ->
-                if (old != true && item.success()) {
-                    task.contacts.send(item)
-                    tasks[id] = task.copy(last = item.last())
-                    delay(slow)
-                }
-            }
+        val task = tasks.getValue(id)
+        val state = states.put(id, item.success())
+        if (state != true && item.success()) {
+            task.send(item)
+            tasks[id] = task.copy(last = item.last())
+            delay(slow)
         }
+
         return if (item.near()) fast else slow
     }
 }
@@ -192,7 +192,7 @@ private fun List<LocalTime>.near(slow: Long, now: LocalTime = LocalTime.now()): 
     return any { abs(it.toSecondOfDay() - now.toSecondOfDay()) * 1000 < slow }
 }
 
-const val Minute = 60 * 1000L
+private const val Minute = 60 * 1000L
 
 object BiliVideoLoader : Loader<Video>(), CoroutineScope by BiliHelperPlugin.childScope("VideoTasker") {
     override val tasks: MutableMap<Long, BiliTask> by BiliTaskData::video

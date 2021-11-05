@@ -89,7 +89,9 @@ object BiliHelperPlugin : KotlinPlugin(
             driver.quit()
         }
 
-        BiliTasker.stopAll()
+        runBlocking {
+            BiliTasker.stopAll()
+        }
         BiliCleaner.stop()
         client.save()
     }
