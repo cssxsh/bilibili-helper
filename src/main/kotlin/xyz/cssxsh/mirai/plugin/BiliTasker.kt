@@ -62,13 +62,18 @@ sealed class AbstractTasker<T> : BiliTasker, CoroutineScope {
 
     protected open fun empty(id: Long) = tasks[id]?.contacts.isNullOrEmpty()
 
-    protected open suspend fun BiliTask.send(item: T) = contacts.map { delegate ->
-        try {
-            requireNotNull(findContact(delegate)) { "找不到联系人 $delegate" }.let { contact ->
-                contact.sendMessage(item.build(contact))
+    protected open suspend fun BiliTask.send(item: T) = coroutineScope {
+        contacts.map { delegate ->
+            async {
+                try {
+                    requireNotNull(findContact(delegate)) { "找不到联系人 $delegate" }.let { contact ->
+                        contact.sendMessage(item.build(contact))
+                    }
+                } catch (e: Throwable) {
+                    logger.warning({ "对[${delegate}]构建消息失败" }, e)
+                    null
+                }
             }
-        } catch (e: Throwable) {
-            logger.warning({ "对[${delegate}]构建消息失败" }, e)
         }
     }
 
@@ -95,26 +100,20 @@ sealed class AbstractTasker<T> : BiliTasker, CoroutineScope {
 
     override suspend fun task(id: Long, subject: Contact) = mutex.withLock {
         val old = tasks[id] ?: initTask(id)
-        tasks.compute(id) { _, _ ->
-            old.copy(contacts = old.contacts + subject.delegate)
-        }
+        val new = old.copy(contacts = old.contacts + subject.delegate)
+        tasks[id] = new
         jobs.compute(id) { _, job ->
             job?.takeIf { it.isActive } ?: addListener(id)
         }
-        tasks[id]
+        new
     }
 
     override suspend fun remove(id: Long, subject: Contact) = mutex.withLock {
-        tasks.compute(id) { _, info ->
-            info?.run {
-                copy(contacts = contacts - subject.delegate).apply {
-                    if (contacts.isEmpty()) {
-                        jobs[id]?.cancel()
-                    }
-                }
-            }
-        }
-        tasks[id]
+        val old = tasks[id] ?: initTask(id)
+        val new = old.copy(contacts = old.contacts - subject.delegate)
+        if (new.contacts.isEmpty()) jobs[id]?.cancel()
+        tasks[id] = new
+        new
     }
 
     override suspend fun list(subject: Contact): String = mutex.withLock {
@@ -152,11 +151,14 @@ sealed class Loader<T> : AbstractTasker<T>() {
 
     override suspend fun listen(id: Long): Long {
         val list = load(id)
-        val task = tasks.getValue(id)
-        for (item in list.after(task.last)) {
-            task.send(item)
+
+        mutex.withLock {
+            val task = tasks.getValue(id)
+            for (item in list.after(task.last)) {
+                task.send(item)
+            }
+            tasks[id] = task.copy(last = list.last())
         }
-        tasks[id] = task.copy(last = list.last())
 
         return if (list.near()) fast else slow
     }
@@ -176,11 +178,14 @@ sealed class Waiter<T> : AbstractTasker<T>() {
 
     override suspend fun listen(id: Long): Long {
         val item = load(id)
-        val task = tasks.getValue(id)
         val state = states.put(id, item.success())
+
         if (state != true && item.success()) {
-            task.send(item)
-            tasks[id] = task.copy(last = item.last())
+            mutex.withLock {
+                val task = tasks.getValue(id)
+                task.send(item)
+                tasks[id] = task.copy(last = item.last())
+            }
             delay(slow)
         }
 
