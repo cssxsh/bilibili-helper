@@ -183,15 +183,15 @@ private suspend fun EmojiDetail.cache(contact: Contact): Image {
 }
 
 internal suspend fun DynamicInfo.screenshot(contact: Contact, refresh: Boolean = false): Message {
-    return runCatching {
+    return try {
         head.toPlainText() + Url(h5).screenshot(
             type = CacheType.DYNAMIC,
             path = "${datetime.toLocalDate()}/${detail.id}.png",
             refresh = refresh,
             contact = contact
         )
-    }.getOrElse {
-        logger.warning({ "获取动态${detail.id}快照失败" }, it)
+    } catch (e: Throwable) {
+        logger.warning({ "获取动态${detail.id}快照失败" }, e)
         content.toPlainText()
     }
 }
@@ -212,8 +212,8 @@ internal suspend fun DynamicInfo.emoji(contact: Contact): Message {
                 continue
             }
 
-            runCatching {
-                emoticon.cache(contact)
+            emoticon.runCatching {
+                cache(contact)
             }.onSuccess {
                 add(content.substring(pos, start))
                 add(it)
