@@ -132,7 +132,7 @@ fun RemoteWebDriver(config: RemoteWebDriverConfig): RemoteWebDriver {
     val thread = Thread.currentThread()
     val oc = thread.contextClassLoader
 
-    val driver = runCatching {
+    return try {
         thread.contextClassLoader = KtorHttpClientFactory::class.java.classLoader
 
         MxSelenium.newDriver(null, config.toConsumer()).apply {
@@ -143,11 +143,9 @@ fun RemoteWebDriver(config: RemoteWebDriverConfig): RemoteWebDriver {
                 scriptTimeout = Interval
             }
         }
+    } finally {
+        thread.contextClassLoader = oc
     }
-
-    thread.contextClassLoader = oc
-
-    return driver.getOrThrow()
 }
 
 private fun WebDriver.responsive() {
