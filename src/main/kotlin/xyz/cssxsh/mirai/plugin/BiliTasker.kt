@@ -28,7 +28,7 @@ interface BiliTasker {
     suspend fun stop()
 
     companion object {
-        private val all by lazy {
+        private val all: List<BiliTasker> by lazy {
             AbstractTasker::class.sealedSubclasses.flatMap { it.sealedSubclasses }.mapNotNull { it.objectInstance }
         }
 
@@ -83,7 +83,7 @@ sealed class AbstractTasker<T> : BiliTasker, CoroutineScope {
 
     protected open fun addListener(id: Long) = launch(SupervisorJob()) {
         logger.info { "$name with $id start" }
-        while (isActive && empty(id)) {
+        while (isActive && !empty(id)) {
             val interval = try {
                 listen(id)
             } catch (e: Throwable) {
