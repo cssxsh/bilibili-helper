@@ -14,7 +14,7 @@ import xyz.cssxsh.mirai.plugin.data.*
 import xyz.cssxsh.mirai.plugin.tools.*
 
 object BiliHelperPlugin : KotlinPlugin(
-    JvmPluginDescription("xyz.cssxsh.mirai.plugin.bilibili-helper", "1.2.1") {
+    JvmPluginDescription("xyz.cssxsh.mirai.plugin.bilibili-helper", "1.2.2") {
         name("bilibili-helper")
         author("cssxsh")
     }
@@ -47,7 +47,6 @@ object BiliHelperPlugin : KotlinPlugin(
         BiliCleanerConfig.save()
 
         client.load()
-        BiliListener.subscribe()
 
         BiliInfoCommand.register()
         BiliDynamicCommand.register()
@@ -70,6 +69,7 @@ object BiliHelperPlugin : KotlinPlugin(
         }
 
         globalEventChannel().subscribeOnce<BotOnlineEvent> {
+            BiliListener.subscribe()
             BiliTasker.startAll()
             BiliCleaner.start()
         }
