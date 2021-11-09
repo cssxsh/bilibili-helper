@@ -216,7 +216,7 @@ object BiliVideoLoader : Loader<Video>(), CoroutineScope by BiliHelperPlugin.chi
 
     override suspend fun Video.build(contact: Contact) = toMessage(contact)
 
-    override suspend fun initTask(id: Long): BiliTask = BiliTask(client.getUserInfo(id).name)
+    override suspend fun initTask(id: Long): BiliTask = BiliTask(name = client.getUserInfo(id).name)
 }
 
 object BiliDynamicLoader : Loader<DynamicInfo>(), CoroutineScope by BiliHelperPlugin.childScope("DynamicTasker") {
@@ -236,7 +236,7 @@ object BiliDynamicLoader : Loader<DynamicInfo>(), CoroutineScope by BiliHelperPl
 
     override suspend fun DynamicInfo.build(contact: Contact) = toMessage(contact)
 
-    override suspend fun initTask(id: Long): BiliTask = BiliTask(client.getUserInfo(id).name)
+    override suspend fun initTask(id: Long): BiliTask = BiliTask(name = client.getUserInfo(id).name)
 }
 
 object BiliLiveWaiter : Waiter<BiliUserInfo>(), CoroutineScope by BiliHelperPlugin.childScope("LiveWaiter") {
@@ -274,7 +274,7 @@ object BiliLiveWaiter : Waiter<BiliUserInfo>(), CoroutineScope by BiliHelperPlug
 
     override suspend fun BiliUserInfo.last(): OffsetDateTime = record.getValue(mid)
 
-    override suspend fun initTask(id: Long): BiliTask = BiliTask(client.getUserInfo(id).name)
+    override suspend fun initTask(id: Long): BiliTask = BiliTask(name = client.getUserInfo(id).name)
 }
 
 object BiliSeasonWaiter : Waiter<SeasonSection>(), CoroutineScope by BiliHelperPlugin.childScope("SeasonWaiter") {
@@ -308,5 +308,5 @@ object BiliSeasonWaiter : Waiter<SeasonSection>(), CoroutineScope by BiliHelperP
 
     override suspend fun SeasonSection.last(): OffsetDateTime = data.getValue(episodes.maxOf { it.aid }).datetime
 
-    override suspend fun initTask(id: Long): BiliTask = BiliTask(client.getSeasonSection(id).mainSection.title)
+    override suspend fun initTask(id: Long): BiliTask = BiliTask(name = client.getSeasonSection(id).mainSection.title)
 }
