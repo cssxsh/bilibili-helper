@@ -71,7 +71,7 @@ data class MediaNewEpisode(
     override val index: String,
     @SerialName("index_show")
     override val show: String
-): NewEpisode
+) : NewEpisode
 
 @Serializable
 data class SeasonRating(
@@ -79,7 +79,7 @@ data class SeasonRating(
     override val count: Long,
     @SerialName("score")
     override val score: Double
-): Rating
+) : Rating
 
 @Serializable
 data class BiliSeasonSection(
@@ -211,4 +211,4 @@ data class SeasonNewEpisode(
     override val index: String,
     @SerialName("desc")
     override val show: String
-): NewEpisode
+) : NewEpisode

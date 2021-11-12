@@ -47,7 +47,7 @@ data class BiliUserInfo(
     override val sign: String,
     @SerialName("top_photo")
     val topPhoto: String,
-): UserInfo {
+) : UserInfo {
     override val live: String get() = liveRoom.link
 }
 

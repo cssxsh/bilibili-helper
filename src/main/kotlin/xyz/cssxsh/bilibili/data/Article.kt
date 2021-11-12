@@ -77,7 +77,7 @@ data class ArticleSimple(
     override val title: String,
     @SerialName("words")
     val words: Int
-): Article
+) : Article
 
 @Serializable
 data class ArticleMedia(

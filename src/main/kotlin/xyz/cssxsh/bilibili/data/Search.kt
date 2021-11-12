@@ -107,7 +107,7 @@ data class SearchUser(
     val verify: String,
     @SerialName("videos")
     val videos: Int
-): UserInfo {
+) : UserInfo {
     override val live: String get() = "https://live.bilibili.com/${roomId}"
 }
 
@@ -162,7 +162,7 @@ data class SearchSeasonRating(
     override val count: Long,
     @SerialName("score")
     override val score: Double
-): Rating
+) : Rating
 
 @Serializable
 data class SearchSeasonEpisode(

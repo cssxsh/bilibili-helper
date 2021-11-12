@@ -4,7 +4,7 @@ import net.mamoe.mirai.console.command.*
 import net.mamoe.mirai.contact.*
 import xyz.cssxsh.mirai.plugin.*
 
-object BiliSeasonCommand: CompositeCommand(
+object BiliSeasonCommand : CompositeCommand(
     owner = BiliHelperPlugin,
     "bili-season", "B剧集", "B番剧",
     description = "B站剧集指令"
