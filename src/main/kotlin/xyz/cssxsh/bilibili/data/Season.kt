@@ -2,7 +2,7 @@ package xyz.cssxsh.bilibili.data
 
 import kotlinx.serialization.*
 
-interface Episode {
+sealed interface Episode {
     val cover: String
     val index: String
     val title: String
@@ -10,26 +10,26 @@ interface Episode {
     val share: String
 }
 
-interface Season {
+sealed interface Season {
     val cover: String
     val seasonId: Long
     val title: String
     val type: String
 }
 
-interface Media : Season {
+sealed interface Media : Season, Entry {
     val mediaId: Long
     val share: String
     val new: NewEpisode?
     val rating: Rating?
 }
 
-interface Rating {
+sealed interface Rating {
     val count: Long
     val score: Double
 }
 
-interface NewEpisode {
+sealed interface NewEpisode {
     val id: Long
     val index: String
     val show: String

@@ -64,7 +64,7 @@ enum class SearchType {
 }
 
 @Serializable
-data class SearchResult<T>(
+data class SearchResult<T : Entry>(
     @SerialName("numPages")
     val pages: Int,
     @SerialName("numResults")

@@ -3,14 +3,16 @@ package xyz.cssxsh.bilibili.data
 import kotlinx.serialization.*
 import java.time.*
 
-interface DynamicCard {
+sealed interface DynamicCard {
     val card: String
     val detail: DynamicCardDetail
+    val display: DynamicDisplay
 }
 
-interface DynamicCardDetail {
+sealed interface DynamicCardDetail {
     val id: Long
     val type: Int
+    val uid: Long
 }
 
 @Serializable
@@ -76,7 +78,7 @@ data class DynamicDescribe(
     @SerialName("type")
     override val type: Int,
     @SerialName("uid")
-    val uid: Long,
+    override val uid: Long,
     @SerialName("user_profile")
     val profile: UserProfile? = null,
     @SerialName("view")
@@ -104,8 +106,8 @@ data class DynamicInfo(
     @SerialName("desc")
     override val detail: DynamicDescribe,
     @SerialName("display")
-    val display: DynamicDisplay
-) : DynamicCard
+    override val display: DynamicDisplay
+) : DynamicCard, Entry
 
 @Serializable
 data class DynamicArticle(
@@ -325,7 +327,11 @@ data class DynamicReply(
     val originUser: UserProfile,
     @SerialName("user")
     val user: UserSimple
-) : DynamicCard
+) : DynamicCard {
+    @Deprecated("DynamicReply", ReplaceWith("DynamicDisplay()", "xyz.cssxsh.bilibili.data.DynamicDisplay"))
+    override val display: DynamicDisplay
+        get() = DynamicDisplay()
+}
 
 @Serializable
 data class DynamicReplyDetail(
@@ -340,7 +346,7 @@ data class DynamicReplyDetail(
     @SerialName("reply")
     val reply: Long,
     @SerialName("uid")
-    val uid: Long
+    override val uid: Long
 ) : DynamicCardDetail
 
 @Serializable

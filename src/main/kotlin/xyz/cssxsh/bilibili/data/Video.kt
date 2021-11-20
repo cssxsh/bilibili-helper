@@ -3,7 +3,7 @@ package xyz.cssxsh.bilibili.data
 import kotlinx.serialization.*
 import java.time.*
 
-interface Video {
+sealed interface Video : Entry {
     val title: String
     val author: String
     val description: String

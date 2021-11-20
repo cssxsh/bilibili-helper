@@ -72,16 +72,20 @@ internal suspend fun BiliRoomInfo.toMessage(contact: Contact) = buildMessageChai
 
 internal suspend fun Media.toMessage(contact: Contact) = content.toPlainText() + getCover(contact)
 
+internal suspend fun Entry.toMessage(contact: Contact): Message {
+    return when (this) {
+        is UserInfo -> toMessage(contact)
+        is Media -> toMessage(contact)
+        is Video -> toMessage(contact)
+        is Live -> toMessage(contact)
+        is DynamicInfo -> toMessage(contact)
+        is BiliRoomInfo -> toMessage(contact)
+    }
+}
+
 internal suspend fun SearchResult<*>.toMessage(contact: Contact): Message {
     if (result.isEmpty()) return "搜索结果为空".toPlainText()
-    return result.map {
-        when (it) {
-            is UserInfo -> it.toMessage(contact)
-            is Media -> it.toMessage(contact)
-            is Video -> it.toMessage(contact)
-            else -> "未知类型，请联系开发者".toPlainText()
-        } + "\n------------------------\n"
-    }.toMessageChain()
+    return result.map { entry -> entry.toMessage(contact) + "\n------------------------\n" }.toMessageChain()
 }
 
 typealias MessageReplier = suspend MessageEvent.(MatchResult) -> Any?

@@ -2,7 +2,7 @@ package xyz.cssxsh.bilibili.data
 
 import kotlinx.serialization.*
 
-interface UserInfo {
+sealed interface UserInfo : Entry {
     val name: String
     val level: Int
     val sign: String

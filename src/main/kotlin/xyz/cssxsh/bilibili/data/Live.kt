@@ -2,7 +2,7 @@ package xyz.cssxsh.bilibili.data
 
 import kotlinx.serialization.*
 
-interface Live {
+sealed interface Live : Entry {
     val roomId: Long
     val title: String
     val cover: String
@@ -42,7 +42,7 @@ data class BiliRoomInfo(
     val shortId: Int,
     @SerialName("uid")
     val uid: Long
-)
+) : Entry
 
 @Serializable
 data class BiliRoomSimple(

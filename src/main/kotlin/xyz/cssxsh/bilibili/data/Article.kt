@@ -2,7 +2,7 @@ package xyz.cssxsh.bilibili.data
 
 import kotlinx.serialization.*
 
-interface Article {
+sealed interface Article {
     val categories: List<ArticleCategory>?
     val category: ArticleCategory
     val id: Long
