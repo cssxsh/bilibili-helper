@@ -24,6 +24,7 @@ typealias SeleniumHttpRequest = org.openqa.selenium.remote.http.HttpRequest
 
 typealias SeleniumHttpResponse = org.openqa.selenium.remote.http.HttpResponse
 
+@OptIn(InternalAPI::class)
 private fun HttpRequestBuilder.takeFrom(request: SeleniumHttpRequest, base: URI) = apply {
     url {
         takeFrom(base.resolve(request.uri))
@@ -33,7 +34,8 @@ private fun HttpRequestBuilder.takeFrom(request: SeleniumHttpRequest, base: URI)
     }
     method = HttpMethod.parse(request.method.name)
     headers {
-        for (name in (request.headerNames - HttpHeaders.UnsafeHeadersList)) {
+        for (name in request.headerNames) {
+            if (name in HttpHeaders.UnsafeHeadersList) continue
             appendAll(name, request.getHeaders(name))
         }
     }
