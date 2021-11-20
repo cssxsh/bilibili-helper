@@ -3,11 +3,11 @@ plugins {
     kotlin("plugin.serialization") version Versions.kotlin
 
     id("net.mamoe.mirai-console") version Versions.mirai
-    id("net.mamoe.maven-central-publish") version "0.6.1"
+    id("net.mamoe.maven-central-publish") version "0.7.0"
 }
 
 group = "xyz.cssxsh"
-version = "1.2.2"
+version = "1.2.3"
 
 repositories {
     mavenLocal()
@@ -29,15 +29,10 @@ mavenCentralPublish {
 kotlin {
     sourceSets {
         all {
-//            languageSettings.useExperimentalAnnotation("kotlin.RequiresOptIn")
-//            languageSettings.useExperimentalAnnotation("kotlin.ExperimentalStdlibApi")
-//            languageSettings.useExperimentalAnnotation("io.ktor.util.KtorExperimentalAPI")
-//            languageSettings.useExperimentalAnnotation("kotlinx.serialization.InternalSerializationApi")
-//            languageSettings.useExperimentalAnnotation("kotlinx.serialization.ExperimentalSerializationApi")
-            languageSettings.useExperimentalAnnotation("net.mamoe.mirai.console.util.ConsoleExperimentalApi")
+            languageSettings.optIn("net.mamoe.mirai.console.util.ConsoleExperimentalApi")
         }
         test {
-            languageSettings.useExperimentalAnnotation("net.mamoe.mirai.console.ConsoleFrontEndImplementation")
+            languageSettings.optIn("net.mamoe.mirai.console.ConsoleFrontEndImplementation")
         }
     }
 }
@@ -62,9 +57,7 @@ dependencies {
     }
     compileOnly("net.mamoe:mirai-core-jvm:${Versions.mirai}")
 
-    testImplementation(junit("api", Versions.junit))
-    testRuntimeOnly(junit("engine", Versions.junit))
-    testRuntimeOnly("org.slf4j", "slf4j-simple", "1.7.25")
+    testImplementation(kotlin("test", Versions.kotlin))
 }
 
 mirai {
