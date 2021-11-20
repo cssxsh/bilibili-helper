@@ -66,9 +66,8 @@ sealed class AbstractTasker<T> : BiliTasker, CoroutineScope {
         contacts.map { delegate ->
             async {
                 try {
-                    requireNotNull(findContact(delegate)) { "找不到联系人 $delegate" }.let { contact ->
-                        contact.sendMessage(item.build(contact))
-                    }
+                    val contact = requireNotNull(findContact(delegate)) { "找不到联系人 $delegate" }
+                    contact.sendMessage(item.build(contact))
                 } catch (e: Throwable) {
                     logger.warning({ "对[${delegate}]构建消息失败" }, e)
                     null
