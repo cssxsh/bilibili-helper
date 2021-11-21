@@ -17,9 +17,9 @@ import kotlin.math.*
 
 interface BiliTasker {
 
-    suspend fun task(id: Long, subject: Contact): BiliTask?
+    suspend fun task(id: Long, subject: Contact): BiliTask
 
-    suspend fun remove(id: Long, subject: Contact): BiliTask?
+    suspend fun remove(id: Long, subject: Contact): BiliTask
 
     suspend fun list(subject: Contact): String
 
