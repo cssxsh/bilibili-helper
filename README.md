@@ -92,6 +92,16 @@ val MEDIA_REGEX = """(?<=bilibili\.com/bangumi/media/md)(\d+)""".toRegex()
 
 返回结果包含图片，需要在聊天环境执行指令
 
+### 任务列表指令
+
+| 指令                           | 描述     |
+|:-------------------------------|:---------|
+| `/<bili-task B任务> <all>`     | 全部任务 |
+| `/<bili-task B任务> <dynamic>` | 动态任务 |
+| `/<bili-task B任务> <live>`    | 直播任务 |
+| `/<bili-task B任务> <season>`  | 剧集任务 |
+| `/<bili-task B任务> <video>`   | 视频任务 |
+
 ## 设置
 
 位于`Mirai-Console`运行目录下的`config/bilibili-helper`文件夹下
