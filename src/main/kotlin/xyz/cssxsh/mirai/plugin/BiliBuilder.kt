@@ -80,6 +80,12 @@ internal suspend fun Entry.toMessage(contact: Contact): Message {
         is Live -> toMessage(contact)
         is DynamicInfo -> toMessage(contact)
         is BiliRoomInfo -> toMessage(contact)
+        is SeasonSection -> buildForwardMessage(contact) {
+            for (episode in episodes) {
+                val video = client.getVideoInfo(episode.aid)
+                contact.bot at video.created.toInt() says video.toMessage(contact)
+            }
+        }
     }
 }
 

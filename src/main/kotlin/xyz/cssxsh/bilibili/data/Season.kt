@@ -99,7 +99,7 @@ data class SeasonSection(
     val title: String,
     @SerialName("type")
     val type: Int
-)
+) : Entry
 
 @Serializable
 data class SeasonEpisode(

@@ -67,7 +67,9 @@ object BiliHelperPlugin : KotlinPlugin(
 
         globalEventChannel().subscribeOnce<BotOnlineEvent> {
             BiliListener.subscribe()
-            BiliTasker.startAll()
+            for (task in BiliTasker) {
+                task.start()
+            }
             BiliCleaner.start()
         }
     }
@@ -84,7 +86,9 @@ object BiliHelperPlugin : KotlinPlugin(
         }
 
         runBlocking {
-            BiliTasker.stopAll()
+            for (task in BiliTasker) {
+                task.start()
+            }
         }
         BiliCleaner.stop()
         client.save()

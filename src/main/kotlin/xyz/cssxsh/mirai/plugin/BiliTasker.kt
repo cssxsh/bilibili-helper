@@ -27,26 +27,26 @@ interface BiliTasker {
 
     suspend fun stop()
 
-    companion object {
-        private val all: List<BiliTasker> by lazy {
+    val tasks: Map<Long, BiliTask>
+
+    companion object : Collection<BiliTasker> {
+        private val taskers: List<BiliTasker> by lazy {
             AbstractTasker::class.sealedSubclasses.flatMap { it.sealedSubclasses }.mapNotNull { it.objectInstance }
         }
 
-        suspend fun startAll() {
-            for (item in all) {
-                item.start()
-            }
-        }
+        override val size: Int get() = taskers.size
 
-        suspend fun stopAll() {
-            for (item in all) {
-                item.stop()
-            }
-        }
+        override fun contains(element: BiliTasker): Boolean = taskers.contains(element)
+
+        override fun containsAll(elements: Collection<BiliTasker>): Boolean = taskers.containsAll(elements)
+
+        override fun isEmpty(): Boolean = taskers.isEmpty()
+
+        override fun iterator(): Iterator<BiliTasker> = taskers.iterator()
     }
 }
 
-sealed class AbstractTasker<T> : BiliTasker, CoroutineScope {
+sealed class AbstractTasker<T : Entry> : BiliTasker, CoroutineScope {
 
     protected val name get() = coroutineContext[CoroutineName]?.name
 
@@ -56,22 +56,20 @@ sealed class AbstractTasker<T> : BiliTasker, CoroutineScope {
 
     protected abstract val slow: Long
 
-    protected abstract val tasks: MutableMap<Long, BiliTask>
+    abstract override val tasks: MutableMap<Long, BiliTask>
 
     protected abstract suspend fun T.build(contact: Contact): Message
 
     protected open fun empty(id: Long) = tasks[id]?.contacts.isNullOrEmpty()
 
-    protected open suspend fun BiliTask.send(item: T) = coroutineScope {
-        contacts.map { delegate ->
-            async {
-                try {
-                    val contact = requireNotNull(findContact(delegate)) { "找不到联系人 $delegate" }
-                    contact.sendMessage(item.build(contact))
-                } catch (e: Throwable) {
-                    logger.warning({ "对[${delegate}]构建消息失败" }, e)
-                    null
-                }
+    protected open fun BiliTask.send(item: T) = contacts.map { delegate ->
+        async {
+            try {
+                val contact = requireNotNull(findContact(delegate)) { "找不到联系人 $delegate" }
+                contact.sendMessage(item.build(contact))
+            } catch (e: Throwable) {
+                logger.warning({ "对[${delegate}]构建消息失败" }, e)
+                null
             }
         }
     }
@@ -138,7 +136,7 @@ sealed class AbstractTasker<T> : BiliTasker, CoroutineScope {
     }
 }
 
-sealed class Loader<T> : AbstractTasker<T>() {
+sealed class Loader<T : Entry> : AbstractTasker<T>() {
 
     protected abstract suspend fun load(id: Long): List<T>
 
@@ -163,7 +161,7 @@ sealed class Loader<T> : AbstractTasker<T>() {
     }
 }
 
-sealed class Waiter<T> : AbstractTasker<T>() {
+sealed class Waiter<T : Entry> : AbstractTasker<T>() {
 
     private val states = mutableMapOf<Long, Boolean>()
 
