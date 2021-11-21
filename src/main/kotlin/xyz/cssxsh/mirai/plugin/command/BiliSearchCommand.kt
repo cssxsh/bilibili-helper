@@ -13,18 +13,18 @@ object BiliSearchCommand : CompositeCommand(
     @SubCommand("user", "用户")
     @Description("搜索用户")
     suspend fun UserCommandSender.user(keyword: String) = sendMessage(
-        client.searchUser(keyword).toMessage(subject)
+        message = client.searchUser(keyword).toMessage(subject)
     )
 
     @SubCommand("bangumi", "番剧")
     @Description("搜索番剧")
     suspend fun UserCommandSender.bangumi(keyword: String) = sendMessage(
-        client.searchBangumi(keyword).toMessage(subject)
+        message = client.searchBangumi(keyword).toMessage(subject)
     )
 
     @SubCommand("ft", "影视")
     @Description("搜索影视")
     suspend fun UserCommandSender.ft(keyword: String) = sendMessage(
-        client.searchFT(keyword).toMessage(subject)
+        message = client.searchFT(keyword).toMessage(subject)
     )
 }

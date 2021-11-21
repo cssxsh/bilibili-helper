@@ -23,9 +23,10 @@ object BiliCleaner : CoroutineScope by BiliHelperPlugin.childScope("BiliCleaner"
             logger.info { "${type}缓存清理任务开始运行，间隔${interval}h" }
             type.withLock {
                 val now = System.currentTimeMillis()
-                type.directory.listFiles { dir ->
-                    dir.listFiles().orEmpty()
-                        .all { file -> now - file.lastModified() > expires * HOUR && file.delete() } && dir.delete()
+                type.directory.listFiles { folder ->
+                    folder.listFiles().orEmpty()
+                        .all { file -> now - file.lastModified() > expires * HOUR && file.delete() }
+                        && folder.delete()
                 }
             }
             delay(interval * HOUR)
@@ -33,7 +34,7 @@ object BiliCleaner : CoroutineScope by BiliHelperPlugin.childScope("BiliCleaner"
     }
 
     fun start() {
-        CacheType.values().forEach { type ->
+        for (type in CacheType.values()) {
             clean(type = type, interval = interval.getValue(type), expires = expires.getValue(type))
         }
     }
