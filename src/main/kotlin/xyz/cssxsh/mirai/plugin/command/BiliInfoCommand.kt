@@ -8,7 +8,7 @@ object BiliInfoCommand : CompositeCommand(
     owner = BiliHelperPlugin,
     "bili-info", "B信息",
     description = "B站信息指令"
-) {
+), BiliHelperCommand {
 
     @SubCommand
     suspend fun UserCommandSender.aid(id: Long) = sendMessage(

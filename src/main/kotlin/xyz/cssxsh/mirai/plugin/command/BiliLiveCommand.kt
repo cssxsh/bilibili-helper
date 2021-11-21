@@ -8,7 +8,7 @@ object BiliLiveCommand : CompositeCommand(
     owner = BiliHelperPlugin,
     "bili-live", "B直播",
     description = "B站直播指令"
-), BiliTasker by BiliLiveWaiter {
+), BiliHelperCommand, BiliTasker by BiliLiveWaiter {
 
     @SubCommand("add", "添加")
     suspend fun CommandSender.add(uid: Long, contact: Contact = subject()) = sendMessage(

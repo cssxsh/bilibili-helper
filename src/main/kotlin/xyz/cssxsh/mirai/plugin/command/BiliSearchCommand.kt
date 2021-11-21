@@ -8,7 +8,7 @@ object BiliSearchCommand : CompositeCommand(
     owner = BiliHelperPlugin,
     "bili-search", "B搜索",
     description = "B站搜索指令"
-) {
+), BiliHelperCommand {
 
     @SubCommand("user", "用户")
     @Description("搜索用户")

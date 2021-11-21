@@ -48,12 +48,9 @@ object BiliHelperPlugin : KotlinPlugin(
 
         client.load()
 
-        BiliInfoCommand.register()
-        BiliDynamicCommand.register()
-        BiliVideoCommand.register()
-        BiliLiveCommand.register()
-        BiliSeasonCommand.register()
-        BiliSearchCommand.register()
+        for (command in BiliHelperCommand) {
+            command.register()
+        }
 
         if (selenium) {
             driver = RemoteWebDriver(config = SeleniumToolConfig)
@@ -76,12 +73,9 @@ object BiliHelperPlugin : KotlinPlugin(
     }
 
     override fun onDisable() {
-        BiliInfoCommand.unregister()
-        BiliDynamicCommand.unregister()
-        BiliVideoCommand.unregister()
-        BiliLiveCommand.unregister()
-        BiliSeasonCommand.unregister()
-        BiliSearchCommand.unregister()
+        for (command in BiliHelperCommand) {
+            command.unregister()
+        }
 
         BiliListener.stop()
 
