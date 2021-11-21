@@ -79,6 +79,7 @@ internal val SetupSelenium by BiliHelperPlugin::selenium
 
 internal val RemoteWebDriver by BiliHelperPlugin::driver
 
+@Serializable
 enum class CacheType : Mutex by Mutex() {
     DYNAMIC,
     VIDEO,
