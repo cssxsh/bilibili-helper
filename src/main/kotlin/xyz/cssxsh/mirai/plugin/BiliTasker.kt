@@ -79,12 +79,11 @@ sealed class AbstractTasker<T : Entry> : BiliTasker, CoroutineScope {
     protected abstract suspend fun listen(id: Long): Long
 
     protected open fun addListener(id: Long) = launch(SupervisorJob()) {
-        logger.info { "$name with $id start" }
         while (isActive && !empty(id)) {
             val interval = try {
                 listen(id)
             } catch (e: Throwable) {
-                logger.warning { "$name with $id fail $e" }
+                logger.warning({ "$name with $id fail $e" }, e)
                 slow
             }
             delay(interval)
@@ -108,8 +107,12 @@ sealed class AbstractTasker<T : Entry> : BiliTasker, CoroutineScope {
     override suspend fun remove(id: Long, subject: Contact) = mutex.withLock {
         val old = tasks[id] ?: initTask(id)
         val new = old.copy(contacts = old.contacts - subject.delegate)
-        if (new.contacts.isEmpty()) jobs[id]?.cancel()
-        tasks[id] = new
+        if (new.contacts.isEmpty()) {
+            jobs[id]?.cancel()
+            tasks.remove(id)
+        } else {
+            tasks[id] = new
+        }
         new
     }
 
@@ -125,8 +128,12 @@ sealed class AbstractTasker<T : Entry> : BiliTasker, CoroutineScope {
     }
 
     override suspend fun start(): Unit = mutex.withLock {
-        for ((id, _) in tasks) {
-            jobs[id] = addListener(id)
+        for ((id, info) in tasks) {
+            try {
+                jobs[id] = addListener(id)
+            } finally {
+                logger.info { "$name with $id start $info" }
+            }
         }
     }
 
@@ -243,7 +250,9 @@ object BiliLiveWaiter : Waiter<BiliUserInfo>(), CoroutineScope by BiliHelperPlug
 
     override val slow get() = BiliHelperSettings.live * Minute
 
-    private val record = mutableMapOf<Long, OffsetDateTime>()
+    private val record = mutableMapOf<Long, BiliRoomInfo>()
+
+    private suspend fun room(mid: Long) = record.getOrPut(mid) { client.getRoomInfo(mid) }
 
     override suspend fun load(id: Long) = client.getUserInfo(id)
 
@@ -261,15 +270,14 @@ object BiliLiveWaiter : Waiter<BiliUserInfo>(), CoroutineScope by BiliHelperPlug
     }
 
     override suspend fun BiliUserInfo.build(contact: Contact): Message {
-        val datetime = client.getRoomInfo(roomId = liveRoom.roomId).datetime
-        record[mid] = datetime
-        return "主播: $name#$mid \n".toPlainText() + liveRoom.toMessage(contact, datetime) + withAtAll(contact)
+        val start = room(mid).datetime
+        return "主播: $name#$mid \n".toPlainText() + liveRoom.toMessage(contact, start) + withAtAll(contact)
     }
 
     // TODO by live history
     override suspend fun BiliUserInfo.near(): Boolean = LocalTime.now().minute < 5
 
-    override suspend fun BiliUserInfo.last(): OffsetDateTime = record.getValue(mid)
+    override suspend fun BiliUserInfo.last(): OffsetDateTime = room(mid).datetime
 
     override suspend fun initTask(id: Long): BiliTask = BiliTask(name = client.getUserInfo(id).name)
 }
@@ -281,21 +289,19 @@ object BiliSeasonWaiter : Waiter<SeasonSection>(), CoroutineScope by BiliHelperP
 
     override val slow = BiliHelperSettings.season * Minute
 
-    private val data = mutableMapOf<Long, Video>()
+    private val record = mutableMapOf<Long, Video>()
 
-    private suspend fun video(aid: Long) = data.getOrPut(aid) { client.getVideoInfo(aid) }
+    private suspend fun video(aid: Long) = record.getOrPut(aid) { client.getVideoInfo(aid) }
 
     override suspend fun load(id: Long): SeasonSection = client.getSeasonSection(id).mainSection
 
     override suspend fun SeasonSection.success(): Boolean {
-        val aid = episodes.maxOfOrNull { it.aid } ?: return false
-        val video = video(aid)
+        val video = video(aid = episodes.maxOfOrNull { it.aid } ?: return false)
         return video.datetime > tasks.getValue(id).last
     }
 
     override suspend fun SeasonSection.build(contact: Contact): Message {
-        val aid = episodes.maxOf { it.aid }
-        val video = video(aid)
+        val video = video(aid = episodes.maxOf { it.aid })
         return "$title 有更新".toPlainText() + video.toMessage(contact)
     }
 
@@ -303,7 +309,7 @@ object BiliSeasonWaiter : Waiter<SeasonSection>(), CoroutineScope by BiliHelperP
         return episodes.map { video(it.aid).datetime.toLocalTime() }.near(slow)
     }
 
-    override suspend fun SeasonSection.last(): OffsetDateTime = data.getValue(episodes.maxOf { it.aid }).datetime
+    override suspend fun SeasonSection.last(): OffsetDateTime = video(aid = episodes.maxOf { it.aid }).datetime
 
     override suspend fun initTask(id: Long): BiliTask = BiliTask(name = client.getSeasonSection(id).mainSection.title)
 }
