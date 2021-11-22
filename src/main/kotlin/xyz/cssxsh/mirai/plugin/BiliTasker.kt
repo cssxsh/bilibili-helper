@@ -129,6 +129,7 @@ sealed class AbstractTasker<T : Entry> : BiliTasker, CoroutineScope {
 
     override suspend fun start(): Unit = mutex.withLock {
         for ((id, info) in tasks) {
+            if (info.contacts.isEmpty()) continue
             try {
                 jobs[id] = addListener(id)
             } finally {

@@ -87,7 +87,7 @@ object BiliHelperPlugin : KotlinPlugin(
 
         runBlocking {
             for (task in BiliTasker) {
-                task.start()
+                task.stop()
             }
         }
         BiliCleaner.stop()
