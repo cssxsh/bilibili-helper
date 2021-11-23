@@ -4,6 +4,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.*
 import net.mamoe.mirai.console.permission.PermissionService.Companion.testPermission
 import net.mamoe.mirai.console.permission.PermitteeId.Companion.permitteeId
+import net.mamoe.mirai.console.util.*
 import net.mamoe.mirai.console.util.CoroutineScopeUtils.childScope
 import net.mamoe.mirai.contact.*
 import net.mamoe.mirai.message.data.*
@@ -204,6 +205,7 @@ private fun List<LocalTime>.near(slow: Long, now: LocalTime = LocalTime.now()): 
 
 private const val Minute = 60 * 1000L
 
+@OptIn(ConsoleExperimentalApi::class)
 object BiliVideoLoader : Loader<Video>(), CoroutineScope by BiliHelperPlugin.childScope("VideoTasker") {
     override val tasks: MutableMap<Long, BiliTask> by BiliTaskData::video
 
@@ -224,6 +226,7 @@ object BiliVideoLoader : Loader<Video>(), CoroutineScope by BiliHelperPlugin.chi
     override suspend fun initTask(id: Long): BiliTask = BiliTask(name = client.getUserInfo(id).name)
 }
 
+@OptIn(ConsoleExperimentalApi::class)
 object BiliDynamicLoader : Loader<DynamicInfo>(), CoroutineScope by BiliHelperPlugin.childScope("DynamicTasker") {
     override val tasks: MutableMap<Long, BiliTask> by BiliTaskData::dynamic
 
@@ -244,6 +247,7 @@ object BiliDynamicLoader : Loader<DynamicInfo>(), CoroutineScope by BiliHelperPl
     override suspend fun initTask(id: Long): BiliTask = BiliTask(name = client.getUserInfo(id).name)
 }
 
+@OptIn(ConsoleExperimentalApi::class)
 object BiliLiveWaiter : Waiter<BiliUserInfo>(), CoroutineScope by BiliHelperPlugin.childScope("LiveWaiter") {
     override val tasks: MutableMap<Long, BiliTask> by BiliTaskData::live
 
@@ -279,6 +283,7 @@ object BiliLiveWaiter : Waiter<BiliUserInfo>(), CoroutineScope by BiliHelperPlug
     override suspend fun initTask(id: Long): BiliTask = BiliTask(name = client.getUserInfo(id).name)
 }
 
+@OptIn(ConsoleExperimentalApi::class)
 object BiliSeasonWaiter : Waiter<SeasonSection>(), CoroutineScope by BiliHelperPlugin.childScope("SeasonWaiter") {
     override val tasks: MutableMap<Long, BiliTask> by BiliTaskData::season
 

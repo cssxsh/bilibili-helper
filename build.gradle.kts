@@ -29,7 +29,7 @@ mavenCentralPublish {
 kotlin {
     sourceSets {
         all {
-            languageSettings.optIn("net.mamoe.mirai.console.util.ConsoleExperimentalApi")
+           // languageSettings.optIn("net.mamoe.mirai.console.util.ConsoleExperimentalApi")
         }
         test {
             languageSettings.optIn("net.mamoe.mirai.console.ConsoleFrontEndImplementation")

@@ -2,8 +2,10 @@ package xyz.cssxsh.mirai.plugin.data
 
 import net.mamoe.mirai.console.data.PluginDataExtensions.withDefault
 import net.mamoe.mirai.console.data.*
+import net.mamoe.mirai.console.util.*
 import xyz.cssxsh.mirai.plugin.*
 
+@OptIn(ConsoleExperimentalApi::class)
 object BiliCleanerConfig : ReadOnlyPluginConfig("BiliCleanerConfig") {
     @ValueDescription("图片清理间隔，单位小时，默认 1 小时")
     val interval: Map<CacheType, Int> by value(CacheType.values().associateWith { 1 }).withDefault { 1 }
