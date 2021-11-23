@@ -13,6 +13,7 @@ object BiliTaskCommand : CompositeCommand(
 
     private fun BiliTasker.render(): String = buildString {
         for ((id, info) in tasks) {
+            if (info.contacts.isEmpty()) continue
             appendLine("@${info.name}#$id -> ${info.last}")
             for (delegate in info.contacts) {
                 appendLine("    ${findContact(delegate)?.render() ?: delegate}")
@@ -23,6 +24,7 @@ object BiliTaskCommand : CompositeCommand(
     @SubCommand
     suspend fun CommandSender.all() = sendMessage(message = buildMessageChain {
         for (tasker in BiliTasker) {
+            if (tasker.tasks.all { (_, task) -> task.contacts.isEmpty() }) continue
             appendLine(tasker::class.simpleName)
             appendLine(tasker.render())
         }
