@@ -23,4 +23,7 @@ object BiliHelperSettings : ReadOnlyPluginConfig("BiliHelperSettings") {
 
     @ValueDescription("番剧 订阅 访问间隔时间，单位分钟")
     val season: Long by value(30L)
+
+    @ValueDescription("是否截图模式")
+    val selenium: Boolean by value(true)
 }

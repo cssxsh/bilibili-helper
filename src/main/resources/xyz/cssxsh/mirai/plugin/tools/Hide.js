@@ -1,1 +1,0 @@
-const Hide = () => Array.from(arguments).flatMap((selector) => $(selector).hide().toArray())

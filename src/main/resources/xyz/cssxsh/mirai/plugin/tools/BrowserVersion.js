@@ -1,1 +1,0 @@
-const BrowserVersion = () => (window['selfBrowser'] || {})['version'] || {}

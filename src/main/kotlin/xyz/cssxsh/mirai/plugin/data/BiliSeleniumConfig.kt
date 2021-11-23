@@ -1,9 +1,9 @@
 package xyz.cssxsh.mirai.plugin.data
 
 import net.mamoe.mirai.console.data.*
-import xyz.cssxsh.mirai.plugin.tools.*
+import xyz.cssxsh.selenium.*
 
-object SeleniumToolConfig : ReadOnlyPluginConfig("SeleniumConfig"), RemoteWebDriverConfig {
+object BiliSeleniumConfig : ReadOnlyPluginConfig("SeleniumConfig"), RemoteWebDriverConfig {
     @ValueName("user_agent")
     @ValueDescription("截图UA")
     override val userAgent: String by value(UserAgents.IPAD)
@@ -28,15 +28,19 @@ object SeleniumToolConfig : ReadOnlyPluginConfig("SeleniumConfig"), RemoteWebDri
     @ValueDescription("指定使用的浏览器，Chrome/firefox")
     override val browser: String by value("")
 
+    @ValueName("factory")
+    @ValueDescription("指定使用的Factory")
+    override val factory: String by value("ktor")
+
+    private const val DEFAULT_HOME_PAGE = "https://t.bilibili.com/h5/dynamic/detail/508396365455813655"
+
     @ValueName("home")
     @ValueDescription("浏览器会保持打开主页，以加快其他页面加载速度")
     val home: String by value(DEFAULT_HOME_PAGE)
 
+    private val DEFAULT_HIDE_SELECTOR = arrayOf(".open-app", ".launch-app-btn", ".unlogin-popover", ".no-login")
+
     @ValueName("hide")
     @ValueDescription("隐藏的web组件(jQ选择器)")
     val hide: Array<String> by value(DEFAULT_HIDE_SELECTOR)
-
-    @ValueName("setup")
-    @ValueDescription("是否截图模式")
-    val setup: Boolean by value(true)
 }

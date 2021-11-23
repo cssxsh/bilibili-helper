@@ -3,6 +3,7 @@ package xyz.cssxsh.mirai.plugin
 import io.ktor.client.request.*
 import io.ktor.http.*
 import kotlinx.coroutines.sync.*
+import kotlinx.coroutines.*
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
@@ -11,10 +12,11 @@ import net.mamoe.mirai.contact.*
 import net.mamoe.mirai.message.data.*
 import net.mamoe.mirai.utils.*
 import net.mamoe.mirai.utils.ExternalResource.Companion.uploadAsImage
+import org.openqa.selenium.remote.*
 import xyz.cssxsh.bilibili.data.*
 import xyz.cssxsh.bilibili.*
 import xyz.cssxsh.mirai.plugin.data.*
-import xyz.cssxsh.mirai.plugin.tools.*
+import xyz.cssxsh.selenium.*
 import java.io.File
 import java.time.*
 import java.time.format.*
@@ -71,13 +73,21 @@ internal fun BiliClient.save() {
     cookies = storage.container
 }
 
+internal lateinit var driver: RemoteWebDriver
+
+internal suspend fun RemoteWebDriver.setHome(page: String, timeout: Long = 180_000): Map<String, Boolean>? {
+    withTimeout(timeout) {
+        get(page)
+    }
+    @Suppress("UNCHECKED_CAST")
+    return executeScript("""return (window['selfBrowser'] || {})['version'] || {}""") as Map<String, Boolean>?
+}
+
 internal val ImageCache by lazy { File(BiliHelperSettings.cache) }
 
 internal val ImageLimit by lazy { BiliHelperSettings.limit }
 
 internal val SetupSelenium by BiliHelperPlugin::selenium
-
-internal val RemoteWebDriver by BiliHelperPlugin::driver
 
 @Serializable
 enum class CacheType : Mutex by Mutex() {
@@ -158,7 +168,7 @@ private suspend fun Url.screenshot(type: CacheType, path: String, refresh: Boole
     type.directory.resolve(path).apply {
         if (exists().not() || refresh) {
             parentFile.mkdirs()
-            writeBytes(RemoteWebDriver.getScreenshot(url = this@screenshot.toString(), hide = SeleniumToolConfig.hide))
+            writeBytes(driver.getScreenshot(url = this@screenshot.toString(), hide = BiliSeleniumConfig.hide))
         } else {
             setLastModified(System.currentTimeMillis())
         }

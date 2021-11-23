@@ -40,21 +40,7 @@ kotlin {
 dependencies {
     implementation(ktor("client-serialization", Versions.ktor))
     implementation(ktor("client-encoding", Versions.ktor))
-    implementation(mxlib("selenium", Versions.mxlib)) {
-        exclude("org.seleniumhq.selenium")
-        exclude("junit")
-        exclude("classworlds")
-        exclude("io.netty")
-        exclude("com.typesafe.netty")
-    }
-    implementation(selenium("java", Versions.selenium)) {
-        exclude("io.netty")
-        exclude("com.typesafe.netty")
-        exclude("com.google.auto.service")
-        exclude("com.google.guava")
-        exclude("org.asynchttpclient")
-        exclude("io.opentelemetry")
-    }
+    compileOnly("xyz.cssxsh.mirai:mirai-selenium-plugin:1.0.0")
     compileOnly("net.mamoe:mirai-core-jvm:${Versions.mirai}")
 
     testImplementation(kotlin("test", Versions.kotlin))

@@ -9,10 +9,8 @@ import net.mamoe.mirai.console.util.*
 import net.mamoe.mirai.event.events.*
 import net.mamoe.mirai.event.*
 import net.mamoe.mirai.utils.*
-import org.openqa.selenium.remote.*
 import xyz.cssxsh.mirai.plugin.command.*
 import xyz.cssxsh.mirai.plugin.data.*
-import xyz.cssxsh.mirai.plugin.tools.*
 
 object BiliHelperPlugin : KotlinPlugin(
     JvmPluginDescription("xyz.cssxsh.mirai.plugin.bilibili-helper", "1.2.4") {
@@ -21,19 +19,19 @@ object BiliHelperPlugin : KotlinPlugin(
     }
 ) {
 
-    lateinit var driver: RemoteWebDriver
-        private set
-
-    val selenium: Boolean by lazy {
-        SeleniumToolConfig.setup && SeleniumToolConfig.runCatching {
-            setupSelenium(dataFolder, browser)
-        }.onFailure {
-            if (it is UnsupportedOperationException) {
-                logger.warning { "截图模式，请安装 Chrome 或者 Firefox 浏览器 $it" }
-            } else {
-                logger.warning { "截图模式，初始化浏览器驱动失败 $it" }
-            }
-        }.isSuccess
+    internal val selenium: Boolean by lazy {
+        BiliHelperSettings.selenium && try {
+            MiraiSeleniumPlugin.setup()
+        } catch (exception: NoClassDefFoundError) {
+            logger.warning { "相关类加载失败，请安装 MiraiSeleniumPlugin $exception" }
+            false
+        } catch (exception: UnsupportedOperationException) {
+            logger.warning { "截图模式，请安装 Chrome 或者 Firefox 浏览器 $exception" }
+            false
+        } catch (it: Throwable) {
+            logger.warning { "截图模式，初始化浏览器驱动失败 $it" }
+            false
+        }
     }
 
     @OptIn(ConsoleExperimentalApi::class)
@@ -41,8 +39,6 @@ object BiliHelperPlugin : KotlinPlugin(
 
     override fun onEnable() {
         BiliTaskData.reload()
-        SeleniumToolConfig.reload()
-        SeleniumToolConfig.save()
         BiliHelperSettings.reload()
         BiliHelperSettings.save()
         BiliCleanerConfig.reload()
@@ -55,16 +51,10 @@ object BiliHelperPlugin : KotlinPlugin(
         }
 
         if (selenium) {
-            driver = RemoteWebDriver(config = SeleniumToolConfig)
-            launch(SupervisorJob()) {
-                driver.runCatching {
-                    home(page = SeleniumToolConfig.home)
-                }.onSuccess { version ->
-                    logger.info { "driver agent $version" }
-                }.onFailure {
-                    logger.warning { "设置主页失败" }
-                }
-            }
+            logger.info { "加载 SeleniumToolConfig" }
+            BiliSeleniumConfig.reload()
+            BiliSeleniumConfig.save()
+            driver = MiraiSeleniumPlugin.driver(config = BiliSeleniumConfig)
         }
 
         globalEventChannel().subscribeOnce<BotOnlineEvent> {
@@ -73,6 +63,16 @@ object BiliHelperPlugin : KotlinPlugin(
                 task.start()
             }
             BiliCleaner.start()
+
+            if (selenium) {
+                BiliSeleniumConfig.runCatching {
+                    driver.setHome(page = home)
+                }.onSuccess { version ->
+                    logger.info { "Selenium Browser Version $version" }
+                }.onFailure {
+                    logger.warning({ "设置主页失败" }, it)
+                }
+            }
         }
     }
 

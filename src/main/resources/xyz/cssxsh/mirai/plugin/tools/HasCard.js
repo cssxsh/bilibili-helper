@@ -1,1 +1,0 @@
-const HasCard = () => $('.card').length !== 0
