@@ -6,6 +6,9 @@
 [![Downloads](https://img.shields.io/github/downloads/cssxsh/bilibili-helper/total)](https://shields.io/category/downloads)
 [![MiraiForum](https://img.shields.io/badge/post-on%20MiraiForum-yellow)](https://mirai.mamoe.net/topic/287)
 
+从 1.2.5 版本开始 将截图部分功能的转移至 [mirai-selenium-plugin](https://github.com/cssxsh/mirai-selenium-plugin)  
+截图功能的启用需要其作为前置插件  
+
 ## 指令
 
 注意: 使用前请确保可以 [在聊天环境执行指令](https://github.com/project-mirai/chat-command)  
@@ -115,6 +118,7 @@ val MEDIA_REGEX = """(?<=bilibili\.com/bangumi/media/md)(\d+)""".toRegex()
 * `dynamic` 动态 订阅 访问间隔时间，单位分钟, 默认为 `10`
 * `live` 直播 订阅 访问间隔时间，单位分钟, 默认为 `30`
 * `season` 番剧 订阅 访问间隔时间，单位分钟, 默认为 `30`
+* `selenium` 是否启用截图，默认 `true` 注意是否安装了 `mirai-selenium-plugin`
 
 ### BiliCleanerConfig.yml
 
@@ -133,7 +137,6 @@ val MEDIA_REGEX = """(?<=bilibili\.com/bangumi/media/md)(\d+)""".toRegex()
 * `headless` 无头模式(后台模式)
 * `hide` 隐藏的web组件(jQ选择器)  
   添加 `".international-header", ".top-bar", ".m-navbar"` 可以屏蔽顶边栏
-* `setup` 是否启用截图，默认 `true`
 
 ### LiveAtAll
 
@@ -160,7 +163,11 @@ EditThisCookie 安装地址
 ### 手动安装
 
 1. 运行 [Mirai Console](https://github.com/mamoe/mirai-console) 生成`plugins`文件夹
-1. 从 [Releases](https://github.com/cssxsh/bilibili-helper/releases) 下载`jar`并将其放入`plugins`文件夹中
+2. 从 [Releases](https://github.com/cssxsh/bilibili-helper/releases) 下载`jar`并将其放入`plugins`文件夹中
+
+### 截图前置
+
+`./mcl --update-package xyz.cssxsh.mirai:mirai-selenium-plugin --channel stable --type plugin`
 
 ## TODO
 

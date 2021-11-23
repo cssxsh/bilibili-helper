@@ -13,7 +13,7 @@ import xyz.cssxsh.mirai.plugin.command.*
 import xyz.cssxsh.mirai.plugin.data.*
 
 object BiliHelperPlugin : KotlinPlugin(
-    JvmPluginDescription("xyz.cssxsh.mirai.plugin.bilibili-helper", "1.2.4") {
+    JvmPluginDescription(id = "xyz.cssxsh.mirai.plugin.bilibili-helper", version = "1.2.5") {
         name("bilibili-helper")
         author("cssxsh")
     }
@@ -23,7 +23,7 @@ object BiliHelperPlugin : KotlinPlugin(
         BiliHelperSettings.selenium && try {
             MiraiSeleniumPlugin.setup()
         } catch (exception: NoClassDefFoundError) {
-            logger.warning { "相关类加载失败，请安装 MiraiSeleniumPlugin $exception" }
+            logger.warning { "相关类加载失败，请安装 https://github.com/cssxsh/mirai-selenium-plugin $exception" }
             false
         } catch (exception: UnsupportedOperationException) {
             logger.warning { "截图模式，请安装 Chrome 或者 Firefox 浏览器 $exception" }
@@ -87,7 +87,7 @@ object BiliHelperPlugin : KotlinPlugin(
             driver.quit()
         }
 
-        runBlocking {
+        runBlocking(coroutineContext) {
             for (task in BiliTasker) {
                 task.stop()
             }

@@ -73,6 +73,9 @@ internal fun BiliClient.save() {
     cookies = storage.container
 }
 
+/**
+ * 注意避免意外情况的初始化
+ */
 internal lateinit var driver: RemoteWebDriver
 
 internal suspend fun RemoteWebDriver.setHome(page: String, timeout: Long = 180_000): Map<String, Boolean>? {
