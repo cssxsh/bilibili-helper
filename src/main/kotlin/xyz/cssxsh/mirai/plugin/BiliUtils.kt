@@ -78,12 +78,12 @@ internal fun BiliClient.save() {
  */
 internal lateinit var driver: RemoteWebDriver
 
-internal suspend fun RemoteWebDriver.setHome(page: String, timeout: Long = 180_000): Map<String, Boolean>? {
+internal suspend fun RemoteWebDriver.setHome(page: String, timeout: Long = 180_000): Map<String, Boolean> {
     withTimeout(timeout) {
         get(page)
     }
     @Suppress("UNCHECKED_CAST")
-    return executeScript("""return (window['selfBrowser'] || {})['version'] || {}""") as Map<String, Boolean>?
+    return executeScript("""return (window['selfBrowser'] || {})['version'] || {}""") as Map<String, Boolean>
 }
 
 internal val ImageCache by lazy { File(BiliHelperSettings.cache) }

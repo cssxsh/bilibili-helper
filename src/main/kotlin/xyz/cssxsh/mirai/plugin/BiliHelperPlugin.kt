@@ -16,6 +16,8 @@ object BiliHelperPlugin : KotlinPlugin(
     JvmPluginDescription(id = "xyz.cssxsh.mirai.plugin.bilibili-helper", version = "1.2.5") {
         name("bilibili-helper")
         author("cssxsh")
+
+        dependsOn("xyz.cssxsh.mirai.plugin.mirai-selenium-plugin", true)
     }
 ) {
 
@@ -24,12 +26,6 @@ object BiliHelperPlugin : KotlinPlugin(
             MiraiSeleniumPlugin.setup()
         } catch (exception: NoClassDefFoundError) {
             logger.warning { "相关类加载失败，请安装 https://github.com/cssxsh/mirai-selenium-plugin $exception" }
-            false
-        } catch (exception: UnsupportedOperationException) {
-            logger.warning { "截图模式，请安装 Chrome 或者 Firefox 浏览器 $exception" }
-            false
-        } catch (it: Throwable) {
-            logger.warning { "截图模式，初始化浏览器驱动失败 $it" }
             false
         }
     }
@@ -68,6 +64,9 @@ object BiliHelperPlugin : KotlinPlugin(
                 BiliSeleniumConfig.runCatching {
                     driver.setHome(page = home)
                 }.onSuccess { version ->
+                    if (version["MicroMessenger"] != true) {
+                        logger.warning { "请在 UserAgent 中加入 MicroMessenger" }
+                    }
                     logger.info { "Selenium Browser Version $version" }
                 }.onFailure {
                     logger.warning({ "设置主页失败" }, it)

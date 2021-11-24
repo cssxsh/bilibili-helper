@@ -6,7 +6,7 @@ import xyz.cssxsh.selenium.*
 object BiliSeleniumConfig : ReadOnlyPluginConfig("SeleniumConfig"), RemoteWebDriverConfig {
     @ValueName("user_agent")
     @ValueDescription("截图UA")
-    override val userAgent: String by value(UserAgents.IPAD)
+    override val userAgent: String by value(UserAgents.IPAD + "MicroMessenger")
 
     @ValueName("width")
     @ValueDescription("截图宽度")
@@ -24,13 +24,9 @@ object BiliSeleniumConfig : ReadOnlyPluginConfig("SeleniumConfig"), RemoteWebDri
     @ValueDescription("无头模式（后台模式）")
     override val headless: Boolean by value(true)
 
-    @ValueName("browser")
-    @ValueDescription("指定使用的浏览器，Chrome/firefox")
-    override val browser: String by value("")
+    override val browser: String get() = MiraiSeleniumConfig.browser
 
-    @ValueName("factory")
-    @ValueDescription("指定使用的Factory")
-    override val factory: String by value("ktor")
+    override val factory: String get() = MiraiSeleniumConfig.factory
 
     private const val DEFAULT_HOME_PAGE = "https://t.bilibili.com/h5/dynamic/detail/508396365455813655"
 
