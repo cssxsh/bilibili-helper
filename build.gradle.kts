@@ -7,11 +7,11 @@ plugins {
 }
 
 group = "xyz.cssxsh"
-version = "1.2.5"
+version = "1.2.6"
 
 repositories {
     mavenLocal()
-    maven(url = "https://maven.aliyun.com/repository/public")
+    maven(url = "https://maven.aliyun.com/repository/central")
     mavenCentral()
     maven(url = "https://maven.aliyun.com/repository/gradle-plugin")
     gradlePluginPortal()
@@ -40,7 +40,7 @@ kotlin {
 dependencies {
     implementation(ktor("client-serialization", Versions.ktor))
     implementation(ktor("client-encoding", Versions.ktor))
-    compileOnly("xyz.cssxsh.mirai:mirai-selenium-plugin:1.0.2")
+    compileOnly("xyz.cssxsh.mirai:mirai-selenium-plugin:1.0.3")
     compileOnly("net.mamoe:mirai-core-jvm:${Versions.mirai}")
 
     testImplementation(kotlin("test", Versions.kotlin))

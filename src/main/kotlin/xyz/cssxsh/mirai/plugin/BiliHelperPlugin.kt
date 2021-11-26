@@ -13,7 +13,7 @@ import xyz.cssxsh.mirai.plugin.command.*
 import xyz.cssxsh.mirai.plugin.data.*
 
 object BiliHelperPlugin : KotlinPlugin(
-    JvmPluginDescription(id = "xyz.cssxsh.mirai.plugin.bilibili-helper", version = "1.2.5") {
+    JvmPluginDescription(id = "xyz.cssxsh.mirai.plugin.bilibili-helper", version = "1.2.6") {
         name("bilibili-helper")
         author("cssxsh")
 
@@ -67,7 +67,7 @@ object BiliHelperPlugin : KotlinPlugin(
                     if (version["MicroMessenger"] != true) {
                         logger.warning { "请在 UserAgent 中加入 MicroMessenger" }
                     }
-                    logger.info { "Selenium Browser Version $version" }
+                    logger.info { "BiliBili Browser Version $version" }
                 }.onFailure {
                     logger.warning({ "设置主页失败" }, it)
                 }

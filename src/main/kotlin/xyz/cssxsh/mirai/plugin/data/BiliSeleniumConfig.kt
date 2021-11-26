@@ -6,7 +6,7 @@ import xyz.cssxsh.selenium.*
 object BiliSeleniumConfig : ReadOnlyPluginConfig("SeleniumConfig"), RemoteWebDriverConfig {
     @ValueName("user_agent")
     @ValueDescription("截图UA")
-    override val userAgent: String by value(UserAgents.IPAD + "MicroMessenger")
+    override val userAgent: String by value(UserAgents.IPAD + " MicroMessenger")
 
     @ValueName("width")
     @ValueDescription("截图宽度")
