@@ -47,7 +47,7 @@ open class BiliClient(private val timeout: Long = 15_000L) : Closeable {
         install(HttpTimeout) {
             socketTimeoutMillis = timeout
             connectTimeoutMillis = timeout
-            requestTimeoutMillis = timeout
+            requestTimeoutMillis = null
         }
         install(HttpCookies) {
             storage = this@BiliClient.storage
