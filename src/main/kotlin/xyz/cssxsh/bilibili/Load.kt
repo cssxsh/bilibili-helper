@@ -91,6 +91,8 @@ val BiliRoomInfo.datetime: OffsetDateTime get() = timestamp(liveTime)
 val LiveRecord.link get() = "https://live.bilibili.com/record/${roomId}"
 
 val Season.link get() = "https://www.bilibili.com/bangumi/play/ss${seasonId}"
+val SeasonEpisode.datetime: OffsetDateTime? get() = if (published == null) null else timestamp(published)
+val SeasonTimeline.datetime: OffsetDateTime get() = timestamp(last)
 val Media.content by ReadOnlyProperty { info, _ ->
     buildString {
         appendLine("${info.type}: ${info.title}")

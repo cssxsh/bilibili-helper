@@ -105,6 +105,8 @@ data class SeasonSection(
 data class SeasonEpisode(
     @SerialName("aid")
     val aid: Long,
+    @SerialName("bvid")
+    val bvid: String? = null,
     @SerialName("cover")
     override val cover: String,
     @SerialName("from")
@@ -120,6 +122,9 @@ data class SeasonEpisode(
     override val share: String,
     @SerialName("title")
     override val index: String,
+    @Contextual
+    @SerialName("pub_time")
+    val published: Long? = null
 ) : Episode
 
 @Serializable

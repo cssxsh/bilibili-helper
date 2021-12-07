@@ -284,7 +284,7 @@ object BiliLiveWaiter : Waiter<BiliUserInfo>(), CoroutineScope by BiliHelperPlug
 }
 
 @OptIn(ConsoleExperimentalApi::class)
-object BiliSeasonWaiter : Waiter<SeasonSection>(), CoroutineScope by BiliHelperPlugin.childScope("SeasonWaiter") {
+object BiliSeasonWaiter : Waiter<BiliSeasonInfo>(), CoroutineScope by BiliHelperPlugin.childScope("SeasonWaiter") {
     override val tasks: MutableMap<Long, BiliTask> by BiliTaskData::season
 
     override val fast get() = Minute
@@ -295,25 +295,23 @@ object BiliSeasonWaiter : Waiter<SeasonSection>(), CoroutineScope by BiliHelperP
 
     private suspend fun video(aid: Long) = record.getOrPut(aid) { client.getVideoInfo(aid) }
 
-    override suspend fun load(id: Long): SeasonSection = client.getSeasonSection(id).mainSection
+    override suspend fun load(id: Long): BiliSeasonInfo = client.getSeasonInfo(id)
 
-    override suspend fun SeasonSection.success(): Boolean {
-        val video = video(aid = episodes.maxOfOrNull { it.aid } ?: return false)
-        return video.datetime > tasks.getValue(id).last
+    override suspend fun BiliSeasonInfo.success(): Boolean {
+        val datetime = with(episodes.maxByOrNull { it.aid } ?: return false) { datetime ?: video(aid = aid).datetime }
+        return datetime > tasks.getValue(seasonId).last
     }
 
-    override suspend fun SeasonSection.build(contact: Contact): Message {
-        return "$title 有更新".toPlainText() + record.getValue(id).toMessage(contact)
+    override suspend fun BiliSeasonInfo.build(contact: Contact): Message {
+        return content.toPlainText() + video(aid = episodes.maxOf { it.aid }).toMessage(contact)
     }
 
-    override suspend fun SeasonSection.near(): Boolean {
-        return episodes.map { video(it.aid).datetime.toLocalTime() }.near(slow)
+    override suspend fun BiliSeasonInfo.near(): Boolean {
+        return episodes.map { (it.datetime ?: video(aid = it.aid).datetime).toLocalTime() }.near(slow)
     }
 
-    override suspend fun SeasonSection.last(): OffsetDateTime {
-        val video = client.getVideoInfo(aid = episodes.maxOf { it.aid })
-        record[id] = video
-        return video.datetime
+    override suspend fun BiliSeasonInfo.last(): OffsetDateTime {
+        return with(episodes.maxByOrNull { it.aid }!!) { datetime ?: video(aid = aid).datetime }
     }
 
     override suspend fun initTask(id: Long): BiliTask = BiliTask(name = client.getSeasonSection(id).mainSection.title)
