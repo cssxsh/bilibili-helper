@@ -282,8 +282,8 @@ internal suspend fun Video.getCover(contact: Contact): Message {
     return Url(cover).runCatching {
         cache(type = CacheType.VIDEO, path = "${mid}/${id}-cover-${filename}", contact = contact)
     }.getOrElse {
-        logger.warning({ "获取[${title}](${id})}视频封面失败" }, it)
-        "获取[${title}](${id})}视频封面失败".toPlainText()
+        logger.warning({ "获取[${title}](${id})视频封面失败" }, it)
+        "获取[${title}](${id})视频封面失败".toPlainText()
     }
 }
 
