@@ -47,10 +47,12 @@ object BiliHelperPlugin : KotlinPlugin(
         }
 
         if (selenium) {
-            logger.info { "加载 SeleniumToolConfig" }
-            BiliSeleniumConfig.reload()
-            BiliSeleniumConfig.save()
-            driver = MiraiSeleniumPlugin.driver(config = BiliSeleniumConfig)
+            launch(SupervisorJob()) {
+                logger.info { "加载 SeleniumToolConfig" }
+                BiliSeleniumConfig.reload()
+                BiliSeleniumConfig.save()
+                driver.sessionId
+            }
         }
 
         globalEventChannel().subscribeOnce<BotOnlineEvent> {
@@ -59,19 +61,6 @@ object BiliHelperPlugin : KotlinPlugin(
                 task.start()
             }
             BiliCleaner.start()
-
-            if (selenium) {
-                BiliSeleniumConfig.runCatching {
-                    driver.setHome(page = home)
-                }.onSuccess { version ->
-                    if (version["MicroMessenger"] != true) {
-                        logger.warning { "请在 UserAgent 中加入 MicroMessenger" }
-                    }
-                    logger.info { "BiliBili Browser Version $version" }
-                }.onFailure {
-                    logger.warning({ "设置主页失败" }, it)
-                }
-            }
         }
     }
 
@@ -83,7 +72,6 @@ object BiliHelperPlugin : KotlinPlugin(
         BiliListener.stop()
 
         if (selenium) {
-            driver.close()
             driver.quit()
         }
 

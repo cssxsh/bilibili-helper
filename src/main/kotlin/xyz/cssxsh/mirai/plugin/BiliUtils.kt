@@ -76,7 +76,34 @@ internal fun BiliClient.save() {
 /**
  * 注意避免意外情况的初始化
  */
-internal lateinit var driver: RemoteWebDriver
+internal val driver: RemoteWebDriver by object : ReadOnlyProperty<Any?, RemoteWebDriver> {
+
+    private fun driver(): RemoteWebDriver = runBlocking(Dispatchers.IO) {
+        val driver = MiraiSeleniumPlugin.driver(config = BiliSeleniumConfig)
+
+        try {
+            val version = driver.setHome(page = BiliSeleniumConfig.home)
+            if (version["MicroMessenger"] != true) {
+                logger.warning { "请在 UserAgent 中加入 MicroMessenger" }
+            }
+            logger.info { "BiliBili Browser Version $version" }
+        } catch (cause: Throwable) {
+            logger.warning({ "设置主页失败" }, cause)
+        }
+
+        driver
+    }
+
+    private var value: RemoteWebDriver? = null
+
+    override fun getValue(thisRef: Any?, property: KProperty<*>): RemoteWebDriver = synchronized(this) {
+        // XXX: value isActive
+        if (value?.sessionId == null) {
+            value = driver()
+        }
+        value!!
+    }
+}
 
 internal suspend fun RemoteWebDriver.setHome(page: String, timeout: Long = 180_000): Map<String, Boolean> {
     withTimeout(timeout) {

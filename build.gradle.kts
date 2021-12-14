@@ -40,7 +40,7 @@ kotlin {
 dependencies {
     implementation(ktor("client-serialization", Versions.ktor))
     implementation(ktor("client-encoding", Versions.ktor))
-    compileOnly("xyz.cssxsh.mirai:mirai-selenium-plugin:1.0.3")
+    compileOnly("xyz.cssxsh.mirai:mirai-selenium-plugin:1.0.5")
     compileOnly("net.mamoe:mirai-core-jvm:${Versions.mirai}")
 
     testImplementation(kotlin("test", Versions.kotlin))
