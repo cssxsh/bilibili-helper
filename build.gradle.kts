@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "xyz.cssxsh"
-version = "1.2.8"
+version = "1.2.9"
 
 repositories {
     mavenLocal()
@@ -41,7 +41,7 @@ dependencies {
     implementation(ktor("client-serialization", Versions.ktor))
     implementation(ktor("client-encoding", Versions.ktor))
     compileOnly("xyz.cssxsh.mirai:mirai-selenium-plugin:1.0.5")
-    compileOnly("net.mamoe:mirai-core-jvm:${Versions.mirai}")
+    compileOnly(mirai("core-jvm", Versions.mirai))
 
     testImplementation(kotlin("test", Versions.kotlin))
 }
