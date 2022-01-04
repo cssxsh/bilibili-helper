@@ -160,7 +160,7 @@ private fun DynamicCard.images(): List<String> = when (detail.type) {
     else -> emptyList()
 }
 
-val VIDEO_REGEX = """((av|AV)\d+|BV[0-9A-z]{8,12})""".toRegex()
+val VIDEO_REGEX = """(?i)^((av)\d+|BV[0-9A-z]{8,12})""".toRegex()
 
 val DYNAMIC_REGEX = """(?<=t\.bilibili\.com/(h5/dynamic/detail/)?|m\.bilibili\.com/dynamic/)(\d+)""".toRegex()
 
