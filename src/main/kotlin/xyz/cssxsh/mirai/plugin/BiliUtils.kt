@@ -170,9 +170,6 @@ fun findContact(delegate: Long): Contact? {
             for (stranger in bot.strangers) {
                 if (stranger.id == delegate) return stranger
             }
-            for (friend in bot.friends) {
-                if (friend.id == delegate) return friend
-            }
             for (group in bot.groups) {
                 for (member in group.members) {
                     if (member.id == delegate) return member

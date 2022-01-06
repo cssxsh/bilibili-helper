@@ -3,7 +3,7 @@ plugins {
     kotlin("plugin.serialization") version Versions.kotlin
 
     id("net.mamoe.mirai-console") version Versions.mirai
-    id("net.mamoe.maven-central-publish") version "0.7.0"
+    id("me.him188.maven-central-publish") version "1.0.0-dev-3"
 }
 
 group = "xyz.cssxsh"
