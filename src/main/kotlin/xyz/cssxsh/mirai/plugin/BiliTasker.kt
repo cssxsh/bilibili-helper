@@ -213,7 +213,7 @@ object BiliVideoLoader : Loader<Video>(), CoroutineScope by BiliHelperPlugin.chi
 
     override val slow get() = BiliHelperSettings.video * Minute
 
-    override suspend fun load(id: Long) = client.getVideos(id).list.videos
+    override suspend fun load(id: Long) = client.getVideos(uid = id).list.videos
 
     override fun List<Video>.last(): OffsetDateTime = maxOfOrNull { it.datetime } ?: OffsetDateTime.now()
 
@@ -223,7 +223,7 @@ object BiliVideoLoader : Loader<Video>(), CoroutineScope by BiliHelperPlugin.chi
 
     override suspend fun Video.build(contact: Contact) = toMessage(contact)
 
-    override suspend fun initTask(id: Long): BiliTask = BiliTask(name = client.getUserInfo(id).name)
+    override suspend fun initTask(id: Long): BiliTask = BiliTask(name = client.getUserInfo(uid = id).name)
 }
 
 @OptIn(ConsoleExperimentalApi::class)
@@ -234,7 +234,7 @@ object BiliDynamicLoader : Loader<DynamicInfo>(), CoroutineScope by BiliHelperPl
 
     override val slow = BiliHelperSettings.dynamic * Minute
 
-    override suspend fun load(id: Long) = client.getSpaceHistory(id).dynamics
+    override suspend fun load(id: Long) = client.getSpaceHistory(uid = id).dynamics
 
     override fun List<DynamicInfo>.last(): OffsetDateTime = maxOfOrNull { it.datetime } ?: OffsetDateTime.now()
 
@@ -244,7 +244,7 @@ object BiliDynamicLoader : Loader<DynamicInfo>(), CoroutineScope by BiliHelperPl
 
     override suspend fun DynamicInfo.build(contact: Contact) = toMessage(contact)
 
-    override suspend fun initTask(id: Long): BiliTask = BiliTask(name = client.getUserInfo(id).name)
+    override suspend fun initTask(id: Long): BiliTask = BiliTask(name = client.getUserInfo(uid = id).name)
 }
 
 @OptIn(ConsoleExperimentalApi::class)
@@ -255,7 +255,7 @@ object BiliLiveWaiter : Waiter<BiliUserInfo>(), CoroutineScope by BiliHelperPlug
 
     override val slow get() = BiliHelperSettings.live * Minute
 
-    override suspend fun load(id: Long) = client.getUserInfo(id)
+    override suspend fun load(id: Long) = client.getUserInfo(uid = id)
 
     override suspend fun BiliUserInfo.success(): Boolean = liveRoom.liveStatus
 
@@ -280,7 +280,7 @@ object BiliLiveWaiter : Waiter<BiliUserInfo>(), CoroutineScope by BiliHelperPlug
 
     override suspend fun BiliUserInfo.last(): OffsetDateTime = client.getRoomInfo(roomId = liveRoom.roomId).datetime
 
-    override suspend fun initTask(id: Long): BiliTask = BiliTask(name = client.getUserInfo(id).name)
+    override suspend fun initTask(id: Long): BiliTask = BiliTask(name = client.getUserInfo(uid = id).name)
 }
 
 @OptIn(ConsoleExperimentalApi::class)
@@ -293,9 +293,9 @@ object BiliSeasonWaiter : Waiter<BiliSeasonInfo>(), CoroutineScope by BiliHelper
 
     private val record = mutableMapOf<Long, Video>()
 
-    private suspend fun video(aid: Long) = record.getOrPut(aid) { client.getVideoInfo(aid) }
+    private suspend fun video(aid: Long) = record.getOrPut(aid) { client.getVideoInfo(aid = aid) }
 
-    override suspend fun load(id: Long): BiliSeasonInfo = client.getSeasonInfo(id)
+    override suspend fun load(id: Long): BiliSeasonInfo = client.getSeasonInfo(seasonId = id)
 
     override suspend fun BiliSeasonInfo.success(): Boolean {
         val datetime = with(episodes.maxByOrNull { it.aid } ?: return false) { datetime ?: video(aid = aid).datetime }
@@ -314,5 +314,5 @@ object BiliSeasonWaiter : Waiter<BiliSeasonInfo>(), CoroutineScope by BiliHelper
         return with(episodes.maxByOrNull { it.aid }!!) { datetime ?: video(aid = aid).datetime }
     }
 
-    override suspend fun initTask(id: Long): BiliTask = BiliTask(name = client.getSeasonSection(id).mainSection.title)
+    override suspend fun initTask(id: Long): BiliTask = BiliTask(name = client.getSeasonInfo(seasonId = id).title)
 }
