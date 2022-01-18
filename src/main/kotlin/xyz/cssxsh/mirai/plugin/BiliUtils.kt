@@ -3,7 +3,6 @@ package xyz.cssxsh.mirai.plugin
 import io.ktor.client.request.*
 import io.ktor.http.*
 import kotlinx.coroutines.sync.*
-import kotlinx.coroutines.*
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
@@ -78,11 +77,11 @@ internal fun BiliClient.save() {
  */
 internal val driver: RemoteWebDriver by object : ReadOnlyProperty<Any?, RemoteWebDriver> {
 
-    private fun driver(): RemoteWebDriver = runBlocking(Dispatchers.IO) {
+    private fun driver(): RemoteWebDriver {
         val driver = MiraiSeleniumPlugin.driver(config = BiliSeleniumConfig)
 
         try {
-            val version = driver.setHome(page = BiliSeleniumConfig.home)
+            val version = driver.setHome(page = BiliSeleniumConfig.home, timeout = 180_000)
             if (version["MicroMessenger"] != true) {
                 logger.warning { "请在 UserAgent 中加入 MicroMessenger" }
             }
@@ -91,7 +90,7 @@ internal val driver: RemoteWebDriver by object : ReadOnlyProperty<Any?, RemoteWe
             logger.warning({ "设置主页失败" }, cause)
         }
 
-        driver
+        return driver
     }
 
     private var value: RemoteWebDriver? = null
@@ -105,10 +104,9 @@ internal val driver: RemoteWebDriver by object : ReadOnlyProperty<Any?, RemoteWe
     }
 }
 
-internal suspend fun RemoteWebDriver.setHome(page: String, timeout: Long = 180_000): Map<String, Boolean> {
-    withTimeout(timeout) {
-        get(page)
-    }
+internal fun RemoteWebDriver.setHome(page: String, timeout: Long): Map<String, Boolean> {
+    manage().timeouts().pageLoadTimeout(Duration.ofMillis(timeout))
+    get(page)
     @Suppress("UNCHECKED_CAST")
     return executeScript("""return (window['selfBrowser'] || {})['version'] || {}""") as Map<String, Boolean>
 }
