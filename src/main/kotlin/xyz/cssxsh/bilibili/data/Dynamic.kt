@@ -328,9 +328,9 @@ data class DynamicReply(
     @SerialName("user")
     val user: UserSimple
 ) : DynamicCard {
-    @Deprecated("DynamicReply", ReplaceWith("DynamicDisplay()", "xyz.cssxsh.bilibili.data.DynamicDisplay"))
+    @Deprecated("reply no display", ReplaceWith("throw NoSuchElementException(\"DynamicReply.display\")"))
     override val display: DynamicDisplay
-        get() = DynamicDisplay()
+        get() = throw NoSuchElementException("DynamicReply.display")
 }
 
 @Serializable
