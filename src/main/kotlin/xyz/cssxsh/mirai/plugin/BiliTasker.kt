@@ -5,7 +5,7 @@ import kotlinx.coroutines.sync.*
 import net.mamoe.mirai.console.permission.PermissionService.Companion.testPermission
 import net.mamoe.mirai.console.permission.PermitteeId.Companion.permitteeId
 import net.mamoe.mirai.console.util.*
-import net.mamoe.mirai.console.util.CoroutineScopeUtils.childScope
+import net.mamoe.mirai.console.util.CoroutineScopeUtils.childScopeContext
 import net.mamoe.mirai.contact.*
 import net.mamoe.mirai.message.data.*
 import net.mamoe.mirai.utils.*
@@ -14,6 +14,7 @@ import xyz.cssxsh.bilibili.*
 import xyz.cssxsh.bilibili.data.*
 import xyz.cssxsh.mirai.plugin.data.*
 import java.time.*
+import kotlin.coroutines.*
 import kotlin.math.*
 
 interface BiliTasker {
@@ -47,9 +48,10 @@ interface BiliTasker {
     }
 }
 
-sealed class AbstractTasker<T : Entry> : BiliTasker, CoroutineScope {
+sealed class AbstractTasker<T : Entry>(val name: String) : BiliTasker, CoroutineScope {
 
-    protected val name get() = coroutineContext[CoroutineName]?.name
+    @OptIn(ConsoleExperimentalApi::class)
+    override val coroutineContext: CoroutineContext = BiliHelperPlugin.childScopeContext(name, Dispatchers.IO)
 
     protected val mutex = Mutex()
 
@@ -145,7 +147,7 @@ sealed class AbstractTasker<T : Entry> : BiliTasker, CoroutineScope {
     }
 }
 
-sealed class Loader<T : Entry> : AbstractTasker<T>() {
+sealed class Loader<T : Entry>(name: String) : AbstractTasker<T>(name) {
 
     protected abstract suspend fun load(id: Long): List<T>
 
@@ -170,7 +172,7 @@ sealed class Loader<T : Entry> : AbstractTasker<T>() {
     }
 }
 
-sealed class Waiter<T : Entry> : AbstractTasker<T>() {
+sealed class Waiter<T : Entry>(name: String) : AbstractTasker<T>(name) {
 
     private val states = mutableMapOf<Long, Boolean>()
 
@@ -205,8 +207,7 @@ private fun List<LocalTime>.near(slow: Long, now: LocalTime = LocalTime.now()): 
 
 private const val Minute = 60 * 1000L
 
-@OptIn(ConsoleExperimentalApi::class)
-object BiliVideoLoader : Loader<Video>(), CoroutineScope by BiliHelperPlugin.childScope("VideoTasker") {
+object BiliVideoLoader : Loader<Video>(name = "VideoTasker") {
     override val tasks: MutableMap<Long, BiliTask> by BiliTaskData::video
 
     override val fast get() = Minute
@@ -226,8 +227,7 @@ object BiliVideoLoader : Loader<Video>(), CoroutineScope by BiliHelperPlugin.chi
     override suspend fun initTask(id: Long): BiliTask = BiliTask(name = client.getUserInfo(uid = id).name)
 }
 
-@OptIn(ConsoleExperimentalApi::class)
-object BiliDynamicLoader : Loader<DynamicInfo>(), CoroutineScope by BiliHelperPlugin.childScope("DynamicTasker") {
+object BiliDynamicLoader : Loader<DynamicInfo>(name = "DynamicTasker") {
     override val tasks: MutableMap<Long, BiliTask> by BiliTaskData::dynamic
 
     override val fast get() = Minute
@@ -247,8 +247,7 @@ object BiliDynamicLoader : Loader<DynamicInfo>(), CoroutineScope by BiliHelperPl
     override suspend fun initTask(id: Long): BiliTask = BiliTask(name = client.getUserInfo(uid = id).name)
 }
 
-@OptIn(ConsoleExperimentalApi::class)
-object BiliLiveWaiter : Waiter<BiliUserInfo>(), CoroutineScope by BiliHelperPlugin.childScope("LiveWaiter") {
+object BiliLiveWaiter : Waiter<BiliUserInfo>(name = "LiveWaiter") {
     override val tasks: MutableMap<Long, BiliTask> by BiliTaskData::live
 
     override val fast get() = Minute
@@ -283,8 +282,7 @@ object BiliLiveWaiter : Waiter<BiliUserInfo>(), CoroutineScope by BiliHelperPlug
     override suspend fun initTask(id: Long): BiliTask = BiliTask(name = client.getUserInfo(uid = id).name)
 }
 
-@OptIn(ConsoleExperimentalApi::class)
-object BiliSeasonWaiter : Waiter<BiliSeasonInfo>(), CoroutineScope by BiliHelperPlugin.childScope("SeasonWaiter") {
+object BiliSeasonWaiter : Waiter<BiliSeasonInfo>(name = "SeasonWaiter") {
     override val tasks: MutableMap<Long, BiliTask> by BiliTaskData::season
 
     override val fast get() = Minute
