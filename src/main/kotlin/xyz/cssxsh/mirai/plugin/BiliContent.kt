@@ -12,8 +12,12 @@ private val regex = """#([A-z]+)""".toRegex()
 
 internal suspend fun Entry.content(contact: Contact): MessageChain {
     val template = BiliTemplate[this::class.java]
-    val content = regex.findAll(template).fold(template) { current, result ->
-        val replacement = when (val name = result.groupValues.first()) {
+    var content = template
+    var pos = 0
+    while (true) {
+        val result = regex.find(content, pos) ?: break
+        val (name) = result.destructured
+        val replacement = when (name) {
             "images" -> images(contact)
             "detail" -> detail(contact)
             "screenshot" -> screenshot(contact)
@@ -28,7 +32,8 @@ internal suspend fun Entry.content(contact: Contact): MessageChain {
                 }
             }
         }
-        current.replaceRange(result.range, replacement)
+        pos = result.range.first
+        content = content.replaceRange(result.range, replacement)
     }
 
     return content.deserializeMiraiCode(contact)
