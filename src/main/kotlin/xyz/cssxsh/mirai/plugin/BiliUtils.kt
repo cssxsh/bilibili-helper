@@ -308,7 +308,8 @@ internal suspend fun Episode.getCover(contact: Contact): CodableMessage {
     }
 }
 
-internal suspend fun Article.getImages(contact: Contact) = images.map { picture ->
+internal suspend fun Article.getImages(contact: Contact) = images.mapIndexed { index, picture ->
+    if (ImageLimit > 0 && index >= ImageLimit) return@mapIndexed "图片[${index + 1}]省略".toPlainText()
     Url(picture).runCatching {
         cache(type = CacheType.ARTICLE, path = "${id}/${filename}", contact = contact)
     }.getOrElse {
