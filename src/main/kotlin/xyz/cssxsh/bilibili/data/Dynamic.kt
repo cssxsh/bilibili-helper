@@ -7,7 +7,7 @@ import java.time.*
 sealed interface DynamicCard: Entry {
     val card: String
     val detail: DynamicCardDetail
-    val display: DynamicDisplay?
+    val display: DynamicDisplay
     val datetime: OffsetDateTime
     val username: String?
     val uid: Long?
@@ -17,6 +17,10 @@ sealed interface DynamicCardDetail {
     val id: Long
     val type: Int
     val uid: Long
+}
+
+sealed interface DynamicEmojiContent {
+    val content: String
 }
 
 @Serializable
@@ -101,9 +105,7 @@ data class DynamicDisplay(
     val emoji: EmojiInfo = EmojiInfo(),
     @SerialName("origin")
     val origin: DynamicDisplay? = null
-) {
-    val emojis: List<EmojiDetail> get() = emoji.details + origin?.emoji?.details.orEmpty()
-}
+)
 
 @Serializable
 data class DynamicInfo(
@@ -299,7 +301,9 @@ data class DynamicPicture(
     val detail: DynamicPictureDetail,
     @SerialName("user")
     val user: UserSimple
-)
+) : DynamicEmojiContent {
+    override val content: String get() = detail.description
+}
 
 @Serializable
 data class DynamicPictureDetail(
@@ -343,10 +347,10 @@ data class DynamicReply(
     @SerialName("origin_user")
     val originUser: UserProfile,
     @SerialName("user")
-    val user: UserSimple
+    val user: UserSimple,
+    @Transient
+    override val display: DynamicDisplay = DynamicDisplay()
 ) : DynamicCard {
-    @Deprecated("reply no display")
-    override val display: DynamicDisplay? = null
     override val username get() = originUser.user.uname
     override val uid get() = originUser.user.uid
     override val datetime: OffsetDateTime get() = timestamp(dynamictime(detail.id))
@@ -414,7 +418,9 @@ data class DynamicText(
     val detail: DynamicTextDetail,
     @SerialName("user")
     val user: UserSimple
-)
+) : DynamicEmojiContent {
+    override val content: String get() = detail.content
+}
 
 @Serializable
 data class DynamicTextDetail(
