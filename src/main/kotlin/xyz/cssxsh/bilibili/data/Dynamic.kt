@@ -7,7 +7,7 @@ import java.time.*
 sealed interface DynamicCard: Entry {
     val card: String
     val detail: DynamicCardDetail
-    val display: DynamicDisplay
+    val display: DynamicDisplay?
     val datetime: OffsetDateTime
     val username: String?
     val uid: Long?
@@ -101,7 +101,9 @@ data class DynamicDisplay(
     val emoji: EmojiInfo = EmojiInfo(),
     @SerialName("origin")
     val origin: DynamicDisplay? = null
-)
+) {
+    val emojis: List<EmojiDetail> get() = emoji.details + origin?.emoji?.details.orEmpty()
+}
 
 @Serializable
 data class DynamicInfo(
@@ -343,9 +345,8 @@ data class DynamicReply(
     @SerialName("user")
     val user: UserSimple
 ) : DynamicCard {
-    @Deprecated("reply no display", ReplaceWith("throw NoSuchElementException(\"DynamicReply.display\")"))
-    override val display: DynamicDisplay
-        get() = throw NoSuchElementException("DynamicReply.display")
+    @Deprecated("reply no display")
+    override val display: DynamicDisplay? = null
     override val username get() = originUser.user.uname
     override val uid get() = originUser.user.uid
     override val datetime: OffsetDateTime get() = timestamp(dynamictime(detail.id))

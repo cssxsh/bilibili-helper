@@ -86,12 +86,14 @@ internal suspend fun Entry.screenshot(contact: Contact): String {
 }
 
 internal suspend fun DynamicCard.text(contact: Contact): String {
-    val details = display.emoji.details + display.origin?.emoji?.details.orEmpty()
+
     val content = when (detail.type) {
         DynamicType.PICTURE -> decode<DynamicPicture>().detail.description
         DynamicType.TEXT -> decode<DynamicText>().detail.content
         else -> ""
     }
+
+    val details = (display ?: return content).emojis
 
     return details.fold(content) { current, emoji ->
         try {
