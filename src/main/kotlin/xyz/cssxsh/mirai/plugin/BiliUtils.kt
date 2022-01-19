@@ -101,6 +101,7 @@ internal val driver: RemoteWebDriver by object : ReadOnlyProperty<Any?, RemoteWe
         if (value?.sessionId == null) {
             value = driver()
         }
+        logger.info { "Current Browser WindowHandle: ${value?.windowHandles} " }
         value!!
     }
 }

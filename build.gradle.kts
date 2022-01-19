@@ -29,18 +29,28 @@ mavenCentralPublish {
 kotlin {
     sourceSets {
         all {
-           // languageSettings.optIn("net.mamoe.mirai.console.util.ConsoleExperimentalApi")
+            // languageSettings.optIn("net.mamoe.mirai.console.util.ConsoleExperimentalApi")
         }
         test {
-            languageSettings.optIn("net.mamoe.mirai.console.ConsoleFrontEndImplementation")
+            // languageSettings.optIn("net.mamoe.mirai.console.ConsoleFrontEndImplementation")
         }
     }
 }
 
 dependencies {
-    implementation(ktor("client-serialization", Versions.ktor))
-    implementation(ktor("client-encoding", Versions.ktor))
-    compileOnly("xyz.cssxsh.mirai:mirai-selenium-plugin:1.0.5")
+    implementation(ktor("client-serialization", Versions.ktor)) {
+        exclude(group = "org.jetbrains.kotlin")
+        exclude(group = "org.jetbrains.kotlinx")
+        exclude(group = "org.slf4j")
+        exclude(group = "io.ktor", module = "ktor-client-core")
+    }
+    implementation(ktor("client-encoding", Versions.ktor)) {
+        exclude(group = "org.jetbrains.kotlin")
+        exclude(group = "org.jetbrains.kotlinx")
+        exclude(group = "org.slf4j")
+        exclude(group = "io.ktor", module = "ktor-client-core")
+    }
+    compileOnly("xyz.cssxsh.mirai:mirai-selenium-plugin:2.0.2")
     compileOnly(mirai("core-jvm", Versions.mirai))
 
     testImplementation(kotlin("test", Versions.kotlin))
@@ -50,13 +60,6 @@ mirai {
     jvmTarget = JavaVersion.VERSION_11
     configureShadow {
         exclude("module-info.class")
-        exclude {
-            it.path.startsWith("kotlin")
-        }
-        exclude {
-            it.path.startsWith("io/ktor") &&
-                (it.path.startsWith("io/ktor/client/features/compression") || it.path.startsWith("io/ktor/client/features/json")).not()
-        }
     }
 }
 

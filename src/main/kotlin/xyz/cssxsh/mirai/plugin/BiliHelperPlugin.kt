@@ -60,10 +60,6 @@ object BiliHelperPlugin : KotlinPlugin(
 
         BiliListener.stop()
 
-        if (selenium) {
-            driver.quit()
-        }
-
         runBlocking(coroutineContext) {
             for (task in BiliTasker) {
                 task.stop()

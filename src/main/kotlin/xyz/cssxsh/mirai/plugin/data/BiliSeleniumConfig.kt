@@ -24,10 +24,6 @@ object BiliSeleniumConfig : ReadOnlyPluginConfig("SeleniumConfig"), RemoteWebDri
     @ValueDescription("无头模式（后台模式）")
     override val headless: Boolean by value(true)
 
-    override val browser: String get() = MiraiSeleniumConfig.browser
-
-    override val factory: String get() = MiraiSeleniumConfig.factory
-
     private const val DEFAULT_HOME_PAGE = "https://t.bilibili.com/h5/dynamic/detail/508396365455813655"
 
     @ValueName("home")
