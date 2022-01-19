@@ -90,6 +90,9 @@ object BiliTemplate {
         cache[BiliRoomInfo::class.java] = """
             #detail
         """.trimIndent()
+        cache[Rating::class.java] = """
+            #score/#count
+        """.trimIndent()
     }
 
     fun reload(folder: File) {

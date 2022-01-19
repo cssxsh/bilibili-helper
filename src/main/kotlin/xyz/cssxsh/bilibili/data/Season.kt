@@ -28,7 +28,7 @@ sealed interface Media : Season, Entry {
     val rating: Rating?
 }
 
-sealed interface Rating {
+sealed interface Rating : Entry {
     val count: Long
     val score: Double
 }
