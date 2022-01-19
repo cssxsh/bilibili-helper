@@ -1,6 +1,8 @@
 package xyz.cssxsh.bilibili.data
 
 import kotlinx.serialization.*
+import xyz.cssxsh.bilibili.*
+import java.time.*
 
 sealed interface Live : Entry {
     val roomId: Long
@@ -9,6 +11,12 @@ sealed interface Live : Entry {
     val online: Long
     val liveStatus: Boolean
     val link: String
+
+    var start: OffsetDateTime?
+    val uname: String
+    val uid: Long
+
+    val share: String get() = link.substringBefore('?')
 }
 
 @Serializable
@@ -42,7 +50,9 @@ data class BiliRoomInfo(
     val shortId: Int,
     @SerialName("uid")
     val uid: Long
-) : Entry
+) : Entry {
+    val datetime: OffsetDateTime get() = timestamp(liveTime)
+}
 
 @Serializable
 data class BiliRoomSimple(
@@ -68,7 +78,16 @@ data class BiliRoomSimple(
     override val title: String,
     @SerialName("url")
     override val link: String
-) : Live
+) : Live  {
+    @Transient
+    override var start: OffsetDateTime? = null
+
+    @Transient
+    override var uname: String = ""
+
+    @Transient
+    override var uid: Long = 0
+}
 
 @Serializable
 data class BiliRoundPlayVideo(
@@ -122,13 +141,16 @@ data class LiveRecommend(
     @SerialName("title")
     override val title: String,
     @SerialName("uid")
-    val uid: Long,
+    override val uid: Long,
     @SerialName("uname")
-    val uname: String,
+    override val uname: String,
     @SerialName("liveStatus")
     @Serializable(NumberToBooleanSerializer::class)
     override val liveStatus: Boolean = true,
-) : Live
+) : Live  {
+    @Transient
+    override var start: OffsetDateTime? = null
+}
 
 @Serializable
 data class LiveRecord(

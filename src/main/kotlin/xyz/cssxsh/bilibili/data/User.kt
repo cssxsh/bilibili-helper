@@ -49,6 +49,11 @@ data class BiliUserInfo(
     val topPhoto: String,
 ) : UserInfo {
     override val live: String get() = liveRoom.link
+
+    init {
+        liveRoom.uid = mid
+        liveRoom.uname = name
+    }
 }
 
 @Serializable

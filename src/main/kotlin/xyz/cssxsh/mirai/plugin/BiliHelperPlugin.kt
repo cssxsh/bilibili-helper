@@ -19,21 +19,13 @@ object BiliHelperPlugin : KotlinPlugin(
     }
 ) {
 
-    internal val selenium: Boolean by lazy {
-        BiliHelperSettings.selenium && try {
-            MiraiSeleniumPlugin.setup()
-        } catch (exception: NoClassDefFoundError) {
-            logger.warning { "相关类加载失败，请安装 https://github.com/cssxsh/mirai-selenium-plugin $exception" }
-            false
-        }
-    }
-
     override fun onEnable() {
         BiliTaskData.reload()
         BiliHelperSettings.reload()
         BiliHelperSettings.save()
         BiliCleanerConfig.reload()
         BiliCleanerConfig.save()
+        BiliTemplate.reload(dataFolder)
 
         client.load()
 
@@ -41,7 +33,9 @@ object BiliHelperPlugin : KotlinPlugin(
             command.register()
         }
 
-        if (selenium) {
+        logger.info { "如果要B站动态的截图内容，请修改 DynamicInfo.template, 添加 #screenshot" }
+
+        if (SetupSelenium) {
             launch(SupervisorJob()) {
                 logger.info { "加载 SeleniumToolConfig" }
                 BiliSeleniumConfig.reload()

@@ -1,8 +1,10 @@
 package xyz.cssxsh.bilibili.data
 
 import kotlinx.serialization.*
+import xyz.cssxsh.bilibili.*
+import java.time.*
 
-sealed interface Article {
+sealed interface Article: Entry {
     val categories: List<ArticleCategory>?
     val category: ArticleCategory
     val id: Long
@@ -10,6 +12,9 @@ sealed interface Article {
     val title: String
     val published: Long
     val summary: String
+
+    val link get() = "https://www.bilibili.com/read/cv$id"
+    val datetime: OffsetDateTime get() = timestamp(published)
 }
 
 @Serializable

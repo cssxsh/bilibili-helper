@@ -1,6 +1,7 @@
 package xyz.cssxsh.bilibili.data
 
 import kotlinx.serialization.*
+import xyz.cssxsh.bilibili.timestamp
 import java.time.*
 
 sealed interface Video : Entry {
@@ -14,6 +15,9 @@ sealed interface Video : Entry {
     val cover: String
     val seasonId: Long?
     val status: VideoStatus?
+
+    val link get() = "https://www.bilibili.com/video/${id}"
+    val datetime: OffsetDateTime get() = timestamp(created)
 }
 
 @Serializable
@@ -180,7 +184,7 @@ data class VideoStatus(
     val share: Long,
     @SerialName("view")
     val view: Long
-)
+) : Entry
 
 @Serializable
 data class VideoStaff(

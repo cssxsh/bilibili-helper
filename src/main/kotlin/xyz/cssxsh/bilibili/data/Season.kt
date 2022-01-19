@@ -1,8 +1,10 @@
 package xyz.cssxsh.bilibili.data
 
 import kotlinx.serialization.*
+import xyz.cssxsh.bilibili.*
+import java.time.*
 
-sealed interface Episode {
+sealed interface Episode: Entry {
     val cover: String
     val index: String
     val title: String
@@ -15,6 +17,8 @@ sealed interface Season {
     val seasonId: Long
     val title: String
     val type: String
+
+    val link get() = "https://www.bilibili.com/bangumi/play/ss${seasonId}"
 }
 
 sealed interface Media : Season, Entry {
@@ -125,7 +129,9 @@ data class SeasonEpisode(
     @Contextual
     @SerialName("pub_time")
     val published: Long? = null
-) : Episode
+) : Episode {
+    val datetime: OffsetDateTime? get() = if (published == null) null else timestamp(published)
+}
 
 @Serializable
 data class SeasonTimeline(
@@ -164,6 +170,7 @@ data class SeasonTimeline(
     val weekday: Int,
 ) : Season, Episode {
     override val share: String get() = "https://www.bilibili.com/bangumi/play/ep${episodeId}"
+    val datetime: OffsetDateTime get() = timestamp(last)
 }
 
 @Serializable
@@ -175,7 +182,7 @@ data class BiliSeasonInfo(
     @SerialName("evaluate")
     val evaluate: String,
     @SerialName("link")
-    val link: String,
+    override val link: String,
     @SerialName("media_id")
     override val mediaId: Long,
     @SerialName("new_ep")

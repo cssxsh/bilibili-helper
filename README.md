@@ -119,7 +119,7 @@ val MEDIA_REGEX = """(?<=bilibili\.com/bangumi/media/md)(\d+)""".toRegex()
 * `dynamic` 动态 订阅 访问间隔时间，单位分钟, 默认为 `10`
 * `live` 直播 订阅 访问间隔时间，单位分钟, 默认为 `30`
 * `season` 番剧 订阅 访问间隔时间，单位分钟, 默认为 `30`
-* `selenium` 是否启用截图，默认 `true` 注意是否安装了 `mirai-selenium-plugin`
+* `selenium` ~~是否启用截图~~  从配置项 `1.3.1` 废弃，通过 Template 文件内容来确定是否启用截图
 
 ### BiliCleanerConfig.yml
 
@@ -146,9 +146,19 @@ val MEDIA_REGEX = """(?<=bilibili\.com/bangumi/media/md)(\d+)""".toRegex()
 配置对象为群，即 `g*`, `g12345`  
 举例，`perm add g12345 xyz.cssxsh.mirai.plugin.bilibili-helper:live.atall`
 
+## Template
+
+位于 `data/xyz.cssxsh.mirai.plugin.bilibili-helper/` 目录下的 `template` 文件
+文件名为对应的配置对象（类名），文件内容的 `#...` 是替换标记，将会替换为对应的值  
+`#images`, `#detail`, `#screenshot` 为特殊的替换标记，将会替换为特殊的处理结果  
+`#images` 将会替换为内容图片  
+在 `BiliRoomInfo` 中 `#detail` 将会替换为对应的 `Live`  
+在 `DynamicCard` 中 `#detail` 将会替换为对应的 `card` 解析结果    
+在 `DynamicInfo` 中 `#screenshot` 将会替换为截图（需要安装 `mirai-selenium-plugin`）  
+
 ## Cookies
 
-位于 `data/bilibili-helper/cookies.json`  
+位于 `data/xyz.cssxsh.mirai.plugin.bilibili-helper/cookies.json`  
 导入 cookies文件 不是必须的，这是实验性功能，主要是防止b站反爬IP锁定  
 从 浏览器插件 [EditThisCookie](http://www.editthiscookie.com/) 导出Json 填入文件  
 EditThisCookie 安装地址

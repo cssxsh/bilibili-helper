@@ -1,12 +1,16 @@
 package xyz.cssxsh.bilibili.data
 
 import kotlinx.serialization.*
+import xyz.cssxsh.bilibili.*
 import java.time.*
 
-sealed interface DynamicCard {
+sealed interface DynamicCard: Entry {
     val card: String
     val detail: DynamicCardDetail
     val display: DynamicDisplay
+    val datetime: OffsetDateTime
+    val username: String?
+    val uid: Long?
 }
 
 sealed interface DynamicCardDetail {
@@ -107,7 +111,13 @@ data class DynamicInfo(
     override val detail: DynamicDescribe,
     @SerialName("display")
     override val display: DynamicDisplay
-) : DynamicCard, Entry
+) : DynamicCard, Entry {
+    val link get() = "https://t.bilibili.com/${detail.id}"
+    val h5 get() = "https://t.bilibili.com/h5/dynamic/detail/${detail.id}"
+    override val username get() = detail.profile?.user?.uname
+    override val uid get() = detail.profile?.user?.uid
+    override val datetime: OffsetDateTime get() = timestamp(detail.timestamp)
+}
 
 @Serializable
 data class DynamicArticle(
@@ -237,14 +247,17 @@ data class DynamicLive(
     @SerialName("title")
     override val title: String,
     @SerialName("uid")
-    val uid: Long,
+    override val uid: Long,
     @SerialName("uname")
-    val uname: String,
+    override val uname: String,
     @SerialName("user_cover")
     val avatar: String,
     @SerialName("verify")
-    val verify: String
-) : Live
+    val verify: String,
+) : Live {
+    @Transient
+    override var start: OffsetDateTime? = null
+}
 
 @Serializable
 data class DynamicMusic(
@@ -274,7 +287,9 @@ data class DynamicMusic(
     val upper: String,
     @SerialName("upperAvatar")
     val avatar: String
-)
+): Entry {
+    val link get() = "https://www.bilibili.com/audio/au$id"
+}
 
 @Serializable
 data class DynamicPicture(
@@ -331,6 +346,10 @@ data class DynamicReply(
     @Deprecated("reply no display", ReplaceWith("throw NoSuchElementException(\"DynamicReply.display\")"))
     override val display: DynamicDisplay
         get() = throw NoSuchElementException("DynamicReply.display")
+    override val username get() = originUser.user.uname
+    override val uid get() = originUser.user.uid
+    override val datetime: OffsetDateTime get() = timestamp(dynamictime(detail.id))
+    val content get() = detail.content
 }
 
 @Serializable
@@ -359,7 +378,12 @@ data class DynamicSketch(
     val user: UserSimple,
     @SerialName("vest")
     val vest: DynamicSketchVest
-)
+): Entry {
+    val title get() = detail.title
+    val link get() = detail.target
+    val cover get() = detail.cover
+    val content get() = vest.content
+}
 
 @Serializable
 data class DynamicSketchDetail(

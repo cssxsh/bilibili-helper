@@ -22,7 +22,7 @@ internal class ApiTest {
     @Test
     fun article(): Unit = runBlocking {
         withLog(client.getArticleInfo(cid = 10018100).last) {
-            appendLine(it.content)
+            appendLine(it.title)
             appendLine(it.images)
         }
     }
@@ -30,13 +30,13 @@ internal class ApiTest {
     @Test
     fun dynamic(): Unit = runBlocking {
         withLog(client.getDynamicInfo(dynamicId = 450055453856015371L).dynamic) {
-            appendLine(it.content)
-            appendLine(it.images)
+            appendLine(it.h5)
+            appendLine(it.images())
         }
         withLog(client.getSpaceHistory(uid = 26798384L).dynamics) { list ->
             list.forEach {
-                appendLine(it.content)
-                appendLine(it.images)
+                appendLine(it.datetime)
+                appendLine(it.images())
                 appendLine("=================")
             }
         }
@@ -56,13 +56,13 @@ internal class ApiTest {
     @Test
     fun season(): Unit = runBlocking {
         withLog(client.getSeasonMedia(mediaId = 28233903).media) { info ->
-            appendLine(info.content)
+            appendLine(info)
         }
         withLog(client.getSeasonInfo(seasonId = 38234)) { info ->
-            appendLine(info.content)
+            appendLine(info.title)
         }
         withLog(client.getEpisodeInfo(episode_id = 395240)) { info ->
-            appendLine(info.content)
+            appendLine(info.title)
         }
         withLog(client.getSeasonSection(seasonId = 38221)) { info ->
             appendLine(info.mainSection.episodes.last())
@@ -83,19 +83,19 @@ internal class ApiTest {
     fun video(): Unit = runBlocking {
         withLog(client.getVideos(uid = 26798384L).list.videos) { list ->
             list.forEach {
-                appendLine(it.content)
+                appendLine(it.link)
                 appendLine(it.cover)
                 appendLine("=================")
             }
         }
 
         withLog(client.getVideoInfo(aid = 13502509L)) {
-            appendLine(it.content)
+            appendLine(it.link)
             appendLine(it.cover)
         }
 
         withLog(client.getVideoInfo(bvid = "BV1ex411J7GE")) {
-            appendLine(it.content)
+            appendLine(it.link)
             appendLine(it.cover)
         }
     }
@@ -104,17 +104,17 @@ internal class ApiTest {
     fun search(): Unit = runBlocking {
         withLog(client.searchUser(keyword = "瓶子君152").result) {
             it.forEach { user ->
-                appendLine(user.content)
+                appendLine(user)
             }
         }
         withLog(client.searchBangumi(keyword = "SSSS").result) {
             it.forEach { season ->
-                appendLine(season.content)
+                appendLine(season.link)
             }
         }
         withLog(client.searchFT(keyword = "让子弹飞").result) {
             it.forEach { season ->
-                appendLine(season.content)
+                appendLine(season.link)
             }
         }
     }

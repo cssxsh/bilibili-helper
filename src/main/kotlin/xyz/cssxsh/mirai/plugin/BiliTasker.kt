@@ -10,7 +10,6 @@ import net.mamoe.mirai.contact.*
 import net.mamoe.mirai.message.data.*
 import net.mamoe.mirai.utils.*
 import xyz.cssxsh.bilibili.api.*
-import xyz.cssxsh.bilibili.*
 import xyz.cssxsh.bilibili.data.*
 import xyz.cssxsh.mirai.plugin.data.*
 import java.time.*
@@ -222,7 +221,7 @@ object BiliVideoLoader : Loader<Video>(name = "VideoTasker") {
 
     override suspend fun List<Video>.near() = map { it.datetime.toLocalTime() }.near(slow)
 
-    override suspend fun Video.build(contact: Contact) = toMessage(contact)
+    override suspend fun Video.build(contact: Contact) = content(contact)
 
     override suspend fun initTask(id: Long): BiliTask = BiliTask(name = client.getUserInfo(uid = id).name)
 }
@@ -242,7 +241,7 @@ object BiliDynamicLoader : Loader<DynamicInfo>(name = "DynamicTasker") {
 
     override suspend fun List<DynamicInfo>.near() = map { it.datetime.toLocalTime() }.near(slow)
 
-    override suspend fun DynamicInfo.build(contact: Contact) = toMessage(contact)
+    override suspend fun DynamicInfo.build(contact: Contact) = content(contact)
 
     override suspend fun initTask(id: Long): BiliTask = BiliTask(name = client.getUserInfo(uid = id).name)
 }
@@ -270,8 +269,8 @@ object BiliLiveWaiter : Waiter<BiliUserInfo>(name = "LiveWaiter") {
     }
 
     override suspend fun BiliUserInfo.build(contact: Contact): Message {
-        val start = tasks.getValue(mid).last
-        return "主播: $name#$mid \n".toPlainText() + liveRoom.toMessage(contact, start) + withAtAll(contact)
+        liveRoom.start = tasks.getValue(mid).last
+        return liveRoom.content(contact) + withAtAll(contact)
     }
 
     // TODO by live history
@@ -301,7 +300,7 @@ object BiliSeasonWaiter : Waiter<BiliSeasonInfo>(name = "SeasonWaiter") {
     }
 
     override suspend fun BiliSeasonInfo.build(contact: Contact): Message {
-        return content.toPlainText() + video(aid = episodes.maxOf { it.aid }).toMessage(contact)
+        return content(contact) + "\n" + video(aid = episodes.maxOf { it.aid }).content(contact)
     }
 
     override suspend fun BiliSeasonInfo.near(): Boolean {
