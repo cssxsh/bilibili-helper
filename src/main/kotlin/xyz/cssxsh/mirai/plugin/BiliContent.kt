@@ -32,8 +32,8 @@ internal suspend fun Entry.content(contact: Contact): MessageChain {
                 }
             }
         }
-        pos = result.range.first
         content = content.replaceRange(result.range, replacement)
+        pos = result.range.first + replacement.length
     }
 
     return content.deserializeMiraiCode(contact)
