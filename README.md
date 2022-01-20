@@ -108,7 +108,7 @@ val MEDIA_REGEX = """(?<=bilibili\.com/bangumi/media/md)(\d+)""".toRegex()
 
 ## 设置
 
-位于`Mirai-Console`运行目录下的`config/bilibili-helper`文件夹下
+位于`Mirai-Console`运行目录下的`config/xyz.cssxsh.mirai.plugin.bilibili-helper`文件夹下
 
 ### BiliHelperSettings.yml
 
@@ -148,7 +148,7 @@ val MEDIA_REGEX = """(?<=bilibili\.com/bangumi/media/md)(\d+)""".toRegex()
 
 ## Template
 
-位于 `data/xyz.cssxsh.mirai.plugin.bilibili-helper/` 目录下的 `template` 文件
+位于 `config/xyz.cssxsh.mirai.plugin.bilibili-helper/Template` 目录下的 `template` 文件
 文件名为对应的配置对象（类名），文件内容的 `#...` 是替换标记，将会替换为对应的值  
 值的名称请参考 [data](src/main/kotlin/xyz/cssxsh/bilibili/data) 中的数据定义  
 `#images`, `#detail`, `#screenshot` 为特殊的替换标记，将会替换为特殊的处理结果  

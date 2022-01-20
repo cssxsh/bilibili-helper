@@ -25,7 +25,7 @@ object BiliHelperPlugin : KotlinPlugin(
         BiliHelperSettings.save()
         BiliCleanerConfig.reload()
         BiliCleanerConfig.save()
-        BiliTemplate.reload(dataFolder)
+        BiliTemplate.reload(configFolder.resolve("Template"))
 
         client.load()
 

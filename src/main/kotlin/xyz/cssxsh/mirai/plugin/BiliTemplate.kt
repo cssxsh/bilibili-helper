@@ -77,7 +77,8 @@ object BiliTemplate {
             时间: #datetime
             时长: #length
             链接: #link
-            状态: #status
+            状态: 
+            #status
             简介: 
             #description
             #images
