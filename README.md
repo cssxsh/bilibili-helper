@@ -26,6 +26,9 @@
 `[...]`表示参数，当`[...]`后面带`?`时表示参数可选  
 `{...}`表示连续的多个参数  
 
+本插件指令权限ID 格式为 `xyz.cssxsh.mirai.plugin.bilibili-helper:command.*`, `*` 是指令的第一指令名  
+例如 `/B动态 添加 496371957` 的权限ID为 `xyz.cssxsh.mirai.plugin.bilibili-helper:command.bili-dynamic`
+
 参数 `uid` 例如 `https://space.bilibili.com/508963009/` 的数字 `508963009`  
 参数 `contact` 为QQ号或者群号，可以省略，会从当前聊天环境获取，比如群聊中会自动填充为当前群号
 
