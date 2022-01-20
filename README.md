@@ -6,9 +6,17 @@
 [![Downloads](https://img.shields.io/github/downloads/cssxsh/bilibili-helper/total)](https://shields.io/category/downloads)
 [![MiraiForum](https://img.shields.io/badge/post-on%20MiraiForum-yellow)](https://mirai.mamoe.net/topic/287)
 
+**使用前应该查阅的相关文档或项目**
+
+* [User Manual](https://github.com/mamoe/mirai/blob/dev/docs/UserManual.md)
+* [Permission Command](https://github.com/mamoe/mirai/blob/dev/mirai-console/docs/BuiltInCommands.md#permissioncommand)
+* [Chat Command](https://github.com/project-mirai/chat-command)
+
 从 1.2.5 版本开始 将截图部分功能的转移至 [mirai-selenium-plugin](https://github.com/cssxsh/mirai-selenium-plugin)  
 截图功能的启用需要其作为前置插件  
-关于截图支持的环境请浏览 [运行平台支持](https://github.com/cssxsh/mirai-selenium-plugin#%E8%BF%90%E8%A1%8C%E5%B9%B3%E5%8F%B0%E6%94%AF%E6%8C%81)
+关于截图支持的环境请浏览 [运行平台支持](https://github.com/cssxsh/mirai-selenium-plugin#%E8%BF%90%E8%A1%8C%E5%B9%B3%E5%8F%B0%E6%94%AF%E6%8C%81)  
+直播 [@全体成员](#LiveAtAll) 详见配置  
+自动触发 [解析](#信息解析指令) 详见指令
 
 ## 指令
 
@@ -17,7 +25,6 @@
 `<...>`中的是指令名，由空格隔开表示或，选择其中任一名称都可执行例如`/B动态 添加 496371957`  
 `[...]`表示参数，当`[...]`后面带`?`时表示参数可选  
 `{...}`表示连续的多个参数  
-直播 [@全体成员](#LiveAtAll) 详见配置
 
 参数 `uid` 例如 `https://space.bilibili.com/508963009/` 的数字 `508963009`  
 参数 `contact` 为QQ号或者群号，可以省略，会从当前聊天环境获取，比如群聊中会自动填充为当前群号
