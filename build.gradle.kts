@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "xyz.cssxsh"
-version = "1.3.0"
+version = "1.4.0"
 
 repositories {
     mavenLocal()
@@ -50,7 +50,7 @@ dependencies {
         exclude(group = "org.slf4j")
         exclude(group = "io.ktor", module = "ktor-client-core")
     }
-    compileOnly("xyz.cssxsh.mirai:mirai-selenium-plugin:2.0.2")
+    compileOnly("xyz.cssxsh.mirai:mirai-selenium-plugin:2.0.3")
     compileOnly(mirai("core-jvm", Versions.mirai))
 
     testImplementation(kotlin("test", Versions.kotlin))

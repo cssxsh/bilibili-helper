@@ -11,7 +11,7 @@ import xyz.cssxsh.mirai.plugin.command.*
 import xyz.cssxsh.mirai.plugin.data.*
 
 object BiliHelperPlugin : KotlinPlugin(
-    JvmPluginDescription(id = "xyz.cssxsh.mirai.plugin.bilibili-helper", version = "1.3.0") {
+    JvmPluginDescription(id = "xyz.cssxsh.mirai.plugin.bilibili-helper", version = "1.4.0") {
         name("bilibili-helper")
         author("cssxsh")
 
@@ -25,7 +25,7 @@ object BiliHelperPlugin : KotlinPlugin(
         BiliHelperSettings.save()
         BiliCleanerConfig.reload()
         BiliCleanerConfig.save()
-        BiliTemplate.reload(configFolder.resolve("Template"))
+        BiliTemplate.reload(configFolder.resolve("Template").apply { mkdirs() })
 
         client.load()
 
@@ -37,10 +37,8 @@ object BiliHelperPlugin : KotlinPlugin(
 
         if (SetupSelenium) {
             launch(SupervisorJob()) {
-                logger.info { "加载 SeleniumToolConfig" }
                 BiliSeleniumConfig.reload()
                 BiliSeleniumConfig.save()
-                driver.sessionId
             }
         }
 

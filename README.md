@@ -68,9 +68,8 @@
 | `/<bili-season B剧集> <stop 停止> [sid] [contact]?` | 停止一个b站剧集频订阅    |
 | `/<bili-season B剧集> <list 列表> [contact]?`       | 列出当前联系人的剧集订阅 |
 
-剧集订阅需要 Season ID 例如 <https://www.bilibili.com/bangumi/play/ss38353> 的 38353  
-可以通过 搜索指令 搜索番剧 获得链接  
-目前剧集订阅出于实验性阶段
+剧集订阅需要 Season ID 例如 <https://www.bilibili.com/bangumi/play/ss38353> 的 `38353`  
+可以通过 [搜索指令](#搜索指令) 搜索番剧 获得链接
 
 ### 信息解析指令
 
