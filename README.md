@@ -24,7 +24,7 @@
 带括号的`/`前缀是可选的  
 `<...>`中的是指令名，由空格隔开表示或，选择其中任一名称都可执行例如`/B动态 添加 496371957`  
 `[...]`表示参数，当`[...]`后面带`?`时表示参数可选  
-`{...}`表示连续的多个参数  
+`{...}`表示连续的多个参数
 
 本插件指令权限ID 格式为 `xyz.cssxsh.mirai.plugin.bilibili-helper:command.*`, `*` 是指令的第一指令名  
 例如 `/B动态 添加 496371957` 的权限ID为 `xyz.cssxsh.mirai.plugin.bilibili-helper:command.bili-dynamic`
@@ -141,7 +141,7 @@ val MEDIA_REGEX = """(?<=bilibili\.com/bangumi/media/md)(\d+)""".toRegex()
 * `user_agent` 截图设备UA 网页识别设备类型，进而影响截图的效果  
   iPad `Mozilla/5.0 (iPad; CPU OS 11_0 like Mac OS X) AppleWebKit/604.1.34 (KHTML, like Gecko) Version/11.0 Mobile/15A5341f Safari/604.1 MicroMessenger`  
   iPhone `Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1 MicroMessenger`  
-  Mac `Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_8; en-us) AppleWebKit/534.50 (KHTML, like Gecko) Version/5.1 Safari/534.50 MicroMessenger`  
+  Mac `Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_8; en-us) AppleWebKit/534.50 (KHTML, like Gecko) Version/5.1 Safari/534.50 MicroMessenger`
 * `width` 截图宽度
 * `height` 截图高度
 * `pixel_ratio` 截图像素比
@@ -158,14 +158,20 @@ val MEDIA_REGEX = """(?<=bilibili\.com/bangumi/media/md)(\d+)""".toRegex()
 
 ## Template
 
-位于 `config/xyz.cssxsh.mirai.plugin.bilibili-helper/Template` 目录下的 `template` 文件
+位于 `config/xyz.cssxsh.mirai.plugin.bilibili-helper/Template` 目录下的 `template` 文件  
 文件名为对应的配置对象（类名），文件内容的 `#...` 是替换标记，将会替换为对应的值  
-值的名称请参考 [data](src/main/kotlin/xyz/cssxsh/bilibili/data) 中的数据定义  
+值的名称请参考 [bilibili/data](src/main/kotlin/xyz/cssxsh/bilibili/data) 中的数据定义  
 `#images`, `#detail`, `#screenshot` 为特殊的替换标记，将会替换为特殊的处理结果  
 `#images` 将会替换为内容图片  
 在 `BiliRoomInfo` 中 `#detail` 将会替换为对应的 `Live`  
 在 `DynamicCard` 中 `#detail` 将会替换为对应的 `card` 解析结果    
 在 `DynamicInfo` 中 `#screenshot` 将会替换为截图（需要安装 `mirai-selenium-plugin`）  
+例如可以将 `VideoStatus.template` 改为
+
+```
+👍 #like 💰 #coin ⭐ #favorite
+▶️ #view 💬 #reply 🔄 #share
+```
 
 ## Cookies
 
