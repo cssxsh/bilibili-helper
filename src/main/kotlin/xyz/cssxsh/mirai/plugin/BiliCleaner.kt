@@ -40,8 +40,4 @@ object BiliCleaner : CoroutineScope by BiliHelperPlugin.childScope("BiliCleaner"
             clean(type = type, interval = interval.getValue(type), expires = expires.getValue(type))
         }
     }
-
-    fun stop() {
-        coroutineContext.cancelChildren()
-    }
 }

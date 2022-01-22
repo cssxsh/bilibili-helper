@@ -56,14 +56,14 @@ object BiliHelperPlugin : KotlinPlugin(
             command.unregister()
         }
 
-        BiliListener.stop()
+        coroutineContext.cancelChildren()
 
         runBlocking(coroutineContext) {
             for (task in BiliTasker) {
                 task.stop()
             }
         }
-        BiliCleaner.stop()
+
         client.save()
     }
 }

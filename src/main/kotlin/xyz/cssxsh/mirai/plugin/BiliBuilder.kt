@@ -4,8 +4,6 @@ package xyz.cssxsh.mirai.plugin
 
 import io.ktor.client.request.*
 import io.ktor.http.*
-import net.mamoe.mirai.console.permission.PermissionService.Companion.testPermission
-import net.mamoe.mirai.console.permission.PermitteeId.Companion.permitteeId
 import net.mamoe.mirai.console.util.ConsoleExperimentalApi
 import net.mamoe.mirai.console.util.ContactUtils.render
 import net.mamoe.mirai.contact.Contact
@@ -18,7 +16,6 @@ import xyz.cssxsh.bilibili.*
 import xyz.cssxsh.bilibili.api.*
 import xyz.cssxsh.bilibili.data.SearchResult
 import xyz.cssxsh.bilibili.data.SeasonSection
-import xyz.cssxsh.mirai.plugin.command.BiliInfoCommand
 
 internal suspend fun SeasonSection.toMessage(contact: Contact) = buildForwardMessage(contact) {
     displayStrategy = object : ForwardMessage.DisplayStrategy {
@@ -134,7 +131,6 @@ internal val UrlRepliers by lazy {
 }
 
 internal val ShortLinkReplier: MessageReplier = replier@{ result ->
-    if (BiliInfoCommand.permission.testPermission(sender.permitteeId).not()) return@replier null
     logger.info { "${sender.render()} 匹配SHORT_LINK(${result.value}) 尝试跳转" }
     val location = Url("https://b23.tv/${result.value}").location() ?: return@replier null
     for ((regex, replier) in UrlRepliers) {
