@@ -4,18 +4,16 @@ package xyz.cssxsh.mirai.plugin
 
 import io.ktor.client.request.*
 import io.ktor.http.*
-import net.mamoe.mirai.console.util.ConsoleExperimentalApi
+import net.mamoe.mirai.console.util.*
 import net.mamoe.mirai.console.util.ContactUtils.render
-import net.mamoe.mirai.contact.Contact
-import net.mamoe.mirai.event.events.MessageEvent
+import net.mamoe.mirai.contact.*
+import net.mamoe.mirai.event.events.*
 import net.mamoe.mirai.message.data.*
 import net.mamoe.mirai.message.data.MessageSource.Key.quote
-import net.mamoe.mirai.utils.info
-import net.mamoe.mirai.utils.warning
+import net.mamoe.mirai.utils.*
 import xyz.cssxsh.bilibili.*
 import xyz.cssxsh.bilibili.api.*
-import xyz.cssxsh.bilibili.data.SearchResult
-import xyz.cssxsh.bilibili.data.SeasonSection
+import xyz.cssxsh.bilibili.data.*
 
 internal suspend fun SeasonSection.toMessage(contact: Contact) = buildForwardMessage(contact) {
     displayStrategy = object : ForwardMessage.DisplayStrategy {
