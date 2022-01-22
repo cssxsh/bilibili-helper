@@ -2,10 +2,10 @@ package xyz.cssxsh.mirai.plugin
 
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.withLock
-import net.mamoe.mirai.console.util.ConsoleExperimentalApi
+import net.mamoe.mirai.console.util.*
 import net.mamoe.mirai.console.util.CoroutineScopeUtils.childScope
-import net.mamoe.mirai.utils.info
-import xyz.cssxsh.mirai.plugin.data.BiliCleanerConfig
+import net.mamoe.mirai.utils.*
+import xyz.cssxsh.mirai.plugin.data.*
 
 @OptIn(ConsoleExperimentalApi::class)
 object BiliCleaner : CoroutineScope by BiliHelperPlugin.childScope("BiliCleaner") {
