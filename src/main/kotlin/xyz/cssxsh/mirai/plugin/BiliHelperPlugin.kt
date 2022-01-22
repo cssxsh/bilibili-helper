@@ -63,7 +63,6 @@ object BiliHelperPlugin : KotlinPlugin(
                 task.stop()
             }
         }
-
         BiliCleaner.stop()
         client.save()
     }
