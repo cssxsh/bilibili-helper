@@ -4,21 +4,16 @@ package xyz.cssxsh.mirai.plugin
 
 import io.ktor.client.request.*
 import io.ktor.http.*
-import net.mamoe.mirai.console.command.CommandSender.Companion.toCommandSender
-import net.mamoe.mirai.console.permission.PermissionService.Companion.testPermission
-import net.mamoe.mirai.console.util.ConsoleExperimentalApi
+import net.mamoe.mirai.console.util.*
 import net.mamoe.mirai.console.util.ContactUtils.render
 import net.mamoe.mirai.contact.*
 import net.mamoe.mirai.event.events.*
 import net.mamoe.mirai.message.data.*
 import net.mamoe.mirai.message.data.MessageSource.Key.quote
 import net.mamoe.mirai.utils.*
+import xyz.cssxsh.bilibili.*
 import xyz.cssxsh.bilibili.api.*
 import xyz.cssxsh.bilibili.data.*
-import xyz.cssxsh.bilibili.*
-import xyz.cssxsh.mirai.plugin.command.*
-
-private val permission by BiliInfoCommand::permission
 
 internal suspend fun SeasonSection.toMessage(contact: Contact) = buildForwardMessage(contact) {
     displayStrategy = object : ForwardMessage.DisplayStrategy {
@@ -39,7 +34,6 @@ typealias MessageReplier = suspend MessageEvent.(MatchResult) -> Any?
 
 internal val DynamicReplier: MessageReplier = replier@{ result ->
     logger.info { "${sender.render()} 匹配Dynamic(${result.value})" }
-    if (permission.testPermission(toCommandSender()).not()) return@replier null
     try {
         message.quote() + client.getDynamicInfo(result.value.toLong()).dynamic.content(subject)
     } catch (e: Throwable) {
@@ -50,7 +44,6 @@ internal val DynamicReplier: MessageReplier = replier@{ result ->
 
 internal val VideoReplier: MessageReplier = replier@{ result ->
     logger.info { "${sender.render()} 匹配Video(${result.value})" }
-    if (permission.testPermission(toCommandSender()).not()) return@replier null
     try {
         message.quote() + when (result.value.first()) {
             'B', 'b' -> client.getVideoInfo(result.value)
@@ -65,7 +58,6 @@ internal val VideoReplier: MessageReplier = replier@{ result ->
 
 internal val RoomReplier: MessageReplier = replier@{ result ->
     logger.info { "${sender.render()} 匹配Room(${result.value})" }
-    if (permission.testPermission(toCommandSender()).not()) return@replier null
     try {
         message.quote() + client.getRoomInfo(result.value.toLong()).content(subject)
     } catch (e: Throwable) {
@@ -76,7 +68,6 @@ internal val RoomReplier: MessageReplier = replier@{ result ->
 
 internal val SpaceReplier: MessageReplier = replier@{ result ->
     logger.info { "${sender.render()} 匹配User(${result.value})" }
-    if (permission.testPermission(toCommandSender()).not()) return@replier null
     try {
         message.quote() + client.getUserInfo(result.value.toLong()).content(subject)
     } catch (e: Throwable) {
@@ -87,7 +78,6 @@ internal val SpaceReplier: MessageReplier = replier@{ result ->
 
 internal val SeasonReplier: MessageReplier = replier@{ result ->
     logger.info { "${sender.render()} 匹配Season(${result.value})" }
-    if (permission.testPermission(toCommandSender()).not()) return@replier null
     try {
         message.quote() + client.getSeasonInfo(result.value.toLong()).content(subject)
     } catch (e: Throwable) {
@@ -98,7 +88,6 @@ internal val SeasonReplier: MessageReplier = replier@{ result ->
 
 internal val EpisodeReplier: MessageReplier = replier@{ result ->
     logger.info { "${sender.render()} 匹配Episode(${result.value})" }
-    if (permission.testPermission(toCommandSender()).not()) return@replier null
     try {
         message.quote() + client.getEpisodeInfo(result.value.toLong()).content(subject)
     } catch (e: Throwable) {
@@ -109,7 +98,6 @@ internal val EpisodeReplier: MessageReplier = replier@{ result ->
 
 internal val MediaReplier: MessageReplier = replier@{ result ->
     logger.info { "${sender.render()} 匹配Media(${result.value})" }
-    if (permission.testPermission(toCommandSender()).not()) return@replier null
     try {
         message.quote() + client.getSeasonMedia(result.value.toLong()).media.content(subject)
     } catch (e: Throwable) {
