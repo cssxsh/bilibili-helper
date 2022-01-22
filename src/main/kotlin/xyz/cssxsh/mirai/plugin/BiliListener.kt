@@ -1,8 +1,8 @@
 package xyz.cssxsh.mirai.plugin
 
 import kotlinx.coroutines.*
+import net.mamoe.mirai.console.command.CommandSender.Companion.toCommandSender
 import net.mamoe.mirai.console.permission.PermissionService.Companion.testPermission
-import net.mamoe.mirai.console.permission.PermitteeId.Companion.permitteeId
 import net.mamoe.mirai.console.util.*
 import net.mamoe.mirai.console.util.CoroutineScopeUtils.childScope
 import net.mamoe.mirai.event.*
@@ -14,7 +14,7 @@ internal object BiliListener : CoroutineScope by BiliHelperPlugin.childScope("Bi
     fun subscribe(): Unit = with(globalEventChannel()) {
         subscribeMessages {
             always {
-                if (BiliInfoCommand.permission.testPermission(sender.permitteeId).not()) return@always
+                if (BiliInfoCommand.permission.testPermission(toCommandSender()).not()) return@always
                 for ((regex, replier) in UrlRepliers) {
                     // regex findingReply replier
                     replier.invoke(this, regex.find(it) ?: continue)
