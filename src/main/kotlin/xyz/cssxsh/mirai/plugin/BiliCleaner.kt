@@ -1,11 +1,11 @@
 package xyz.cssxsh.mirai.plugin
 
 import kotlinx.coroutines.*
-import kotlinx.coroutines.sync.*
-import net.mamoe.mirai.console.util.*
+import kotlinx.coroutines.sync.withLock
+import net.mamoe.mirai.console.util.ConsoleExperimentalApi
 import net.mamoe.mirai.console.util.CoroutineScopeUtils.childScope
-import net.mamoe.mirai.utils.*
-import xyz.cssxsh.mirai.plugin.data.*
+import net.mamoe.mirai.utils.info
+import xyz.cssxsh.mirai.plugin.data.BiliCleanerConfig
 
 @OptIn(ConsoleExperimentalApi::class)
 object BiliCleaner : CoroutineScope by BiliHelperPlugin.childScope("BiliCleaner") {
@@ -39,5 +39,9 @@ object BiliCleaner : CoroutineScope by BiliHelperPlugin.childScope("BiliCleaner"
         for (type in CacheType.values()) {
             clean(type = type, interval = interval.getValue(type), expires = expires.getValue(type))
         }
+    }
+
+    fun stop() {
+        coroutineContext.cancelChildren()
     }
 }

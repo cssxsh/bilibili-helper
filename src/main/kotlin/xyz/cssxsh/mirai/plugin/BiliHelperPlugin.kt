@@ -56,7 +56,7 @@ object BiliHelperPlugin : KotlinPlugin(
             command.unregister()
         }
 
-        coroutineContext.cancelChildren()
+        BiliListener.stop()
 
         runBlocking(coroutineContext) {
             for (task in BiliTasker) {
@@ -64,6 +64,7 @@ object BiliHelperPlugin : KotlinPlugin(
             }
         }
 
+        BiliCleaner.stop()
         client.save()
     }
 }
