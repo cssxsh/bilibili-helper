@@ -2,12 +2,9 @@ package xyz.cssxsh.mirai.plugin
 
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.*
-import net.mamoe.mirai.console.util.*
-import net.mamoe.mirai.console.util.CoroutineScopeUtils.childScope
 import net.mamoe.mirai.utils.*
 import xyz.cssxsh.mirai.plugin.data.*
 
-@OptIn(ConsoleExperimentalApi::class)
 object BiliCleaner : CoroutineScope by BiliHelperPlugin.childScope("BiliCleaner") {
 
     private val interval by BiliCleanerConfig::interval

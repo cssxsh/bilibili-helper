@@ -1,8 +1,8 @@
 plugins {
-    kotlin("jvm") version Versions.kotlin
-    kotlin("plugin.serialization") version Versions.kotlin
+    kotlin("jvm") version "1.6.0"
+    kotlin("plugin.serialization") version "1.6.0"
 
-    id("net.mamoe.mirai-console") version Versions.mirai
+    id("net.mamoe.mirai-console") version "2.10.0-RC2"
     id("net.mamoe.maven-central-publish") version "0.7.0"
 }
 
@@ -26,34 +26,26 @@ mavenCentralPublish {
     }
 }
 
-kotlin {
-    sourceSets {
-        all {
-            // languageSettings.optIn("net.mamoe.mirai.console.util.ConsoleExperimentalApi")
-        }
-        test {
-            // languageSettings.optIn("net.mamoe.mirai.console.ConsoleFrontEndImplementation")
-        }
-    }
-}
-
 dependencies {
-    implementation(ktor("client-serialization", Versions.ktor)) {
+    implementation("io.ktor:ktor-client-serialization:1.6.5") {
         exclude(group = "org.jetbrains.kotlin")
         exclude(group = "org.jetbrains.kotlinx")
         exclude(group = "org.slf4j")
         exclude(group = "io.ktor", module = "ktor-client-core")
+        exclude(group = "io.ktor", module = "ktor-client-core-jvm")
     }
-    implementation(ktor("client-encoding", Versions.ktor)) {
+    implementation("io.ktor:ktor-client-encoding:1.6.5") {
         exclude(group = "org.jetbrains.kotlin")
         exclude(group = "org.jetbrains.kotlinx")
         exclude(group = "org.slf4j")
         exclude(group = "io.ktor", module = "ktor-client-core")
+        exclude(group = "io.ktor", module = "ktor-client-core-jvm")
     }
-    compileOnly("xyz.cssxsh.mirai:mirai-selenium-plugin:2.0.3")
-    compileOnly(mirai("core-jvm", Versions.mirai))
+    compileOnly("xyz.cssxsh.mirai:mirai-selenium-plugin:2.0.4")
+    compileOnly("net.mamoe:mirai-core:${mirai.coreVersion}")
+    compileOnly("net.mamoe:mirai-core-utils:${mirai.coreVersion}")
 
-    testImplementation(kotlin("test", Versions.kotlin))
+    testImplementation(kotlin("test", kotlin.coreLibrariesVersion))
 }
 
 mirai {

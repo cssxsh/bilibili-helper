@@ -4,8 +4,6 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.*
 import net.mamoe.mirai.console.permission.PermissionService.Companion.testPermission
 import net.mamoe.mirai.console.permission.PermitteeId.Companion.permitteeId
-import net.mamoe.mirai.console.util.*
-import net.mamoe.mirai.console.util.CoroutineScopeUtils.childScopeContext
 import net.mamoe.mirai.contact.*
 import net.mamoe.mirai.message.data.*
 import net.mamoe.mirai.utils.*
@@ -49,7 +47,6 @@ interface BiliTasker {
 
 sealed class AbstractTasker<T : Entry>(val name: String) : BiliTasker, CoroutineScope {
 
-    @OptIn(ConsoleExperimentalApi::class)
     override val coroutineContext: CoroutineContext = BiliHelperPlugin.childScopeContext(name, Dispatchers.IO)
 
     protected val mutex = Mutex()

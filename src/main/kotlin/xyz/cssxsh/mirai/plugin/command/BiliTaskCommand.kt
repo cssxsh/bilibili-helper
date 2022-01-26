@@ -1,7 +1,6 @@
 package xyz.cssxsh.mirai.plugin.command
 
 import net.mamoe.mirai.console.command.*
-import net.mamoe.mirai.console.util.*
 import net.mamoe.mirai.console.util.ContactUtils.render
 import net.mamoe.mirai.message.data.*
 import xyz.cssxsh.mirai.plugin.*
@@ -12,7 +11,6 @@ object BiliTaskCommand : CompositeCommand(
     description = "B站任务列表指令"
 ), BiliHelperCommand {
 
-    @OptIn(ConsoleExperimentalApi::class)
     private fun BiliTasker.render(): String = buildString {
         for ((id, info) in tasks) {
             if (info.contacts.isEmpty()) continue
