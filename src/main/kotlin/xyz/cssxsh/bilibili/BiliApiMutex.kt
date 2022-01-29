@@ -4,12 +4,13 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.*
 
 class BiliApiMutex(private val interval: Long) : Mutex by Mutex() {
-    private var last = System.currentTimeMillis()
+    private val map = HashMap<String, Long>()
 
-    suspend fun wait(): Unit = withLock {
+    suspend fun wait(type: String): Unit = withLock {
+        val last = map[type] ?: 0
         while (System.currentTimeMillis() - last <= interval) {
             delay(1000L)
         }
-        last = System.currentTimeMillis()
+        map[type] = System.currentTimeMillis()
     }
 }

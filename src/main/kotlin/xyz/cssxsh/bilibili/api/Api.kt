@@ -1,6 +1,7 @@
 package xyz.cssxsh.bilibili.api
 
 import io.ktor.client.request.*
+import io.ktor.http.*
 import kotlinx.serialization.json.*
 import xyz.cssxsh.bilibili.*
 import xyz.cssxsh.bilibili.data.*
@@ -57,10 +58,11 @@ const val SEARCH_TYPE = "https://api.bilibili.com/x/web-interface/search/type"
 const val SUIT_ITEMS = "https://api.bilibili.com/x/garb/mall/item/suit/v2"
 
 internal suspend inline fun <reified T> BiliClient.json(
-    url: String,
+    urlString: String,
     crossinline block: HttpRequestBuilder.() -> Unit
 ): T = useHttpClient { client, mutex ->
-    mutex.wait()
+    val url = Url(urlString)
+    mutex.wait(url.encodedPath)
     with(client.get<TempData>(url, block)) {
         check(code == 0) { message }
         BiliClient.Json.decodeFromJsonElement(requireNotNull(data ?: result) { message })
