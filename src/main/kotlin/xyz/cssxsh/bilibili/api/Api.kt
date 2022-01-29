@@ -2,9 +2,11 @@ package xyz.cssxsh.bilibili.api
 
 import io.ktor.client.request.*
 import io.ktor.http.*
+import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 import xyz.cssxsh.bilibili.*
 import xyz.cssxsh.bilibili.data.*
+import java.io.*
 
 // Base
 const val INDEX_PAGE = "https://www.bilibili.com"
@@ -57,6 +59,8 @@ const val SEARCH_TYPE = "https://api.bilibili.com/x/web-interface/search/type"
 // Suit
 const val SUIT_ITEMS = "https://api.bilibili.com/x/garb/mall/item/suit/v2"
 
+const val EXCEPTION_JSON_CACHE = "xyz.cssxsh.bilibili.api.exception"
+
 internal suspend inline fun <reified T> BiliClient.json(
     urlString: String,
     crossinline block: HttpRequestBuilder.() -> Unit
@@ -65,6 +69,17 @@ internal suspend inline fun <reified T> BiliClient.json(
     mutex.wait(url.encodedPath)
     with(client.get<TempData>(url, block)) {
         check(code == 0) { message }
-        BiliClient.Json.decodeFromJsonElement(requireNotNull(data ?: result) { message })
+        val element = requireNotNull(data ?: result) { message }
+        try {
+            BiliClient.Json.decodeFromJsonElement(element)
+        } catch (cause: SerializationException) {
+            System.getProperty(EXCEPTION_JSON_CACHE)?.let { path ->
+                val folder = File(path)
+                folder.mkdirs()
+                folder.resolve("exception.${System.currentTimeMillis()}.json")
+                    .writeText(BiliClient.Json.encodeToString(JsonElement.serializer(), element))
+            }
+            throw cause
+        }
     }
 }

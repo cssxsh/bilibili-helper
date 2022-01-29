@@ -7,6 +7,7 @@ import net.mamoe.mirai.console.plugin.jvm.*
 import net.mamoe.mirai.event.events.*
 import net.mamoe.mirai.event.*
 import net.mamoe.mirai.utils.*
+import xyz.cssxsh.bilibili.api.*
 import xyz.cssxsh.mirai.plugin.command.*
 import xyz.cssxsh.mirai.plugin.data.*
 
@@ -26,6 +27,8 @@ object BiliHelperPlugin : KotlinPlugin(
         BiliCleanerConfig.reload()
         BiliCleanerConfig.save()
         BiliTemplate.reload(configFolder.resolve("Template").apply { mkdirs() })
+
+        System.setProperty(EXCEPTION_JSON_CACHE, dataFolder.absolutePath)
 
         client.load()
 

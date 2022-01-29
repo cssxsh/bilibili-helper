@@ -225,7 +225,7 @@ private val FULLWIDTH_CHARS = mapOf(
     '|' to '｜'
 )
 
-private fun String.fullwidth(): String = fold("") { acc, char -> acc + (FULLWIDTH_CHARS[char] ?: char) }
+internal fun String.fullwidth(): String = fold("") { acc, char -> acc + (FULLWIDTH_CHARS[char] ?: char) }
 
 internal suspend fun EmojiDetail.cache(contact: Contact): Image {
     return Url(url).cache(
