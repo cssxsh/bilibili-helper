@@ -13,6 +13,7 @@ import xyz.cssxsh.mirai.plugin.data.*
 import java.time.*
 import kotlin.coroutines.*
 import kotlin.math.*
+import kotlinx.serialization.*
 
 interface BiliTasker {
 
@@ -81,6 +82,9 @@ sealed class AbstractTasker<T : Entry>(val name: String) : BiliTasker, Coroutine
         while (isActive && !empty(id)) {
             val interval = try {
                 listen(id)
+            } catch (cause: SerializationException) {
+                logger.warning({ "$name with $id 数据加载异常，请汇报给开发者" }, cause)
+                slow
             } catch (e: Throwable) {
                 logger.warning({ "$name with $id fail $e" }, e)
                 slow
