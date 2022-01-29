@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "xyz.cssxsh"
-version = "1.4.1"
+version = "1.4.2"
 
 repositories {
     mavenLocal()
@@ -46,6 +46,7 @@ dependencies {
     compileOnly("net.mamoe:mirai-core-utils:2.10.0-RC2")
 
     testImplementation(kotlin("test", "1.6.0"))
+    testImplementation("org.slf4j:slf4j-simple:1.7.33")
 }
 
 mirai {
