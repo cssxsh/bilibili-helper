@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "xyz.cssxsh"
-version = "1.4.0"
+version = "1.4.1"
 
 repositories {
     mavenLocal()
@@ -41,15 +41,14 @@ dependencies {
         exclude(group = "io.ktor", module = "ktor-client-core")
         exclude(group = "io.ktor", module = "ktor-client-core-jvm")
     }
-    compileOnly("xyz.cssxsh.mirai:mirai-selenium-plugin:2.0.4")
-    compileOnly("net.mamoe:mirai-core:${mirai.coreVersion}")
-    compileOnly("net.mamoe:mirai-core-utils:${mirai.coreVersion}")
+    compileOnly("xyz.cssxsh.mirai:mirai-selenium-plugin:2.0.6")
+    compileOnly("net.mamoe:mirai-core:2.10.0-RC2")
+    compileOnly("net.mamoe:mirai-core-utils:2.10.0-RC2")
 
-    testImplementation(kotlin("test", kotlin.coreLibrariesVersion))
+    testImplementation(kotlin("test", "1.6.0"))
 }
 
 mirai {
-    jvmTarget = JavaVersion.VERSION_11
     configureShadow {
         exclude("module-info.class")
     }
