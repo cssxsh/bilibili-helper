@@ -19,10 +19,10 @@ suspend fun BiliClient.getSeasonInfo(
 }
 
 suspend fun BiliClient.getEpisodeInfo(
-    episode_id: Long,
+    episodeId: Long,
     url: String = SEASON_INFO
 ): BiliSeasonInfo = json(url) {
-    parameter("ep_id", episode_id)
+    parameter("ep_id", episodeId)
 }
 
 suspend fun BiliClient.getSeasonSection(

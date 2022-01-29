@@ -67,8 +67,8 @@ data class BiliVideoInfo(
     @SerialName("videos")
     val videos: Int
 ) : Video {
-    override val author: String by owner::name
-    override val mid: Long by owner::mid
+    override val author: String get() = owner.name
+    override val mid get() = owner.mid
     override val length: String by lazy {
         with(Duration.ofSeconds(duration)) { "%02d:%02d".format(toMinutes(), toSecondsPart()) }
     }

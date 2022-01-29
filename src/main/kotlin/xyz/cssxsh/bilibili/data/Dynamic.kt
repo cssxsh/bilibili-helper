@@ -350,11 +350,11 @@ data class DynamicReply(
     val user: UserSimple,
     @Transient
     override val display: DynamicDisplay = DynamicDisplay()
-) : DynamicCard {
+) : DynamicCard, DynamicEmojiContent {
     override val username get() = originUser.user.uname
     override val uid get() = originUser.user.uid
-    override val datetime: OffsetDateTime get() = timestamp(dynamictime(detail.id))
-    val content get() = detail.content
+    override val datetime: OffsetDateTime get() = timestamp(detail.timestamp)
+    override val content get() = detail.content
 }
 
 @Serializable
@@ -369,6 +369,8 @@ data class DynamicReplyDetail(
     override val type: Int,
     @SerialName("reply")
     val reply: Long,
+    @SerialName("timestamp")
+    val timestamp: Long = 0,
     @SerialName("uid")
     override val uid: Long
 ) : DynamicCardDetail
@@ -473,8 +475,8 @@ data class DynamicVideo(
     @SerialName("season_id")
     override val seasonId: Long? = null
 ) : Video {
-    override val author: String by owner::name
-    override val mid: Long by owner::mid
+    override val author: String get() = owner.name
+    override val mid: Long get() = owner.mid
     override val length: String by lazy {
         with(Duration.ofSeconds(duration)) { "%02d:%02d".format(toMinutes(), toSecondsPart()) }
     }
