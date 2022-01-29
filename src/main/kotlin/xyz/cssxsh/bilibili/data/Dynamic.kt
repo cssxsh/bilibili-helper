@@ -4,13 +4,40 @@ import kotlinx.serialization.*
 import xyz.cssxsh.bilibili.*
 import java.time.*
 
-sealed interface DynamicCard: Entry {
+@OptIn(ExperimentalSerializationApi::class)
+internal inline fun <reified T> DynamicCard.decode(): T {
+    if (decode == null) {
+        decode = BiliClient.Json.decodeFromString<T>(card)
+        if (decode is DynamicReply) {
+            decode = (decode as DynamicReply).copy(display = display.origin!!)
+        }
+    }
+    return decode as T
+}
+
+sealed interface DynamicCard : Entry {
     val card: String
     val detail: DynamicCardDetail
     val display: DynamicDisplay
     val datetime: OffsetDateTime
-    val username: String?
-    val uid: Long?
+    val profile: UserProfile
+
+    var decode: Any?
+
+    fun images(): List<String> = when (detail.type) {
+        DynamicType.PICTURE -> decode<DynamicPicture>().detail.pictures.map { it.source }
+        else -> emptyList()
+    }
+
+    fun username(): String = when (detail.type) {
+        DynamicType.EPISODE, DynamicType.BANGUMI, DynamicType.TV -> decode<DynamicEpisode>().season.title
+        else -> profile.user.uname
+    }
+
+    fun uid() = when (detail.type) {
+        DynamicType.EPISODE, DynamicType.BANGUMI, DynamicType.TV -> decode<DynamicEpisode>().season.seasonId
+        else -> profile.user.uid
+    }
 }
 
 sealed interface DynamicCardDetail {
@@ -52,6 +79,7 @@ object DynamicType {
     const val DELETE = 1024
     const val SKETCH = 2048
     const val BANGUMI = 4101
+    const val TV = 4099
     const val LIVE = 4200
     const val LIVE_END = 4308
 }
@@ -86,9 +114,9 @@ data class DynamicDescribe(
     @SerialName("type")
     override val type: Int,
     @SerialName("uid")
-    override val uid: Long,
+    override val uid: Long = 0,
     @SerialName("user_profile")
-    val profile: UserProfile? = null,
+    val profile: UserProfile = UserProfile(),
     @SerialName("view")
     val view: Long = 0
 ) : DynamicCardDetail
@@ -118,8 +146,10 @@ data class DynamicInfo(
 ) : DynamicCard, Entry {
     val link get() = "https://t.bilibili.com/${detail.id}"
     val h5 get() = "https://t.bilibili.com/h5/dynamic/detail/${detail.id}"
-    override val username get() = detail.profile?.user?.uname
-    override val uid get() = detail.profile?.user?.uid
+
+    @Transient
+    override var decode: Any? = null
+    override val profile: UserProfile get() = detail.profile
     override val datetime: OffsetDateTime get() = timestamp(detail.timestamp)
 }
 
@@ -291,7 +321,7 @@ data class DynamicMusic(
     val upper: String,
     @SerialName("upperAvatar")
     val avatar: String
-): Entry {
+) : Entry {
     val link get() = "https://www.bilibili.com/audio/au$id"
 }
 
@@ -351,10 +381,12 @@ data class DynamicReply(
     @Transient
     override val display: DynamicDisplay = DynamicDisplay()
 ) : DynamicCard, DynamicEmojiContent {
-    override val username get() = originUser.user.uname
-    override val uid get() = originUser.user.uid
+    @Transient
+    override var decode: Any? = null
+    @Transient
+    override var content = detail.content
+    override val profile: UserProfile get() = originUser
     override val datetime: OffsetDateTime get() = timestamp(detail.timestamp)
-    override val content get() = detail.content
 }
 
 @Serializable
@@ -385,7 +417,7 @@ data class DynamicSketch(
     val user: UserSimple,
     @SerialName("vest")
     val vest: DynamicSketchVest
-): Entry {
+) : Entry {
     val title get() = detail.title
     val link get() = detail.target
     val cover get() = detail.cover

@@ -75,7 +75,7 @@ data class UserNameplate(
 @Serializable
 data class UserProfile(
     @SerialName("info")
-    val user: UserSimple,
+    val user: UserSimple = UserSimple(),
     @SerialName("rank")
     val rank: String? = null,
     @SerialName("sign")
@@ -101,7 +101,7 @@ data class UserSimple(
     @SerialName("head_url")
     val head: String? = null,
     @SerialName("uid")
-    val uid: Long,
+    val uid: Long = 0,
     @SerialName("uname")
     val uname: String = ""
 )

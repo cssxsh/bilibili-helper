@@ -1,19 +1,9 @@
 package xyz.cssxsh.bilibili
 
-import kotlinx.serialization.*
-import xyz.cssxsh.bilibili.data.*
 import java.time.*
 import kotlin.properties.*
 
 internal fun timestamp(sec: Long) = OffsetDateTime.ofInstant(Instant.ofEpochSecond(sec), ZoneOffset.systemDefault())
-
-@OptIn(ExperimentalSerializationApi::class)
-internal inline fun <reified T> DynamicCard.decode(): T = BiliClient.Json.decodeFromString(card)
-
-internal fun DynamicCard.images(): List<String> = when (detail.type) {
-    DynamicType.PICTURE -> decode<DynamicPicture>().detail.pictures.map { it.source }
-    else -> emptyList()
-}
 
 val VIDEO_REGEX = """(?i)(?<!\w)(av\d+|BV[0-9A-z]{8,12})""".toRegex()
 
