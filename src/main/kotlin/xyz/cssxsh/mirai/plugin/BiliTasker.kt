@@ -86,7 +86,7 @@ sealed class AbstractTasker<T : Entry>(val name: String) : BiliTasker, Coroutine
                 logger.warning({ "$name with $id 数据加载异常，请汇报给开发者" }, cause)
                 slow
             } catch (e: Throwable) {
-                logger.warning({ "$name with $id fail $e" }, e)
+                logger.warning({ "$name with $id fail." }, e)
                 slow
             }
             delay(interval)
@@ -262,8 +262,12 @@ object BiliLiveWaiter : Waiter<BiliUserInfo>(name = "LiveWaiter") {
 
     private fun withAtAll(contact: Contact): Message {
         return if (contact is Group && LiveAtAll.testPermission(contact.permitteeId)) {
-            @Suppress("INVISIBLE_REFERENCE", "INVISIBLE_MEMBER")
-            AtAll + net.mamoe.mirai.internal.message.ForceAsLongMessage
+            if (contact.botPermission > MemberPermission.MEMBER) {
+                AtAll
+            } else {
+                @Suppress("INVISIBLE_REFERENCE", "INVISIBLE_MEMBER")
+                AtAll + net.mamoe.mirai.internal.message.ForceAsLongMessage
+            }
         } else {
             EmptyMessageChain
         }
