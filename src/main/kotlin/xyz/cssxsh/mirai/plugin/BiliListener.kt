@@ -13,7 +13,7 @@ internal object BiliListener : CoroutineScope by BiliHelperPlugin.childScope("Bi
 
     fun subscribe() {
         globalEventChannel()
-            .filter { it is MessageEvent && permission.testPermission(it.toCommandSender()) }
+            .filter { it is MessageEvent && it !is MessageSyncEvent && permission.testPermission(it.toCommandSender()) }
             .subscribeMessages {
                 for ((regex, replier) in UrlRepliers) {
                     regex findingReply replier
