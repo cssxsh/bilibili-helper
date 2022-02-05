@@ -9,7 +9,7 @@ internal inline fun <reified T> DynamicCard.decode(): T {
     if (decode == null) {
         decode = BiliClient.Json.decodeFromString<T>(card)
         if (decode is DynamicReply) {
-            decode = (decode as DynamicReply).copy(display = display.origin!!)
+            decode = (decode as DynamicReply).copy(display = display?.origin)
         }
     }
     return decode as T
@@ -18,7 +18,7 @@ internal inline fun <reified T> DynamicCard.decode(): T {
 sealed interface DynamicCard : Entry {
     val card: String
     val detail: DynamicCardDetail
-    val display: DynamicDisplay
+    val display: DynamicDisplay?
     val datetime: OffsetDateTime
     val profile: UserProfile
 
@@ -142,7 +142,7 @@ data class DynamicInfo(
     @SerialName("desc")
     override val detail: DynamicDescribe,
     @SerialName("display")
-    override val display: DynamicDisplay
+    override val display: DynamicDisplay? = null
 ) : DynamicCard, Entry {
     val link get() = "https://t.bilibili.com/${detail.id}"
     val h5 get() = "https://t.bilibili.com/h5/dynamic/detail/${detail.id}"
@@ -379,7 +379,7 @@ data class DynamicReply(
     @SerialName("user")
     val user: UserSimple,
     @Transient
-    override val display: DynamicDisplay = DynamicDisplay()
+    override val display: DynamicDisplay? = null
 ) : DynamicCard, DynamicEmojiContent {
     @Transient
     override var decode: Any? = null

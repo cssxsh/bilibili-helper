@@ -95,7 +95,8 @@ internal suspend fun DynamicCard.detail(contact: Contact): String {
     }
 }
 
-internal suspend fun DynamicEmojiContent.content(display: DynamicDisplay, contact: Contact): String {
+internal suspend fun DynamicEmojiContent.content(display: DynamicDisplay?, contact: Contact): String {
+    if (display == null) return content
     return display.emoji.details.fold(content) { current, emoji ->
         try {
             val code = emoji.cache(contact).serializeToMiraiCode()
