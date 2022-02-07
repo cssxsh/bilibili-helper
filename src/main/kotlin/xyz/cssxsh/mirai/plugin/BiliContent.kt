@@ -49,7 +49,7 @@ internal suspend fun Entry.images(contact: Contact): String {
         is DynamicCard -> getImages(contact).serializeToMiraiCode()
         is DynamicMusic -> getCover(contact).serializeToMiraiCode()
         is DynamicSketch -> getCover(contact).serializeToMiraiCode()
-        else -> TODO("${this::class.java.simpleName}.images")
+        else -> throw NoSuchElementException("${this::class.java.simpleName}.images")
     }
 }
 
@@ -61,14 +61,15 @@ internal suspend fun Entry.detail(contact: Contact): String {
             live.start = datetime
             live.content(contact).serializeToMiraiCode()
         }
-        else -> TODO("${this::class.java.simpleName}.detail")
+        else -> throw NoSuchElementException("${this::class.java.simpleName}.detail")
     }
 }
 
 internal suspend fun Entry.screenshot(contact: Contact): String {
     return when (this) {
         is DynamicInfo -> screenshot(contact).serializeToMiraiCode()
-        else -> TODO("${this::class.java.simpleName}.screenshot")
+        is Article -> screenshot(contact).serializeToMiraiCode()
+        else -> throw NoSuchElementException("${this::class.java.simpleName}.screenshot")
     }
 }
 

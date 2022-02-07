@@ -4,30 +4,91 @@ import kotlinx.serialization.*
 import xyz.cssxsh.bilibili.*
 import java.time.*
 
-sealed interface Article: Entry {
-    val categories: List<ArticleCategory>?
-    val category: ArticleCategory
+sealed interface Article : Entry {
     val id: Long
     val images: List<String>
     val title: String
     val published: Long
-    val summary: String
+    val summary: String get() = ""
+    val status: ArticleStatus? get() = null
 
     val link get() = "https://www.bilibili.com/read/cv$id"
     val datetime: OffsetDateTime get() = timestamp(published)
 }
 
 @Serializable
-data class BiliArticleInfo(
+data class BiliArticleList(
     @SerialName("last")
     val last: ArticleSimple,
     @SerialName("list")
-    val list: ArticleList?,
+    val list: ArticleList? = null,
+    @SerialName("next")
+    val next: ArticleSimple? = null,
     @SerialName("now")
     val now: Long,
     @SerialName("total")
     val total: Long
 )
+
+@Serializable
+data class BiliArticleView(
+    @SerialName("attention")
+    val attention: Boolean,
+    @SerialName("author_name")
+    val authorName: String,
+    @SerialName("banner_url")
+    val bannerUrl: String,
+    @SerialName("coin")
+    val coin: Long,
+    @SerialName("favorite")
+    val favorite: Boolean,
+    @SerialName("image_urls")
+    val imageUrls: List<String>,
+    @SerialName("in_list")
+    val inList: Boolean,
+    @SerialName("is_author")
+    val isAuthor: Boolean,
+    @SerialName("like")
+    @Serializable(NumberToBooleanSerializer::class)
+    val like: Boolean,
+    @SerialName("mid")
+    val mid: Long,
+    @SerialName("next")
+    val next: Long,
+    @SerialName("origin_image_urls")
+    override val images: List<String>,
+    @SerialName("pre")
+    val pre: Long,
+    @SerialName("share_channels")
+    val shareChannels: List<ShareChannel>,
+    @SerialName("shareable")
+    val shareable: Boolean,
+    @SerialName("show_later_watch")
+    val showLaterWatch: Boolean,
+    @SerialName("show_small_window")
+    val showSmallWindow: Boolean,
+    @SerialName("stats")
+    override val status: ArticleStatus,
+    @SerialName("title")
+    override val title: String,
+    @SerialName("id")
+    override val id: Long = 0,
+    @SerialName("publish_time")
+    override val published: Long = 0,
+) : Article, Owner {
+    override val uid: Long get() = mid
+    override val uname: String get() = authorName
+
+    @Serializable
+    data class ShareChannel(
+        @SerialName("name")
+        val name: String,
+        @SerialName("picture")
+        val picture: String,
+        @SerialName("share_channel")
+        val shareChannel: String
+    )
+}
 
 @Serializable
 data class ArticleAuthor(
@@ -49,30 +110,30 @@ data class ArticleAuthor(
 @Serializable
 data class ArticleStatus(
     @SerialName("coin")
-    val coin: Long,
+    val coin: Long = 0,
     @SerialName("dislike")
     @Serializable(NumberToBooleanSerializer::class)
-    val dislike: Boolean,
+    val dislike: Boolean = false,
     @SerialName("dynamic")
-    val dynamic: Long,
+    val dynamic: Long = 0,
     @SerialName("favorite")
-    val favorite: Long,
+    val favorite: Long = 0,
     @SerialName("like")
-    val like: Long,
+    val like: Long = 0,
     @SerialName("reply")
-    val reply: Long,
+    val reply: Long = 0,
     @SerialName("share")
-    val share: Long,
+    val share: Long = 0,
     @SerialName("view")
-    val view: Long
-)
+    val view: Long = 0
+) : Entry
 
 @Serializable
 data class ArticleSimple(
     @SerialName("categories")
-    override val categories: List<ArticleCategory>? = null,
+    val categories: List<ArticleCategory>? = null,
     @SerialName("category")
-    override val category: ArticleCategory,
+    val category: ArticleCategory,
     @SerialName("id")
     override val id: Long,
     @SerialName("image_urls")

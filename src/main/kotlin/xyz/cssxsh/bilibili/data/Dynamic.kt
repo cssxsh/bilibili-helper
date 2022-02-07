@@ -164,9 +164,9 @@ data class DynamicArticle(
     @SerialName("banner_url")
     val banner: String,
     @SerialName("categories")
-    override val categories: List<ArticleCategory>? = null,
+    val categories: List<ArticleCategory>? = null,
     @SerialName("category")
-    override val category: ArticleCategory,
+    val category: ArticleCategory,
     @SerialName("check_time")
     val check: String,
     @SerialName("cover_avid")
@@ -194,7 +194,7 @@ data class DynamicArticle(
     @SerialName("state")
     val state: Int,
     @SerialName("stats")
-    val status: ArticleStatus,
+    override val status: ArticleStatus,
     @SerialName("summary")
     override val summary: String,
     @SerialName("template_id")

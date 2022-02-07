@@ -33,7 +33,10 @@ const val ROOM_ROUND_PLAY = "https://api.live.bilibili.com/live/getRoundPlayVide
 const val ROOM_EMOTICONS = "https://api.live.bilibili.com/xlive/web-ucenter/v2/emoticon/GetEmoticons?platform=pc&room_id=21919321"
 
 // Article
-const val ARTICLE_INFO = "https://api.bilibili.com/x/article/listinfo"
+const val MORE = "https://api.bilibili.com/x/article/more?aid=15155534&platform=h5"
+const val ARTICLES = "https://api.bilibili.com/x/article/list/web/articles"
+const val ARTICLE_LIST_INFO = "https://api.bilibili.com/x/article/listinfo"
+const val ARTICLE_VIEW_INFO = "https://api.bilibili.com/x/article/viewinfo"
 
 // Music
 const val MUSIC_INFO = "https://www.bilibili.com/audio/music-service-c/web/song/info"

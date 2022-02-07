@@ -2,6 +2,7 @@ package xyz.cssxsh.mirai.plugin
 
 import io.ktor.client.request.*
 import io.ktor.http.*
+import io.ktor.http.Cookie
 import kotlinx.coroutines.sync.*
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.*
@@ -12,6 +13,7 @@ import net.mamoe.mirai.message.code.CodableMessage
 import net.mamoe.mirai.message.data.*
 import net.mamoe.mirai.utils.*
 import net.mamoe.mirai.utils.ExternalResource.Companion.uploadAsImage
+import org.openqa.selenium.*
 import org.openqa.selenium.remote.*
 import xyz.cssxsh.bilibili.data.*
 import xyz.cssxsh.bilibili.*
@@ -206,7 +208,24 @@ private suspend fun Url.screenshot(type: CacheType, path: String, refresh: Boole
     type.directory.resolve(path).apply {
         if (exists().not() || refresh) {
             parentFile.mkdirs()
-            writeBytes(driver.getScreenshot(url = this@screenshot.toString(), hide = BiliSeleniumConfig.hide))
+            when (type) {
+                CacheType.ARTICLE -> {
+                    driver.get(this@screenshot.toString())
+                    driver.findElement(By.cssSelector(".h5-download-bar .close-icon")).click()
+                    driver.findElement(By.cssSelector(".read-more .back-icon")).click()
+                    val body = driver.findElement(By.cssSelector("body"))
+                    val recommend = driver.findElement(By.cssSelector(".read-recommend-info"))
+                    val comment = driver.findElement(By.cssSelector(".read-comment-box"))
+                    val size = Dimension(body.size.width, body.size.height - recommend.size.height - comment.size.height)
+                    driver.manage().window().size = size
+                    driver.executeScript("window.scrollTo(0,0)")
+                    val screenshot = driver.getScreenshotAs(OutputType.FILE)
+                    screenshot.renameTo(this)
+                }
+                else -> {
+                    writeBytes(driver.getScreenshot(url = this@screenshot.toString(), hide = BiliSeleniumConfig.hide))
+                }
+            }
         } else {
             setLastModified(System.currentTimeMillis())
         }
@@ -246,6 +265,20 @@ internal suspend fun DynamicInfo.screenshot(contact: Contact, refresh: Boolean =
     } catch (e: Throwable) {
         logger.warning({ "获取动态${detail.id}快照失败" }, e)
         "获取动态${detail.id}快照失败".toPlainText()
+    }
+}
+
+internal suspend fun Article.screenshot(contact: Contact, refresh: Boolean = false): CodableMessage {
+    return try {
+        Url(link).screenshot(
+            type = CacheType.ARTICLE,
+            path = "${id}/cv${id}.png",
+            refresh = refresh,
+            contact = contact
+        )
+    } catch (e: Throwable) {
+        logger.warning({ "获取专栏${id}快照失败" }, e)
+        "获取专栏${id}快照失败".toPlainText()
     }
 }
 

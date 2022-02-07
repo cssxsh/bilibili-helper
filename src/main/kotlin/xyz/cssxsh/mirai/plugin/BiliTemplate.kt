@@ -14,6 +14,12 @@ object BiliTemplate {
             链接: #link
             简介: #summary
             #images
+            状态: 
+            #status
+        """.trimIndent()
+        cache[ArticleStatus::class.java] = """
+            点赞: #like 硬币: #coin 收藏: #favorite
+            阅读: #view 评论: #reply 分享: #share
         """.trimIndent()
         cache[UserInfo::class.java] = """
             #images
