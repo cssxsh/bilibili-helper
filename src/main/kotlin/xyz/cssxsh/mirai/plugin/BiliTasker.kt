@@ -23,9 +23,9 @@ interface BiliTasker {
 
     suspend fun list(subject: Contact): String
 
-    suspend fun start()
+    fun start()
 
-    suspend fun stop()
+    fun stop()
 
     val tasks: Map<Long, BiliTask>
 
@@ -130,7 +130,7 @@ sealed class AbstractTasker<T : Entry>(val name: String) : BiliTasker, Coroutine
         }
     }
 
-    override suspend fun start(): Unit = mutex.withLock {
+    override fun start() {
         for ((id, info) in tasks) {
             if (info.contacts.isEmpty()) continue
             try {
@@ -141,7 +141,7 @@ sealed class AbstractTasker<T : Entry>(val name: String) : BiliTasker, Coroutine
         }
     }
 
-    override suspend fun stop(): Unit = mutex.withLock {
+    override fun stop() {
         coroutineContext.cancelChildren()
         jobs.clear()
     }

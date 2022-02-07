@@ -61,10 +61,8 @@ object BiliHelperPlugin : KotlinPlugin(
 
         BiliListener.stop()
 
-        runBlocking(coroutineContext) {
-            for (task in BiliTasker) {
-                task.stop()
-            }
+        for (task in BiliTasker) {
+            task.stop()
         }
         BiliCleaner.stop()
         client.save()
