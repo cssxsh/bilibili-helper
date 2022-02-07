@@ -2,13 +2,22 @@ package xyz.cssxsh.bilibili.data
 
 import kotlinx.serialization.*
 
-sealed interface UserInfo : Entry {
+interface Owner {
+    val face: String? get() = null
+    val uid: Long
+    val uname: String
+}
+
+sealed interface UserInfo : Entry, Owner {
     val name: String
     val level: Int
     val sign: String
     val live: String
-    val face: String
+    override val face: String
     val mid: Long
+
+    override val uid: Long get() = mid
+    override val uname: String get() = name
 }
 
 @Serializable
@@ -97,11 +106,11 @@ data class UserOfficial(
 @Serializable
 data class UserSimple(
     @SerialName("face")
-    val face: String? = null,
+    override val face: String? = null,
     @SerialName("head_url")
     val head: String? = null,
     @SerialName("uid")
-    val uid: Long = 0,
+    override val uid: Long = 0,
     @SerialName("uname")
-    val uname: String = ""
-)
+    override val uname: String = ""
+) : Owner

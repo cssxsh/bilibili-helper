@@ -257,7 +257,7 @@ data class DynamicLive(
     @SerialName("cover")
     override val cover: String,
     @SerialName("face")
-    val face: String,
+    override val face: String,
     @SerialName("link")
     override val link: String,
     @SerialName("live_status")
@@ -289,8 +289,7 @@ data class DynamicLive(
     @SerialName("verify")
     val verify: String,
 ) : Live {
-    @Transient
-    override var start: OffsetDateTime? = null
+    override val start: OffsetDateTime? get() = null
 }
 
 @Serializable
@@ -507,6 +506,8 @@ data class DynamicVideo(
     @SerialName("season_id")
     override val seasonId: Long? = null
 ) : Video {
+    override val uid: Long get() = owner.mid
+    override val uname: String get() = owner.name
     override val author: String get() = owner.name
     override val mid: Long get() = owner.mid
     override val length: String by lazy {

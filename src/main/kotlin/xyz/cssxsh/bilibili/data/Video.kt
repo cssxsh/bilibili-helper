@@ -4,7 +4,7 @@ import kotlinx.serialization.*
 import xyz.cssxsh.bilibili.timestamp
 import java.time.*
 
-sealed interface Video : Entry {
+sealed interface Video : Entry, Owner {
     val title: String
     val author: String
     val description: String
@@ -67,6 +67,8 @@ data class BiliVideoInfo(
     @SerialName("videos")
     val videos: Int
 ) : Video {
+    override val uid: Long get() = owner.mid
+    override val uname: String get() = owner.name
     override val author: String get() = owner.name
     override val mid get() = owner.mid
     override val length: String by lazy {
@@ -145,7 +147,7 @@ data class VideoSubtitleAuthor(
     @SerialName("sex")
     val sex: String,
     @SerialName("face")
-    val face: String,
+    override val face: String,
     @SerialName("sign")
     val sign: String,
     @SerialName("rank")
@@ -158,7 +160,10 @@ data class VideoSubtitleAuthor(
     @SerialName("is_deleted")
     @Serializable(NumberToBooleanSerializer::class)
     val isDeleted: Boolean
-)
+) : Owner {
+    override val uid: Long get() = mid
+    override val uname: String get() = name
+}
 
 @Serializable
 data class VideoStatus(
@@ -189,7 +194,7 @@ data class VideoStatus(
 @Serializable
 data class VideoStaff(
     @SerialName("face")
-    val face: String,
+    override val face: String,
     @SerialName("follower")
     val follower: Int,
     @SerialName("mid")
@@ -200,7 +205,10 @@ data class VideoStaff(
     val official: UserOfficial,
     @SerialName("title")
     val title: String
-)
+) : Owner {
+    override val uid: Long get() = mid
+    override val uname: String get() = name
+}
 
 @Serializable
 data class VideoSimple(
@@ -254,7 +262,10 @@ data class VideoSimple(
     override val seasonId: Long? = null,
     @SerialName("stat")
     override val status: VideoStatus? = null
-) : Video
+) : Video {
+    override val uid: Long get() = mid
+    override val uname: String get() = author
+}
 
 @Serializable
 data class VideoPage(
@@ -279,12 +290,15 @@ data class VideoPage(
 @Serializable
 data class VideoOwner(
     @SerialName("face")
-    val face: String? = null,
+    override val face: String? = null,
     @SerialName("mid")
     val mid: Long,
     @SerialName("name")
     val name: String = "",
-)
+) : Owner {
+    override val uid: Long get() = mid
+    override val uname: String get() = name
+}
 
 @Serializable
 data class VideoDimension(

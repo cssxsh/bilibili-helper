@@ -153,6 +153,7 @@ data class SearchSeason(
     override val title: String,
     @SerialName("url")
     override val share: String,
+    @SerialName("new")
     override val new: NewEpisode? = null
 ) : Media
 

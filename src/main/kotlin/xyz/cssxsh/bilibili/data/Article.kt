@@ -32,16 +32,19 @@ data class BiliArticleInfo(
 @Serializable
 data class ArticleAuthor(
     @SerialName("face")
-    val face: String,
+    override val face: String,
     @SerialName("mid")
-    val uid: Long,
+    val mid: Long,
     @SerialName("name")
     val name: String,
     @SerialName("nameplate")
     val nameplate: UserNameplate,
     @SerialName("official_verify")
     val official: UserOfficial
-)
+) : Owner {
+    override val uid: Long get() = mid
+    override val uname: String get() = name
+}
 
 @Serializable
 data class ArticleStatus(
@@ -91,11 +94,11 @@ data class ArticleMedia(
     @SerialName("cover")
     val cover: String,
     @SerialName("media_id")
-    val mediaId: Int,
+    val mediaId: Long,
     @SerialName("score")
     val score: Int,
     @SerialName("season_id")
-    val seasonId: Int,
+    val seasonId: Long,
     @SerialName("spoiler")
     val spoiler: Int,
     @SerialName("title")
@@ -117,7 +120,7 @@ data class ArticleList(
     @SerialName("ctime")
     val created: Long,
     @SerialName("id")
-    val id: Int,
+    val id: Long,
     @SerialName("image_url")
     val image: String,
     @SerialName("mid")
@@ -138,14 +141,17 @@ data class ArticleList(
     val updated: Long,
     @SerialName("words")
     val words: Int
-)
+) : Owner {
+    override val uid: Long get() = mid
+    override val uname: String get() = name
+}
 
 @Serializable
 data class ArticleCategory(
     @SerialName("id")
-    val id: Int,
+    val id: Long,
     @SerialName("name")
     val name: String,
     @SerialName("parent_id")
-    val parentId: Int
+    val parentId: Long
 )

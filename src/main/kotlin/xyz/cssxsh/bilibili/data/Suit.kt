@@ -18,10 +18,14 @@ data class FanUser(
     @SerialName("avatar")
     val avatar: String,
     @SerialName("mid")
-    val mid: Int,
+    val mid: Long,
     @SerialName("nickname")
     val nickname: String
-)
+) : Owner {
+    override val face: String get() = avatar
+    override val uid: Long get() = mid
+    override val uname: String get() = nickname
+}
 
 @Serializable
 data class GarbSuitItem(

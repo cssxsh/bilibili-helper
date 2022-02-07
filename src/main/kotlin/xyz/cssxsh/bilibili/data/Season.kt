@@ -42,9 +42,7 @@ sealed interface NewEpisode {
 @Serializable
 data class BiliSectionMedia(
     @SerialName("media")
-    val media: SeasonMedia,
-//    @SerialName("review")
-//    val review: Review
+    val media: SeasonMedia
 )
 
 @Serializable
@@ -212,8 +210,11 @@ data class UpperSimple(
     @SerialName("mid")
     val mid: Long,
     @SerialName("uname")
-    val uname: String = ""
-)
+    override val uname: String = ""
+): Owner {
+    override val uid: Long get() = mid
+    override val face: String get() = avatar
+}
 
 @Serializable
 data class SeasonNewEpisode(

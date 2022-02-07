@@ -4,7 +4,7 @@ import kotlinx.serialization.*
 import xyz.cssxsh.bilibili.*
 import java.time.*
 
-sealed interface Live : Entry {
+sealed interface Live : Entry, Owner {
     val roomId: Long
     val title: String
     val cover: String
@@ -12,9 +12,9 @@ sealed interface Live : Entry {
     val liveStatus: Boolean
     val link: String
 
-    var start: OffsetDateTime?
-    val uname: String
-    val uid: Long
+    val start: OffsetDateTime?
+    override val uname: String
+    override val uid: Long
 
     val share: String get() = link.substringBefore('?')
 }
@@ -78,7 +78,7 @@ data class BiliRoomSimple(
     override val title: String,
     @SerialName("url")
     override val link: String
-) : Live  {
+) : Live {
     @Transient
     override var start: OffsetDateTime? = null
 
@@ -92,17 +92,17 @@ data class BiliRoomSimple(
 @Serializable
 data class BiliRoundPlayVideo(
     @SerialName("aid")
-    val aid: Int,
+    val aid: Long,
     @SerialName("bvid")
     val bvid: String? = null,
     @SerialName("bvid_url")
     val link: String? = null,
     @SerialName("cid")
-    val cid: Int,
+    val cid: Long,
     @SerialName("pid")
-    val pid: Int,
+    val pid: Long,
     @SerialName("play_time")
-    val time: Int,
+    val time: Long,
     @SerialName("play_url")
     val url: String? = null,
     @SerialName("sequence")
@@ -126,7 +126,7 @@ data class LiveRecommend(
     @SerialName("cover")
     override val cover: String,
     @SerialName("face")
-    val face: String,
+    override val face: String,
     @SerialName("flag")
     val flag: Int,
     @SerialName("is_auto_play")
@@ -147,9 +147,8 @@ data class LiveRecommend(
     @SerialName("liveStatus")
     @Serializable(NumberToBooleanSerializer::class)
     override val liveStatus: Boolean = true,
-) : Live  {
-    @Transient
-    override var start: OffsetDateTime? = null
+) : Live {
+    override val start: OffsetDateTime? get() = null
 }
 
 @Serializable
@@ -168,7 +167,7 @@ data class LiveRecord(
     @SerialName("title")
     val title: String,
     @SerialName("uid")
-    val uid: Long,
+    override val uid: Long,
     @SerialName("uname")
-    val uname: String
-)
+    override val uname: String
+) : Owner
