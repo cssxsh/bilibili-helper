@@ -85,15 +85,26 @@
 消息中包含 `BV12v411G7dP` `av2` 等等 id 信息时会自动触发解析  
 目前会触发的正则表达式
 
-```
-val VIDEO_REGEX = """((av|AV)\d+|BV[0-9A-z]{8,12})""".toRegex()
-val DYNAMIC_REGEX = """(?<=t\.bilibili\.com/(h5/dynamic/detail/)?)(\d+)""".toRegex()
-val ROOM_REGEX = """(?<=live\.bilibili\.com/)(\d+)""".toRegex()
-val SHORT_LINK_REGEX = """(?<=b23\.tv\\?/)[0-9A-z]+""".toRegex()
-val SPACE_REGEX = """(?<=space\.bilibili\.com/)(\d+)""".toRegex()
-val SEASON_REGEX = """(?<=bilibili\.com/bangumi/play/ss)(\d+)""".toRegex()
-val EPISODE_REGEX = """(?<=bilibili\.com/bangumi/play/ep)(\d+)""".toRegex()
-val MEDIA_REGEX = """(?<=bilibili\.com/bangumi/media/md)(\d+)""".toRegex()
+```regexp
+// Video
+"""(?i)(?<!\w)(?:av(\d+)|(BV[0-9A-z]{10}))"""
+// Dynamic
+"""(?<=t\.bilibili\.com/(h5/dynamic/detail/)?)(\d+)"""
+// Live Room
+"""(?<=live\.bilibili\.com/)(\d+)"""
+// User Space
+"""(?<=space\.bilibili\.com/|bilibili\.com/space/)(\d+)"""
+// Season
+"""(?i)(?<!\w)ss(\d{4,10})"""
+// Episode
+"""(?i)(?<!\w)eq(\d{4,10})"""
+// Media
+"""(?i)(?<!\w)md(\d{4,10})"""
+// Article
+"""(?i)(?<!\w)cv(\d{4,10})"""
+"""(?<=bilibili\.com/read/mobile\?id=)(\d+)"""
+// Short Link
+"""(?<=b23\.tv\\?/)[0-9A-z]+"""
 ```
 
 ### 搜索指令
