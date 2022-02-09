@@ -74,7 +74,7 @@ sealed class AbstractTasker<T : Entry>(val name: String) : BiliTasker, Coroutine
         }
     }
 
-    private val jobs = mutableMapOf<Long, Job>()
+    private val jobs: MutableMap<Long, Job> = HashMap()
 
     protected abstract suspend fun listen(id: Long): Long
 
@@ -174,7 +174,7 @@ sealed class Loader<T : Entry>(name: String) : AbstractTasker<T>(name) {
 
 sealed class Waiter<T : Entry>(name: String) : AbstractTasker<T>(name) {
 
-    private val states = mutableMapOf<Long, Boolean>()
+    private val states: MutableMap<Long, Boolean> = HashMap()
 
     protected abstract suspend fun load(id: Long): T
 
@@ -293,7 +293,7 @@ object BiliSeasonWaiter : Waiter<BiliSeasonInfo>(name = "SeasonWaiter") {
 
     override val slow = BiliHelperSettings.season * Minute
 
-    private val record = mutableMapOf<Long, Video>()
+    private val record: MutableMap<Long, Video> = HashMap()
 
     private suspend fun video(aid: Long) = record.getOrPut(aid) { client.getVideoInfo(aid = aid) }
 

@@ -10,7 +10,6 @@ object BiliTemplate {
     init {
         cache[Article::class.java] = """
             专栏: #title
-            时间: #datetime
             链接: #link
             简介: #summary
             #images

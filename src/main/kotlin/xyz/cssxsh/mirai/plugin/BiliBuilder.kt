@@ -34,22 +34,22 @@ internal val DynamicReplier: MessageReplier = replier@{ result ->
     logger.info { "${sender.render()} 匹配Dynamic(${result.value})" }
     try {
         val (id) = result.destructured
-        message.quote() + client.getDynamicInfo(id.toLong()).dynamic.content(subject)
+        message.quote() + client.getDynamicInfo(dynamicId = id.toLong()).dynamic.content(subject)
     } catch (e: Throwable) {
         logger.warning({ "构建Dynamic(${result.value})信息失败" }, e)
         e.message
     }
 }
 
-internal val VIDEO_REGEX = """(?i)(?<!\w)(?:av(\d+)|(BV[0-9A-z]{8,12}))""".toRegex()
+internal val VIDEO_REGEX = """(?i)(?<!\w)(?:av(\d+)|(BV[0-9A-z]{10}))""".toRegex()
 
 internal val VideoReplier: MessageReplier = replier@{ result ->
     logger.info { "${sender.render()} 匹配Video(${result.value})" }
     try {
-        val (id) = result.destructured
+        val (aid, bvid) = result.destructured
         message.quote() + when (result.value.first()) {
-            'B', 'b' -> client.getVideoInfo(id)
-            'A', 'a' -> client.getVideoInfo(id.toLong())
+            'B', 'b' -> client.getVideoInfo(bvid = bvid)
+            'A', 'a' -> client.getVideoInfo(aid = aid.toLong())
             else -> throw IllegalArgumentException("未知视频ID(${result.value})")
         }.content(contact = subject)
     } catch (e: Throwable) {
@@ -64,7 +64,7 @@ internal val RoomReplier: MessageReplier = replier@{ result ->
     logger.info { "${sender.render()} 匹配Room(${result.value})" }
     try {
         val (id) = result.destructured
-        message.quote() + client.getRoomInfo(id.toLong()).content(subject)
+        message.quote() + client.getRoomInfo(roomId = id.toLong()).content(subject)
     } catch (e: Throwable) {
         logger.warning({ "构建Room(${result.value})信息失败" }, e)
         e.message
@@ -77,59 +77,61 @@ internal val SpaceReplier: MessageReplier = replier@{ result ->
     logger.info { "${sender.render()} 匹配User(${result.value})" }
     try {
         val (id) = result.destructured
-        message.quote() + client.getUserInfo(id.toLong()).content(subject)
+        message.quote() + client.getUserInfo(uid = id.toLong()).content(subject)
     } catch (e: Throwable) {
         logger.warning({ "构建User(${result.value})信息失败" }, e)
         e.message
     }
 }
 
-internal val SEASON_REGEX = """(?i)(?<!\w)ss(\d+)""".toRegex()
+internal val SEASON_REGEX = """(?i)(?<!\w)ss(\d{4,10})""".toRegex()
 
 internal val SeasonReplier: MessageReplier = replier@{ result ->
     logger.info { "${sender.render()} 匹配Season(${result.value})" }
     try {
         val (id) = result.destructured
-        message.quote() + client.getSeasonInfo(id.toLong()).content(subject)
+        message.quote() + client.getSeasonInfo(seasonId = id.toLong()).content(subject)
     } catch (e: Throwable) {
         logger.warning({ "构建Season(${result.value})信息失败" }, e)
         e.message
     }
 }
 
-internal val EPISODE_REGEX = """(?i)(?<!\w)eq(\d+)""".toRegex()
+internal val EPISODE_REGEX = """(?i)(?<!\w)eq(\d{4,10})""".toRegex()
 
 internal val EpisodeReplier: MessageReplier = replier@{ result ->
     logger.info { "${sender.render()} 匹配Episode(${result.value})" }
     try {
         val (id) = result.destructured
-        message.quote() + client.getEpisodeInfo(id.toLong()).content(subject)
+        message.quote() + client.getEpisodeInfo(episodeId = id.toLong()).content(subject)
     } catch (e: Throwable) {
         logger.warning({ "构建Episode(${result.value})信息失败" }, e)
         e.message
     }
 }
 
-internal val MEDIA_REGEX = """(?i)(?<!\w)md(\d+)""".toRegex()
+internal val MEDIA_REGEX = """(?i)(?<!\w)md(\d{4,10})""".toRegex()
 
 internal val MediaReplier: MessageReplier = replier@{ result ->
     logger.info { "${sender.render()} 匹配Media(${result.value})" }
     try {
         val (id) = result.destructured
-        message.quote() + client.getSeasonMedia(id.toLong()).media.content(subject)
+        message.quote() + client.getSeasonMedia(mediaId = id.toLong()).media.content(subject)
     } catch (e: Throwable) {
         logger.warning({ "构建Media(${result.value})信息失败" }, e)
         e.message
     }
 }
 
-internal val ARTICLE_REGEX = """(?i)(?<!\w)cv(\d+)|(?<=bilibili\.com/read/mobile\?id=)(\d+)""".toRegex()
+internal val ARTICLE_REGEX = """(?i)(?<!\w)cv(\d{4,10})""".toRegex()
+
+internal val ARTICLE_URL_REGEX = """(?<=bilibili\.com/read/mobile\?id=)(\d+)""".toRegex()
 
 internal val ArticleReplier: MessageReplier = replier@{ result ->
     logger.info { "${sender.render()} 匹配Article(${result.value})" }
     try {
         val (id) = result.destructured
-        message.quote() + client.getArticleInfo(id.toLong()).last.content(subject)
+        message.quote() + client.getArticleView(cid = id.toLong()).content(subject)
     } catch (e: Throwable) {
         logger.warning({ "构建Article(${result.value})信息失败" }, e)
         e.message
@@ -166,6 +168,7 @@ internal val UrlRepliers by lazy {
         EPISODE_REGEX to EpisodeReplier,
         MEDIA_REGEX to MediaReplier,
         ARTICLE_REGEX to ArticleReplier,
+        ARTICLE_URL_REGEX to ArticleReplier,
         SHORT_LINK_REGEX to ShortLinkReplier
     )
 }
