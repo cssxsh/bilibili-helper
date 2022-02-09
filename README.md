@@ -176,7 +176,8 @@
 `#images` 将会替换为内容图片  
 在 `BiliRoomInfo` 中 `#detail` 将会替换为对应的 `Live`  
 在 `DynamicCard` 中 `#detail` 将会替换为对应的 `card` 解析结果    
-在 `DynamicInfo` 中 `#screenshot` 将会替换为截图（需要安装 `mirai-selenium-plugin`）  
+在 `DynamicInfo` 中 `#screenshot` 将会替换为截图（需要安装 `mirai-selenium-plugin`） 
+在 `Article` 中 `#screenshot` 将会替换为截图（需要安装 `mirai-selenium-plugin`） 
 例如可以将 `VideoStatus.template` 改为
 
 ```
