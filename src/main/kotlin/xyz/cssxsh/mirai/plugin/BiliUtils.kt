@@ -3,6 +3,7 @@ package xyz.cssxsh.mirai.plugin
 import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.http.Cookie
+import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.*
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.*
@@ -213,6 +214,13 @@ private suspend fun Url.screenshot(type: CacheType, path: String, refresh: Boole
                     driver.get(this@screenshot.toString())
                     driver.findElement(By.cssSelector(".h5-download-bar .close-icon")).click()
                     driver.findElement(By.cssSelector(".read-more .back-icon")).click()
+                    val start = System.currentTimeMillis()
+                    while (contact.isActive) {
+                        if (driver.isReady()) break
+                        delay(1000L)
+                        val current = System.currentTimeMillis()
+                        if (current - start > 60_000) break
+                    }
                     val body = driver.findElement(By.cssSelector("body"))
                     val recommend = driver.findElement(By.cssSelector(".read-recommend-info"))
                     val comment = driver.findElement(By.cssSelector(".read-comment-box"))
