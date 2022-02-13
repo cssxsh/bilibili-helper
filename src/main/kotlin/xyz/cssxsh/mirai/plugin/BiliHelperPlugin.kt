@@ -45,8 +45,9 @@ object BiliHelperPlugin : KotlinPlugin(
             }
         }
 
+        BiliListener.registerTo(globalEventChannel())
+
         globalEventChannel().subscribeOnce<BotOnlineEvent> {
-            BiliListener.subscribe()
             for (task in BiliTasker) {
                 task.start()
             }
@@ -59,7 +60,7 @@ object BiliHelperPlugin : KotlinPlugin(
             command.unregister()
         }
 
-        BiliListener.stop()
+        BiliListener.cancelAll()
 
         for (task in BiliTasker) {
             task.stop()

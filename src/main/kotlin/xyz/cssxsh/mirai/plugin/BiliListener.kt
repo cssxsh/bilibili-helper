@@ -1,27 +1,43 @@
 package xyz.cssxsh.mirai.plugin
 
-import kotlinx.coroutines.*
 import net.mamoe.mirai.console.command.CommandSender.Companion.toCommandSender
 import net.mamoe.mirai.console.permission.PermissionService.Companion.testPermission
-import net.mamoe.mirai.utils.*
 import net.mamoe.mirai.event.*
 import net.mamoe.mirai.event.events.*
+import net.mamoe.mirai.message.data.*
+import net.mamoe.mirai.utils.*
 import xyz.cssxsh.mirai.plugin.command.*
+import xyz.cssxsh.mirai.plugin.data.*
+import kotlin.coroutines.*
+import kotlin.coroutines.cancellation.*
 
-internal object BiliListener : CoroutineScope by BiliHelperPlugin.childScope("BiliListener") {
-    private val permission by BiliInfoCommand::permission
+internal object BiliListener : SimpleListenerHost() {
+    private val permission get() = BiliInfoCommand.permission
+    private val ban get() = BiliHelperSettings.ban
 
-    fun subscribe() {
-        globalEventChannel()
-            .filter { it is MessageEvent && it !is MessageSyncEvent && permission.testPermission(it.toCommandSender()) }
-            .subscribeMessages {
-                for ((regex, replier) in UrlRepliers) {
-                    regex findingReply replier
-                }
-            }
+    override fun handleException(context: CoroutineContext, exception: Throwable) {
+        when (exception) {
+            is ExceptionInEventHandlerException -> logger.warning({ "BiliListener Handle Exception" }, exception.cause)
+            is CancellationException -> Unit
+            else -> logger.warning({ "BiliListener Exception" }, exception)
+        }
     }
 
-    fun stop() {
-        coroutineContext.cancelChildren()
+    @EventHandler
+    suspend fun MessageEvent.handle() {
+        if (this is MessageSyncEvent) return
+        if (permission.testPermission(toCommandSender()).not()) return
+
+        for ((regex, replier) in UrlRepliers) {
+            val result = regex.find(message.contentToString()) ?: continue
+            if (ban.any { it.equals(other = result.value, ignoreCase = true) }) continue
+
+            when (val message = replier(result)) {
+                is Message -> subject.sendMessage(message)
+                null, is Unit -> Unit
+                else -> subject.sendMessage(message.toString())
+            }
+            break
+        }
     }
 }
