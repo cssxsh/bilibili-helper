@@ -43,7 +43,8 @@ internal var cookies by object : ReadWriteProperty<Any?, List<Cookie>> {
         return BiliClient.Json.decodeFromString<List<EditThisCookie>>(json.readText().ifBlank { "[]" }).mapNotNull {
             try {
                 it.toCookie()
-            } catch (e: Throwable) {
+            } catch (cause: Throwable) {
+                logger.warning({ "${it.name} 解析错误" }, cause)
                 null
             }
         }

@@ -46,7 +46,7 @@ fun EditThisCookie.toCookie() = Cookie(
 fun Cookie.toEditThisCookie(id: Int = 0) = EditThisCookie(
     name = name,
     value = value,
-    expirationDate = expires?.timestamp?.div(1000)?.toDouble(),
+    expirationDate = expires?.timestamp?.toDouble()?.div(1000),
     domain = domain.orEmpty(),
     path = path.orEmpty(),
     secure = secure,
