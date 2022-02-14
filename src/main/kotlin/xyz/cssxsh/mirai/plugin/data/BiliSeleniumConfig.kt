@@ -16,10 +16,6 @@ object BiliSeleniumConfig : ReadOnlyPluginConfig("SeleniumConfig"), RemoteWebDri
     @ValueDescription("截图高度")
     override val height: Int by value(1024)
 
-    @ValueName("pixel_ratio")
-    @ValueDescription("截图像素比")
-    override val pixelRatio: Int by value(3)
-
     @ValueName("headless")
     @ValueDescription("无头模式（后台模式）")
     override val headless: Boolean by value(true)

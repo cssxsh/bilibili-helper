@@ -155,7 +155,7 @@
   Mac `Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_8; en-us) AppleWebKit/534.50 (KHTML, like Gecko) Version/5.1 Safari/534.50 MicroMessenger`
 * `width` 截图宽度
 * `height` 截图高度
-* `pixel_ratio` 截图像素比
+* `pixel_ratio` ~~截图像素比~~ 此配置废除
 * `headless` 无头模式(后台模式)
 * `home` 浏览器会保持打开主页，以加快其他页面加载速度
 * `hide` 隐藏的web组件(jQ选择器)  
