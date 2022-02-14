@@ -35,7 +35,7 @@ data class EditThisCookie(
 fun EditThisCookie.toCookie() = Cookie(
     name = name,
     value = value,
-    encoding = CookieEncoding.URI_ENCODING,
+    encoding = CookieEncoding.RAW,
     expires = expirationDate?.run { GMTDate(times(1000).toLong()) },
     domain = domain,
     path = path,
