@@ -28,7 +28,7 @@ internal suspend fun SearchResult<*>.toMessage(contact: Contact): Message {
 
 typealias MessageReplier = suspend MessageEvent.(MatchResult) -> Any?
 
-internal val DYNAMIC_REGEX = """(?<=t\.bilibili\.com/(h5/dynamic/detail/)?|m\.bilibili\.com/dynamic/)(\d+)""".toRegex()
+internal val DYNAMIC_REGEX = """(?<=t\.bilibili\.com/(?:h5/dynamic/detail/)?|m\.bilibili\.com/dynamic/)(\d+)""".toRegex()
 
 internal val DynamicReplier: MessageReplier = replier@{ result ->
     logger.info { "${sender.render()} 匹配Dynamic(${result.value})" }
@@ -150,7 +150,7 @@ private suspend fun Url.location(): String? {
 internal val SHORT_LINK_REGEX = """(?<=b23\.tv\\?/)[0-9A-z]+""".toRegex()
 
 internal val ShortLinkReplier: MessageReplier = replier@{ result ->
-    logger.info { "${sender.render()} 匹配SHORT_LINK(${result.value}) 尝试跳转" }
+    logger.info { "${sender.render()} 匹配ShortLink(${result.value}) 尝试跳转" }
     val location = Url("https://b23.tv/${result.value}").location() ?: return@replier null
     for ((regex, replier) in UrlRepliers) {
         val new = regex.find(location) ?: continue

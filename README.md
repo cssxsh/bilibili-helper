@@ -89,7 +89,7 @@
 // Video
 """(?i)(?<!\w)(?:av(\d+)|(BV[0-9A-z]{10}))"""
 // Dynamic
-"""(?<=t\.bilibili\.com/(h5/dynamic/detail/)?)(\d+)"""
+"""(?<=t\.bilibili\.com/(?:h5/dynamic/detail/)?)(\d+)"""
 // Live Room
 """(?<=live\.bilibili\.com/)(\d+)"""
 // User Space
