@@ -1,6 +1,7 @@
 package xyz.cssxsh.mirai.plugin
 
 import kotlinx.coroutines.*
+import net.mamoe.mirai.*
 import net.mamoe.mirai.console.command.CommandManager.INSTANCE.register
 import net.mamoe.mirai.console.command.CommandManager.INSTANCE.unregister
 import net.mamoe.mirai.console.plugin.jvm.*
@@ -12,7 +13,7 @@ import xyz.cssxsh.mirai.plugin.command.*
 import xyz.cssxsh.mirai.plugin.data.*
 
 object BiliHelperPlugin : KotlinPlugin(
-    JvmPluginDescription(id = "xyz.cssxsh.mirai.plugin.bilibili-helper", version = "1.4.6") {
+    JvmPluginDescription(id = "xyz.cssxsh.mirai.plugin.bilibili-helper", version = "1.4.7") {
         name("bilibili-helper")
         author("cssxsh")
 
@@ -37,6 +38,7 @@ object BiliHelperPlugin : KotlinPlugin(
         }
 
         logger.info { "如果要B站动态的截图内容，请修改 DynamicInfo.template, 添加 #screenshot" }
+        logger.info { "如果要B站专栏的截图内容，请修改 Article.template, 添加 #screenshot" }
 
         if (SetupSelenium) {
             launch(SupervisorJob()) {
@@ -47,11 +49,19 @@ object BiliHelperPlugin : KotlinPlugin(
 
         BiliListener.registerTo(globalEventChannel())
 
-        globalEventChannel().subscribeOnce<BotOnlineEvent> {
+        waitOnline {
             for (task in BiliTasker) {
                 task.start()
             }
             BiliCleaner.start()
+        }
+    }
+
+    private fun waitOnline(block: () -> Unit) {
+        if (Bot.instances.isEmpty()) {
+            globalEventChannel().subscribeOnce<BotOnlineEvent> { block() }
+        } else {
+            block()
         }
     }
 
