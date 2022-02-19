@@ -41,7 +41,7 @@ internal val DynamicReplier: MessageReplier = replier@{ result ->
     }
 }
 
-internal val VIDEO_REGEX = """(?i)(?<!\w)(?:av(\d+)|(BV[0-9A-z]{10}))""".toRegex()
+internal val VIDEO_REGEX = """(?<!\w)(?:av(\d+)|(BV[0-9A-z]{10}))""".toRegex()
 
 internal val VideoReplier: MessageReplier = replier@{ result ->
     logger.info { "${sender.render()} 匹配Video(${result.value})" }
@@ -58,7 +58,7 @@ internal val VideoReplier: MessageReplier = replier@{ result ->
     }
 }
 
-internal val ROOM_REGEX = """(?<=live\.bilibili\.com/(h5/)?)(\d+)""".toRegex()
+internal val ROOM_REGEX = """(?<=live\.bilibili\.com/(?:h5/)?)(\d+)""".toRegex()
 
 internal val RoomReplier: MessageReplier = replier@{ result ->
     logger.info { "${sender.render()} 匹配Room(${result.value})" }
@@ -84,7 +84,7 @@ internal val SpaceReplier: MessageReplier = replier@{ result ->
     }
 }
 
-internal val SEASON_REGEX = """(?i)(?<!\w)ss(\d{4,10})""".toRegex()
+internal val SEASON_REGEX = """(?<!\w)ss(\d{4,10})""".toRegex()
 
 internal val SeasonReplier: MessageReplier = replier@{ result ->
     logger.info { "${sender.render()} 匹配Season(${result.value})" }
@@ -97,7 +97,7 @@ internal val SeasonReplier: MessageReplier = replier@{ result ->
     }
 }
 
-internal val EPISODE_REGEX = """(?i)(?<!\w)eq(\d{4,10})""".toRegex()
+internal val EPISODE_REGEX = """(?<!\w)eq(\d{4,10})""".toRegex()
 
 internal val EpisodeReplier: MessageReplier = replier@{ result ->
     logger.info { "${sender.render()} 匹配Episode(${result.value})" }
@@ -110,7 +110,7 @@ internal val EpisodeReplier: MessageReplier = replier@{ result ->
     }
 }
 
-internal val MEDIA_REGEX = """(?i)(?<!\w)md(\d{4,10})""".toRegex()
+internal val MEDIA_REGEX = """(?<!\w)md(\d{4,10})""".toRegex()
 
 internal val MediaReplier: MessageReplier = replier@{ result ->
     logger.info { "${sender.render()} 匹配Media(${result.value})" }
@@ -123,7 +123,7 @@ internal val MediaReplier: MessageReplier = replier@{ result ->
     }
 }
 
-internal val ARTICLE_REGEX = """(?i)(?<!\w)cv(\d{4,10})""".toRegex()
+internal val ARTICLE_REGEX = """(?<!\w)cv(\d{4,10})""".toRegex()
 
 internal val ARTICLE_URL_REGEX = """(?<=bilibili\.com/read/mobile\?id=)(\d+)""".toRegex()
 
@@ -153,8 +153,8 @@ internal val ShortLinkReplier: MessageReplier = replier@{ result ->
     logger.info { "${sender.render()} 匹配ShortLink(${result.value}) 尝试跳转" }
     val location = Url("https://b23.tv/${result.value}").location() ?: return@replier null
     for ((regex, replier) in UrlRepliers) {
-        val new = regex.find(location) ?: continue
-        return@replier replier(new)
+        val match = regex.find(location) ?: continue
+        return@replier replier(match)
     }
 }
 
