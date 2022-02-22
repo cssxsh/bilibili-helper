@@ -41,7 +41,7 @@ internal val DynamicReplier: MessageReplier = replier@{ result ->
     }
 }
 
-internal val VIDEO_REGEX = """(?<!\w)(?:av(\d+)|(BV[0-9A-z]{10}))""".toRegex()
+internal val VIDEO_REGEX = """(?i)(?<!\w)(?:av(\d+)|(BV1[1-9A-NP-Za-km-z]{9}))""".toRegex()
 
 internal val VideoReplier: MessageReplier = replier@{ result ->
     logger.info { "${sender.render()} 匹配Video(${result.value})" }
@@ -147,16 +147,17 @@ private suspend fun Url.location(): String? {
     }.headers[HttpHeaders.Location]
 }
 
-internal val SHORT_LINK_REGEX = """(?<=b23\.tv\\?/)[0-9A-z]+""".toRegex()
+internal val SHORT_LINK_REGEX = """(?:b23\.tv|bili2233\.cn)\\?/([0-9A-z]+)""".toRegex()
 
 internal val ShortLinkReplier: MessageReplier = replier@{ result ->
+    val (path) = result.destructured
     logger.info { "${sender.render()} 匹配ShortLink(${result.value}) 尝试跳转" }
-    if (VIDEO_REGEX matches result.value) return@replier null
-    if (SEASON_REGEX matches result.value) return@replier null
-    if (EPISODE_REGEX matches result.value) return@replier null
-    if (MEDIA_REGEX matches result.value) return@replier null
-    if (ARTICLE_REGEX matches result.value) return@replier null
-    val location = Url("https://b23.tv/${result.value}").location() ?: return@replier null
+    if (VIDEO_REGEX matches path) return@replier null
+    if (SEASON_REGEX matches path) return@replier null
+    if (EPISODE_REGEX matches path) return@replier null
+    if (MEDIA_REGEX matches path) return@replier null
+    if (ARTICLE_REGEX matches path) return@replier null
+    val location = Url("https://b23.tv/$path").location() ?: return@replier null
     for ((regex, replier) in UrlRepliers) return@replier replier(regex.find(location) ?: continue)
 }
 
