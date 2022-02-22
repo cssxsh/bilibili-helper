@@ -1,11 +1,14 @@
 package xyz.cssxsh.mirai.plugin
 
+import kotlinx.coroutines.*
 import net.mamoe.mirai.contact.*
 import net.mamoe.mirai.message.code.MiraiCode.deserializeMiraiCode
 import net.mamoe.mirai.message.code.MiraiCode.serializeToMiraiCode
 import net.mamoe.mirai.message.data.*
+import net.mamoe.mirai.utils.*
 import xyz.cssxsh.bilibili.api.*
 import xyz.cssxsh.bilibili.data.*
+import kotlin.coroutines.*
 
 private val regex = """#([A-z]+)""".toRegex()
 
@@ -13,7 +16,7 @@ internal suspend fun Entry.content(contact: Contact): MessageChain {
     val template = BiliTemplate[this::class.java]
     var content = template
     var pos = 0
-    while (true) {
+    while (coroutineContext.isActive) {
         val result = regex.find(content, pos) ?: break
         val (name) = result.destructured
         val replacement = when (name) {
@@ -103,7 +106,7 @@ internal suspend fun DynamicEmojiContent.content(display: DynamicDisplay?, conta
             val code = emoji.cache(contact).serializeToMiraiCode()
             current.replace(emoji.text, code)
         } catch (cause: Throwable) {
-            logger.warning("获取BILI表情${emoji.text}图片失败, $cause")
+            logger.warning({ "获取BILI表情${emoji.text}图片失败" }, cause)
             current
         }
     }
