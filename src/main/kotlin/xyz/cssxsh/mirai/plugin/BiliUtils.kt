@@ -10,12 +10,11 @@ import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 import net.mamoe.mirai.*
 import net.mamoe.mirai.contact.*
-import net.mamoe.mirai.message.code.CodableMessage
+import net.mamoe.mirai.message.code.*
 import net.mamoe.mirai.message.data.*
 import net.mamoe.mirai.utils.*
 import net.mamoe.mirai.utils.ExternalResource.Companion.uploadAsImage
 import org.openqa.selenium.*
-import org.openqa.selenium.remote.*
 import xyz.cssxsh.bilibili.data.*
 import xyz.cssxsh.bilibili.*
 import xyz.cssxsh.mirai.plugin.data.*
@@ -75,46 +74,6 @@ internal fun BiliClient.load() {
 
 internal fun BiliClient.save() {
     cookies = storage.container
-}
-
-/**
- * 注意避免意外情况的初始化
- */
-internal val driver: RemoteWebDriver by object : ReadOnlyProperty<Any?, RemoteWebDriver> {
-
-    private fun driver(): RemoteWebDriver {
-        val driver = MiraiSeleniumPlugin.driver(config = BiliSeleniumConfig)
-
-        try {
-            val version = driver.setHome(page = BiliSeleniumConfig.home, timeout = 180_000)
-            if (version["MicroMessenger"] != true) {
-                logger.warning { "请在 UserAgent 中加入 MicroMessenger" }
-            }
-            logger.info { "BiliBili Browser Version $version" }
-        } catch (cause: Throwable) {
-            logger.warning({ "设置主页失败" }, cause)
-        }
-
-        return driver
-    }
-
-    private var value: RemoteWebDriver? = null
-
-    override fun getValue(thisRef: Any?, property: KProperty<*>): RemoteWebDriver = synchronized(this) {
-        // XXX: value isActive
-        if (value?.sessionId == null) {
-            value = driver()
-        }
-        logger.info { "Current Browser WindowHandle: ${value?.windowHandles} " }
-        value!!
-    }
-}
-
-internal fun RemoteWebDriver.setHome(page: String, timeout: Long): Map<String, Boolean> {
-    manage().timeouts().pageLoadTimeout(Duration.ofMillis(timeout))
-    get(page)
-    @Suppress("UNCHECKED_CAST")
-    return executeScript("""return (window['selfBrowser'] || {})['version'] || {}""") as Map<String, Boolean>
 }
 
 internal val ImageCache by lazy { File(BiliHelperSettings.cache) }
@@ -211,7 +170,7 @@ private suspend fun Url.screenshot(type: CacheType, path: String, refresh: Boole
         if (exists().not() || refresh) {
             parentFile.mkdirs()
             when (type) {
-                CacheType.ARTICLE -> {
+                CacheType.ARTICLE -> useRemoteWebDriver(config = BiliSeleniumConfig) { driver ->
                     driver.get(this@screenshot.toString())
                     driver.findElement(By.cssSelector(".h5-download-bar .close-icon")).click()
                     driver.findElement(By.cssSelector(".read-more .back-icon")).click()
@@ -220,7 +179,7 @@ private suspend fun Url.screenshot(type: CacheType, path: String, refresh: Boole
                         if (driver.isReady()) break
                         delay(1000L)
                         val current = System.currentTimeMillis()
-                        if (current - start > 60_000) break
+                        if (current - start > 180_000) break
                     }
                     val body = driver.findElement(By.cssSelector("body"))
                     val recommend = driver.findElement(By.cssSelector(".read-recommend-info"))
@@ -229,9 +188,9 @@ private suspend fun Url.screenshot(type: CacheType, path: String, refresh: Boole
                     driver.manage().window().size = size
                     driver.executeScript("window.scrollTo(0,0)")
                     val screenshot = driver.getScreenshotAs(OutputType.FILE)
-                    screenshot.renameTo(this)
+                    screenshot.renameTo(this@apply)
                 }
-                else -> {
+                else -> useRemoteWebDriver(config = BiliSeleniumConfig) { driver ->
                     writeBytes(driver.getScreenshot(url = this@screenshot.toString(), hide = BiliSeleniumConfig.hide))
                 }
             }

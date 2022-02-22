@@ -157,7 +157,7 @@
 * `height` 截图高度
 * `pixel_ratio` ~~截图像素比~~ 此配置废除
 * `headless` 无头模式(后台模式)
-* `home` 浏览器会保持打开主页，以加快其他页面加载速度
+* `home` ~~浏览器会保持打开主页，以加快其他页面加载速度~~ 此配置废除
 * `hide` 隐藏的web组件(jQ选择器)  
   添加 `".international-header", ".top-bar", ".m-navbar"` 可以屏蔽顶边栏
 

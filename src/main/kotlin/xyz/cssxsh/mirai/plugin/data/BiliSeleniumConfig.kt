@@ -20,12 +20,6 @@ object BiliSeleniumConfig : ReadOnlyPluginConfig("SeleniumConfig"), RemoteWebDri
     @ValueDescription("无头模式（后台模式）")
     override val headless: Boolean by value(true)
 
-    private const val DEFAULT_HOME_PAGE = "https://t.bilibili.com/h5/dynamic/detail/508396365455813655"
-
-    @ValueName("home")
-    @ValueDescription("浏览器会保持打开主页，以加快其他页面加载速度")
-    val home: String by value(DEFAULT_HOME_PAGE)
-
     private val DEFAULT_HIDE_SELECTOR = arrayOf(".open-app", ".launch-app-btn", ".unlogin-popover", ".no-login")
 
     @ValueName("hide")
