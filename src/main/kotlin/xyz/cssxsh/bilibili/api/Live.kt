@@ -39,3 +39,11 @@ suspend fun BiliClient.getRoundPlayVideo(
     parameter("a", timestamp)
     parameter("type", type)
 }
+
+suspend fun BiliClient.getMultiple(
+    vararg uids: Long,
+    url: String = ROOM_MULTIPLE
+): Map<Long, UserMultiple> = json(url) {
+    parameter("attributes[]", "card")
+    for (uid in uids) parameter("uids[]", uid)
+}

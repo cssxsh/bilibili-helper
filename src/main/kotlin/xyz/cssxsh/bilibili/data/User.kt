@@ -1,6 +1,8 @@
 package xyz.cssxsh.bilibili.data
 
 import kotlinx.serialization.*
+import xyz.cssxsh.bilibili.*
+import java.time.*
 
 interface Owner {
     val face: String? get() = null
@@ -114,3 +116,25 @@ data class UserSimple(
     @SerialName("uname")
     override val uname: String = ""
 ) : Owner
+
+@Serializable
+data class UserMultiple(
+    @SerialName("card")
+    val card: Card
+) {
+    @Serializable
+    data class Card(
+        @SerialName("fans")
+        val fans: Int,
+        @SerialName("official_verify")
+        val officialVerify: UserOfficial,
+        @SerialName("rank")
+        val rank: String,
+        @SerialName("regtime")
+        val registered: Long,
+        @SerialName("uid")
+        val uid: Long
+    ) {
+        val datetime: OffsetDateTime get() = timestamp(registered)
+    }
+}

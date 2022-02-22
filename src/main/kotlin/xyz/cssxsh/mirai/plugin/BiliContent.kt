@@ -59,11 +59,10 @@ internal suspend fun Entry.images(contact: Contact): String {
 internal suspend fun Entry.detail(contact: Contact): String {
     return when (this) {
         is DynamicCard -> detail(contact)
-        is BiliRoomInfo -> {
-            val live = client.getUserInfo(uid = uid).liveRoom
-            live.start = datetime
-            live.content(contact).serializeToMiraiCode()
-        }
+        is BiliRoomInfo -> client.getUserInfo(uid = uid)
+            .liveRoom.apply { start = datetime }
+            .content(contact).serializeToMiraiCode()
+        is UserInfo -> client.getMultiple(mid).values.single().card.datetime.toString()
         else -> throw NoSuchElementException("${this::class.java.simpleName}.detail")
     }
 }
