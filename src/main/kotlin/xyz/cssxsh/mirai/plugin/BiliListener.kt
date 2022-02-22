@@ -37,7 +37,6 @@ internal object BiliListener : SimpleListenerHost() {
                 null, is Unit -> Unit
                 else -> subject.sendMessage(message.toString())
             }
-            break
         }
     }
 }
