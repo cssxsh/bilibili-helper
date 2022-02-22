@@ -188,7 +188,7 @@ sealed class Waiter<T : Entry>(name: String) : AbstractTasker<T>(name) {
         val item = load(id)
         val state = states.put(id, item.success())
 
-        if (state != true && item.success()) {
+        if (state != true && states[id]!!) {
             mutex.withLock {
                 val task = tasks.getValue(id)
                 tasks[id] = task.copy(last = item.last())
@@ -256,7 +256,10 @@ object BiliLiveWaiter : Waiter<BiliUserInfo>(name = "LiveWaiter") {
 
     override suspend fun load(id: Long) = client.getUserInfo(uid = id)
 
-    override suspend fun BiliUserInfo.success(): Boolean = liveRoom.liveStatus
+    override suspend fun BiliUserInfo.success(): Boolean {
+        return liveRoom.liveStatus &&
+            (System.currentTimeMillis() - tasks.getValue(mid).last.toInstant().toEpochMilli()) < 2 * slow
+    }
 
     private val LiveAtAll = BiliHelperPlugin.registerPermission("live.atall", "直播 @全体成员")
 
