@@ -309,8 +309,7 @@ object BiliSeasonWaiter : Waiter<BiliSeasonInfo>(name = "SeasonWaiter") {
     override suspend fun load(id: Long): BiliSeasonInfo = client.getSeasonInfo(seasonId = id)
 
     override suspend fun BiliSeasonInfo.success(): Boolean {
-        return episodes.isNotEmpty() &&
-            episodes.maxOf { it.datetime ?: video(aid = it.aid).datetime } > tasks.getValue(seasonId).last
+        return episodes.isNotEmpty() && last() > tasks.getValue(seasonId).last
     }
 
     override suspend fun BiliSeasonInfo.build(contact: Contact): Message {
