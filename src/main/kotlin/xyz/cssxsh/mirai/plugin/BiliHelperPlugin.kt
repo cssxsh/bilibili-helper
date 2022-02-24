@@ -1,6 +1,5 @@
 package xyz.cssxsh.mirai.plugin
 
-import kotlinx.coroutines.*
 import net.mamoe.mirai.*
 import net.mamoe.mirai.console.command.CommandManager.INSTANCE.register
 import net.mamoe.mirai.console.command.CommandManager.INSTANCE.unregister
@@ -40,13 +39,6 @@ object BiliHelperPlugin : KotlinPlugin(
         logger.info { "如果要B站动态的截图内容，请修改 DynamicInfo.template, 添加 #screenshot" }
         logger.info { "如果要B站专栏的截图内容，请修改 Article.template, 添加 #screenshot" }
 
-        if (SetupSelenium) {
-            launch(SupervisorJob()) {
-                BiliSeleniumConfig.reload()
-                BiliSeleniumConfig.save()
-            }
-        }
-
         BiliListener.registerTo(globalEventChannel())
 
         waitOnline {
@@ -54,6 +46,11 @@ object BiliHelperPlugin : KotlinPlugin(
                 task.start()
             }
             BiliCleaner.start()
+
+            if (SetupSelenium) {
+                BiliSeleniumConfig.reload()
+                BiliSeleniumConfig.save()
+            }
         }
     }
 
