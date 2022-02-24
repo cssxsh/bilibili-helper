@@ -3,7 +3,8 @@ package xyz.cssxsh.mirai.plugin.data
 import net.mamoe.mirai.console.data.*
 import xyz.cssxsh.selenium.*
 
-object BiliSeleniumConfig : ReadOnlyPluginConfig("SeleniumConfig"), RemoteWebDriverConfig {
+object BiliSeleniumConfig : ReadOnlyPluginConfig("SeleniumConfig"),
+    RemoteWebDriverConfig by RemoteWebDriverConfig.INSTANCE {
     @ValueName("user_agent")
     @ValueDescription("截图UA")
     override val userAgent: String by value(UserAgents.IPAD + " MicroMessenger")
