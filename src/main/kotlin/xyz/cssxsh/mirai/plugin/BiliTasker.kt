@@ -254,11 +254,17 @@ object BiliLiveWaiter : Waiter<BiliUserInfo>(name = "LiveWaiter") {
 
     override val slow get() = BiliHelperSettings.live * Minute
 
+    private val record: MutableMap<Long, OffsetDateTime> = HashMap()
+
     override suspend fun load(id: Long) = client.getUserInfo(uid = id)
 
     override suspend fun BiliUserInfo.success(): Boolean {
-        return liveRoom.liveStatus &&
-            (System.currentTimeMillis() - tasks.getValue(mid).last.toInstant().toEpochMilli()) < 2 * slow
+        return if (liveRoom.liveStatus) {
+            System.currentTimeMillis() - last().toInstant().toEpochMilli() < 3 * fast + slow
+        } else {
+            record.remove(liveRoom.roomId)
+            false
+        }
     }
 
     private val LiveAtAll = BiliHelperPlugin.registerPermission("live.atall", "直播 @全体成员")
@@ -277,14 +283,14 @@ object BiliLiveWaiter : Waiter<BiliUserInfo>(name = "LiveWaiter") {
     }
 
     override suspend fun BiliUserInfo.build(contact: Contact): Message {
-        liveRoom.start = tasks.getValue(mid).last
-        return liveRoom.content(contact) + withAtAll(contact)
+        return liveRoom.apply { start = last() }.content(contact) + withAtAll(contact)
     }
 
-    // TODO by live history
-    override suspend fun BiliUserInfo.near(): Boolean = LocalTime.now().minute < 5
+    override suspend fun BiliUserInfo.near(): Boolean = LocalTime.now().minute < BiliHelperSettings.live
 
-    override suspend fun BiliUserInfo.last(): OffsetDateTime = client.getRoomInfo(roomId = liveRoom.roomId).datetime
+    override suspend fun BiliUserInfo.last(): OffsetDateTime {
+        return record.getOrPut(liveRoom.roomId) { client.getRoomInfo(roomId = liveRoom.roomId).datetime }
+    }
 
     override suspend fun initTask(id: Long): BiliTask = BiliTask(name = client.getUserInfo(uid = id).name)
 }
@@ -303,12 +309,13 @@ object BiliSeasonWaiter : Waiter<BiliSeasonInfo>(name = "SeasonWaiter") {
     override suspend fun load(id: Long): BiliSeasonInfo = client.getSeasonInfo(seasonId = id)
 
     override suspend fun BiliSeasonInfo.success(): Boolean {
-        val datetime = with(episodes.maxByOrNull { it.aid } ?: return false) { datetime ?: video(aid = aid).datetime }
-        return datetime > tasks.getValue(seasonId).last
+        return episodes.isNotEmpty() &&
+            episodes.maxOf { it.datetime ?: video(aid = it.aid).datetime } > tasks.getValue(seasonId).last
     }
 
     override suspend fun BiliSeasonInfo.build(contact: Contact): Message {
-        return content(contact) + "\n" + video(aid = episodes.maxOf { it.aid }).content(contact)
+        val episode = episodes.maxByOrNull { it.published ?: video(aid = it.aid).created }!!
+        return content(contact) + "\n" + video(aid = episode.aid).content(contact)
     }
 
     override suspend fun BiliSeasonInfo.near(): Boolean {
@@ -316,7 +323,7 @@ object BiliSeasonWaiter : Waiter<BiliSeasonInfo>(name = "SeasonWaiter") {
     }
 
     override suspend fun BiliSeasonInfo.last(): OffsetDateTime {
-        return with(episodes.maxByOrNull { it.aid }!!) { datetime ?: video(aid = aid).datetime }
+        return episodes.maxOf { it.datetime ?: video(aid = it.aid).datetime }
     }
 
     override suspend fun initTask(id: Long): BiliTask = BiliTask(name = client.getSeasonInfo(seasonId = id).title)
