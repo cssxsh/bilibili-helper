@@ -3,6 +3,7 @@ package xyz.cssxsh.bilibili.api
 import io.ktor.client.request.*
 import xyz.cssxsh.bilibili.*
 import xyz.cssxsh.bilibili.data.*
+import java.time.*
 
 suspend fun BiliClient.getRoomInfo(
     roomId: Long,
@@ -46,4 +47,11 @@ suspend fun BiliClient.getMultiple(
 ): Map<Long, UserMultiple> = json(url) {
     parameter("attributes[]", "card")
     for (uid in uids) parameter("uids[]", uid)
+}
+
+suspend fun BiliClient.getRegisterTime(
+    uid: Long,
+    url: String = ROOM_MULTIPLE
+): OffsetDateTime {
+    return getMultiple(uid, url = url).values.single().card.datetime
 }
