@@ -21,6 +21,8 @@ sealed interface DynamicCard : Entry, WithDateTime {
     val display: DynamicDisplay?
     val profile: UserProfile
 
+    override val datetime: OffsetDateTime
+
     var decode: Any?
 
     fun images(): List<String> = when (detail.type) {
