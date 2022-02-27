@@ -4,7 +4,7 @@ import kotlinx.serialization.*
 import xyz.cssxsh.bilibili.*
 import java.time.*
 
-sealed interface Live : Entry, Owner {
+sealed interface Live : Entry, Owner, WithDateTime {
     val roomId: Long
     val title: String
     val cover: String
@@ -13,6 +13,7 @@ sealed interface Live : Entry, Owner {
     val link: String
 
     val start: OffsetDateTime?
+    override val datetime: OffsetDateTime? get() = start
     override val uname: String
     override val uid: Long
 

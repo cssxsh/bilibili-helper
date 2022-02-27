@@ -15,11 +15,10 @@ internal inline fun <reified T> DynamicCard.decode(): T {
     return decode as T
 }
 
-sealed interface DynamicCard : Entry {
+sealed interface DynamicCard : Entry, WithDateTime {
     val card: String
     val detail: DynamicCardDetail
     val display: DynamicDisplay?
-    val datetime: OffsetDateTime
     val profile: UserProfile
 
     var decode: Any?

@@ -4,7 +4,7 @@ import kotlinx.serialization.*
 import xyz.cssxsh.bilibili.*
 import java.time.*
 
-sealed interface Article : Entry {
+sealed interface Article : Entry, WithDateTime {
     val id: Long
     val images: List<String>
     val title: String
@@ -13,7 +13,7 @@ sealed interface Article : Entry {
     val status: ArticleStatus? get() = null
 
     val link get() = "https://www.bilibili.com/read/cv$id"
-    val datetime: OffsetDateTime get() = timestamp(published)
+    override val datetime: OffsetDateTime get() = timestamp(published)
 }
 
 @Serializable

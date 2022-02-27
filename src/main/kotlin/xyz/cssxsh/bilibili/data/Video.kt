@@ -1,10 +1,10 @@
 package xyz.cssxsh.bilibili.data
 
 import kotlinx.serialization.*
-import xyz.cssxsh.bilibili.timestamp
+import xyz.cssxsh.bilibili.*
 import java.time.*
 
-sealed interface Video : Entry, Owner {
+sealed interface Video : Entry, Owner, WithDateTime {
     val title: String
     val author: String
     val description: String
@@ -17,7 +17,7 @@ sealed interface Video : Entry, Owner {
     val status: VideoStatus?
 
     val link get() = "https://www.bilibili.com/video/${id}"
-    val datetime: OffsetDateTime get() = timestamp(created)
+    override val datetime: OffsetDateTime get() = timestamp(created)
 }
 
 @Serializable

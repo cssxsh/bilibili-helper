@@ -166,9 +166,9 @@ data class SeasonTimeline(
     val viewRank: Int,
     @SerialName("weekday")
     val weekday: Int,
-) : Season, Episode {
+) : Season, Episode, WithDateTime {
     override val share: String get() = "https://www.bilibili.com/bangumi/play/ep${episodeId}"
-    val datetime: OffsetDateTime get() = timestamp(last)
+    override val datetime: OffsetDateTime get() = timestamp(last)
 }
 
 @Serializable

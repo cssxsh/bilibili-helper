@@ -134,7 +134,7 @@ data class UserMultiple(
         val registered: Long,
         @SerialName("uid")
         val uid: Long
-    ) {
-        val datetime: OffsetDateTime get() = timestamp(registered)
+    ) : WithDateTime {
+        override val datetime: OffsetDateTime get() = timestamp(registered)
     }
 }
