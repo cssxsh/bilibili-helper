@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "xyz.cssxsh"
-version = "1.4.8"
+version = "1.4.9"
 
 repositories {
     mavenLocal()
@@ -42,7 +42,7 @@ dependencies {
     compileOnly("net.mamoe:mirai-core-utils:2.10.0")
 
     testImplementation(kotlin("test", "1.6.0"))
-    testImplementation("org.slf4j:slf4j-simple:1.7.35")
+    testImplementation("org.slf4j:slf4j-simple:1.7.36")
     testImplementation("xyz.cssxsh.mirai:mirai-selenium-plugin:2.0.8")
 }
 
