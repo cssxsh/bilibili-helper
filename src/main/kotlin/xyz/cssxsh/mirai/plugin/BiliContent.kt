@@ -62,7 +62,6 @@ internal suspend fun Entry.detail(contact: Contact): String {
         is BiliRoomInfo -> client.getUserInfo(uid = uid)
             .liveRoom.apply { start = datetime }
             .content(contact).serializeToMiraiCode()
-        is UserInfo -> client.getRegisterTime(uid = mid).toString()
         else -> throw NoSuchElementException("${this::class.java.simpleName}.detail")
     }
 }

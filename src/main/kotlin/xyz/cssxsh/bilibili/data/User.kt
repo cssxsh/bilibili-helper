@@ -125,7 +125,7 @@ data class UserMultiple(
     @Serializable
     data class Card(
         @SerialName("fans")
-        val fans: Int,
+        val fans: Long,
         @SerialName("official_verify")
         val officialVerify: UserOfficial,
         @SerialName("rank")

@@ -25,7 +25,6 @@ object BiliTemplate {
             名称: #name
             等级: #level
             直播: #live
-            注册: #detail
             简介: 
             #sign
         """.trimIndent()
