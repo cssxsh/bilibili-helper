@@ -157,12 +157,18 @@ sealed class Loader<T : Entry>(name: String) : AbstractTasker<T>(name) {
 
     protected abstract suspend fun List<T>.near(): Boolean
 
+    protected open val push: Int = BiliHelperSettings.push
+
     override suspend fun listen(id: Long): Long {
         val list = load(id)
 
         mutex.withLock {
             val task = tasks.getValue(id)
-            for (item in list.after(task.last)) {
+            val records = list.after(last = task.last)
+            if (records.size > push) {
+                logger.warning { "$name with $id 将有订阅被丢弃" }
+            }
+            for (item in records.sortedByDescending { it.time() }.takeLast(push)) {
                 task.send(item)
                 tasks[id] = task.copy(last = item.time())
             }
@@ -208,7 +214,7 @@ private fun List<LocalTime>.near(slow: Long, now: LocalTime = LocalTime.now()): 
 private const val Minute = 60 * 1000L
 
 object BiliVideoLoader : Loader<Video>(name = "VideoTasker") {
-    override val tasks: MutableMap<Long, BiliTask> by BiliTaskData::video
+    override val tasks: MutableMap<Long, BiliTask> get() = BiliTaskData.video
 
     override val fast get() = Minute
 
@@ -228,7 +234,7 @@ object BiliVideoLoader : Loader<Video>(name = "VideoTasker") {
 }
 
 object BiliDynamicLoader : Loader<DynamicInfo>(name = "DynamicTasker") {
-    override val tasks: MutableMap<Long, BiliTask> by BiliTaskData::dynamic
+    override val tasks: MutableMap<Long, BiliTask> get() = BiliTaskData.dynamic
 
     override val fast get() = Minute
 
@@ -248,7 +254,7 @@ object BiliDynamicLoader : Loader<DynamicInfo>(name = "DynamicTasker") {
 }
 
 object BiliLiveWaiter : Waiter<BiliUserInfo>(name = "LiveWaiter") {
-    override val tasks: MutableMap<Long, BiliTask> by BiliTaskData::live
+    override val tasks: MutableMap<Long, BiliTask> get() = BiliTaskData.live
 
     override val fast get() = Minute
 
@@ -296,7 +302,7 @@ object BiliLiveWaiter : Waiter<BiliUserInfo>(name = "LiveWaiter") {
 }
 
 object BiliSeasonWaiter : Waiter<BiliSeasonInfo>(name = "SeasonWaiter") {
-    override val tasks: MutableMap<Long, BiliTask> by BiliTaskData::season
+    override val tasks: MutableMap<Long, BiliTask> get() = BiliTaskData.season
 
     override val fast get() = Minute
 

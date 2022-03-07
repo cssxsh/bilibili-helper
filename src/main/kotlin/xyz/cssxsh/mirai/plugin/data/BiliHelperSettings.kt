@@ -24,6 +24,9 @@ object BiliHelperSettings : ReadOnlyPluginConfig("BiliHelperSettings") {
     @ValueDescription("番剧 订阅 访问间隔时间，单位分钟")
     val season: Long by value(30L)
 
+    @ValueDescription("一次推送中最多包含的记录数")
+    val push: Int by value(10)
+
     @ValueDescription("排除的正则表达式结果")
     val ban: Set<String> by value(setOf("av1", "av10492"))
 }
