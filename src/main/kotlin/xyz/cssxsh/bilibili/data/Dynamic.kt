@@ -269,7 +269,7 @@ data class DynamicLive(
     @SerialName("on_flag")
     val onFlag: Int,
     @SerialName("online")
-    override val online: Long,
+    override val online: Long = 0,
     @SerialName("roomid")
     override val roomId: Long,
     @SerialName("round_status")

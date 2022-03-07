@@ -63,7 +63,7 @@ data class BiliRoomSimple(
     @Serializable(NumberToBooleanSerializer::class)
     override val liveStatus: Boolean,
     @SerialName("online")
-    override val online: Long,
+    override val online: Long = 0,
     @SerialName("online_hidden")
     @Serializable(NumberToBooleanSerializer::class)
     val onlineHidden: Boolean = false,
@@ -136,7 +136,7 @@ data class LiveRecommend(
     @SerialName("link")
     override val link: String,
     @SerialName("online")
-    override val online: Long,
+    override val online: Long = 0,
     @SerialName("roomid")
     override val roomId: Long,
     @SerialName("title")
