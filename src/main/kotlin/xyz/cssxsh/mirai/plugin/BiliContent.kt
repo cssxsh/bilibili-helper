@@ -77,18 +77,16 @@ internal suspend fun Entry.screenshot(contact: Contact): String {
 internal suspend fun DynamicCard.detail(contact: Contact): String {
     return when (detail.type) {
         DynamicType.NONE -> "不支持的类型${detail.type}"
-        DynamicType.REPLY -> with(decode<DynamicReply>()) {
-            content = content(this@detail.display, contact)
-            content(contact).serializeToMiraiCode()
-        }
+        DynamicType.REPLY -> decode<DynamicReply>()
+            .apply { content = content(this@detail.display, contact) }
+            .content(contact).serializeToMiraiCode()
         DynamicType.PICTURE -> decode<DynamicPicture>().content(display, contact)
         DynamicType.TEXT -> decode<DynamicText>().content(display, contact)
         DynamicType.VIDEO -> decode<DynamicVideo>().content(contact).serializeToMiraiCode()
         DynamicType.ARTICLE -> decode<DynamicArticle>().content(contact).serializeToMiraiCode()
         DynamicType.MUSIC -> decode<DynamicMusic>().content(contact).serializeToMiraiCode()
-        DynamicType.EPISODE, DynamicType.BANGUMI, DynamicType.TV -> with(decode<DynamicEpisode>()) {
-            content(contact).serializeToMiraiCode()
-        }
+        DynamicType.EPISODE, DynamicType.BANGUMI, DynamicType.TV -> decode<DynamicEpisode>()
+            .content(contact).serializeToMiraiCode()
         DynamicType.DELETE -> "源动态已被作者删除"
         DynamicType.SKETCH -> decode<DynamicSketch>().content(contact).serializeToMiraiCode()
         DynamicType.LIVE -> decode<DynamicLive>().content(contact).serializeToMiraiCode()
