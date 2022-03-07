@@ -43,6 +43,12 @@ interface BiliTasker {
         override fun isEmpty(): Boolean = taskers.isEmpty()
 
         override fun iterator(): Iterator<BiliTasker> = taskers.iterator()
+
+        fun refresh() {
+            val now = OffsetDateTime.now()
+            BiliTaskData.dynamic.replaceAll { _, task -> task.copy(last = now) }
+            BiliTaskData.video.replaceAll { _, task -> task.copy(last = now) }
+        }
     }
 }
 
@@ -157,18 +163,12 @@ sealed class Loader<T : Entry>(name: String) : AbstractTasker<T>(name) {
 
     protected abstract suspend fun List<T>.near(): Boolean
 
-    protected open val push: Int = BiliHelperSettings.push
-
     override suspend fun listen(id: Long): Long {
         val list = load(id)
 
         mutex.withLock {
             val task = tasks.getValue(id)
-            val records = list.after(last = task.last)
-            if (records.size > push) {
-                logger.warning { "$name with $id 将有订阅被丢弃" }
-            }
-            for (item in records.sortedByDescending { it.time() }.takeLast(push)) {
+            for (item in list.after(last = task.last).sortedByDescending { it.time() }) {
                 task.send(item)
                 tasks[id] = task.copy(last = item.time())
             }

@@ -42,6 +42,7 @@ object BiliHelperPlugin : KotlinPlugin(
         BiliListener.registerTo(globalEventChannel())
 
         waitOnline {
+            if (BiliHelperSettings.refresh) BiliTasker.refresh()
             for (task in BiliTasker) {
                 task.start()
             }
