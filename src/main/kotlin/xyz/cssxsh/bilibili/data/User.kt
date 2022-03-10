@@ -39,7 +39,7 @@ data class BiliUserInfo(
     @SerialName("level")
     override val level: Int,
     @SerialName("live_room")
-    val liveRoom: BiliRoomSimple,
+    val liveRoom: BiliRoomSimple?,
     @SerialName("mid")
     override val mid: Long,
     @SerialName("moral")
@@ -59,11 +59,11 @@ data class BiliUserInfo(
     @SerialName("top_photo")
     val topPhoto: String,
 ) : UserInfo {
-    override val live: String get() = liveRoom.link
+    override val live: String get() = liveRoom?.link ?: "未开通直播间"
 
     init {
-        liveRoom.uid = mid
-        liveRoom.uname = name
+        liveRoom?.uid = mid
+        liveRoom?.uname = name
     }
 }
 

@@ -60,7 +60,7 @@ internal suspend fun Entry.detail(contact: Contact): String {
     return when (this) {
         is DynamicCard -> detail(contact)
         is BiliRoomInfo -> client.getUserInfo(uid = uid)
-            .liveRoom.apply { start = this@detail.datetime }
+            .liveRoom!!.apply { start = this@detail.datetime }
             .content(contact).serializeToMiraiCode()
         else -> throw NoSuchElementException("${this::class.java.simpleName}.detail")
     }
