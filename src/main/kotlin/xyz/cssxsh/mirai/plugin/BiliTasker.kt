@@ -265,7 +265,7 @@ object BiliLiveWaiter : Waiter<BiliUserInfo>(name = "LiveWaiter") {
     override suspend fun load(id: Long) = client.getUserInfo(uid = id)
 
     override suspend fun BiliUserInfo.success(): Boolean {
-        return if (liveRoom.liveStatus) {
+        return if (liveRoom!!.liveStatus) {
             System.currentTimeMillis() - last().toInstant().toEpochMilli() < 3 * fast + slow
         } else {
             record.remove(liveRoom.roomId)
@@ -289,13 +289,13 @@ object BiliLiveWaiter : Waiter<BiliUserInfo>(name = "LiveWaiter") {
     }
 
     override suspend fun BiliUserInfo.build(contact: Contact): Message {
-        return liveRoom.apply { start = last() }.content(contact) + withAtAll(contact)
+        return liveRoom!!.apply { start = last() }.content(contact) + withAtAll(contact)
     }
 
     override suspend fun BiliUserInfo.near(): Boolean = LocalTime.now().minute < BiliHelperSettings.live
 
     override suspend fun BiliUserInfo.last(): OffsetDateTime {
-        return record.getOrPut(liveRoom.roomId) { client.getRoomInfo(roomId = liveRoom.roomId).datetime }
+        return record.getOrPut(liveRoom!!.roomId) { client.getRoomInfo(roomId = liveRoom.roomId).datetime }
     }
 
     override suspend fun initTask(id: Long): BiliTask = BiliTask(name = client.getUserInfo(uid = id).name)
