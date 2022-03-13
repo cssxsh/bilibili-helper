@@ -14,8 +14,6 @@ const val SPACE = "https://space.bilibili.com"
 
 // User
 const val SPACE_INFO = "https://api.bilibili.com/x/space/acc/info"
-const val SPACE_FOLLOWINGS = "https://api.bilibili.com/x/relation/followings?vmid=4771356&pn=1&ps=20&order=desc&order_type=attention&jsonp=jsonp"
-const val SPACE_TAGS = "https://api.bilibili.com/x/relation/tags?jsonp=jsonp"
 
 // Video
 const val VIDEO_USER = "https://api.bilibili.com/x/space/arc/search"
@@ -28,9 +26,10 @@ const val DYNAMIC_INFO = "https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr
 // Live
 const val ROOM_INIT = "https://api.live.bilibili.com/room/v1/Room/room_init"
 const val ROOM_INFO_OLD = "https://api.live.bilibili.com/room/v1/Room/getRoomInfoOld"
+const val ROOM_INFO = "https://api.live.bilibili.com/xlive/web-room/v1/index/getInfoByRoom"
 const val ROOM_OFF_LIVE = "https://api.live.bilibili.com/xlive/web-room/v1/index/getOffLiveList"
 const val ROOM_ROUND_PLAY = "https://api.live.bilibili.com/live/getRoundPlayVideo"
-const val ROOM_EMOTICONS = "https://api.live.bilibili.com/xlive/web-ucenter/v2/emoticon/GetEmoticons?platform=pc&room_id=21919321"
+const val ROOM_MULTIPLE = "https://api.live.bilibili.com/user/v3/User/getMultiple"
 
 // Article
 const val MORE = "https://api.bilibili.com/x/article/more?aid=15155534&platform=h5"

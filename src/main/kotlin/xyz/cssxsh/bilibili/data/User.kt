@@ -39,7 +39,7 @@ data class BiliUserInfo(
     @SerialName("level")
     override val level: Int,
     @SerialName("live_room")
-    val liveRoom: BiliRoomSimple?,
+    val liveRoom: BiliRoomSimple? = null,
     @SerialName("mid")
     override val mid: Long,
     @SerialName("moral")

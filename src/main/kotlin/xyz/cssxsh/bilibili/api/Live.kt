@@ -55,3 +55,10 @@ suspend fun BiliClient.getRegisterTime(
 ): OffsetDateTime {
     return getMultiple(uid, url = url).values.single().card.datetime
 }
+
+suspend fun BiliClient.getLiveInfo(
+    roomId: Long,
+    url: String = ROOM_INFO
+): BiliLiveInfo = json(url) {
+    parameter("room_id", roomId)
+}

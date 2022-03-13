@@ -27,7 +27,7 @@ object BiliInfoCommand : CompositeCommand(
 
     @SubCommand
     suspend fun UserCommandSender.live(id: Long) = sendMessage(
-        message = client.getRoomInfo(roomId = id).content(subject)
+        message = client.getLiveInfo(roomId = id).content(subject)
     )
 
     @SubCommand

@@ -64,7 +64,7 @@ internal val RoomReplier: MessageReplier = replier@{ result ->
     logger.info { "${sender.render()} 匹配Room(${result.value})" }
     try {
         val (id) = result.destructured
-        message.quote() + client.getRoomInfo(roomId = id.toLong()).content(subject)
+        message.quote() + client.getLiveInfo(roomId = id.toLong()).content(subject)
     } catch (e: Throwable) {
         logger.warning({ "构建Room(${result.value})信息失败" }, e)
         e.message

@@ -13,7 +13,7 @@ sealed interface Live : Entry, Owner, WithDateTime {
     val link: String
 
     val start: OffsetDateTime?
-    override val datetime: OffsetDateTime? get() = start
+    override val datetime: OffsetDateTime get() = start!!
     override val uname: String
     override val uid: Long
 
@@ -172,3 +172,135 @@ data class LiveRecord(
     @SerialName("uname")
     override val uname: String
 ) : Owner
+
+
+@Serializable
+data class RoomInfo(
+    @SerialName("area_id")
+    val areaId: Int,
+    @SerialName("area_name")
+    val areaName: String,
+    @SerialName("background")
+    val background: String,
+    @SerialName("cover")
+    override val cover: String,
+    @SerialName("description")
+    val description: String,
+    @SerialName("hidden_status")
+    val hiddenStatus: Int,
+    @SerialName("hidden_time")
+    val hiddenTime: Long,
+    @SerialName("is_studio")
+    val isStudio: Boolean,
+    @SerialName("keyframe")
+    val keyframe: String,
+    @SerialName("live_screen_type")
+    val liveScreenType: Int,
+    @SerialName("live_start_time")
+    val liveStartTime: Long,
+    @SerialName("live_status")
+    @Serializable(NumberToBooleanSerializer::class)
+    override val liveStatus: Boolean,
+    @SerialName("lock_status")
+    val lockStatus: Int,
+    @SerialName("lock_time")
+    val lockTime: Long,
+    @SerialName("on_voice_join")
+    val onVoiceJoin: Int,
+    @SerialName("online")
+    override val online: Long,
+    @SerialName("parent_area_id")
+    val parentAreaId: Int,
+    @SerialName("parent_area_name")
+    val parentAreaName: String,
+    @SerialName("pk_status")
+    val pkStatus: Int,
+    @SerialName("room_id")
+    override val roomId: Long,
+    @SerialName("room_type")
+    val roomType: Map<String, Int>,
+    @SerialName("short_id")
+    val shortId: Int,
+    @SerialName("special_type")
+    val specialType: Int,
+    @SerialName("tags")
+    val tags: String,
+    @SerialName("title")
+    override val title: String,
+    @SerialName("uid")
+    override val uid: Long,
+    @SerialName("up_session")
+    val upSession: String
+) : Live {
+    override val start: OffsetDateTime get() = timestamp(sec = liveStartTime)
+    override val datetime: OffsetDateTime get() = timestamp(sec = liveStartTime)
+    override val link: String get() = if (shortId == 0) "https://space.bilibili.com/${uid}" else "https://live.bilibili.com/${shortId}"
+    override val share: String get() = "https://live.bilibili.com/${roomId}"
+    override val uname: String get() = upSession
+}
+
+@Serializable
+data class AnchorInfo(
+    @SerialName("base_info")
+    val baseInfo: BaseInfo,
+    @SerialName("live_info")
+    val liveInfo: LiveInfo,
+    @SerialName("medal_info")
+    val medalInfo: MedalInfo,
+    @SerialName("relation_info")
+    val relationInfo: RelationInfo
+) {
+    @Serializable
+    data class BaseInfo(
+        @SerialName("face")
+        val face: String,
+        @SerialName("gender")
+        val gender: String,
+        @SerialName("uname")
+        val uname: String
+    )
+
+    @Serializable
+    data class LiveInfo(
+        @SerialName("current")
+        val current: List<Int>,
+        @SerialName("level")
+        val level: Int,
+        @SerialName("level_color")
+        val levelColor: Int,
+        @SerialName("next")
+        val next: List<Int>,
+        @SerialName("rank")
+        val rank: String,
+        @SerialName("score")
+        val score: Int,
+        @SerialName("upgrade_score")
+        val upgradeScore: Int
+    )
+
+    @Serializable
+    data class MedalInfo(
+        @SerialName("fansclub")
+        val fansClub: Int,
+        @SerialName("medal_id")
+        val medalId: Int,
+        @SerialName("medal_name")
+        val medalName: String
+    )
+
+    @Serializable
+    data class RelationInfo(
+        @SerialName("attention")
+        val attention: Int
+    )
+}
+
+@Serializable
+data class BiliLiveInfo(
+    @SerialName("room_info")
+    val roomInfo: RoomInfo,
+    @SerialName("anchor_info")
+    val anchorInfo: AnchorInfo
+) : Live by roomInfo {
+    override val uname get() = anchorInfo.baseInfo.uname
+}

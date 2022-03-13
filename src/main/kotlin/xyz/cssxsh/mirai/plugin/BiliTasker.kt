@@ -253,22 +253,27 @@ object BiliDynamicLoader : Loader<DynamicInfo>(name = "DynamicTasker") {
     override suspend fun initTask(id: Long): BiliTask = BiliTask(name = client.getUserInfo(uid = id).name)
 }
 
-object BiliLiveWaiter : Waiter<BiliUserInfo>(name = "LiveWaiter") {
+object BiliLiveWaiter : Waiter<BiliLiveInfo>(name = "LiveWaiter") {
     override val tasks: MutableMap<Long, BiliTask> get() = BiliTaskData.live
 
     override val fast get() = Minute
 
     override val slow get() = BiliHelperSettings.live * Minute
 
-    private val record: MutableMap<Long, OffsetDateTime> = HashMap()
+    private val record: MutableMap<Long, Long> get() = BiliTaskData.map
 
-    override suspend fun load(id: Long) = client.getUserInfo(uid = id)
+    override suspend fun load(id: Long): BiliLiveInfo {
+        val roomId = record.getOrPut(id) {
+            requireNotNull(client.getUserInfo(uid = id).liveRoom) { "用户 $id 没有开通直播间" }.roomId
+        }
+        return client.getLiveInfo(roomId = roomId)
+    }
 
-    override suspend fun BiliUserInfo.success(): Boolean {
-        return if (liveRoom!!.liveStatus) {
+    override suspend fun BiliLiveInfo.success(): Boolean {
+        return if (liveStatus) {
             System.currentTimeMillis() - last().toInstant().toEpochMilli() < 3 * fast + slow
         } else {
-            record.remove(liveRoom.roomId)
+            record.remove(roomId)
             false
         }
     }
@@ -288,17 +293,21 @@ object BiliLiveWaiter : Waiter<BiliUserInfo>(name = "LiveWaiter") {
         }
     }
 
-    override suspend fun BiliUserInfo.build(contact: Contact): Message {
-        return liveRoom!!.apply { start = last() }.content(contact) + withAtAll(contact)
+    override suspend fun BiliLiveInfo.build(contact: Contact): Message = content(contact) + withAtAll(contact)
+
+    override suspend fun BiliLiveInfo.near(): Boolean = LocalTime.now().minute < BiliHelperSettings.live
+
+    override suspend fun BiliLiveInfo.last(): OffsetDateTime = datetime
+
+    override suspend fun initTask(id: Long): BiliTask {
+        val live = try {
+            client.getUserInfo(uid = id).liveRoom ?: throw NoSuchElementException("Live Room by https://space.bilibili.com/${id}")
+        } catch (_: NoSuchElementException) {
+            logger.warning { "Attempt $id as RoomId in LiveWaiter." }
+            client.getLiveInfo(roomId = id)
+        }
+        return BiliTask(name = live.uname)
     }
-
-    override suspend fun BiliUserInfo.near(): Boolean = LocalTime.now().minute < BiliHelperSettings.live
-
-    override suspend fun BiliUserInfo.last(): OffsetDateTime {
-        return record.getOrPut(liveRoom!!.roomId) { client.getRoomInfo(roomId = liveRoom.roomId).datetime }
-    }
-
-    override suspend fun initTask(id: Long): BiliTask = BiliTask(name = client.getUserInfo(uid = id).name)
 }
 
 object BiliSeasonWaiter : Waiter<BiliSeasonInfo>(name = "SeasonWaiter") {
