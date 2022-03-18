@@ -244,11 +244,7 @@ data class AnchorInfo(
     @SerialName("base_info")
     val baseInfo: BaseInfo,
     @SerialName("live_info")
-    val liveInfo: LiveInfo,
-    @SerialName("medal_info")
-    val medalInfo: MedalInfo,
-    @SerialName("relation_info")
-    val relationInfo: RelationInfo
+    val liveInfo: LiveInfo
 ) {
     @Serializable
     data class BaseInfo(
@@ -276,22 +272,6 @@ data class AnchorInfo(
         val score: Int,
         @SerialName("upgrade_score")
         val upgradeScore: Int
-    )
-
-    @Serializable
-    data class MedalInfo(
-        @SerialName("fansclub")
-        val fansClub: Int,
-        @SerialName("medal_id")
-        val medalId: Int,
-        @SerialName("medal_name")
-        val medalName: String
-    )
-
-    @Serializable
-    data class RelationInfo(
-        @SerialName("attention")
-        val attention: Int
     )
 }
 
