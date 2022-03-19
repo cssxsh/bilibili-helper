@@ -159,8 +159,6 @@ sealed class Loader<T : Entry>(name: String) : AbstractTasker<T>(name) {
 
     protected abstract fun T.time(): OffsetDateTime
 
-    protected abstract fun List<T>.after(last: OffsetDateTime): List<T>
-
     protected abstract suspend fun List<T>.near(): Boolean
 
     override suspend fun listen(id: Long): Long {
@@ -168,10 +166,14 @@ sealed class Loader<T : Entry>(name: String) : AbstractTasker<T>(name) {
 
         mutex.withLock {
             val task = tasks.getValue(id)
-            for (item in list.after(last = task.last).sortedByDescending { it.time() }) {
-                task.send(item)
-                tasks[id] = task.copy(last = item.time())
+            var last = task.last
+            for (item in list) {
+                if (item.time() > task.last) {
+                    task.send(item)
+                    last = maxOf(item.time(), last)
+                }
             }
+            tasks[id] = task.copy(last = last)
         }
 
         return if (list.near()) fast else slow
@@ -224,8 +226,6 @@ object BiliVideoLoader : Loader<Video>(name = "VideoTasker") {
 
     override fun Video.time(): OffsetDateTime = datetime
 
-    override fun List<Video>.after(last: OffsetDateTime) = filter { it.datetime > last }
-
     override suspend fun List<Video>.near() = map { it.datetime.toLocalTime() }.near(slow)
 
     override suspend fun Video.build(contact: Contact) = content(contact)
@@ -243,8 +243,6 @@ object BiliDynamicLoader : Loader<DynamicInfo>(name = "DynamicTasker") {
     override suspend fun load(id: Long) = client.getSpaceHistory(uid = id).dynamics
 
     override fun DynamicInfo.time(): OffsetDateTime = datetime
-
-    override fun List<DynamicInfo>.after(last: OffsetDateTime) = filter { it.datetime > last }
 
     override suspend fun List<DynamicInfo>.near() = map { it.datetime.toLocalTime() }.near(slow)
 
