@@ -61,6 +61,13 @@ const val SEARCH_TYPE = "https://api.bilibili.com/x/web-interface/search/type"
 // Suit
 const val SUIT_ITEMS = "https://api.bilibili.com/x/garb/mall/item/suit/v2"
 
+data class BiliApiException(
+    val data: TempData,
+    val url: Url
+): IllegalStateException() {
+    override val message = "${data.message} in $url"
+}
+
 const val EXCEPTION_JSON_CACHE = "xyz.cssxsh.bilibili.api.exception"
 
 internal suspend inline fun <reified T> BiliClient.json(
@@ -70,8 +77,7 @@ internal suspend inline fun <reified T> BiliClient.json(
     val url = Url(urlString)
     mutex.wait(url.encodedPath)
     with(client.get<TempData>(url, block)) {
-        check(code == 0) { message }
-        val element = requireNotNull(data ?: result) { message }
+        val element = data ?: result ?: throw BiliApiException(this, url)
         try {
             BiliClient.Json.decodeFromJsonElement(element)
         } catch (cause: SerializationException) {
