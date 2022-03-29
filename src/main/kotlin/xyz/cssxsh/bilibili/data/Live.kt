@@ -282,5 +282,6 @@ data class BiliLiveInfo(
     @SerialName("anchor_info")
     val anchorInfo: AnchorInfo
 ) : Live by roomInfo {
+    override val face get() = anchorInfo.baseInfo.face
     override val uname get() = anchorInfo.baseInfo.uname
 }

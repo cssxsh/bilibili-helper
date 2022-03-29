@@ -274,7 +274,7 @@ internal suspend fun DynamicCard.getImages(contact: Contact) = images().mapIndex
 }
 
 internal suspend fun Live.getCover(contact: Contact): CodableMessage {
-    return Url(cover).runCatching {
+    return Url(cover.ifBlank { face.orEmpty() }).runCatching {
         cache(type = CacheType.LIVE, path = "${roomId}/cover-${filename}", contact = contact)
     }.getOrElse {
         logger.warning({ "获取[${roomId}]直播间封面失败" }, it)
