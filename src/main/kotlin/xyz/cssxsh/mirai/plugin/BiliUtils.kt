@@ -187,8 +187,7 @@ private suspend fun Url.screenshot(type: CacheType, path: String, refresh: Boole
                     val size = Dimension(body.size.width, body.size.height - recommend.size.height - comment.size.height)
                     driver.manage().window().size = size
                     driver.executeScript("window.scrollTo(0,0)")
-                    val screenshot = driver.getScreenshotAs(OutputType.FILE)
-                    screenshot.renameTo(this@apply)
+                    writeBytes(driver.getScreenshotAs(OutputType.BYTES))
                 }
                 else -> useRemoteWebDriver(config = BiliSeleniumConfig) { driver ->
                     writeBytes(driver.getScreenshot(url = this@screenshot.toString(), hide = BiliSeleniumConfig.hide))
