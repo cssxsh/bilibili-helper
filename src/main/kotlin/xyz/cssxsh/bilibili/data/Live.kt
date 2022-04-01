@@ -242,9 +242,7 @@ data class RoomInfo(
 @Serializable
 data class AnchorInfo(
     @SerialName("base_info")
-    val baseInfo: BaseInfo,
-    @SerialName("live_info")
-    val liveInfo: LiveInfo
+    val baseInfo: BaseInfo
 ) {
     @Serializable
     data class BaseInfo(
@@ -254,24 +252,6 @@ data class AnchorInfo(
         val gender: String,
         @SerialName("uname")
         val uname: String
-    )
-
-    @Serializable
-    data class LiveInfo(
-        @SerialName("current")
-        val current: List<Int>,
-        @SerialName("level")
-        val level: Int,
-        @SerialName("level_color")
-        val levelColor: Int,
-        @SerialName("next")
-        val next: List<Int>,
-        @SerialName("rank")
-        val rank: String,
-        @SerialName("score")
-        val score: Int,
-        @SerialName("upgrade_score")
-        val upgradeScore: Int
     )
 }
 
