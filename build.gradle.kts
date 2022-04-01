@@ -7,12 +7,11 @@ plugins {
 }
 
 group = "xyz.cssxsh"
-version = "1.4.12"
+version = "1.4.13"
 
 repositories {
     mavenLocal()
     mavenCentral()
-    gradlePluginPortal()
 }
 
 mavenCentralPublish {
