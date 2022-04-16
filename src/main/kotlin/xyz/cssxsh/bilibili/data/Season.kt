@@ -198,7 +198,7 @@ data class BiliSeasonInfo(
     @SerialName("total")
     val total: Long,
     @SerialName("up_info")
-    val upper: UpperSimple
+    val upper: UpperSimple? = null
 ) : Media {
     override val type: String get() = episodes.first().from.uppercase()
 }
