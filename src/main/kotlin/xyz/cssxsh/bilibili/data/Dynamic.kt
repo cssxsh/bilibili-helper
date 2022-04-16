@@ -5,7 +5,7 @@ import xyz.cssxsh.bilibili.*
 import java.time.*
 
 @OptIn(ExperimentalSerializationApi::class)
-internal inline fun <reified T> DynamicCard.decode(): T {
+internal inline fun <reified T : Entry> DynamicCard.decode(): T {
     if (decode == null) {
         decode = BiliClient.Json.decodeFromString<T>(card)
         if (decode is DynamicReply) {
@@ -23,7 +23,7 @@ sealed interface DynamicCard : Entry, WithDateTime {
 
     override val datetime: OffsetDateTime
 
-    var decode: Any?
+    var decode: Entry?
 
     fun images(): List<String> = when (detail.type) {
         DynamicType.PICTURE -> decode<DynamicPicture>().detail.pictures.map { it.source }
@@ -47,7 +47,7 @@ sealed interface DynamicCardDetail {
     val uid: Long
 }
 
-sealed interface DynamicEmojiContent {
+sealed interface DynamicEmojiContent : Entry {
     val content: String
 }
 
@@ -149,7 +149,7 @@ data class DynamicInfo(
     val h5 get() = "https://t.bilibili.com/h5/dynamic/detail/${detail.id}"
 
     @Transient
-    override var decode: Any? = null
+    override var decode: Entry? = null
     override val profile: UserProfile get() = detail.profile
     override val datetime: OffsetDateTime get() = timestamp(detail.timestamp)
 }
@@ -382,7 +382,7 @@ data class DynamicReply(
     override val display: DynamicDisplay? = null
 ) : DynamicCard, DynamicEmojiContent {
     @Transient
-    override var decode: Any? = null
+    override var decode: Entry? = null
     @Transient
     override var content = detail.content
     override val profile: UserProfile get() = originUser
