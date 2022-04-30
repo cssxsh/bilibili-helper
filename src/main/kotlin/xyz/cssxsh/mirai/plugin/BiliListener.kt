@@ -14,6 +14,7 @@ import kotlin.coroutines.cancellation.*
 internal object BiliListener : SimpleListenerHost() {
     private val permission get() = BiliInfoCommand.permission
     private val ban get() = BiliHelperSettings.ban
+    private val forward get() = BiliHelperSettings.forward
 
     override fun handleException(context: CoroutineContext, exception: Throwable) {
         when (exception) {
@@ -25,17 +26,19 @@ internal object BiliListener : SimpleListenerHost() {
 
     @EventHandler
     suspend fun MessageEvent.handle() {
-        if (this is MessageSyncEvent) return
-        if (permission.testPermission(toCommandSender()).not()) return
+        // XXX: MessageSyncEvent permission
+        if (this !is MessageSyncEvent && permission.testPermission(toCommandSender()).not()) return
 
         for ((regex, replier) in UrlRepliers) {
             val result = regex.find(message.contentToString()) ?: continue
             if (ban.any { it.equals(other = result.value, ignoreCase = true) }) continue
+            val message = replier(result) ?: continue
 
-            when (val message = replier(result)) {
-                is Message -> subject.sendMessage(message)
-                null, is Unit -> Unit
-                else -> subject.sendMessage(message.toString())
+            // XXX: 转发模式 https://github.com/cssxsh/bilibili-helper/issues/90
+            if (forward) {
+                subject.sendMessage(message.toForwardMessage(sender = sender, time = time))
+            } else {
+                subject.sendMessage(message)
             }
         }
     }

@@ -29,4 +29,7 @@ object BiliHelperSettings : ReadOnlyPluginConfig("BiliHelperSettings") {
 
     @ValueDescription("排除的正则表达式结果")
     val ban: Set<String> by value(setOf("av1", "av10492"))
+
+    @ValueDescription("转发自动解析")
+    val forward: Boolean by value(false)
 }

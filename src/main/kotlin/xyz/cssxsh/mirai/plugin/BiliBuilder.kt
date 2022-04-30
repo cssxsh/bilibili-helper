@@ -26,7 +26,7 @@ internal suspend fun SearchResult<*>.toMessage(contact: Contact): Message {
     return result.map { entry -> entry.content(contact) + "\n------------------------\n" }.toMessageChain()
 }
 
-typealias MessageReplier = suspend MessageEvent.(MatchResult) -> Any?
+typealias MessageReplier = suspend MessageEvent.(MatchResult) -> Message?
 
 internal val DYNAMIC_REGEX = """(?<=t\.bilibili\.com/(?:h5/dynamic/detail/)?|m\.bilibili\.com/dynamic/)(\d+)""".toRegex()
 
@@ -37,7 +37,7 @@ internal val DynamicReplier: MessageReplier = replier@{ result ->
         message.quote() + client.getDynamicInfo(dynamicId = id.toLong()).dynamic.content(subject)
     } catch (e: Throwable) {
         logger.warning({ "构建Dynamic(${result.value})信息失败" }, e)
-        e.message
+        e.message?.toPlainText()
     }
 }
 
@@ -54,7 +54,7 @@ internal val VideoReplier: MessageReplier = replier@{ result ->
         }.content(contact = subject)
     } catch (e: Throwable) {
         logger.warning({ "构建Video(${result.value})信息失败" }, e)
-        e.message
+        e.message?.toPlainText()
     }
 }
 
@@ -67,7 +67,7 @@ internal val RoomReplier: MessageReplier = replier@{ result ->
         message.quote() + client.getLiveInfo(roomId = id.toLong()).content(subject)
     } catch (e: Throwable) {
         logger.warning({ "构建Room(${result.value})信息失败" }, e)
-        e.message
+        e.message?.toPlainText()
     }
 }
 
@@ -80,7 +80,7 @@ internal val SpaceReplier: MessageReplier = replier@{ result ->
         message.quote() + client.getUserInfo(uid = id.toLong()).content(subject)
     } catch (e: Throwable) {
         logger.warning({ "构建User(${result.value})信息失败" }, e)
-        e.message
+        e.message?.toPlainText()
     }
 }
 
@@ -93,7 +93,7 @@ internal val SeasonReplier: MessageReplier = replier@{ result ->
         message.quote() + client.getSeasonInfo(seasonId = id.toLong()).content(subject)
     } catch (e: Throwable) {
         logger.warning({ "构建Season(${result.value})信息失败" }, e)
-        e.message
+        e.message?.toPlainText()
     }
 }
 
@@ -106,7 +106,7 @@ internal val EpisodeReplier: MessageReplier = replier@{ result ->
         message.quote() + client.getEpisodeInfo(episodeId = id.toLong()).content(subject)
     } catch (e: Throwable) {
         logger.warning({ "构建Episode(${result.value})信息失败" }, e)
-        e.message
+        e.message?.toPlainText()
     }
 }
 
@@ -119,7 +119,7 @@ internal val MediaReplier: MessageReplier = replier@{ result ->
         message.quote() + client.getSeasonMedia(mediaId = id.toLong()).media.content(subject)
     } catch (e: Throwable) {
         logger.warning({ "构建Media(${result.value})信息失败" }, e)
-        e.message
+        e.message?.toPlainText()
     }
 }
 
@@ -134,7 +134,7 @@ internal val ArticleReplier: MessageReplier = replier@{ result ->
         message.quote() + client.getArticleView(cid = id.toLong()).content(subject)
     } catch (e: Throwable) {
         logger.warning({ "构建Article(${result.value})信息失败" }, e)
-        e.message
+        e.message?.toPlainText()
     }
 }
 
@@ -159,6 +159,7 @@ internal val ShortLinkReplier: MessageReplier = replier@{ result ->
     if (ARTICLE_REGEX matches path) return@replier null
     val location = Url("https://b23.tv/$path").location() ?: return@replier null
     for ((regex, replier) in UrlRepliers) return@replier replier(regex.find(location) ?: continue)
+    null
 }
 
 internal val UrlRepliers by lazy {
