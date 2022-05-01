@@ -26,7 +26,7 @@ object BiliHelperPlugin : KotlinPlugin(
         BiliHelperSettings.save()
         BiliCleanerConfig.reload()
         BiliCleanerConfig.save()
-        BiliTemplate.reload(configFolder.resolve("Template").apply { mkdirs() })
+        BiliTemplate.reload(configFolder.resolve("Template"))
 
         System.setProperty(EXCEPTION_JSON_CACHE, dataFolder.absolutePath)
 

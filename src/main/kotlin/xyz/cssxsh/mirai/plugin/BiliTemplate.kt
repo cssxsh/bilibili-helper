@@ -102,6 +102,7 @@ object BiliTemplate {
     }
 
     fun reload(folder: File) {
+        folder.mkdirs()
         val templates = folder.listFiles { file -> file.extension == "template" }.orEmpty()
         for (template in templates) {
             val name = "${Entry::class.java.packageName}.${template.nameWithoutExtension}"
