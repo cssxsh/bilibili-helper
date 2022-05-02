@@ -15,6 +15,13 @@ sealed interface Video : Entry, Owner, WithDateTime {
     val cover: String
     val seasonId: Long?
     val status: VideoStatus?
+    val tid: Int
+    val type: String
+
+    val isPay: Boolean
+    val isUnionVideo: Boolean
+    val isSteinsGate: Boolean
+    val isLivePlayback: Boolean
 
     val link get() = "https://www.bilibili.com/video/${id}"
     override val datetime: OffsetDateTime get() = timestamp(created)
@@ -59,13 +66,15 @@ data class BiliVideoInfo(
     @SerialName("subtitle")
     val subtitle: VideoSubtitle,
     @SerialName("tid")
-    val tid: Int,
+    override val tid: Int,
     @SerialName("title")
     override val title: String,
     @SerialName("tname")
-    val type: String,
+    override val type: String,
     @SerialName("videos")
-    val videos: Int
+    val videos: Int,
+    @SerialName("rights")
+    val rights: VideoRights
 ) : Video {
     override val uid: Long get() = owner.mid
     override val uname: String get() = owner.name
@@ -74,6 +83,11 @@ data class BiliVideoInfo(
     override val length: String by lazy {
         with(Duration.ofSeconds(duration)) { "%02d:%02d".format(toMinutes(), toSecondsPart()) }
     }
+
+    override val isPay: Boolean get() = rights.pay || rights.ugcPay
+    override val isUnionVideo: Boolean get() = rights.isCooperation
+    override val isSteinsGate: Boolean get() = rights.isSteinGate
+    override val isLivePlayback: Boolean get() = false
 }
 
 @Serializable
@@ -100,7 +114,11 @@ data class VideoInfoList(
     val types: Map<Int, VideoTypeInfo>? = null,
     @SerialName("vlist")
     val videos: List<VideoSimple>
-)
+) {
+    init {
+        videos.forEach { it .types = types }
+    }
+}
 
 @Serializable
 data class VideoSearchPage(
@@ -230,16 +248,16 @@ data class VideoSimple(
     val hideClick: Boolean,
     @SerialName("is_pay")
     @Serializable(NumberToBooleanSerializer::class)
-    val isPay: Boolean,
+    override val isPay: Boolean,
     @SerialName("is_union_video")
     @Serializable(NumberToBooleanSerializer::class)
-    val isUnionVideo: Boolean,
+    override val isUnionVideo: Boolean,
     @SerialName("is_steins_gate")
     @Serializable(NumberToBooleanSerializer::class)
-    val isSteinsGate: Boolean,
+    override val isSteinsGate: Boolean,
     @SerialName("is_live_playback")
     @Serializable(NumberToBooleanSerializer::class)
-    val isLivePlayback: Boolean,
+    override val isLivePlayback: Boolean,
     @SerialName("length")
     override val length: String,
     @SerialName("mid")
@@ -255,7 +273,7 @@ data class VideoSimple(
     @SerialName("title")
     override val title: String,
     @SerialName("typeid")
-    val tid: Int,
+    override val tid: Int,
     @SerialName("video_review")
     val videoReview: Int,
     @SerialName("season_id")
@@ -263,6 +281,8 @@ data class VideoSimple(
     @SerialName("stat")
     override val status: VideoStatus? = null
 ) : Video {
+    internal var types: Map<Int, VideoTypeInfo>? = null
+    override val type: String get() = types?.get(tid)?.name ?: throw NoSuchElementException("video type: $tid")
     override val uid: Long get() = mid
     override val uname: String get() = author
 }
@@ -308,4 +328,56 @@ data class VideoDimension(
     val rotate: Int,
     @SerialName("width")
     val width: Int
+)
+
+@Serializable
+data class VideoRights(
+    @SerialName("autoplay")
+    @Serializable(NumberToBooleanSerializer::class)
+    val autoplay: Boolean = false,
+    @SerialName("bp")
+    @Serializable(NumberToBooleanSerializer::class)
+    val bp: Boolean = false,
+    @SerialName("clean_mode")
+    @Serializable(NumberToBooleanSerializer::class)
+    val cleanMode: Boolean = false,
+    @SerialName("download")
+    @Serializable(NumberToBooleanSerializer::class)
+    val download: Boolean = false,
+    @SerialName("elec")
+    @Serializable(NumberToBooleanSerializer::class)
+    val charge: Boolean = false,
+    @SerialName("hd5")
+    @Serializable(NumberToBooleanSerializer::class)
+    val hd5: Boolean = false,
+    @SerialName("is_360")
+    @Serializable(NumberToBooleanSerializer::class)
+    val is360: Boolean = false,
+    @SerialName("is_cooperation")
+    @Serializable(NumberToBooleanSerializer::class)
+    val isCooperation: Boolean = false,
+    @SerialName("is_stein_gate")
+    @Serializable(NumberToBooleanSerializer::class)
+    val isSteinGate: Boolean = false,
+    @SerialName("movie")
+    @Serializable(NumberToBooleanSerializer::class)
+    val movie: Boolean = false,
+    @SerialName("no_background")
+    @Serializable(NumberToBooleanSerializer::class)
+    val noBackground: Boolean = true,
+    @SerialName("no_reprint")
+    @Serializable(NumberToBooleanSerializer::class)
+    val noReprint: Boolean = true,
+    @SerialName("no_share")
+    @Serializable(NumberToBooleanSerializer::class)
+    val noShare: Boolean = true,
+    @SerialName("pay")
+    @Serializable(NumberToBooleanSerializer::class)
+    val pay: Boolean = false,
+    @SerialName("ugc_pay")
+    @Serializable(NumberToBooleanSerializer::class)
+    val ugcPay: Boolean = false,
+    @SerialName("ugc_pay_preview")
+    @Serializable(NumberToBooleanSerializer::class)
+    val ugcPayPreview: Boolean = false
 )

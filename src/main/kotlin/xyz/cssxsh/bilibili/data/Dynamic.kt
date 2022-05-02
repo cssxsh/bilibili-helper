@@ -7,9 +7,14 @@ import java.time.*
 @OptIn(ExperimentalSerializationApi::class)
 internal inline fun <reified T : Entry> DynamicCard.decode(): T {
     if (decode == null) {
-        decode = BiliClient.Json.decodeFromString<T>(card)
-        if (decode is DynamicReply) {
-            decode = (decode as DynamicReply).copy(display = display?.origin)
+        decode = when (val entry = BiliClient.Json.decodeFromString<T>(card)) {
+            is DynamicReply -> {
+                entry.copy(detail = detail.origin ?: entry.detail, display = display?.origin)
+            }
+            is DynamicVideo -> {
+                entry.copy(id = detail.bvid ?: "av${entry.aid}")
+            }
+            else -> entry
         }
     }
     return decode as T
@@ -17,7 +22,7 @@ internal inline fun <reified T : Entry> DynamicCard.decode(): T {
 
 sealed interface DynamicCard : Entry, WithDateTime {
     val card: String
-    val detail: DynamicCardDetail
+    val detail: DynamicDescribe
     val display: DynamicDisplay?
     val profile: UserProfile
 
@@ -39,12 +44,6 @@ sealed interface DynamicCard : Entry, WithDateTime {
         DynamicType.EPISODE, DynamicType.BANGUMI, DynamicType.TV -> decode<DynamicEpisode>().season.seasonId
         else -> profile.user.uid
     }
-}
-
-sealed interface DynamicCardDetail {
-    val id: Long
-    val type: Int
-    val uid: Long
 }
 
 sealed interface DynamicEmojiContent : Entry {
@@ -92,7 +91,7 @@ data class DynamicDescribe(
     @SerialName("comment")
     val comment: Int = 0,
     @SerialName("dynamic_id")
-    override val id: Long,
+    val id: Long = 0,
     @SerialName("is_liked")
     @Serializable(NumberToBooleanSerializer::class)
     val isLiked: Boolean = false,
@@ -111,16 +110,16 @@ data class DynamicDescribe(
     @SerialName("repost")
     val repost: Long = 0,
     @SerialName("timestamp")
-    val timestamp: Long,
+    val timestamp: Long = 0,
     @SerialName("type")
-    override val type: Int,
+    val type: Int = 0,
     @SerialName("uid")
-    override val uid: Long = 0,
+    val uid: Long = 0,
     @SerialName("user_profile")
     val profile: UserProfile = UserProfile(),
     @SerialName("view")
     val view: Long = 0
-) : DynamicCardDetail
+)
 
 @Serializable
 data class EmojiInfo(
@@ -371,7 +370,7 @@ data class DynamicPictureInfo(
 @Serializable
 data class DynamicReply(
     @SerialName("item")
-    override val detail: DynamicReplyDetail,
+    val item: DynamicReplyDetail,
     @SerialName("origin")
     override val card: String,
     @SerialName("origin_user")
@@ -379,12 +378,15 @@ data class DynamicReply(
     @SerialName("user")
     val user: UserSimple,
     @Transient
-    override val display: DynamicDisplay? = null
+    override val display: DynamicDisplay? = null,
+    @Transient
+    override val detail: DynamicDescribe = DynamicDescribe()
 ) : DynamicCard, DynamicEmojiContent {
     @Transient
     override var decode: Entry? = null
+
     @Transient
-    override var content = detail.content
+    override var content = item.content
     override val profile: UserProfile get() = originUser
     override val datetime: OffsetDateTime get() = timestamp(detail.timestamp)
 }
@@ -396,16 +398,16 @@ data class DynamicReplyDetail(
     @SerialName("content")
     val content: String,
     @SerialName("orig_dy_id")
-    override val id: Long,
+    val id: Long,
     @SerialName("orig_type")
-    override val type: Int,
+    val type: Int,
     @SerialName("reply")
     val reply: Long,
     @SerialName("timestamp")
     val timestamp: Long = 0,
     @SerialName("uid")
-    override val uid: Long
-) : DynamicCardDetail
+    val uid: Long
+)
 
 @Serializable
 data class DynamicSketch(
@@ -472,6 +474,8 @@ data class DynamicTextDetail(
 data class DynamicVideo(
     @SerialName("aid")
     val aid: Long,
+    @SerialName("bvid")
+    override val id: String = "",
     @SerialName("cid")
     val cid: Int,
     @SerialName("copyright")
@@ -497,15 +501,17 @@ data class DynamicVideo(
     @SerialName("stat")
     override val status: VideoStatus,
     @SerialName("tid")
-    val tid: Int,
+    override val tid: Int,
     @SerialName("title")
     override val title: String,
     @SerialName("tname")
-    val type: String,
+    override val type: String,
     @SerialName("videos")
     val videos: Int,
     @SerialName("season_id")
-    override val seasonId: Long? = null
+    override val seasonId: Long? = null,
+    @SerialName("rights")
+    val rights: VideoRights
 ) : Video {
     override val uid: Long get() = owner.mid
     override val uname: String get() = owner.name
@@ -515,8 +521,8 @@ data class DynamicVideo(
         with(Duration.ofSeconds(duration)) { "%02d:%02d".format(toMinutes(), toSecondsPart()) }
     }
 
-    /**
-     * AV ID
-     */
-    override val id: String get() = "av${aid}"
+    override val isPay: Boolean get() = rights.pay || rights.ugcPay
+    override val isUnionVideo: Boolean get() = rights.isCooperation
+    override val isSteinsGate: Boolean get() = rights.isSteinGate
+    override val isLivePlayback: Boolean get() = false
 }

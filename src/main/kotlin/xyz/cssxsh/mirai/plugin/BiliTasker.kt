@@ -159,6 +159,8 @@ sealed class Loader<T : Entry>(name: String) : AbstractTasker<T>(name) {
 
     protected abstract fun T.time(): OffsetDateTime
 
+    protected abstract fun T.check(): Boolean
+
     protected abstract suspend fun List<T>.near(): Boolean
 
     override suspend fun listen(id: Long): Long {
@@ -168,7 +170,7 @@ sealed class Loader<T : Entry>(name: String) : AbstractTasker<T>(name) {
             val task = tasks.getValue(id)
             var last = task.last
             for (item in list) {
-                if (item.time() > task.last) {
+                if (item.time() > task.last && item.check()) {
                     task.send(item)
                     last = maxOf(item.time(), last)
                 }
@@ -226,6 +228,17 @@ object BiliVideoLoader : Loader<Video>(name = "VideoTasker") {
 
     override fun Video.time(): OffsetDateTime = datetime
 
+    override fun Video.check(): Boolean {
+        // XXX: 视频类型检查 https://github.com/cssxsh/bilibili-helper/issues/82
+        return !with(BiliTaskerConfig) {
+            tid in videoForbidType ||
+                (isPay && videoForbidPay) ||
+                (isUnionVideo && videoForbidUnion) ||
+                (isSteinsGate && videoForbidInteract) ||
+                (isLivePlayback && videoForbidPlayback)
+        }
+    }
+
     override suspend fun List<Video>.near() = map { it.datetime.toLocalTime() }.near(slow)
 
     override suspend fun Video.build(contact: Contact) = content(contact)
@@ -240,9 +253,34 @@ object BiliDynamicLoader : Loader<DynamicInfo>(name = "DynamicTasker") {
 
     override val slow = BiliHelperSettings.dynamic * Minute
 
+    private val regexes get() = BiliTaskerConfig.dynamicForbidRegexes.asSequence().map { it.toRegex() }
+
+    private val types get() = BiliTaskerConfig.dynamicForbidType
+
     override suspend fun load(id: Long) = client.getSpaceHistory(uid = id).dynamics
 
     override fun DynamicInfo.time(): OffsetDateTime = datetime
+
+    override fun DynamicInfo.check(): Boolean = !match()
+
+    private fun DynamicCard.match(): Boolean {
+        // XXX: 检查动态类型，文本 https://github.com/cssxsh/bilibili-helper/issues/82
+        return when (detail.type) {
+            DynamicType.REPLY -> {
+                val decode = decode<DynamicReply>()
+                regexes.any { regex -> regex in decode.content } || decode.match()
+            }
+            DynamicType.PICTURE -> {
+                val decode = decode<DynamicPicture>()
+                regexes.any { regex -> regex in decode.content }
+            }
+            DynamicType.TEXT -> {
+                val decode = decode<DynamicText>()
+                regexes.any { regex -> regex in decode.content }
+            }
+            else -> detail.type in types
+        }
+    }
 
     override suspend fun List<DynamicInfo>.near() = map { it.datetime.toLocalTime() }.near(slow)
 
