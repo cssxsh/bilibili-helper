@@ -2,8 +2,7 @@ package xyz.cssxsh.mirai.plugin
 
 import kotlinx.coroutines.*
 import net.mamoe.mirai.contact.*
-import net.mamoe.mirai.message.code.MiraiCode.deserializeMiraiCode
-import net.mamoe.mirai.message.code.MiraiCode.serializeToMiraiCode
+import net.mamoe.mirai.message.code.*
 import net.mamoe.mirai.message.data.*
 import net.mamoe.mirai.utils.*
 import xyz.cssxsh.bilibili.api.*
@@ -38,22 +37,22 @@ internal suspend fun Entry.content(contact: Contact): MessageChain {
         pos = result.range.first + replacement.length
     }
 
-    return content.deserializeMiraiCode(contact)
+    return MiraiCode.deserializeMiraiCode(content, contact)
 }
 
 internal suspend fun Entry.images(contact: Contact): String {
     return when (this) {
-        is Live -> getCover(contact).serializeToMiraiCode()
-        is Season -> getCover(contact).serializeToMiraiCode()
-        is UserInfo -> getFace(contact).serializeToMiraiCode()
-        is Video -> getCover(contact).serializeToMiraiCode()
-        is Article -> getImages(contact).serializeToMiraiCode()
-        is Episode -> getCover(contact).serializeToMiraiCode()
-        is DynamicCard -> getImages(contact).serializeToMiraiCode()
-        is DynamicMusic -> getCover(contact).serializeToMiraiCode()
-        is DynamicSketch -> getCover(contact).serializeToMiraiCode()
+        is Live -> getCover(contact)
+        is Season -> getCover(contact)
+        is UserInfo -> getFace(contact)
+        is Video -> getCover(contact)
+        is Article -> getImages(contact).toMessageChain()
+        is Episode -> getCover(contact)
+        is DynamicCard -> getImages(contact).toMessageChain()
+        is DynamicMusic -> getCover(contact)
+        is DynamicSketch -> getCover(contact)
         else -> throw NoSuchElementException("${this::class.java.simpleName}.images")
-    }
+    }.serializeToMiraiCode()
 }
 
 internal suspend fun Entry.detail(contact: Contact): String {
@@ -68,10 +67,10 @@ internal suspend fun Entry.detail(contact: Contact): String {
 
 internal suspend fun Entry.screenshot(contact: Contact): String {
     return when (this) {
-        is DynamicInfo -> screenshot(contact).serializeToMiraiCode()
-        is Article -> screenshot(contact).serializeToMiraiCode()
+        is DynamicInfo -> screenshot(contact)
+        is Article -> screenshot(contact)
         else -> throw NoSuchElementException("${this::class.java.simpleName}.screenshot")
-    }
+    }.serializeToMiraiCode()
 }
 
 internal suspend fun DynamicCard.detail(contact: Contact): String {
