@@ -2,12 +2,12 @@ plugins {
     kotlin("jvm") version "1.6.0"
     kotlin("plugin.serialization") version "1.6.0"
 
-    id("net.mamoe.mirai-console") version "2.10.1"
+    id("net.mamoe.mirai-console") version "2.10.2"
     id("net.mamoe.maven-central-publish") version "0.7.1"
 }
 
 group = "xyz.cssxsh"
-version = "1.4.13"
+version = "1.4.14-M1"
 
 repositories {
     mavenLocal()
@@ -36,13 +36,13 @@ dependencies {
         exclude(group = "org.slf4j")
         exclude(group = "io.ktor", module = "ktor-client-core")
     }
-    compileOnly("xyz.cssxsh.mirai:mirai-selenium-plugin:2.0.8")
-    compileOnly("net.mamoe:mirai-core:2.10.1")
-    compileOnly("net.mamoe:mirai-core-utils:2.10.1")
+    compileOnly("xyz.cssxsh.mirai:mirai-selenium-plugin:2.0.10")
+    compileOnly("net.mamoe:mirai-core:2.10.2")
+    compileOnly("net.mamoe:mirai-core-utils:2.10.2")
 
     testImplementation(kotlin("test", "1.6.0"))
     testImplementation("org.slf4j:slf4j-simple:1.7.36")
-    testImplementation("xyz.cssxsh.mirai:mirai-selenium-plugin:2.0.8")
+    testImplementation("xyz.cssxsh.mirai:mirai-selenium-plugin:2.0.10")
 }
 
 tasks {

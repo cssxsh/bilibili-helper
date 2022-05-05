@@ -27,7 +27,7 @@ object BiliHelperSettings : ReadOnlyPluginConfig("BiliHelperSettings") {
     @ValueDescription("启动时刷新 last")
     val refresh: Boolean by value(false)
 
-    @ValueDescription("排除的正则表达式结果")
+    @ValueDescription("排除自动解析")
     val ban: Set<String> by value(setOf("av1", "av10492"))
 
     @ValueDescription("转发自动解析")

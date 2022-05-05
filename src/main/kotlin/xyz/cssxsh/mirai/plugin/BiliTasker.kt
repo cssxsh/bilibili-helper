@@ -54,7 +54,11 @@ interface BiliTasker {
 
 sealed class AbstractTasker<T : Entry>(val name: String) : BiliTasker, CoroutineScope {
 
-    override val coroutineContext: CoroutineContext = BiliHelperPlugin.childScopeContext(name, Dispatchers.IO)
+    override val coroutineContext: CoroutineContext = try {
+        BiliHelperPlugin.childScopeContext(name, Dispatchers.IO)
+    } catch (_: Throwable) {
+        Dispatchers.IO.childScopeContext(name)
+    }
 
     protected val mutex = Mutex()
 
@@ -337,9 +341,10 @@ object BiliLiveWaiter : Waiter<BiliLiveInfo>(name = "LiveWaiter") {
 
     override suspend fun initTask(id: Long): BiliTask {
         val live = try {
-            client.getUserInfo(uid = id).liveRoom ?: throw NoSuchElementException("Live Room by https://space.bilibili.com/${id}")
-        } catch (_: NoSuchElementException) {
-            logger.warning { "Attempt $id as RoomId in LiveWaiter." }
+            client.getUserInfo(uid = id).liveRoom
+                ?: throw NoSuchElementException("Live Room by https://space.bilibili.com/${id}")
+        } catch (cause: NoSuchElementException) {
+            logger.warning { cause.message }
             client.getLiveInfo(roomId = id)
         }
         return BiliTask(name = live.uname)

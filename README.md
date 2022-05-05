@@ -143,6 +143,8 @@
 * `season` 番剧 订阅 访问间隔时间，单位分钟, 默认为 `30`
 * `refresh` 启动时刷新 last
 * `selenium` ~~是否启用截图~~  此配置项废弃，通过 Template 文件内容来确定是否启用截图
+* `ban` 排除的自动解析内容，可以放一些不希望被解析的AV号之类的
+* `forward` 转发自动解析, 使用转发的形式发送自动解析结果
 
 ### BiliCleanerConfig.yml
 
