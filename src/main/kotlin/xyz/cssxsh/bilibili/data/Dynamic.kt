@@ -128,11 +128,22 @@ data class EmojiInfo(
 )
 
 @Serializable
+data class CardInfo(
+    @SerialName("add_on_card_show_type")
+    val type: Int,
+    @SerialName("vote_card")
+    val vote: String = ""
+)
+
+@Serializable
 data class DynamicDisplay(
     @SerialName("emoji_info")
     val emoji: EmojiInfo = EmojiInfo(),
     @SerialName("origin")
-    val origin: DynamicDisplay? = null
+    val origin: DynamicDisplay? = null,
+    // TODO: add_on_card_info
+    @SerialName("add_on_card_info")
+    val infos: List<CardInfo> = emptyList()
 )
 
 @Serializable
