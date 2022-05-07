@@ -8,12 +8,8 @@ import java.time.*
 internal inline fun <reified T : Entry> DynamicCard.decode(): T {
     if (decode == null) {
         decode = when (val entry = BiliClient.Json.decodeFromString<T>(card)) {
-            is DynamicReply -> {
-                entry.copy(detail = detail.origin ?: entry.detail, display = display?.origin)
-            }
-            is DynamicVideo -> {
-                entry.copy(id = detail.bvid ?: "av${entry.aid}")
-            }
+            is DynamicReply -> entry.copy(detail = detail.origin ?: entry.describe(), display = display?.origin)
+            is DynamicVideo -> entry.copy(id = detail.bvid ?: "av${entry.aid}")
             else -> entry
         }
     }
@@ -119,7 +115,11 @@ data class DynamicDescribe(
     val profile: UserProfile = UserProfile(),
     @SerialName("view")
     val view: Long = 0
-)
+) {
+    companion object {
+        val Empty = DynamicDescribe()
+    }
+}
 
 @Serializable
 data class EmojiInfo(
@@ -391,7 +391,7 @@ data class DynamicReply(
     @Transient
     override val display: DynamicDisplay? = null,
     @Transient
-    override val detail: DynamicDescribe = DynamicDescribe()
+    override val detail: DynamicDescribe = DynamicDescribe.Empty
 ) : DynamicCard, DynamicEmojiContent {
     @Transient
     override var decode: Entry? = null
@@ -400,6 +400,14 @@ data class DynamicReply(
     override var content = item.content
     override val profile: UserProfile get() = originUser
     override val datetime: OffsetDateTime get() = timestamp(detail.timestamp)
+
+    internal fun describe() = DynamicDescribe.Empty.copy(
+        id = item.id,
+        type = item.type,
+        uid = item.uid,
+        timestamp = if (item.timestamp != 0L) item.timestamp else dynamictime(id = item.id),
+        profile = originUser
+    )
 }
 
 @Serializable
