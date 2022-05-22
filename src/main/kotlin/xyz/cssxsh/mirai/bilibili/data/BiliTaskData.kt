@@ -17,4 +17,9 @@ object BiliTaskData : AutoSavePluginData("BiliTaskData") {
 
     @ValueDescription("剧集订阅信息")
     val season: MutableMap<Long, BiliTask> by value()
+
+    @ValueDescription("User To Name")
+    val user: MutableMap<Long, String> by value {
+        put(11783021, "哔哩哔哩番剧出差")
+    }
 }

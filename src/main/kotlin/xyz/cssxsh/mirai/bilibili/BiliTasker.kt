@@ -105,7 +105,9 @@ sealed class AbstractTasker<T : Entry>(val name: String) : BiliTasker, Coroutine
 
     protected open fun removeListener(id: Long) = jobs.remove(id)?.cancel()
 
-    abstract suspend fun initTask(id: Long): BiliTask
+    open suspend fun initTask(id: Long): BiliTask {
+        return BiliTask(name = BiliTaskData.user.getOrPut(key = id) { client.getUserInfo(uid = id).name })
+    }
 
     override suspend fun task(id: Long, subject: Contact) = mutex.withLock {
         val old = tasks[id] ?: initTask(id)
@@ -247,8 +249,6 @@ object BiliVideoLoader : Loader<Video>(name = "VideoTasker") {
     override suspend fun List<Video>.near() = map { it.datetime.toLocalTime() }.near(slow)
 
     override suspend fun Video.build(contact: Contact) = content(contact)
-
-    override suspend fun initTask(id: Long): BiliTask = BiliTask(name = client.getUserInfo(uid = id).name)
 }
 
 object BiliDynamicLoader : Loader<DynamicInfo>(name = "DynamicTasker") {
@@ -290,8 +290,6 @@ object BiliDynamicLoader : Loader<DynamicInfo>(name = "DynamicTasker") {
     override suspend fun List<DynamicInfo>.near() = map { it.datetime.toLocalTime() }.near(slow)
 
     override suspend fun DynamicInfo.build(contact: Contact) = content(contact)
-
-    override suspend fun initTask(id: Long): BiliTask = BiliTask(name = client.getUserInfo(uid = id).name)
 }
 
 object BiliLiveWaiter : Waiter<BiliLiveInfo>(name = "LiveWaiter") {
