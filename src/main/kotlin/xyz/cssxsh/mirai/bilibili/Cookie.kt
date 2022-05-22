@@ -1,4 +1,4 @@
-package xyz.cssxsh.mirai.plugin
+package xyz.cssxsh.mirai.bilibili
 
 import io.ktor.http.*
 import io.ktor.util.date.*

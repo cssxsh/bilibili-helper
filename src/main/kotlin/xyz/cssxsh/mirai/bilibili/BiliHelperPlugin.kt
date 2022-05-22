@@ -1,4 +1,4 @@
-package xyz.cssxsh.mirai.plugin
+package xyz.cssxsh.mirai.bilibili
 
 import net.mamoe.mirai.*
 import net.mamoe.mirai.console.command.CommandManager.INSTANCE.register
@@ -8,15 +8,15 @@ import net.mamoe.mirai.event.events.*
 import net.mamoe.mirai.event.*
 import net.mamoe.mirai.utils.*
 import xyz.cssxsh.bilibili.api.*
-import xyz.cssxsh.mirai.plugin.command.*
-import xyz.cssxsh.mirai.plugin.data.*
+import xyz.cssxsh.mirai.bilibili.command.*
+import xyz.cssxsh.mirai.bilibili.data.*
 
 object BiliHelperPlugin : KotlinPlugin(
     JvmPluginDescription(id = "xyz.cssxsh.mirai.plugin.bilibili-helper", version = "1.4.14-M1") {
         name("bilibili-helper")
         author("cssxsh")
 
-        dependsOn("xyz.cssxsh.mirai.plugin.mirai-selenium-plugin", true)
+        dependsOn("xyz.cssxsh.mirai.plugin.mirai-selenium-plugin", ">= 2.1.0", true)
     }
 ) {
 

@@ -1,9 +1,9 @@
-package xyz.cssxsh.mirai.plugin
+package xyz.cssxsh.mirai.bilibili
 
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.*
 import net.mamoe.mirai.utils.*
-import xyz.cssxsh.mirai.plugin.data.*
+import xyz.cssxsh.mirai.bilibili.data.*
 
 object BiliCleaner : CoroutineScope by BiliHelperPlugin.childScope("BiliCleaner") {
 

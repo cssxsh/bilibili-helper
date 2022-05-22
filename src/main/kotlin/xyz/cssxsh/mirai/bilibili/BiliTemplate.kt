@@ -1,4 +1,4 @@
-package xyz.cssxsh.mirai.plugin
+package xyz.cssxsh.mirai.bilibili
 
 import xyz.cssxsh.bilibili.data.*
 import java.io.*

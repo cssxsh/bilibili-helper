@@ -1,9 +1,9 @@
-package xyz.cssxsh.mirai.plugin.command
+package xyz.cssxsh.mirai.bilibili.command
 
 import net.mamoe.mirai.console.command.*
 import net.mamoe.mirai.console.util.ContactUtils.render
 import net.mamoe.mirai.message.data.*
-import xyz.cssxsh.mirai.plugin.*
+import xyz.cssxsh.mirai.bilibili.*
 
 object BiliTaskCommand : CompositeCommand(
     owner = BiliHelperPlugin,

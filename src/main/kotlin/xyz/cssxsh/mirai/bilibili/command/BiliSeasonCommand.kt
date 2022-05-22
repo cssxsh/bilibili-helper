@@ -1,8 +1,8 @@
-package xyz.cssxsh.mirai.plugin.command
+package xyz.cssxsh.mirai.bilibili.command
 
 import net.mamoe.mirai.console.command.*
 import net.mamoe.mirai.contact.*
-import xyz.cssxsh.mirai.plugin.*
+import xyz.cssxsh.mirai.bilibili.*
 
 object BiliSeasonCommand : CompositeCommand(
     owner = BiliHelperPlugin,

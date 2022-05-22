@@ -1,7 +1,7 @@
-package xyz.cssxsh.mirai.plugin.data
+package xyz.cssxsh.mirai.bilibili.data
 
 import kotlinx.serialization.*
-import xyz.cssxsh.mirai.plugin.*
+import xyz.cssxsh.mirai.bilibili.*
 import java.time.*
 
 @Serializable

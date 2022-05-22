@@ -1,4 +1,4 @@
-package xyz.cssxsh.mirai.plugin
+package xyz.cssxsh.mirai.bilibili
 
 import io.ktor.client.request.*
 import io.ktor.http.*

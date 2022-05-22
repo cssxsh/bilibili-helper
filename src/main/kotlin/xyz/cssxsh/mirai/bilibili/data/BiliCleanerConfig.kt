@@ -1,9 +1,9 @@
-package xyz.cssxsh.mirai.plugin.data
+package xyz.cssxsh.mirai.bilibili.data
 
 import net.mamoe.mirai.console.data.PluginDataExtensions.withDefault
 import net.mamoe.mirai.console.data.*
 import net.mamoe.mirai.console.util.*
-import xyz.cssxsh.mirai.plugin.*
+import xyz.cssxsh.mirai.bilibili.*
 
 @OptIn(ConsoleExperimentalApi::class)
 object BiliCleanerConfig : ReadOnlyPluginConfig("BiliCleanerConfig") {

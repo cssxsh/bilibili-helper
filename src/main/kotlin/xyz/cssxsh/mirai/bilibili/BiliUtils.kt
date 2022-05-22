@@ -1,4 +1,4 @@
-package xyz.cssxsh.mirai.plugin
+package xyz.cssxsh.mirai.bilibili
 
 import io.ktor.client.request.*
 import io.ktor.http.*
@@ -17,7 +17,8 @@ import net.mamoe.mirai.utils.ExternalResource.Companion.uploadAsImage
 import org.openqa.selenium.*
 import xyz.cssxsh.bilibili.data.*
 import xyz.cssxsh.bilibili.*
-import xyz.cssxsh.mirai.plugin.data.*
+import xyz.cssxsh.mirai.bilibili.data.*
+import xyz.cssxsh.mirai.selenium.*
 import xyz.cssxsh.selenium.*
 import java.io.File
 import java.time.*

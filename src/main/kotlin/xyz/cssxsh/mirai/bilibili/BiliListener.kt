@@ -1,4 +1,4 @@
-package xyz.cssxsh.mirai.plugin
+package xyz.cssxsh.mirai.bilibili
 
 import net.mamoe.mirai.console.command.CommandSender.Companion.toCommandSender
 import net.mamoe.mirai.console.permission.PermissionService.Companion.testPermission
@@ -6,8 +6,8 @@ import net.mamoe.mirai.event.*
 import net.mamoe.mirai.event.events.*
 import net.mamoe.mirai.message.data.*
 import net.mamoe.mirai.utils.*
-import xyz.cssxsh.mirai.plugin.command.*
-import xyz.cssxsh.mirai.plugin.data.*
+import xyz.cssxsh.mirai.bilibili.command.*
+import xyz.cssxsh.mirai.bilibili.data.*
 import kotlin.coroutines.*
 import kotlin.coroutines.cancellation.*
 

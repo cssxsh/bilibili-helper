@@ -1,4 +1,4 @@
-package xyz.cssxsh.mirai.plugin
+package xyz.cssxsh.mirai.bilibili
 
 import net.mamoe.mirai.console.permission.*
 import net.mamoe.mirai.console.plugin.jvm.*

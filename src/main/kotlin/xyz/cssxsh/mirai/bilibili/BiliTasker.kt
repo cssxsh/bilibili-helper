@@ -1,4 +1,4 @@
-package xyz.cssxsh.mirai.plugin
+package xyz.cssxsh.mirai.bilibili
 
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.*
@@ -9,7 +9,7 @@ import net.mamoe.mirai.message.data.*
 import net.mamoe.mirai.utils.*
 import xyz.cssxsh.bilibili.api.*
 import xyz.cssxsh.bilibili.data.*
-import xyz.cssxsh.mirai.plugin.data.*
+import xyz.cssxsh.mirai.bilibili.data.*
 import java.time.*
 import kotlin.coroutines.*
 import kotlin.math.*
@@ -179,6 +179,7 @@ sealed class Loader<T : Entry>(name: String) : AbstractTasker<T>(name) {
                     last = maxOf(item.time(), last)
                 }
             }
+            // TODO: 内容较多时，合并成转发消息 https://github.com/cssxsh/bilibili-helper/issues/78
             tasks[id] = task.copy(last = last)
         }
 
