@@ -48,10 +48,12 @@ object BiliHelperPlugin : KotlinPlugin(
             }
             BiliCleaner.start()
 
-            if (SetupSelenium) {
-                BiliSeleniumConfig.reload()
-                BiliSeleniumConfig.save()
-            }
+            BiliTemplate.selenium() && SetupSelenium
+        }
+
+        if (BiliTemplate.selenium()) {
+            BiliSeleniumConfig.reload()
+            BiliSeleniumConfig.save()
         }
     }
 

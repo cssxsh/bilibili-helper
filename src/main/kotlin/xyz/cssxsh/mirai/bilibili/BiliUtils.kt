@@ -82,7 +82,7 @@ internal val ImageCache by lazy { File(BiliHelperSettings.cache) }
 internal val ImageLimit by lazy { BiliHelperSettings.limit }
 
 internal val SetupSelenium: Boolean by lazy {
-    BiliTemplate.selenium() && try {
+    try {
         MiraiSeleniumPlugin.setup()
     } catch (exception: NoClassDefFoundError) {
         logger.warning { "相关类加载失败，请安装 https://github.com/cssxsh/mirai-selenium-plugin $exception" }
