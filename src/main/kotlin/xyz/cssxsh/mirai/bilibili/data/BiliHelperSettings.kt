@@ -32,4 +32,7 @@ object BiliHelperSettings : ReadOnlyPluginConfig("BiliHelperSettings") {
 
     @ValueDescription("转发自动解析")
     val forward: Boolean by value(false)
+
+    @ValueDescription("一次性推送的上限")
+    val max: Int by value(3)
 }

@@ -166,6 +166,8 @@ sealed class AbstractTasker<T : Entry>(val name: String) : BiliTasker, Coroutine
 
 sealed class Loader<T : Entry>(name: String) : AbstractTasker<T>(name) {
 
+    protected abstract val limit: Int
+
     protected abstract suspend fun load(id: Long): List<T>
 
     protected abstract fun T.time(): OffsetDateTime
@@ -174,23 +176,48 @@ sealed class Loader<T : Entry>(name: String) : AbstractTasker<T>(name) {
 
     protected abstract suspend fun List<T>.near(): Boolean
 
+    protected open fun BiliTask.send(list: List<T>) = contacts.map { delegate ->
+        async {
+            try {
+                val contact = requireNotNull(findContact(delegate)) { "找不到联系人 $delegate" }
+                contact.sendMessage(buildForwardMessage(contact) {
+                    for (item in list) {
+                        contact.bot at item.time().toEpochSecond().toInt() says item.build(contact)
+                    }
+                })
+            } catch (e: Throwable) {
+                logger.warning({ "对[${delegate}]构建消息失败" }, e)
+                null
+            }
+        }
+    }
+
     override suspend fun listen(id: Long): Long {
-        val list = load(id)
+        val load = load(id)
 
         mutex.withLock {
             val task = tasks.getValue(id)
             var last = task.last
-            for (item in list) {
+            // XXX: 内容较多时，合并成转发消息 https://github.com/cssxsh/bilibili-helper/issues/78
+            val list: MutableList<T> = ArrayList()
+            for (item in load) {
                 if (item.time() > task.last && item.check()) {
-                    task.send(item)
+                    list.add(item)
                     last = maxOf(item.time(), last)
                 }
             }
-            // TODO: 内容较多时，合并成转发消息 https://github.com/cssxsh/bilibili-helper/issues/78
+            if (list.size < limit) {
+                for (item in list) {
+                    task.send(item)
+                }
+            } else {
+                task.send(list)
+            }
+
             tasks[id] = task.copy(last = last)
         }
 
-        return if (list.near()) fast else slow
+        return if (load.near()) fast else slow
     }
 }
 
@@ -232,6 +259,8 @@ private const val Minute = 60 * 1000L
 object BiliVideoLoader : Loader<Video>(name = "VideoTasker") {
     override val tasks: MutableMap<Long, BiliTask> get() = BiliTaskData.video
 
+    override val limit: Int get() = BiliHelperSettings.max
+
     override val fast get() = Minute
 
     override val slow get() = BiliHelperSettings.video * Minute
@@ -258,6 +287,8 @@ object BiliVideoLoader : Loader<Video>(name = "VideoTasker") {
 
 object BiliDynamicLoader : Loader<DynamicInfo>(name = "DynamicTasker") {
     override val tasks: MutableMap<Long, BiliTask> get() = BiliTaskData.dynamic
+
+    override val limit: Int get() = BiliHelperSettings.max
 
     override val fast get() = Minute
 
