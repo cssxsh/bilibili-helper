@@ -2,7 +2,9 @@ package xyz.cssxsh.mirai.bilibili.command
 
 import net.mamoe.mirai.console.command.*
 import net.mamoe.mirai.contact.*
+import xyz.cssxsh.bilibili.data.*
 import xyz.cssxsh.mirai.bilibili.*
+import xyz.cssxsh.mirai.bilibili.data.*
 
 object BiliDynamicCommand : CompositeCommand(
     owner = BiliHelperPlugin,
@@ -24,4 +26,52 @@ object BiliDynamicCommand : CompositeCommand(
     suspend fun CommandSender.detail(contact: Contact = subject()) = sendMessage(
         message = list(contact)
     )
+
+    @SubCommand("forbid", "屏蔽")
+    suspend fun CommandSender.forbid(pattern: String, add: Boolean = true) {
+        val message = if (add) {
+            try {
+                pattern.toRegex()
+                BiliTaskerConfig.dynamicForbidRegexes.add(pattern)
+                "动态正则屏蔽添加成功"
+            } catch (cause: Throwable) {
+                logger.warning(cause)
+                "动态正则屏蔽添加失败，${cause.message}"
+            }
+        } else {
+            BiliTaskerConfig.dynamicForbidRegexes.remove(pattern)
+            "动态正则屏蔽取消成功"
+        }
+
+        sendMessage(message = message)
+    }
+
+    @SubCommand("filter", "过滤")
+    suspend fun CommandSender.filter(type: String, add: Boolean = true) {
+        val tid = when (type) {
+            "回复" -> DynamicType.REPLY
+            "图片" -> DynamicType.PICTURE
+            "文本" -> DynamicType.TEXT
+            "视频" -> DynamicType.VIDEO
+            "专栏" -> DynamicType.ARTICLE
+            "音乐" -> DynamicType.MUSIC
+            "剧集" -> DynamicType.EPISODE
+            "删除" -> DynamicType.DELETE
+            "番剧" -> DynamicType.BANGUMI
+            "电视" -> DynamicType.TV
+            "直播" -> DynamicType.LIVE
+            else -> {
+                sendMessage(message = "莫得这个选项")
+                return
+            }
+        }
+
+        if (add) {
+            BiliTaskerConfig.dynamicForbidType.add(tid)
+            sendMessage(message = "动态类型<$tid>屏蔽添加成功")
+        } else {
+            BiliTaskerConfig.dynamicForbidType.remove(tid)
+            sendMessage(message = "动态类型<$tid>屏蔽取消成功")
+        }
+    }
 }

@@ -31,17 +31,23 @@
 例如 `/B动态 添加 496371957` 的权限ID为 `xyz.cssxsh.mirai.plugin.bilibili-helper:command.bili-dynamic`
 
 参数 `uid` 例如 `https://space.bilibili.com/508963009/` 的数字 `508963009`  
-参数 `contact` 为QQ号或者群号，可以省略，会从当前聊天环境获取，比如群聊中会自动填充为当前群号
+参数 `contact` 为QQ号或者群号，可以省略，会从当前聊天环境获取，比如群聊中会自动填充为当前群号, 但控制台中必须填充
 
 ### 动态订阅指令
 
-| 指令                                               | 描述           |
-|:-------------------------------------------------|:-------------|
-| `/<bili-dynamic B动态> <add 添加> [uid] [contact]?`  | 添加一个b站动态订阅   |
-| `/<bili-dynamic B动态> <stop 停止> [uid] [contact]?` | 停止一个b站动态订阅   |
-| `/<bili-dynamic B动态> <list 列表> [contact]?`       | 列出当前联系人的动态订阅 |
+| 指令                                                 | 描述           |
+|:---------------------------------------------------|:-------------|
+| `/<bili-dynamic B动态> <add 添加> [uid] [contact]?`    | 添加一个b站动态订阅   |
+| `/<bili-dynamic B动态> <stop 停止> [uid] [contact]?`   | 停止一个b站动态订阅   |
+| `/<bili-dynamic B动态> <list 列表> [contact]?`         | 列出当前联系人的动态订阅 |
+| `/<bili-dynamic B动态> <forbid 屏蔽> [pattern] [add]?` | 添加一个动态正则屏蔽   |
+| `/<bili-dynamic B动态> <filter 过滤> [type] [add]?`    | 添加一个动态类型过滤   |
 
-动态订阅会优先使用截图的形式推送内容，截图需要谷歌浏览器或者火狐浏览器 否则将推送文本内容
+`/bili-dynamic forbid 转发抽奖` 添加一个正则屏蔽
+`/bili-dynamic forbid 转发抽奖 false` 取消一个正则屏蔽
+`/bili-dynamic filter 视频` 添加一个动态类型过滤
+`/bili-dynamic filter 视频 false` 取消一个动态类型过滤
+`type` 取值 `回复, 图片, 文本, 视频, 专栏, 音乐, 剧集, 删除, 番剧, 电视, 直播`
 
 ### 直播订阅指令
 
@@ -58,6 +64,15 @@
 | `/<bili-video B视频> <add 添加> [uid] [contact]?`  | 添加一个b站视频订阅   |
 | `/<bili-video B视频> <stop 停止> [uid] [contact]?` | 停止一个b站视频订阅   |
 | `/<bili-video B视频> <list 列表> [contact]?`       | 列出当前联系人的视频订阅 |
+| `/<bili-video B视频> <forbid 屏蔽> [type] [add]?`  | 添加一个视频类型屏蔽   |
+| `/<bili-video B视频> <filter 过滤> [tid] [add]?`   | 添加一个视频分区过滤   |
+
+`/bili-video forbid 付费` 添加一个类型屏蔽
+`/bili-video forbid 付费 false` 取消一个类型屏蔽
+`/bili-video filter 1` 添加一个分区过滤过滤
+`/bili-video filter 1 false` 取消一个分区过滤过滤
+`type` 取值 `付费, 联合, 回放`
+`tid` 取值请参考 <https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/video/video_zone.md>
 
 视频订阅不宜过多，否则会触发b站反爬策略，导致IP被锁定 动态订阅一般会包含视频内容，推荐以此代替
 
