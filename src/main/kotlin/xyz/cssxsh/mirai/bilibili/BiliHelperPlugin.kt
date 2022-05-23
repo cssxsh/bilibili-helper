@@ -22,6 +22,7 @@ object BiliHelperPlugin : KotlinPlugin(
 
     override fun onEnable() {
         BiliTaskData.reload()
+        BiliTaskerConfig.reload()
         BiliHelperSettings.reload()
         BiliHelperSettings.save()
         BiliCleanerConfig.reload()

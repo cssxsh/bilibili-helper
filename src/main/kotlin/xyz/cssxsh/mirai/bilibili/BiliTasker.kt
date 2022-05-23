@@ -2,8 +2,8 @@ package xyz.cssxsh.mirai.bilibili
 
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.*
-import net.mamoe.mirai.console.permission.PermissionService.Companion.testPermission
-import net.mamoe.mirai.console.permission.PermitteeId.Companion.permitteeId
+import net.mamoe.mirai.console.permission.*
+import net.mamoe.mirai.console.permission.PermitteeId.Companion.hasChild
 import net.mamoe.mirai.contact.*
 import net.mamoe.mirai.message.data.*
 import net.mamoe.mirai.utils.*
@@ -76,7 +76,12 @@ sealed class AbstractTasker<T : Entry>(val name: String) : BiliTasker, Coroutine
         async {
             try {
                 val contact = requireNotNull(findContact(delegate)) { "找不到联系人 $delegate" }
-                contact.sendMessage(item.build(contact))
+                val message = item.build(contact)
+                if (message != EmptyMessageChain) {
+                    contact.sendMessage(message)
+                } else {
+                    null
+                }
             } catch (e: Throwable) {
                 logger.warning({ "对[${delegate}]构建消息失败" }, e)
                 null
@@ -337,6 +342,46 @@ object BiliLiveWaiter : Waiter<BiliLiveInfo>(name = "LiveWaiter") {
 
     private val record: MutableMap<Long, Long> get() = BiliTaskData.map
 
+    private val Contact.permitteeId: PermitteeId
+        get() = when (this) {
+            is Group -> AbstractPermitteeId.ExactGroup(id)
+            is Member -> AbstractPermitteeId.ExactMember(group.id, id)
+            is Stranger -> AbstractPermitteeId.ExactStranger(id)
+            is User -> AbstractPermitteeId.ExactUser(id)
+            is OtherClient -> AbstractPermitteeId.AnyOtherClient
+            else -> AbstractPermitteeId.AnyContact
+        }
+
+    private fun sleep(target: PermitteeId, time: LocalTime = LocalTime.now()): Boolean {
+        return BiliTaskerConfig.liveSleep.any { (permitteeId, interval) ->
+            permitteeId.hasChild(target) && time in interval
+        }
+    }
+
+    private fun at(group: Group, time: LocalTime = LocalTime.now()): Message = buildMessageChain {
+        fun check(target: PermitteeId, time: LocalTime): Boolean {
+            return BiliTaskerConfig.liveAt.any { (permitteeId, interval) ->
+                permitteeId.hasChild(target) && time in interval
+            }
+        }
+        if (check(target = group.permitteeId, time = time)) {
+            append(AtAll)
+            if (group.botPermission < MemberPermission.ADMINISTRATOR) {
+                try {
+                    @Suppress("INVISIBLE_REFERENCE", "INVISIBLE_MEMBER")
+                    append(net.mamoe.mirai.internal.message.ForceAsLongMessage)
+                } catch (_: Throwable) {
+                    //
+                }
+            }
+        }
+        group.members.forEach { member ->
+            if (check(target = member.permitteeId, time = time)) {
+                append(At(member))
+            }
+        }
+    }
+
     override suspend fun load(id: Long): BiliLiveInfo {
         val roomId = record.getOrPut(id) {
             requireNotNull(client.getUserInfo(uid = id).liveRoom) { "用户 $id 没有开通直播间" }.roomId
@@ -353,22 +398,11 @@ object BiliLiveWaiter : Waiter<BiliLiveInfo>(name = "LiveWaiter") {
         }
     }
 
-    private val LiveAtAll = BiliHelperPlugin.registerPermission("live.atall", "直播 @全体成员")
-
-    private fun withAtAll(contact: Contact): Message {
-        return if (contact is Group && LiveAtAll.testPermission(contact.permitteeId)) {
-            if (contact.botPermission > MemberPermission.MEMBER) {
-                AtAll
-            } else {
-                @Suppress("INVISIBLE_REFERENCE", "INVISIBLE_MEMBER")
-                AtAll + net.mamoe.mirai.internal.message.ForceAsLongMessage
-            }
-        } else {
-            EmptyMessageChain
-        }
+    override suspend fun BiliLiveInfo.build(contact: Contact): Message =when {
+        sleep(target = contact.permitteeId) -> EmptyMessageChain
+        contact is Group -> content(contact) + at(contact)
+        else -> content(contact)
     }
-
-    override suspend fun BiliLiveInfo.build(contact: Contact): Message = content(contact) + withAtAll(contact)
 
     override suspend fun BiliLiveInfo.near(): Boolean = LocalTime.now().minute < BiliHelperSettings.live
 

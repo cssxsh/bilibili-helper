@@ -108,7 +108,7 @@ enum class CacheType : Mutex by Mutex() {
 
 private val Url.filename get() = encodedPath.substringAfterLast("/")
 
-object OffsetDateTimeSerializer : KSerializer<OffsetDateTime> {
+internal object OffsetDateTimeSerializer : KSerializer<OffsetDateTime> {
 
     private val formatter: DateTimeFormatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME
 
@@ -121,6 +121,19 @@ object OffsetDateTimeSerializer : KSerializer<OffsetDateTime> {
     override fun serialize(encoder: Encoder, value: OffsetDateTime) =
         encoder.encodeString(formatter.format(value))
 
+}
+
+internal object LocalTimeSerializer : KSerializer<LocalTime> {
+    override val descriptor: SerialDescriptor =
+        PrimitiveSerialDescriptor(LocalTime::class.qualifiedName!!, PrimitiveKind.STRING)
+
+    override fun deserialize(decoder: Decoder): LocalTime {
+        return LocalTime.parse(decoder.decodeString())
+    }
+
+    override fun serialize(encoder: Encoder, value: LocalTime) {
+        encoder.encodeString(value.toString())
+    }
 }
 
 /**

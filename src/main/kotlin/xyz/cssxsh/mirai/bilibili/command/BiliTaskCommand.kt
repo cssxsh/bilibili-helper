@@ -27,8 +27,18 @@ object BiliTaskCommand : CompositeCommand(
         appendLine("屏蔽付费视频: $videoForbidPay")
         appendLine("屏蔽联合视频: $videoForbidUnion")
         appendLine("屏蔽回放视频: $videoForbidInteract")
+        appendLine()
         appendLine("屏蔽动态类型: $dynamicForbidType")
         appendLine("屏蔽动态正则: $dynamicForbidRegexes")
+        appendLine()
+        appendLine("直播睡眠时间: ")
+        for ((id, interval) in liveSleep) {
+            append("    ").append(id).append(" ").appendLine(interval)
+        }
+        appendLine("直播艾特时间: ")
+        for ((id, interval) in liveAt) {
+            append("    ").append(id).append(" ").appendLine(interval)
+        }
     }
 
     @SubCommand
@@ -53,5 +63,5 @@ object BiliTaskCommand : CompositeCommand(
     suspend fun CommandSender.video() = sendMessage(message = BiliVideoLoader.render())
 
     @SubCommand
-    suspend fun CommandSender.forbid() = sendMessage(message = BiliTaskerConfig.render())
+    suspend fun CommandSender.config() = sendMessage(message = BiliTaskerConfig.render())
 }

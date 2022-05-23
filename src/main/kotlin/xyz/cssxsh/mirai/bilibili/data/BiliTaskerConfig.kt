@@ -1,6 +1,7 @@
 package xyz.cssxsh.mirai.bilibili.data
 
 import net.mamoe.mirai.console.data.*
+import net.mamoe.mirai.console.permission.*
 
 object BiliTaskerConfig : AutoSavePluginConfig("BiliTaskerConfig") {
 
@@ -24,4 +25,10 @@ object BiliTaskerConfig : AutoSavePluginConfig("BiliTaskerConfig") {
 
     @ValueName("dynamic_forbid_regexes")
     val dynamicForbidRegexes: MutableSet<String> by value()
+
+    @ValueName("live_sleep")
+    val liveSleep: MutableMap<AbstractPermitteeId, BiliInterval> by value()
+
+    @ValueName("live_at")
+    val liveAt: MutableMap<AbstractPermitteeId, BiliInterval> by value()
 }
