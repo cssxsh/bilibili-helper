@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "xyz.cssxsh"
-version = "1.4.14-M1"
+version = "1.5.0-M1"
 
 repositories {
     mavenLocal()

@@ -4,20 +4,14 @@ import io.ktor.client.request.*
 import xyz.cssxsh.bilibili.*
 import xyz.cssxsh.bilibili.data.*
 
+/**
+ * @param order 粉丝数：fans; 用户等级：level
+ * @param type 全部用户：0; up主：1; 普通用户：2; 认证用户：3
+ */
 suspend fun BiliClient.searchUser(
     keyword: String,
-    /**
-     * 粉丝数：fans
-     * 用户等级：level
-     */
     order: String? = null,
     asc: Boolean = false,
-    /**
-     * 全部用户：0
-     * up主：1
-     * 普通用户：2
-     * 认证用户：3
-     */
     type: Int = 0,
     page: Int = 1,
     url: String = SEARCH_TYPE

@@ -22,7 +22,8 @@ object BiliTemplate {
         """.trimIndent()
         cache[UserInfo::class.java] = """
             #images
-            名称: #name
+            @#name##mid
+            直播: #live
             等级: #level
             直播: #live
             简介: 
