@@ -12,12 +12,12 @@ object BiliSeasonCommand : CompositeCommand(
 
     @SubCommand("add", "添加")
     suspend fun CommandSender.add(sid: Long, contact: Contact = subject()) = sendMessage(
-        message = task(sid, contact).let { "对@${it.name}#${sid}的监听任务, 添加完成" }
+        message = task(sid, contact)
     )
 
     @SubCommand("stop", "停止")
     suspend fun CommandSender.stop(sid: Long, contact: Contact = subject()) = sendMessage(
-        message = remove(sid, contact).let { "对@${it.name}#${sid}的监听任务, 取消完成" }
+        message = remove(sid, contact)
     )
 
     @SubCommand("list", "列表")

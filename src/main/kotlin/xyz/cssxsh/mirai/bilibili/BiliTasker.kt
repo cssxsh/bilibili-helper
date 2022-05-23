@@ -17,9 +17,9 @@ import kotlinx.serialization.*
 
 interface BiliTasker {
 
-    suspend fun task(id: Long, subject: Contact): BiliTask
+    suspend fun task(id: Long, subject: Contact): String
 
-    suspend fun remove(id: Long, subject: Contact): BiliTask
+    suspend fun remove(id: Long, subject: Contact): String
 
     suspend fun list(subject: Contact): String
 
@@ -110,17 +110,22 @@ sealed class AbstractTasker<T : Entry>(val name: String) : BiliTasker, Coroutine
     }
 
     override suspend fun task(id: Long, subject: Contact) = mutex.withLock {
-        val old = tasks[id] ?: initTask(id)
+        val old = try {
+            tasks[id] ?: initTask(id)
+        } catch (cause: Throwable) {
+            logger.warning(cause)
+            return@withLock "发生错误, ${cause.message}"
+        }
         val new = old.copy(contacts = old.contacts + subject.delegate)
         tasks[id] = new
         jobs.compute(id) { _, job ->
             job?.takeIf { it.isActive } ?: addListener(id)
         }
-        new
+        "对@${new.name}#${id}的监听任务, 添加完成"
     }
 
     override suspend fun remove(id: Long, subject: Contact) = mutex.withLock {
-        val old = tasks[id] ?: initTask(id)
+        val old = tasks[id] ?: return@withLock "任务不存在"
         val new = old.copy(contacts = old.contacts - subject.delegate)
         if (new.contacts.isEmpty()) {
             jobs[id]?.cancel()
@@ -128,7 +133,7 @@ sealed class AbstractTasker<T : Entry>(val name: String) : BiliTasker, Coroutine
         } else {
             tasks[id] = new
         }
-        new
+        "对@${new.name}#${id}的监听任务, 取消完成"
     }
 
     override suspend fun list(subject: Contact): String = mutex.withLock {
