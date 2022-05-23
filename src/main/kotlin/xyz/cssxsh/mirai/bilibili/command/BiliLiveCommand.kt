@@ -29,37 +29,37 @@ object BiliLiveCommand : CompositeCommand(
     )
 
     @SubCommand("sleep", "睡眠")
-    suspend fun CommandSender.sleep(id: String, start: LocalTime, end: LocalTime) {
-        val permitteeId = try {
-            AbstractPermitteeId.parseFromString(id)
+    suspend fun CommandSender.sleep(target: PermitteeId, start: LocalTime, end: LocalTime) {
+        try {
+            target as AbstractPermitteeId
         } catch (cause: Throwable) {
             sendMessage("出现错误, ${cause.message}")
             return
         }
         val interval = BiliInterval(start, end)
         if (interval.isEmpty()) {
-            BiliTaskerConfig.liveSleep.remove(permitteeId)
+            BiliTaskerConfig.liveSleep.remove(target)
             sendMessage("睡眠时间取消成功")
         } else {
-            BiliTaskerConfig.liveSleep[permitteeId] = BiliInterval(start, end)
+            BiliTaskerConfig.liveSleep[target] = BiliInterval(start, end)
             sendMessage("睡眠时间添加成功")
         }
     }
 
     @SubCommand("at", "艾特")
-    suspend fun CommandSender.at(id: String, start: LocalTime, end: LocalTime) {
-        val permitteeId = try {
-            AbstractPermitteeId.parseFromString(id)
+    suspend fun CommandSender.at(target: PermitteeId, start: LocalTime, end: LocalTime) {
+        try {
+            target as AbstractPermitteeId
         } catch (cause: Throwable) {
             sendMessage("出现错误, ${cause.message}")
             return
         }
         val interval = BiliInterval(start, end)
         if (interval.isEmpty()) {
-            BiliTaskerConfig.liveAt.remove(permitteeId)
+            BiliTaskerConfig.liveAt.remove(target)
             sendMessage("艾特时间取消成功")
         } else {
-            BiliTaskerConfig.liveAt[permitteeId] = BiliInterval(start, end)
+            BiliTaskerConfig.liveAt[target] = BiliInterval(start, end)
             sendMessage("艾特时间添加成功")
         }
     }

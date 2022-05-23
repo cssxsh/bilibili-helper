@@ -1,10 +1,12 @@
 package xyz.cssxsh.mirai.bilibili.command
 
 import net.mamoe.mirai.console.command.*
+import net.mamoe.mirai.console.permission.*
 import net.mamoe.mirai.contact.*
 import xyz.cssxsh.bilibili.data.*
 import xyz.cssxsh.mirai.bilibili.*
 import xyz.cssxsh.mirai.bilibili.data.*
+import java.time.*
 
 object BiliDynamicCommand : CompositeCommand(
     owner = BiliHelperPlugin,
@@ -72,6 +74,42 @@ object BiliDynamicCommand : CompositeCommand(
         } else {
             BiliTaskerConfig.dynamicForbidType.remove(tid)
             sendMessage(message = "动态类型<$tid>屏蔽取消成功")
+        }
+    }
+
+    @SubCommand("sleep", "睡眠")
+    suspend fun CommandSender.sleep(target: PermitteeId, start: LocalTime, end: LocalTime) {
+        try {
+            target as AbstractPermitteeId
+        } catch (cause: Throwable) {
+            sendMessage("出现错误, ${cause.message}")
+            return
+        }
+        val interval = BiliInterval(start, end)
+        if (interval.isEmpty()) {
+            BiliTaskerConfig.dynamicSleep.remove(target)
+            sendMessage("睡眠时间取消成功")
+        } else {
+            BiliTaskerConfig.dynamicSleep[target] = BiliInterval(start, end)
+            sendMessage("睡眠时间添加成功")
+        }
+    }
+
+    @SubCommand("at", "艾特")
+    suspend fun CommandSender.at(target: PermitteeId, start: LocalTime, end: LocalTime) {
+        try {
+            target as AbstractPermitteeId
+        } catch (cause: Throwable) {
+            sendMessage("出现错误, ${cause.message}")
+            return
+        }
+        val interval = BiliInterval(start, end)
+        if (interval.isEmpty()) {
+            BiliTaskerConfig.dynamicAt.remove(target)
+            sendMessage("艾特时间取消成功")
+        } else {
+            BiliTaskerConfig.dynamicAt[target] = BiliInterval(start, end)
+            sendMessage("艾特时间添加成功")
         }
     }
 }

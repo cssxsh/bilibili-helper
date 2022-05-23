@@ -14,6 +14,7 @@ import java.time.*
 import kotlin.coroutines.*
 import kotlin.math.*
 import kotlinx.serialization.*
+import net.mamoe.mirai.message.*
 
 interface BiliTasker {
 
@@ -68,19 +69,73 @@ sealed class AbstractTasker<T : Entry>(val name: String) : BiliTasker, Coroutine
 
     abstract override val tasks: MutableMap<Long, BiliTask>
 
+    abstract val sleep: Map<out PermitteeId, BiliInterval>
+
+    abstract val at: Map<out PermitteeId, BiliInterval>
+
+    protected val Contact.permitteeId: PermitteeId
+        get() = when (this) {
+            is Group -> AbstractPermitteeId.ExactGroup(id)
+            is Member -> AbstractPermitteeId.ExactMember(group.id, id)
+            is Stranger -> AbstractPermitteeId.ExactStranger(id)
+            is User -> AbstractPermitteeId.ExactUser(id)
+            is OtherClient -> AbstractPermitteeId.AnyOtherClient
+            else -> AbstractPermitteeId.AnyContact
+        }
+
+    protected fun sleep(target: PermitteeId, time: LocalTime = LocalTime.now()): Boolean {
+        return sleep.any { (permitteeId, interval) -> permitteeId.hasChild(target) && time in interval }
+    }
+
+    protected fun at(group: Group, time: LocalTime = LocalTime.now()): MessageChain = buildMessageChain {
+        fun check(target: PermitteeId, time: LocalTime): Boolean {
+            return at.any { (permitteeId, interval) -> permitteeId.hasChild(target) && time in interval }
+        }
+        if (check(target = group.permitteeId, time = time)) {
+            append(AtAll)
+            if (group.botPermission < MemberPermission.ADMINISTRATOR) {
+                try {
+                    @Suppress("INVISIBLE_REFERENCE", "INVISIBLE_MEMBER")
+                    append(net.mamoe.mirai.internal.message.ForceAsLongMessage)
+                } catch (_: Throwable) {
+                    //
+                }
+            }
+        }
+        group.members.forEach { member ->
+            if (check(target = member.permitteeId, time = time)) {
+                append(At(member))
+            }
+        }
+    }
+
     protected abstract suspend fun T.build(contact: Contact): Message
 
     protected open fun empty(id: Long) = tasks[id]?.contacts.isNullOrEmpty()
 
-    protected open fun BiliTask.send(item: T) = contacts.map { delegate ->
+    protected open fun BiliTask.send(item: T): List<Deferred<MessageReceipt<Contact>?>> = contacts.map { delegate ->
         async {
             try {
                 val contact = requireNotNull(findContact(delegate)) { "找不到联系人 $delegate" }
-                val message = item.build(contact)
-                if (message != EmptyMessageChain) {
-                    contact.sendMessage(message)
-                } else {
+                if (sleep(target = contact.permitteeId)) {
                     null
+                } else {
+                    val message = item.build(contact)
+                    when {
+                        message is ForwardMessage && contact is Group -> {
+                            val receipt = contact.sendMessage(message = item.build(contact))
+                            val at = at(group = contact)
+                            if (at.isEmpty()) {
+                                receipt
+                            } else {
+                                receipt.quoteReply(at(group = contact))
+                            }
+                        }
+                        contact is Group -> {
+                            contact.sendMessage(message = item.build(contact) + at(group = contact))
+                        }
+                        else -> contact.sendMessage(message = item.build(contact))
+                    }
                 }
             } catch (e: Throwable) {
                 logger.warning({ "对[${delegate}]构建消息失败" }, e)
@@ -262,7 +317,11 @@ private fun List<LocalTime>.near(slow: Long, now: LocalTime = LocalTime.now()): 
 private const val Minute = 60 * 1000L
 
 object BiliVideoLoader : Loader<Video>(name = "VideoTasker") {
-    override val tasks: MutableMap<Long, BiliTask> get() = BiliTaskData.video
+    override val tasks get() = BiliTaskData.video
+
+    override val sleep get() = BiliTaskerConfig.videoSleep
+
+    override val at get() = BiliTaskerConfig.videoAt
 
     override val limit: Int get() = BiliHelperSettings.max
 
@@ -291,7 +350,11 @@ object BiliVideoLoader : Loader<Video>(name = "VideoTasker") {
 }
 
 object BiliDynamicLoader : Loader<DynamicInfo>(name = "DynamicTasker") {
-    override val tasks: MutableMap<Long, BiliTask> get() = BiliTaskData.dynamic
+    override val tasks get() = BiliTaskData.dynamic
+
+    override val sleep get() = BiliTaskerConfig.dynamicSleep
+
+    override val at get() = BiliTaskerConfig.dynamicAt
 
     override val limit: Int get() = BiliHelperSettings.max
 
@@ -334,53 +397,17 @@ object BiliDynamicLoader : Loader<DynamicInfo>(name = "DynamicTasker") {
 }
 
 object BiliLiveWaiter : Waiter<BiliLiveInfo>(name = "LiveWaiter") {
-    override val tasks: MutableMap<Long, BiliTask> get() = BiliTaskData.live
+    override val tasks get() = BiliTaskData.live
+
+    override val sleep get() = BiliTaskerConfig.liveSleep
+
+    override val at get() = BiliTaskerConfig.liveAt
 
     override val fast get() = Minute
 
     override val slow get() = BiliHelperSettings.live * Minute
 
     private val record: MutableMap<Long, Long> get() = BiliTaskData.map
-
-    private val Contact.permitteeId: PermitteeId
-        get() = when (this) {
-            is Group -> AbstractPermitteeId.ExactGroup(id)
-            is Member -> AbstractPermitteeId.ExactMember(group.id, id)
-            is Stranger -> AbstractPermitteeId.ExactStranger(id)
-            is User -> AbstractPermitteeId.ExactUser(id)
-            is OtherClient -> AbstractPermitteeId.AnyOtherClient
-            else -> AbstractPermitteeId.AnyContact
-        }
-
-    private fun sleep(target: PermitteeId, time: LocalTime = LocalTime.now()): Boolean {
-        return BiliTaskerConfig.liveSleep.any { (permitteeId, interval) ->
-            permitteeId.hasChild(target) && time in interval
-        }
-    }
-
-    private fun at(group: Group, time: LocalTime = LocalTime.now()): Message = buildMessageChain {
-        fun check(target: PermitteeId, time: LocalTime): Boolean {
-            return BiliTaskerConfig.liveAt.any { (permitteeId, interval) ->
-                permitteeId.hasChild(target) && time in interval
-            }
-        }
-        if (check(target = group.permitteeId, time = time)) {
-            append(AtAll)
-            if (group.botPermission < MemberPermission.ADMINISTRATOR) {
-                try {
-                    @Suppress("INVISIBLE_REFERENCE", "INVISIBLE_MEMBER")
-                    append(net.mamoe.mirai.internal.message.ForceAsLongMessage)
-                } catch (_: Throwable) {
-                    //
-                }
-            }
-        }
-        group.members.forEach { member ->
-            if (check(target = member.permitteeId, time = time)) {
-                append(At(member))
-            }
-        }
-    }
 
     override suspend fun load(id: Long): BiliLiveInfo {
         val roomId = record.getOrPut(id) {
@@ -398,11 +425,7 @@ object BiliLiveWaiter : Waiter<BiliLiveInfo>(name = "LiveWaiter") {
         }
     }
 
-    override suspend fun BiliLiveInfo.build(contact: Contact): Message =when {
-        sleep(target = contact.permitteeId) -> EmptyMessageChain
-        contact is Group -> content(contact) + at(contact)
-        else -> content(contact)
-    }
+    override suspend fun BiliLiveInfo.build(contact: Contact): Message = content(contact)
 
     override suspend fun BiliLiveInfo.near(): Boolean = LocalTime.now().minute < BiliHelperSettings.live
 
@@ -421,7 +444,11 @@ object BiliLiveWaiter : Waiter<BiliLiveInfo>(name = "LiveWaiter") {
 }
 
 object BiliSeasonWaiter : Waiter<BiliSeasonInfo>(name = "SeasonWaiter") {
-    override val tasks: MutableMap<Long, BiliTask> get() = BiliTaskData.season
+    override val tasks get() = BiliTaskData.season
+
+    override val sleep get() = BiliTaskerConfig.seasonSleep
+
+    override val at get() = BiliTaskerConfig.seasonAt
 
     override val fast get() = Minute
 

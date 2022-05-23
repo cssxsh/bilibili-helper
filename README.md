@@ -15,8 +15,8 @@
 从 1.2.5 版本开始 将截图部分功能的转移至 [mirai-selenium-plugin](https://github.com/cssxsh/mirai-selenium-plugin)  
 截图功能的启用需要其作为前置插件  
 关于截图支持的环境请浏览 [运行平台支持](https://github.com/cssxsh/mirai-selenium-plugin#%E8%BF%90%E8%A1%8C%E5%B9%B3%E5%8F%B0%E6%94%AF%E6%8C%81)  
-直播 [@全体成员](#LiveAtAll) 详见配置  
-自动触发 [解析](#信息解析指令) 详见指令  
+~~直播 [@全体成员](#LiveAtAll) 详见配置~~ 此设置 1.5.0 废除  
+自动触发URL解析 详见 [信息解析](#信息解析指令) 指令  
 消息 [模板](#Template) 详见配置(自 1.4.0 起截图功能由模板内容来配置)
 
 ## 指令
@@ -31,18 +31,27 @@
 例如 `/B动态 添加 496371957` 的权限ID为 `xyz.cssxsh.mirai.plugin.bilibili-helper:command.bili-dynamic`
 
 参数 `uid` 例如 `https://space.bilibili.com/508963009/` 的数字 `508963009`  
-参数 `contact` 为QQ号或者群号，可以省略，会从当前聊天环境获取，比如群聊中会自动填充为当前群号, 但控制台中必须填充  
-自动解析URL基于信息解析指令，拥有权限就会触发
+参数 `contact` 为QQ号或者群号，可以省略，会从当前聊天环境获取，  
+比如群聊中会自动填充为当前群号, 但控制台中必须填充  
+
+子指令 `sleep/at` 的 `target` 是 [被许可人 ID](https://github.com/mamoe/mirai/blob/dev/mirai-console/docs/Permissions.md#%E8%A2%AB%E8%AE%B8%E5%8F%AF%E4%BA%BA-id)   
+处于休眠时间的订阅将不会推送，举例 
+* `/bili-dynamic g12345 00:00 06:00`, `00:00~06:00` 时间段内将不会推送  
+
+处于艾特时间的订阅将会添加艾特，举例 
+* `/bili-live g12345 19:00 23:00`, `19:00 23:00` 时间段内将会艾特全体
+* `/bili-live u456789 19:00 23:00`, `19:00 23:00` 时间段内将会艾特用户456789
 
 ### 动态订阅指令
 
-| 指令                                                 | 描述           |
-|:---------------------------------------------------|:-------------|
-| `/<bili-dynamic B动态> <add 添加> [uid] [contact]?`    | 添加一个b站动态订阅   |
-| `/<bili-dynamic B动态> <stop 停止> [uid] [contact]?`   | 停止一个b站动态订阅   |
-| `/<bili-dynamic B动态> <list 列表> [contact]?`         | 列出当前联系人的动态订阅 |
-| `/<bili-dynamic B动态> <forbid 屏蔽> [pattern] [add]?` | 添加一个动态正则屏蔽   |
-| `/<bili-dynamic B动态> <filter 过滤> [type] [add]?`    | 添加一个动态类型过滤   |
+| 指令                                                      | 描述           |
+|:--------------------------------------------------------|:-------------|
+| `/<bili-dynamic B动态> <add 添加> [uid] [contact]?`         | 添加一个b站动态订阅   |
+| `/<bili-dynamic B动态> <stop 停止> [uid] [contact]?`        | 停止一个b站动态订阅   |
+| `/<bili-dynamic B动态> <list 列表> [contact]?`              | 列出当前联系人的动态订阅 |
+| `/<bili-dynamic B动态> <forbid 屏蔽> [pattern] [add]?`      | 添加一个动态正则屏蔽   |
+| `/<bili-dynamic B动态> <sleep 休眠> [target] [start] [end]` | 添加一个休眠时间     |
+| `/<bili-dynamic B动态> <at 艾特> [target] [start] [end]`    | 添加一个艾特时间     |
 
 `/bili-dynamic forbid 转发抽奖` 添加一个正则屏蔽  
 `/bili-dynamic forbid 转发抽奖 false` 取消一个正则屏蔽  
@@ -52,21 +61,25 @@
 
 ### 直播订阅指令
 
-| 指令                                            | 描述           |
-|:----------------------------------------------|:-------------|
-| `/<bili-live B直播> <add 添加> [uid] [contact]?`  | 添加一个b站直播订阅   |
-| `/<bili-live B直播> <stop 停止> [uid] [contact]?` | 停止一个b站直播订阅   |
-| `/<bili-live B直播> <list 列表> [contact]?`       | 列出当前联系人的直播订阅 |
+| 指令                                                   | 描述           |
+|:-----------------------------------------------------|:-------------|
+| `/<bili-live B直播> <add 添加> [uid] [contact]?`         | 添加一个b站直播订阅   |
+| `/<bili-live B直播> <stop 停止> [uid] [contact]?`        | 停止一个b站直播订阅   |
+| `/<bili-live B直播> <list 列表> [contact]?`              | 列出当前联系人的直播订阅 |
+| `/<bili-live B直播> <sleep 休眠> [target] [start] [end]` | 添加一个休眠时间     |
+| `/<bili-live B直播> <at 艾特> [target] [start] [end]`    | 添加一个艾特时间     |
 
 ### 视频订阅指令
 
-| 指令                                             | 描述           |
-|:-----------------------------------------------|:-------------|
-| `/<bili-video B视频> <add 添加> [uid] [contact]?`  | 添加一个b站视频订阅   |
-| `/<bili-video B视频> <stop 停止> [uid] [contact]?` | 停止一个b站视频订阅   |
-| `/<bili-video B视频> <list 列表> [contact]?`       | 列出当前联系人的视频订阅 |
-| `/<bili-video B视频> <forbid 屏蔽> [type] [add]?`  | 添加一个视频类型屏蔽   |
-| `/<bili-video B视频> <filter 过滤> [tid] [add]?`   | 添加一个视频分区过滤   |
+| 指令                                                    | 描述           |
+|:------------------------------------------------------|:-------------|
+| `/<bili-video B视频> <add 添加> [uid] [contact]?`         | 添加一个b站视频订阅   |
+| `/<bili-video B视频> <stop 停止> [uid] [contact]?`        | 停止一个b站视频订阅   |
+| `/<bili-video B视频> <list 列表> [contact]?`              | 列出当前联系人的视频订阅 |
+| `/<bili-video B视频> <forbid 屏蔽> [type] [add]?`         | 添加一个视频类型屏蔽   |
+| `/<bili-video B视频> <filter 过滤> [tid] [add]?`          | 添加一个视频分区过滤   |
+| `/<bili-video B视频> <sleep 休眠> [target] [start] [end]` | 添加一个休眠时间     |
+| `/<bili-video B视频> <at 艾特> [target] [start] [end]`    | 添加一个艾特时间     |
 
 `/bili-video forbid 付费` 添加一个类型屏蔽  
 `/bili-video forbid 付费 false` 取消一个类型屏蔽  
@@ -79,11 +92,13 @@
 
 ### 剧集订阅指令
 
-| 指令                                              | 描述           |
-|:------------------------------------------------|:-------------|
-| `/<bili-season B剧集> <add 添加> [sid] [contact]?`  | 添加一个b站剧集订阅   |
-| `/<bili-season B剧集> <stop 停止> [sid] [contact]?` | 停止一个b站剧集频订阅  |
-| `/<bili-season B剧集> <list 列表> [contact]?`       | 列出当前联系人的剧集订阅 |
+| 指令                                                     | 描述           |
+|:-------------------------------------------------------|:-------------|
+| `/<bili-season B剧集> <add 添加> [sid] [contact]?`         | 添加一个b站剧集订阅   |
+| `/<bili-season B剧集> <stop 停止> [sid] [contact]?`        | 停止一个b站剧集频订阅  |
+| `/<bili-season B剧集> <list 列表> [contact]?`              | 列出当前联系人的剧集订阅 |
+| `/<bili-season B剧集> <sleep 休眠> [target] [start] [end]` | 添加一个休眠时间     |
+| `/<bili-season B剧集> <at 艾特> [target] [start] [end]`    | 添加一个艾特时间     |
 
 剧集订阅需要 Season ID 例如 <https://www.bilibili.com/bangumi/play/ss38353> 的 `38353`  
 可以通过 [搜索指令](#搜索指令) 搜索番剧 获得链接
@@ -158,10 +173,11 @@
 * `dynamic` 动态 订阅 访问间隔时间，单位分钟, 默认为 `10`
 * `live` 直播 订阅 访问间隔时间，单位分钟, 默认为 `30`
 * `season` 番剧 订阅 访问间隔时间，单位分钟, 默认为 `30`
-* `refresh` 启动时刷新 last
+* `refresh` 启动时刷新 last，订阅最后推送将会重新开始记录，未推送内容将会因此丢弃
 * `selenium` ~~是否启用截图~~  此配置项废弃，通过 Template 文件内容来确定是否启用截图
 * `ban` 排除的自动解析内容，可以放一些不希望被解析的AV号之类的
 * `forward` 转发自动解析, 使用转发的形式发送自动解析结果
+* `max` 一次性推送的订阅内容上限, 超过这个上限将会尝试合并为转发消息
 
 ### BiliCleanerConfig.yml
 
@@ -184,6 +200,7 @@
 
 ### LiveAtAll
 
+**此设置 1.5.0 废除**  
 此配置通过权限设置，权限ID为 `xyz.cssxsh.mirai.plugin.bilibili-helper:live.atall`  
 配置对象为群，即 `g*`, `g12345`  
 举例，`perm add g12345 xyz.cssxsh.mirai.plugin.bilibili-helper:live.atall`
