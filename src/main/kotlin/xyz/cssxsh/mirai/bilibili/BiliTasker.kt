@@ -14,6 +14,7 @@ import java.time.*
 import kotlin.coroutines.*
 import kotlin.math.*
 import kotlinx.serialization.*
+import net.mamoe.mirai.console.util.ContactUtils.render
 import net.mamoe.mirai.message.*
 
 interface BiliTasker {
@@ -118,6 +119,7 @@ sealed class AbstractTasker<T : Entry>(val name: String) : BiliTasker, Coroutine
             try {
                 val contact = requireNotNull(findContact(delegate)) { "找不到联系人 $delegate" }
                 if (sleep(target = contact.permitteeId)) {
+                    logger.info { "${contact.render()} 订阅人休眠中，跳过订阅 $name" }
                     null
                 } else {
                     val message = item.build(contact)

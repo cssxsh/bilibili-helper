@@ -23,13 +23,38 @@ object BiliTaskCommand : CompositeCommand(
     }
 
     private fun BiliTaskerConfig.render(): String = buildString {
+        appendLine("动态睡眠时间: ")
+        for ((id, interval) in dynamicSleep) {
+            append("    ").append(id).append(" ").appendLine(interval)
+        }
+        appendLine("动态艾特时间: ")
+        for ((id, interval) in dynamicAt) {
+            append("    ").append(id).append(" ").appendLine(interval)
+        }
+        appendLine("屏蔽动态类型: $dynamicForbidType")
+        appendLine("屏蔽动态正则: $dynamicForbidRegexes")
+        appendLine()
+        appendLine("视频睡眠时间: ")
+        for ((id, interval) in videoSleep) {
+            append("    ").append(id).append(" ").appendLine(interval)
+        }
+        appendLine("视频艾特时间: ")
+        for ((id, interval) in videoAt) {
+            append("    ").append(id).append(" ").appendLine(interval)
+        }
         appendLine("屏蔽视频分区: $videoForbidType")
         appendLine("屏蔽付费视频: $videoForbidPay")
         appendLine("屏蔽联合视频: $videoForbidUnion")
         appendLine("屏蔽回放视频: $videoForbidInteract")
         appendLine()
-        appendLine("屏蔽动态类型: $dynamicForbidType")
-        appendLine("屏蔽动态正则: $dynamicForbidRegexes")
+        appendLine("番剧睡眠时间: ")
+        for ((id, interval) in seasonSleep) {
+            append("    ").append(id).append(" ").appendLine(interval)
+        }
+        appendLine("番剧艾特时间: ")
+        for ((id, interval) in seasonAt) {
+            append("    ").append(id).append(" ").appendLine(interval)
+        }
         appendLine()
         appendLine("直播睡眠时间: ")
         for ((id, interval) in liveSleep) {
