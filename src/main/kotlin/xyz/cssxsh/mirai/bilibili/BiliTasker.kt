@@ -85,12 +85,12 @@ sealed class AbstractTasker<T : Entry>(val name: String) : BiliTasker, Coroutine
         }
 
     protected fun sleep(target: PermitteeId, time: LocalTime = LocalTime.now()): Boolean {
-        return sleep.any { (permitteeId, interval) -> permitteeId.hasChild(target) && time in interval }
+        return sleep.any { (permitteeId, interval) -> target.hasChild(permitteeId) && time in interval }
     }
 
     protected fun at(group: Group, time: LocalTime = LocalTime.now()): MessageChain = buildMessageChain {
         fun check(target: PermitteeId, time: LocalTime): Boolean {
-            return at.any { (permitteeId, interval) -> permitteeId.hasChild(target) && time in interval }
+            return at.any { (permitteeId, interval) -> target.hasChild(permitteeId) && time in interval }
         }
         if (check(target = group.permitteeId, time = time)) {
             append(AtAll)
@@ -124,19 +124,17 @@ sealed class AbstractTasker<T : Entry>(val name: String) : BiliTasker, Coroutine
                 } else {
                     val message = item.build(contact)
                     when {
-                        message is ForwardMessage && contact is Group -> {
+                        contact !is Group -> contact.sendMessage(message = item.build(contact))
+                        message is ForwardMessage -> {
                             val receipt = contact.sendMessage(message = item.build(contact))
                             val at = at(group = contact)
                             if (at.isEmpty()) {
                                 receipt
                             } else {
-                                receipt.quoteReply(at(group = contact))
+                                receipt.quoteReply(message = at)
                             }
                         }
-                        contact is Group -> {
-                            contact.sendMessage(message = item.build(contact) + at(group = contact))
-                        }
-                        else -> contact.sendMessage(message = item.build(contact))
+                        else -> contact.sendMessage(message = item.build(contact) + at(group = contact))
                     }
                 }
             } catch (e: Throwable) {
