@@ -189,6 +189,7 @@ private suspend fun Url.screenshot(type: CacheType, path: String, refresh: Boole
                     driver.findElement(By.cssSelector(".h5-download-bar .close-icon")).click()
                     driver.findElement(By.cssSelector(".read-more .back-icon")).click()
                     val start = System.currentTimeMillis()
+                    delay(30_000L)
                     while (contact.isActive) {
                         if (driver.isReady()) break
                         delay(1000L)
@@ -200,7 +201,7 @@ private suspend fun Url.screenshot(type: CacheType, path: String, refresh: Boole
                     val comment = driver.findElement(By.cssSelector(".read-comment-box"))
                     val size = Dimension(body.size.width, body.size.height - recommend.size.height - comment.size.height)
                     driver.manage().window().size = size
-                    driver.executeScript("window.scrollTo(0,0)")
+                    driver.executeScript("window.scrollTo(0, 0)")
                     writeBytes(driver.getScreenshotAs(OutputType.BYTES))
                 }
                 else -> useRemoteWebDriver(config = BiliSeleniumConfig) { driver ->
