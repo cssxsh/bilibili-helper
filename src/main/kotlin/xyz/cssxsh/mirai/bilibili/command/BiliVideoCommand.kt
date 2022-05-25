@@ -57,36 +57,24 @@ object BiliVideoCommand : CompositeCommand(
 
     @SubCommand("sleep", "睡眠")
     suspend fun CommandSender.sleep(target: PermitteeId, start: LocalTime, end: LocalTime) {
-        try {
-            target as AbstractPermitteeId
-        } catch (cause: Throwable) {
-            sendMessage("出现错误, ${cause.message}")
-            return
-        }
         val interval = BiliInterval(start, end)
         if (interval.isEmpty()) {
-            BiliTaskerConfig.videoSleep.remove(target)
+            sleep.remove(target)
             sendMessage("睡眠时间取消成功")
         } else {
-            BiliTaskerConfig.videoSleep[target] = BiliInterval(start, end)
+            sleep[target] = BiliInterval(start, end)
             sendMessage("睡眠时间添加成功")
         }
     }
 
     @SubCommand("at", "艾特")
     suspend fun CommandSender.at(target: PermitteeId, start: LocalTime, end: LocalTime) {
-        try {
-            target as AbstractPermitteeId
-        } catch (cause: Throwable) {
-            sendMessage("出现错误, ${cause.message}")
-            return
-        }
         val interval = BiliInterval(start, end)
         if (interval.isEmpty()) {
-            BiliTaskerConfig.videoAt.remove(target)
+            at.remove(target)
             sendMessage("艾特时间取消成功")
         } else {
-            BiliTaskerConfig.videoAt[target] = BiliInterval(start, end)
+            at[target] = BiliInterval(start, end)
             sendMessage("艾特时间添加成功")
         }
     }

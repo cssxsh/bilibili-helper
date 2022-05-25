@@ -31,6 +31,10 @@ interface BiliTasker {
 
     val tasks: Map<Long, BiliTask>
 
+    val sleep: MutableMap<PermitteeId, BiliInterval>
+
+    val at: MutableMap<PermitteeId, BiliInterval>
+
     companion object : Collection<BiliTasker> {
         private val taskers: List<BiliTasker> by lazy {
             AbstractTasker::class.sealedSubclasses.flatMap { it.sealedSubclasses }.mapNotNull { it.objectInstance }
@@ -69,10 +73,6 @@ sealed class AbstractTasker<T : Entry>(val name: String) : BiliTasker, Coroutine
     protected abstract val slow: Long
 
     abstract override val tasks: MutableMap<Long, BiliTask>
-
-    abstract val sleep: Map<out PermitteeId, BiliInterval>
-
-    abstract val at: Map<out PermitteeId, BiliInterval>
 
     protected val Contact.permitteeId: PermitteeId
         get() = when (this) {
