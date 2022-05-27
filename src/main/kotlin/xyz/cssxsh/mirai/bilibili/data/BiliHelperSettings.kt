@@ -33,6 +33,9 @@ object BiliHelperSettings : ReadOnlyPluginConfig("BiliHelperSettings") {
     @ValueDescription("转发自动解析")
     val forward: Boolean by value(false)
 
+    @ValueDescription("自动解析同样内容的间隔")
+    val interval: Long by value(600_000L)
+
     @ValueDescription("一次性推送的上限")
     val max: Int by value(3)
 }
