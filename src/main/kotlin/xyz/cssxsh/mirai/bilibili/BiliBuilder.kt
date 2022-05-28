@@ -10,6 +10,7 @@ import net.mamoe.mirai.message.data.MessageSource.Key.quote
 import net.mamoe.mirai.utils.*
 import xyz.cssxsh.bilibili.api.*
 import xyz.cssxsh.bilibili.data.*
+import xyz.cssxsh.mirai.bilibili.data.*
 
 internal suspend fun SeasonSection.toMessage(contact: Contact) = buildForwardMessage(contact) {
     displayStrategy = object : ForwardMessage.DisplayStrategy {
@@ -23,7 +24,15 @@ internal suspend fun SeasonSection.toMessage(contact: Contact) = buildForwardMes
 
 internal suspend fun SearchResult<*>.toMessage(contact: Contact): Message {
     if (result.isEmpty()) return "搜索结果为空".toPlainText()
-    return result.map { entry -> entry.content(contact) + "\n------------------------\n" }.toMessageChain()
+    return if (result.size > BiliHelperSettings.max) {
+        buildForwardMessage(contact) {
+            for (entry in result) {
+                contact.bot says entry.content(contact)
+            }
+        }
+    } else {
+        result.map { entry -> entry.content(contact) + "\n------------------------\n" }.toMessageChain()
+    }
 }
 
 typealias MessageReplier = suspend MessageEvent.(MatchResult) -> Message?
