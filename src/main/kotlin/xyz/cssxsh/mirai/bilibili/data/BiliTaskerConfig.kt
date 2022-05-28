@@ -6,6 +6,9 @@ import net.mamoe.mirai.console.permission.*
 
 object BiliTaskerConfig : AutoSavePluginConfig("BiliTaskerConfig") {
 
+    @ValueName("date_time_pattern")
+    var pattern: String by value("ISO_OFFSET_DATE_TIME")
+
     @ValueName("dynamic_forbid_type")
     val dynamicForbidType: MutableSet<Int> by value()
 

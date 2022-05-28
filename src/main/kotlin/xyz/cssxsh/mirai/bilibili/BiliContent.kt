@@ -7,6 +7,7 @@ import net.mamoe.mirai.message.data.*
 import net.mamoe.mirai.utils.*
 import xyz.cssxsh.bilibili.api.*
 import xyz.cssxsh.bilibili.data.*
+import java.time.temporal.*
 import kotlin.coroutines.*
 
 private val regex = """#([A-z]+)""".toRegex()
@@ -25,11 +26,10 @@ internal suspend fun Entry.content(contact: Contact): MessageChain {
             else -> {
                 val member = this::class.members.find { it.name == name }
                     ?: throw NoSuchElementException("${this::class.simpleName} no member $name")
-                val value = member.call(this)
-                if (value is Entry) {
-                    value.content(contact).serializeToMiraiCode()
-                } else {
-                    value.toString()
+                when (val value = member.call(this)) {
+                    is Entry -> value.content(contact).serializeToMiraiCode()
+                    is TemporalAccessor -> BiliTemplate.formatter().format(value)
+                    else -> value.toString()
                 }
             }
         }

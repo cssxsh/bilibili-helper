@@ -29,6 +29,7 @@ object BiliHelperPlugin : KotlinPlugin(
         BiliCleanerConfig.save()
         BiliTemplate.reload(configFolder.resolve("Template"))
 
+        System.setProperty(BiliTemplate.DATE_TIME_PATTERN, BiliTaskerConfig.pattern)
         System.setProperty(EXCEPTION_JSON_CACHE, dataFolder.absolutePath)
 
         client.load()
