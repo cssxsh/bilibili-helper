@@ -3,7 +3,6 @@ package xyz.cssxsh.mirai.bilibili.command
 import net.mamoe.mirai.console.command.*
 import xyz.cssxsh.mirai.bilibili.*
 import xyz.cssxsh.mirai.bilibili.data.*
-import java.time.format.*
 
 object BiliTemplateCommand : CompositeCommand(
     owner = BiliHelperPlugin,

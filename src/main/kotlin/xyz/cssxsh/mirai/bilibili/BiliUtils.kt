@@ -184,7 +184,7 @@ private suspend fun Url.screenshot(type: CacheType, path: String, refresh: Boole
         if (exists().not() || refresh) {
             parentFile.mkdirs()
             when (type) {
-                CacheType.ARTICLE -> useRemoteWebDriver(config = BiliSeleniumConfig) { driver ->
+                CacheType.ARTICLE -> useRemoteWebDriver(config = BiliSeleniumConfig.Agent) { driver ->
                     driver.get(this@screenshot.toString())
                     driver.findElement(By.cssSelector(".h5-download-bar .close-icon")).click()
                     driver.findElement(By.cssSelector(".read-more .back-icon")).click()
@@ -204,7 +204,7 @@ private suspend fun Url.screenshot(type: CacheType, path: String, refresh: Boole
                     driver.executeScript("window.scrollTo(0, 0)")
                     writeBytes(driver.getScreenshotAs(OutputType.BYTES))
                 }
-                else -> useRemoteWebDriver(config = BiliSeleniumConfig) { driver ->
+                else -> useRemoteWebDriver(config = BiliSeleniumConfig.Agent) { driver ->
                     writeBytes(driver.getScreenshot(url = this@screenshot.toString(), hide = BiliSeleniumConfig.hide))
                 }
             }
