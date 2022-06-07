@@ -145,7 +145,7 @@ val Contact.delegate get() = if (this is Group) id * -1 else id
  * 查找Contact
  */
 fun findContact(delegate: Long): Contact? {
-    for (bot in Bot.instances) {
+    for (bot in Bot.instances.shuffled()) {
         if (delegate < 0) {
             for (group in bot.groups) {
                 if (group.id == delegate * -1) return group

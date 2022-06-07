@@ -23,7 +23,7 @@
 
 注意: 使用前请确保可以 [在聊天环境执行指令](https://github.com/project-mirai/chat-command)  
 带括号的`/`前缀是可选的  
-`<...>`中的是指令名，由空格隔开表示或，选择其中任一名称都可执行例如`/B动态 添加 496371957`  
+`<...>`中的是指令名，由空格隔开表示或，选择其中任一名称都可执行例如`/B视频 添加 11783021`  
 `[...]`表示参数，当`[...]`后面带`?`时表示参数可选  
 `{...}`表示连续的多个参数
 
@@ -159,6 +159,19 @@
 | `/<bili-task B任务> <season>`  | 剧集任务 |
 | `/<bili-task B任务> <video>`   | 视频任务 |
 | `/<bili-task B任务> <config>`  | 屏蔽设置 |
+
+
+### 模板配置指令
+
+| 指令                                          | 描述   |
+|:--------------------------------------------|:-----|
+| `/<bili-template B模板> <datetime> [pattern]` | 日期格式 |
+| `/<bili-template B模板> <reload>`             | 重新加载 |
+
+`pattern` 的 取值为 [DateTimeFormatter](https://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html)  
+举例：
+  * `/B模板 datetime ISO_LOCAL_DATE_TIME`  
+  * `/B模板 datetime yyyy-MM-dd`
 
 ## 设置
 
