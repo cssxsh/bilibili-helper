@@ -17,6 +17,7 @@ import net.mamoe.mirai.utils.ExternalResource.Companion.uploadAsImage
 import org.openqa.selenium.*
 import xyz.cssxsh.bilibili.data.*
 import xyz.cssxsh.bilibili.*
+import xyz.cssxsh.bilibili.api.*
 import xyz.cssxsh.mirai.bilibili.data.*
 import xyz.cssxsh.mirai.selenium.*
 import xyz.cssxsh.selenium.*
@@ -227,6 +228,31 @@ private val FULLWIDTH_CHARS = mapOf(
 )
 
 internal fun String.fullwidth(): String = fold("") { acc, char -> acc + (FULLWIDTH_CHARS[char] ?: char) }
+
+internal suspend fun loadEmoteData() {
+    // dynamic
+    val dynamic = try {
+        client.getEmotePanel(business = EmoteBusiness.dynamic).all
+    } catch (_: Throwable) {
+        client.useHttpClient { http, _ ->
+            http.get("https://raw.fastgit.org/cssxsh/bilibili-helper/master/src/main/resources/xyz/cssxsh/mirai/bilibili/data/dynamic.json")
+        }
+    }
+    for (item in dynamic) {
+        BiliEmoteData.dynamic[item.text] = item
+    }
+    // reply
+    val reply = try {
+        client.getEmotePanel(business = EmoteBusiness.reply).all
+    } catch (_: Throwable) {
+        client.useHttpClient { http, _ ->
+            http.get("https://raw.fastgit.org/cssxsh/bilibili-helper/master/src/main/resources/xyz/cssxsh/mirai/bilibili/data/reply.json")
+        }
+    }
+    for (item in reply) {
+        BiliEmoteData.reply[item.text] = item
+    }
+}
 
 internal suspend fun EmojiDetail.cache(contact: Contact): Image {
     return Url(url).cache(

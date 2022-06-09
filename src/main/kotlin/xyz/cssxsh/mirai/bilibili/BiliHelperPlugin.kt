@@ -1,5 +1,6 @@
 package xyz.cssxsh.mirai.bilibili
 
+import kotlinx.coroutines.*
 import net.mamoe.mirai.*
 import net.mamoe.mirai.console.command.CommandManager.INSTANCE.register
 import net.mamoe.mirai.console.command.CommandManager.INSTANCE.unregister
@@ -27,6 +28,7 @@ object BiliHelperPlugin : KotlinPlugin(
         BiliHelperSettings.save()
         BiliCleanerConfig.reload()
         BiliCleanerConfig.save()
+        BiliEmoteData.reload()
         BiliTemplate.reload(configFolder.resolve("Template"))
 
         System.setProperty(BiliTemplate.DATE_TIME_PATTERN, BiliTaskerConfig.pattern)
@@ -56,6 +58,10 @@ object BiliHelperPlugin : KotlinPlugin(
         if (BiliTemplate.selenium()) {
             BiliSeleniumConfig.reload()
             BiliSeleniumConfig.save()
+        }
+
+        launch(SupervisorJob()) {
+            loadEmoteData()
         }
     }
 

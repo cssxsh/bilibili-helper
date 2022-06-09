@@ -61,6 +61,10 @@ const val SEARCH_TYPE = "https://api.bilibili.com/x/web-interface/search/type"
 // Suit
 const val SUIT_ITEMS = "https://api.bilibili.com/x/garb/mall/item/suit/v2"
 
+// Emote
+const val EMOTE_PANEL = "https://api.bilibili.com/x/emote/setting/panel"
+const val EMOTE_PACKAGE = "https://api.bilibili.com/x/emote/package"
+
 data class BiliApiException(
     val data: TempData,
     val url: Url

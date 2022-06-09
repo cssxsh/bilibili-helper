@@ -3,6 +3,20 @@ package xyz.cssxsh.bilibili.data
 import kotlinx.serialization.*
 
 @Serializable
+data class EmotePanel(
+    @SerialName("all_packages")
+    val all: List<EmoteItem>,
+    @SerialName("user_panel_packages")
+    val user: List<EmoteItem>
+)
+
+@Serializable
+data class EmotePackage(
+    @SerialName("packages")
+    val packages: List<EmoteItem>
+)
+
+@Serializable
 data class EmoteItem(
     @SerialName("emote")
     val emote: List<EmojiDetail>,
@@ -33,3 +47,7 @@ data class EmojiDetail(
     @SerialName("url")
     val url: String
 )
+
+@Serializable
+@Suppress("EnumEntryName")
+enum class EmoteBusiness { reply, dynamic }
