@@ -241,6 +241,10 @@ sealed class Loader<T : Entry>(name: String) : AbstractTasker<T>(name) {
             try {
                 val contact = requireNotNull(findContact(delegate)) { "找不到联系人 $delegate" }
                 contact.sendMessage(buildForwardMessage(contact) {
+                    displayStrategy = object : ForwardMessage.DisplayStrategy {
+                        override fun generateTitle(forward: RawForwardMessage): String = name
+                    }
+
                     for (item in list) {
                         contact.bot at item.time().toEpochSecond().toInt() says item.build(contact)
                     }

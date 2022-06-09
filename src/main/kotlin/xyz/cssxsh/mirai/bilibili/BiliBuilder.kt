@@ -26,6 +26,10 @@ internal suspend fun SearchResult<*>.toMessage(contact: Contact): Message {
     if (result.isEmpty()) return "搜索结果为空".toPlainText()
     return if (result.size > BiliHelperSettings.max) {
         buildForwardMessage(contact) {
+            displayStrategy = object : ForwardMessage.DisplayStrategy {
+                override fun generateTitle(forward: RawForwardMessage): String = "搜索结果"
+            }
+
             for (entry in result) {
                 contact.bot says entry.content(contact)
             }
