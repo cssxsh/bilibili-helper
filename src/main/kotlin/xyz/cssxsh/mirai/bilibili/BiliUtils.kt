@@ -235,7 +235,8 @@ internal suspend fun loadEmoteData() {
         client.getEmotePanel(business = EmoteBusiness.dynamic).all
     } catch (_: Throwable) {
         client.useHttpClient { http, _ ->
-            http.get("https://raw.fastgit.org/cssxsh/bilibili-helper/master/src/main/resources/xyz/cssxsh/mirai/bilibili/data/dynamic.json")
+            http.get<String>("https://raw.fastgit.org/cssxsh/bilibili-helper/master/src/main/resources/xyz/cssxsh/mirai/bilibili/data/dynamic.json")
+                .let { BiliClient.Json.decodeFromString(it) }
         }
     }
     for (item in dynamic) {
@@ -246,7 +247,8 @@ internal suspend fun loadEmoteData() {
         client.getEmotePanel(business = EmoteBusiness.reply).all
     } catch (_: Throwable) {
         client.useHttpClient { http, _ ->
-            http.get("https://raw.fastgit.org/cssxsh/bilibili-helper/master/src/main/resources/xyz/cssxsh/mirai/bilibili/data/reply.json")
+            http.get<String>("https://raw.fastgit.org/cssxsh/bilibili-helper/master/src/main/resources/xyz/cssxsh/mirai/bilibili/data/reply.json")
+                .let { BiliClient.Json.decodeFromString(it) }
         }
     }
     for (item in reply) {
