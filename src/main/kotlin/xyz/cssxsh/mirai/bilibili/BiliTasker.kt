@@ -202,6 +202,7 @@ sealed class AbstractTasker<T : Entry>(val name: String) : BiliTasker, Coroutine
     override suspend fun time(id: Long, cron: Cron): String = mutex.withLock {
         val old = tasks[id] ?: return@withLock "任务不存在"
         val new = old.copy(cron = cron.asData())
+        tasks[id] = new
         "对@${new.name}#${id}的监听任务, 将定时于\n" + cron.description()
     }
 
@@ -210,7 +211,7 @@ sealed class AbstractTasker<T : Entry>(val name: String) : BiliTasker, Coroutine
             appendLine("监听状态:")
             for ((id, info) in tasks) {
                 if (subject.delegate in info.contacts) {
-                    appendLine("@${info.name}#$id -> ${info.last} | ${info.cron?.asString() ?: jobs[id]}")
+                    appendLine("@${info.name}#$id -> ${info.cron?.asString() ?: info.last} | ${jobs[id]}")
                 }
             }
         }

@@ -25,7 +25,7 @@ object BiliLiveCommand : CompositeCommand(
         message = remove(uid, contact)
     )
 
-    @SubCommand("cron", "定时")
+    @SubCommand("time", "定时")
     suspend fun CommandSender.cron(uid: Long, cron: Cron) = sendMessage(
         message = time(uid, cron)
     )
