@@ -12,5 +12,7 @@ data class BiliTask(
     @Serializable(OffsetDateTimeSerializer::class)
     val last: OffsetDateTime = OffsetDateTime.now(),
     @SerialName("contacts")
-    val contacts: Set<Long> = emptySet()
+    val contacts: Set<Long> = emptySet(),
+    @SerialName("cron")
+    val cron: DataCron? = null
 )

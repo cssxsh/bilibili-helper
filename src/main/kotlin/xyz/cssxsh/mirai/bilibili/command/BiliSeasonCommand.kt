@@ -1,5 +1,6 @@
 package xyz.cssxsh.mirai.bilibili.command
 
+import com.cronutils.model.*
 import net.mamoe.mirai.console.command.*
 import net.mamoe.mirai.console.permission.*
 import net.mamoe.mirai.contact.*
@@ -10,7 +11,8 @@ import java.time.*
 object BiliSeasonCommand : CompositeCommand(
     owner = BiliHelperPlugin,
     "bili-season", "B剧集", "B番剧",
-    description = "B站剧集指令"
+    description = "B站剧集指令",
+    overrideContext = BiliCommandArgumentContext
 ), BiliHelperCommand, BiliTasker by BiliSeasonWaiter {
 
     @SubCommand("add", "添加")
@@ -21,6 +23,11 @@ object BiliSeasonCommand : CompositeCommand(
     @SubCommand("stop", "停止")
     suspend fun CommandSender.stop(sid: Long, contact: Contact = subject()) = sendMessage(
         message = remove(sid, contact)
+    )
+
+    @SubCommand("cron", "定时")
+    suspend fun CommandSender.cron(uid: Long, cron: Cron) = sendMessage(
+        message = time(uid, cron)
     )
 
     @SubCommand("list", "列表")

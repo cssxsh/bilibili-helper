@@ -42,12 +42,20 @@
 * `/bili-live g12345 19:00 23:00`, `19:00 23:00` 时间段内将会艾特全体
 * `/bili-live u456789 19:00 23:00`, `19:00 23:00` 时间段内将会艾特用户456789
 
+子指令 `cron` 的 `cron` 参数是 CRON 表达式, 由 `秒 分钟 小时 日 月 周` 组成  
+例如：
+* `0 0 14 * * ?` 表示每天 14:00 都执行一次  
+* `0 0 18 ? * 2-6` 表示星期一至星期五 每天 18:00 执行一次  
+可以使用在线编辑器生成 <https://www.bejson.com/othertools/cron/>  
+为防止被 空格 分成多个参数，请使用 `"` 包裹参数  
+
 ### 动态订阅指令
 
 | 指令                                                      | 描述           |
 |:--------------------------------------------------------|:-------------|
 | `/<bili-dynamic B动态> <add 添加> [uid] [contact]?`         | 添加一个b站动态订阅   |
 | `/<bili-dynamic B动态> <stop 停止> [uid] [contact]?`        | 停止一个b站动态订阅   |
+| `/<bili-dynamic B动态> <cron 定时> [uid] [cron]?`           | 设置任务的定时信息    |
 | `/<bili-dynamic B动态> <list 列表> [contact]?`              | 列出当前联系人的动态订阅 |
 | `/<bili-dynamic B动态> <forbid 屏蔽> [pattern] [add]?`      | 添加一个动态正则屏蔽   |
 | `/<bili-dynamic B动态> <sleep 休眠> [target] [start] [end]` | 添加一个休眠时间     |
@@ -65,6 +73,7 @@
 |:-----------------------------------------------------|:-------------|
 | `/<bili-live B直播> <add 添加> [uid] [contact]?`         | 添加一个b站直播订阅   |
 | `/<bili-live B直播> <stop 停止> [uid] [contact]?`        | 停止一个b站直播订阅   |
+| `/<bili-live B直播> <cron 定时> [uid] [cron]?`           | 设置任务的定时信息    |
 | `/<bili-live B直播> <list 列表> [contact]?`              | 列出当前联系人的直播订阅 |
 | `/<bili-live B直播> <sleep 休眠> [target] [start] [end]` | 添加一个休眠时间     |
 | `/<bili-live B直播> <at 艾特> [target] [start] [end]`    | 添加一个艾特时间     |
@@ -75,6 +84,7 @@
 |:------------------------------------------------------|:-------------|
 | `/<bili-video B视频> <add 添加> [uid] [contact]?`         | 添加一个b站视频订阅   |
 | `/<bili-video B视频> <stop 停止> [uid] [contact]?`        | 停止一个b站视频订阅   |
+| `/<bili-video B视频> <cron 定时> [uid] [cron]?`           | 设置任务的定时信息    |
 | `/<bili-video B视频> <list 列表> [contact]?`              | 列出当前联系人的视频订阅 |
 | `/<bili-video B视频> <forbid 屏蔽> [type] [add]?`         | 添加一个视频类型屏蔽   |
 | `/<bili-video B视频> <filter 过滤> [tid] [add]?`          | 添加一个视频分区过滤   |
@@ -96,6 +106,7 @@
 |:-------------------------------------------------------|:-------------|
 | `/<bili-season B剧集> <add 添加> [sid] [contact]?`         | 添加一个b站剧集订阅   |
 | `/<bili-season B剧集> <stop 停止> [sid] [contact]?`        | 停止一个b站剧集频订阅  |
+| `/<bili-season B剧集> <cron 定时> [uid] [cron]?`           | 设置任务的定时信息    |
 | `/<bili-season B剧集> <list 列表> [contact]?`              | 列出当前联系人的剧集订阅 |
 | `/<bili-season B剧集> <sleep 休眠> [target] [start] [end]` | 添加一个休眠时间     |
 | `/<bili-season B剧集> <at 艾特> [target] [start] [end]`    | 添加一个艾特时间     |

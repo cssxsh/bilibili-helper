@@ -40,6 +40,12 @@ dependencies {
     compileOnly("xyz.cssxsh.mirai:mirai-selenium-plugin:2.1.0")
     compileOnly("net.mamoe:mirai-core:2.11.1")
     compileOnly("net.mamoe:mirai-core-utils:2.11.1")
+    api("com.cronutils:cron-utils:9.1.6") {
+        exclude("org.slf4j")
+        exclude("org.glassfish")
+        exclude("org.javassist")
+    }
+    compileOnly("javax.validation:validation-api:2.0.1.Final")
 
     testImplementation(kotlin("test", "1.6.21"))
     testImplementation("org.slf4j:slf4j-simple:1.7.36")

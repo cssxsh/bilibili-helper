@@ -1,5 +1,6 @@
 package xyz.cssxsh.mirai.bilibili
 
+import com.cronutils.model.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.*
 import net.mamoe.mirai.console.permission.*
@@ -22,6 +23,8 @@ interface BiliTasker {
     suspend fun task(id: Long, subject: Contact): String
 
     suspend fun remove(id: Long, subject: Contact): String
+
+    suspend fun time(id: Long, cron: Cron): String
 
     suspend fun list(subject: Contact): String
 
@@ -169,7 +172,7 @@ sealed class AbstractTasker<T : Entry>(val name: String) : BiliTasker, Coroutine
         return BiliTask(name = BiliTaskData.user.getOrPut(key = id) { client.getUserInfo(uid = id).name })
     }
 
-    override suspend fun task(id: Long, subject: Contact) = mutex.withLock {
+    override suspend fun task(id: Long, subject: Contact): String = mutex.withLock {
         val old = try {
             tasks[id] ?: initTask(id)
         } catch (cause: Throwable) {
@@ -184,7 +187,7 @@ sealed class AbstractTasker<T : Entry>(val name: String) : BiliTasker, Coroutine
         "对@${new.name}#${id}的监听任务, 添加完成"
     }
 
-    override suspend fun remove(id: Long, subject: Contact) = mutex.withLock {
+    override suspend fun remove(id: Long, subject: Contact): String = mutex.withLock {
         val old = tasks[id] ?: return@withLock "任务不存在"
         val new = old.copy(contacts = old.contacts - subject.delegate)
         if (new.contacts.isEmpty()) {
@@ -196,12 +199,18 @@ sealed class AbstractTasker<T : Entry>(val name: String) : BiliTasker, Coroutine
         "对@${new.name}#${id}的监听任务, 取消完成"
     }
 
+    override suspend fun time(id: Long, cron: Cron): String = mutex.withLock {
+        val old = tasks[id] ?: return@withLock "任务不存在"
+        val new = old.copy(cron = cron.asData())
+        "对@${new.name}#${id}的监听任务, 将定时于\n" + cron.description()
+    }
+
     override suspend fun list(subject: Contact): String = mutex.withLock {
         buildString {
             appendLine("监听状态:")
             for ((id, info) in tasks) {
                 if (subject.delegate in info.contacts) {
-                    appendLine("@${info.name}#$id -> ${info.last} | ${jobs[id]}")
+                    appendLine("@${info.name}#$id -> ${info.last} | ${info.cron?.asString() ?: jobs[id]}")
                 }
             }
         }
@@ -259,7 +268,7 @@ sealed class Loader<T : Entry>(name: String) : AbstractTasker<T>(name) {
     override suspend fun listen(id: Long): Long {
         val load = load(id)
 
-        mutex.withLock {
+        return mutex.withLock {
             val task = tasks.getValue(id)
             var last = task.last
             // XXX: 内容较多时，合并成转发消息 https://github.com/cssxsh/bilibili-helper/issues/78
@@ -279,9 +288,16 @@ sealed class Loader<T : Entry>(name: String) : AbstractTasker<T>(name) {
             }
 
             tasks[id] = task.copy(last = last)
-        }
 
-        return if (load.near()) fast else slow
+            if (task.cron != null) {
+                task.cron.toExecutionTime()
+                    .timeToNextExecution(ZonedDateTime.now())
+                    .orElse(Duration.ofMillis(slow))
+                    .toMillis()
+            } else {
+                if (load.near()) fast else slow
+            }
+        }
     }
 }
 
@@ -301,16 +317,22 @@ sealed class Waiter<T : Entry>(name: String) : AbstractTasker<T>(name) {
         val item = load(id)
         val state = states.put(id, item.success())
 
-        if (state != true && states[id]!!) {
-            mutex.withLock {
-                val task = tasks.getValue(id)
-                tasks[id] = task.copy(last = item.last())
-                task.send(item)
+        return mutex.withLock {
+            val task = tasks.getValue(id)
+            if (state != true && states[id]!!) {
+                    tasks[id] = task.copy(last = item.last())
+                    task.send(item)
             }
-            delay(slow)
-        }
 
-        return if (item.near()) fast else slow
+            if (task.cron != null) {
+                task.cron.toExecutionTime()
+                    .timeToNextExecution(ZonedDateTime.now())
+                    .orElse(Duration.ofMillis(slow))
+                    .toMillis()
+            } else {
+                if (item.near()) fast else slow
+            }
+        }
     }
 }
 

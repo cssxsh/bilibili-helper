@@ -15,7 +15,7 @@ object BiliTaskCommand : CompositeCommand(
     private fun BiliTasker.render(): String = buildString {
         for ((id, info) in tasks) {
             if (info.contacts.isEmpty()) continue
-            appendLine("@${info.name}#$id -> ${info.last}")
+            appendLine("@${info.name}#$id -> ${info.cron?.asString() ?: info.last}")
             for (delegate in info.contacts) {
                 appendLine("    ${findContact(delegate)?.render() ?: delegate}")
             }
