@@ -116,7 +116,7 @@ data class VideoInfoList(
     val videos: List<VideoSimple>
 ) {
     init {
-        videos.forEach { it .types = types }
+        videos.forEach { it.types = types }
     }
 }
 

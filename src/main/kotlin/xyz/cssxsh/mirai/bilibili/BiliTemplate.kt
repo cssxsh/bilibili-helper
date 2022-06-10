@@ -1,12 +1,8 @@
 package xyz.cssxsh.mirai.bilibili
 
-import net.mamoe.mirai.utils.warning
 import xyz.cssxsh.bilibili.data.*
 import java.io.File
-import java.time.format.DateTimeFormatter
-import kotlin.collections.component1
-import kotlin.collections.component2
-import kotlin.collections.set
+import java.time.format.*
 
 object BiliTemplate {
     private lateinit var last: File

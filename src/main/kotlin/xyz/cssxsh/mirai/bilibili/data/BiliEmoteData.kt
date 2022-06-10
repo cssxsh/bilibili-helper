@@ -11,6 +11,7 @@ object BiliEmoteData : AutoSavePluginData("BiliEmoteData") {
     internal fun dynamic() = this::class.java.getResourceAsStream("dynamic.json").use {
         BiliClient.Json.decodeFromStream<List<EmoteItem>>(requireNotNull(it) { "找不到Emote初始化文件" })
     }
+
     @OptIn(ExperimentalSerializationApi::class)
     internal fun reply() = this::class.java.getResourceAsStream("reply.json").use {
         BiliClient.Json.decodeFromStream<List<EmoteItem>>(requireNotNull(it) { "找不到Emote初始化文件" })

@@ -4,7 +4,7 @@ import kotlinx.serialization.*
 import xyz.cssxsh.bilibili.*
 import java.time.*
 
-sealed interface Episode: Entry {
+sealed interface Episode : Entry {
     val cover: String
     val index: String
     val title: String
@@ -211,7 +211,7 @@ data class UpperSimple(
     val mid: Long,
     @SerialName("uname")
     override val uname: String = ""
-): Owner {
+) : Owner {
     override val uid: Long get() = mid
     override val face: String get() = avatar
 }

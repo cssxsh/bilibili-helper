@@ -320,8 +320,8 @@ sealed class Waiter<T : Entry>(name: String) : AbstractTasker<T>(name) {
         return mutex.withLock {
             val task = tasks.getValue(id)
             if (state != true && states[id]!!) {
-                    tasks[id] = task.copy(last = item.last())
-                    task.send(item)
+                tasks[id] = task.copy(last = item.last())
+                task.send(item)
             }
 
             if (task.cron != null) {

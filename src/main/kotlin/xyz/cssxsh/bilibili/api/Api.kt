@@ -68,7 +68,7 @@ const val EMOTE_PACKAGE = "https://api.bilibili.com/x/emote/package"
 data class BiliApiException(
     val data: TempData,
     val url: Url
-): IllegalStateException() {
+) : IllegalStateException() {
     override val message = "${data.message} in $url"
 }
 

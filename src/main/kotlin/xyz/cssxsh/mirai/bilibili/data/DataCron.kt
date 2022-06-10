@@ -6,7 +6,7 @@ import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 
 @Serializable(with = DataCron.Serializer::class)
-data class DataCron(val delegate: Cron): Cron by delegate {
+data class DataCron(val delegate: Cron) : Cron by delegate {
 
     companion object Serializer : KSerializer<DataCron> {
 
