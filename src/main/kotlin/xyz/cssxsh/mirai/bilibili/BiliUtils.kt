@@ -28,8 +28,11 @@ import kotlin.properties.*
 import kotlin.reflect.*
 
 internal val logger by lazy {
-    val open = System.getProperty("xyz.cssxsh.mirai.plugin.logger", "${true}").toBoolean()
-    if (open) BiliHelperPlugin.logger else SilentLogger
+    try {
+        BiliHelperPlugin.logger
+    } catch (_: Throwable) {
+        MiraiLogger.Factory.create(BiliClient::class)
+    }
 }
 
 @OptIn(ExperimentalSerializationApi::class)
