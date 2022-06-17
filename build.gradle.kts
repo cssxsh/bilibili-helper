@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "xyz.cssxsh"
-version = "1.5.1"
+version = "1.6.0"
 
 repositories {
     mavenLocal()
@@ -37,7 +37,7 @@ dependencies {
         exclude(group = "org.slf4j")
         exclude(group = "io.ktor", module = "ktor-client-core")
     }
-    compileOnly("xyz.cssxsh.mirai:mirai-selenium-plugin:2.1.0")
+    compileOnly("xyz.cssxsh.mirai:mirai-selenium-plugin:2.1.1")
     compileOnly("net.mamoe:mirai-core:2.11.1")
     compileOnly("net.mamoe:mirai-core-utils:2.11.1")
     api("com.cronutils:cron-utils:9.1.6") {
@@ -49,7 +49,7 @@ dependencies {
 
     testImplementation(kotlin("test", "1.6.21"))
     testImplementation("org.slf4j:slf4j-simple:1.7.36")
-    testImplementation("xyz.cssxsh.mirai:mirai-selenium-plugin:2.1.0")
+    testImplementation("xyz.cssxsh.mirai:mirai-selenium-plugin:2.1.1")
 }
 
 tasks {

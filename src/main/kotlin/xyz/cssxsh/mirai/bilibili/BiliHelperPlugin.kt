@@ -13,7 +13,7 @@ import xyz.cssxsh.mirai.bilibili.command.*
 import xyz.cssxsh.mirai.bilibili.data.*
 
 object BiliHelperPlugin : KotlinPlugin(
-    JvmPluginDescription(id = "xyz.cssxsh.mirai.plugin.bilibili-helper", version = "1.5.1") {
+    JvmPluginDescription(id = "xyz.cssxsh.mirai.plugin.bilibili-helper", version = "1.6.0") {
         name("bilibili-helper")
         author("cssxsh")
 
