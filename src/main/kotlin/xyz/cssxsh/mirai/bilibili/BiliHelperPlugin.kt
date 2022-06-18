@@ -1,11 +1,10 @@
 package xyz.cssxsh.mirai.bilibili
 
 import kotlinx.coroutines.*
-import net.mamoe.mirai.*
 import net.mamoe.mirai.console.command.CommandManager.INSTANCE.register
 import net.mamoe.mirai.console.command.CommandManager.INSTANCE.unregister
+import net.mamoe.mirai.console.extension.*
 import net.mamoe.mirai.console.plugin.jvm.*
-import net.mamoe.mirai.event.events.*
 import net.mamoe.mirai.event.*
 import net.mamoe.mirai.utils.*
 import xyz.cssxsh.bilibili.api.*
@@ -20,6 +19,19 @@ object BiliHelperPlugin : KotlinPlugin(
         dependsOn("xyz.cssxsh.mirai.plugin.mirai-selenium-plugin", ">= 2.1.0", true)
     }
 ) {
+
+    override fun PluginComponentStorage.onLoad() {
+        // run after auto login
+        runAfterStartup {
+            if (BiliHelperSettings.refresh) BiliTasker.refresh()
+            for (task in BiliTasker) {
+                task.start()
+            }
+            BiliCleaner.start()
+
+            BiliTemplate.selenium() && SetupSelenium
+        }
+    }
 
     override fun onEnable() {
         BiliTaskData.reload()
@@ -45,16 +57,6 @@ object BiliHelperPlugin : KotlinPlugin(
 
         BiliListener.registerTo(globalEventChannel())
 
-        waitOnline {
-            if (BiliHelperSettings.refresh) BiliTasker.refresh()
-            for (task in BiliTasker) {
-                task.start()
-            }
-            BiliCleaner.start()
-
-            BiliTemplate.selenium() && SetupSelenium
-        }
-
         if (BiliTemplate.selenium()) {
             BiliSeleniumConfig.reload()
             BiliSeleniumConfig.save()
@@ -62,14 +64,6 @@ object BiliHelperPlugin : KotlinPlugin(
 
         launch(SupervisorJob()) {
             loadEmoteData()
-        }
-    }
-
-    private fun waitOnline(block: () -> Unit) {
-        if (Bot.instances.isEmpty()) {
-            globalEventChannel().subscribeOnce<BotOnlineEvent> { block() }
-        } else {
-            block()
         }
     }
 
