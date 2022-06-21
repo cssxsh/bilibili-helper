@@ -1,5 +1,6 @@
 package xyz.cssxsh.bilibili.api
 
+import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import kotlinx.serialization.*
@@ -80,7 +81,7 @@ internal suspend inline fun <reified T> BiliClient.json(
 ): T = useHttpClient { client, mutex ->
     val url = Url(urlString)
     mutex.wait(url.encodedPath)
-    with(client.get<TempData>(url, block)) {
+    with(client.get(url, block).body<TempData>()) {
         val element = data ?: result ?: throw BiliApiException(this, url)
         try {
             BiliClient.Json.decodeFromJsonElement(element)

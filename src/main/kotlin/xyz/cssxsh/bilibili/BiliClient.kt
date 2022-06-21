@@ -2,14 +2,14 @@ package xyz.cssxsh.bilibili
 
 import io.ktor.client.*
 import io.ktor.client.engine.okhttp.*
-import io.ktor.client.features.*
-import io.ktor.client.features.compression.*
-import io.ktor.client.features.cookies.*
-import io.ktor.client.features.json.*
-import io.ktor.client.features.json.serializer.*
+import io.ktor.client.plugins.*
+import io.ktor.client.plugins.compression.*
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.plugins.cookies.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.http.Cookie
+import io.ktor.serialization.kotlinx.json.*
 import io.ktor.utils.io.core.*
 import io.ktor.utils.io.errors.*
 import kotlinx.coroutines.*
@@ -41,8 +41,8 @@ open class BiliClient(private val timeout: Long = 15_000L) : Closeable {
             header(HttpHeaders.Origin, SPACE)
             header(HttpHeaders.Referrer, SPACE)
         }
-        Json {
-            serializer = KotlinxSerializer(Json)
+        install(ContentNegotiation) {
+            json(json = Json)
         }
         install(HttpTimeout) {
             socketTimeoutMillis = timeout
