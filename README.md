@@ -15,7 +15,7 @@
 从 1.2.5 版本开始 将截图部分功能的转移至 [mirai-selenium-plugin](https://github.com/cssxsh/mirai-selenium-plugin)  
 截图功能的启用需要其作为前置插件  
 关于截图支持的环境请浏览 [运行平台支持](https://github.com/cssxsh/mirai-selenium-plugin#%E8%BF%90%E8%A1%8C%E5%B9%B3%E5%8F%B0%E6%94%AF%E6%8C%81)  
-~~直播 [@全体成员](#LiveAtAll) 详见配置~~ 此设置 1.5.0 废除  
+~~直播 [@全体成员](#LiveAtAll) 详见配置~~ 此设置 1.5.0 废除, 改用指令配置  
 自动触发URL解析 详见 [信息解析](#信息解析指令) 指令  
 消息 [模板](#Template) 详见配置(自 1.4.0 起截图功能由模板内容来配置)
 
@@ -35,17 +35,19 @@
 比如群聊中会自动填充为当前群号, 但控制台中必须填充  
 
 子指令 `sleep/at` 的 `target` 是 [被许可人 ID](https://github.com/mamoe/mirai/blob/dev/mirai-console/docs/Permissions.md#%E8%A2%AB%E8%AE%B8%E5%8F%AF%E4%BA%BA-id)   
-处于休眠时间的订阅将不会推送，举例 
-* `/bili-dynamic g12345 00:00 06:00`, `00:00~06:00` 时间段内将不会推送  
+处于休眠时间的订阅将不会推送  
+举例:  
+* `/bili-dynamic sleep g12345 00:00 06:00`, `00:00~06:00` 时间段内将不会推送  
 
-处于艾特时间的订阅将会添加艾特，举例 
-* `/bili-live g12345 19:00 23:00`, `19:00 23:00` 时间段内将会艾特全体
-* `/bili-live u456789 19:00 23:00`, `19:00 23:00` 时间段内将会艾特用户456789
+处于艾特时间的订阅将会添加艾特  
+举例:  
+* `/bili-live at g12345 19:00 23:00`, `19:00 23:00` 时间段内将会艾特全体
+* `/bili-live at u456789 19:00 23:00`, `19:00 23:00` 时间段内将会艾特用户456789
 
 子指令 `cron` 的 `cron` 参数是 CRON 表达式, 由 `秒 分钟 小时 日 月 周` 组成  
-例如：
-* `0 0 14 * * ?` 表示每天 14:00 都执行一次  
-* `0 0 18 ? * 2-6` 表示星期一至星期五 每天 18:00 执行一次  
+举例：
+* `/bili-dynamic time 508963009 "0 0 14 * * ?"`, `0 0 14 * * ?` 表示每天 14:00 都执行一次  
+* `/bili-video time 508963009 "0 0 18 ? * 2-6"`, `0 0 18 ? * 2-6` 表示星期一至星期五 每天 18:00 执行一次
 可以使用在线编辑器生成 <https://www.bejson.com/othertools/cron/>  
 为防止被 空格 分成多个参数，请使用 `"` 包裹参数  
 
@@ -222,7 +224,7 @@
 * `hide` 隐藏的web组件(jQ选择器)  
   添加 `".international-header", ".top-bar", ".m-navbar"` 可以屏蔽顶边栏
 
-### LiveAtAll
+### ~~LiveAtAll~~
 
 **此设置 1.5.0 废除**  
 此配置通过权限设置，权限ID为 `xyz.cssxsh.mirai.plugin.bilibili-helper:live.atall`  
