@@ -100,7 +100,7 @@ sealed class AbstractTasker<T : Entry>(val name: String) : BiliTasker, Coroutine
             if (group.botPermission < MemberPermission.ADMINISTRATOR) {
                 try {
                     @Suppress("INVISIBLE_REFERENCE", "INVISIBLE_MEMBER")
-                    append(net.mamoe.mirai.internal.message.ForceAsLongMessage)
+                    append(net.mamoe.mirai.internal.message.flags.ForceAsLongMessage)
                 } catch (_: Throwable) {
                     //
                 }

@@ -2,7 +2,7 @@ plugins {
     kotlin("jvm") version "1.6.21"
     kotlin("plugin.serialization") version "1.6.21"
 
-    id("net.mamoe.mirai-console") version "2.11.1"
+    id("net.mamoe.mirai-console") version "2.12.0-RC"
     id("net.mamoe.maven-central-publish") version "0.7.1"
 }
 
@@ -56,13 +56,8 @@ dependencies {
         exclude("org.javassist")
     }
     compileOnly("xyz.cssxsh.mirai:mirai-selenium-plugin:2.1.1")
-    compileOnly("net.mamoe:mirai-core:2.11.1")
-    compileOnly("net.mamoe:mirai-core-utils:2.11.1")
-    api("com.cronutils:cron-utils:9.1.6") {
-        exclude("org.slf4j")
-        exclude("org.glassfish")
-        exclude("org.javassist")
-    }
+    compileOnly("net.mamoe:mirai-core:2.12.0-RC")
+    compileOnly("net.mamoe:mirai-core-utils:2.12.0-RC")
     compileOnly("javax.validation:validation-api:2.0.1.Final")
 
     testImplementation(kotlin("test", "1.6.21"))
