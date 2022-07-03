@@ -41,6 +41,7 @@ open class BiliClient(private val timeout: Long = 15_000L) : Closeable {
             header(HttpHeaders.Origin, SPACE)
             header(HttpHeaders.Referrer, SPACE)
         }
+        expectSuccess = true
         install(ContentNegotiation) {
             json(json = Json)
         }

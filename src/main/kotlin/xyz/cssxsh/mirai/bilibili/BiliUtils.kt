@@ -88,6 +88,7 @@ internal val ImageLimit by lazy { BiliHelperSettings.limit }
 
 internal val SetupSelenium: Boolean by lazy {
     try {
+        logger.info { "正在初始化 mirai-selenium-plugin，请稍后" }
         MiraiSeleniumPlugin.setup()
     } catch (exception: NoClassDefFoundError) {
         logger.warning { "相关类加载失败，请安装 https://github.com/cssxsh/mirai-selenium-plugin $exception" }
