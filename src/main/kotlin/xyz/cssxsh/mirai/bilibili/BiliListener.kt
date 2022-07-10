@@ -1,5 +1,6 @@
 package xyz.cssxsh.mirai.bilibili
 
+import net.mamoe.mirai.Bot
 import net.mamoe.mirai.console.command.CommandSender.Companion.toCommandSender
 import net.mamoe.mirai.console.permission.PermissionService.Companion.testPermission
 import net.mamoe.mirai.contact.*
@@ -36,7 +37,8 @@ internal object BiliListener : SimpleListenerHost() {
     @EventHandler
     suspend fun MessageEvent.handle() {
         // XXX: MessageSyncEvent permission
-        if (this !is MessageSyncEvent && permission.testPermission(toCommandSender()).not()) return
+        if (Bot.instances.any { it.id == sender.id }) return
+        if (permission.testPermission(toCommandSender()).not()) return
 
         for ((regex, replier) in UrlRepliers) {
             val result = regex.find(message.contentToString()) ?: continue
