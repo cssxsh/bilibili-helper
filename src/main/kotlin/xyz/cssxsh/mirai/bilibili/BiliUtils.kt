@@ -1,6 +1,7 @@
 package xyz.cssxsh.mirai.bilibili
 
 import io.ktor.client.call.*
+import io.ktor.client.network.sockets.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.http.Cookie
@@ -64,9 +65,18 @@ internal var cookies by object : ReadWriteProperty<Any?, List<Cookie>> {
 
 internal val client by lazy {
     object : BiliClient() {
-        override val ignore: suspend (exception: Throwable) -> Boolean = { throwable ->
-            super.ignore(throwable).also {
-                if (it) logger.warning { "Ignore $throwable" }
+        override val ignore: suspend (Throwable) -> Boolean = { cause ->
+            when (cause) {
+                is ConnectTimeoutException,
+                is SocketTimeoutException -> {
+                    logger.warning { "Ignore ${cause.message}" }
+                    true
+                }
+                is java.io.IOException -> {
+                    logger.warning { "Ignore $cause" }
+                    true
+                }
+                else -> false
             }
         }
 
