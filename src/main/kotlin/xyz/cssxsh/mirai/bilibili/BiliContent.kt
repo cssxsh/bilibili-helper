@@ -90,7 +90,7 @@ internal suspend fun DynamicCard.detail(contact: Contact): Message {
 internal suspend fun DynamicEmojiContent.content(contact: Contact): Message {
     val display = this.display ?: return content.toPlainText()
     return buildMessageChain {
-        val last = """\[\S+]""".toRegex().findAll(content).fold(0) { pos, match ->
+        val last = """\[[^]]+]""".toRegex().findAll(content).fold(0) { pos, match ->
             val emoji = display.emoji.details.find { it.text == match.value }
             val next = match.range.last + 1
             if (emoji != null) {
