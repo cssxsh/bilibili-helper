@@ -25,7 +25,7 @@ open class BiliClient(private val timeout: Long = 15_000L) : Closeable {
             allowStructuredMapKeys = true
         }
 
-        val DefaultIgnore: suspend (Throwable) -> Boolean = { it is IOException || it is HttpRequestTimeoutException }
+        val DefaultIgnore: suspend (Throwable) -> Boolean = { it is IOException }
     }
 
     override fun close() = clients.forEach { it.close() }

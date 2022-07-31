@@ -15,7 +15,6 @@
 从 1.2.5 版本开始 将截图部分功能的转移至 [mirai-selenium-plugin](https://github.com/cssxsh/mirai-selenium-plugin)  
 截图功能的启用需要其作为前置插件  
 关于截图支持的环境请浏览 [运行平台支持](https://github.com/cssxsh/mirai-selenium-plugin#%E8%BF%90%E8%A1%8C%E5%B9%B3%E5%8F%B0%E6%94%AF%E6%8C%81)  
-~~直播 [@全体成员](#LiveAtAll) 详见配置~~ 此设置 1.5.0 废除, 改用指令配置  
 自动触发URL解析 详见 [信息解析](#信息解析指令) 指令  
 消息 [模板](#Template) 详见配置(自 1.4.0 起截图功能由模板内容来配置)
 

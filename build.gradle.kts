@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "xyz.cssxsh"
-version = "1.6.1"
+version = "1.6.2"
 
 repositories {
     mavenLocal()
@@ -20,7 +20,6 @@ mavenCentralPublish {
     licenseFromGitHubProject("AGPL-3.0", "master")
     publication {
         artifact(tasks.getByName("buildPlugin"))
-        artifact(tasks.getByName("buildPluginLegacy"))
     }
 }
 
@@ -55,14 +54,18 @@ dependencies {
         exclude("org.glassfish")
         exclude("org.javassist")
     }
-    compileOnly("xyz.cssxsh.mirai:mirai-selenium-plugin:2.1.1")
+    compileOnly("xyz.cssxsh.mirai:mirai-selenium-plugin:2.2.1")
     compileOnly("net.mamoe:mirai-core:2.12.0")
     compileOnly("net.mamoe:mirai-core-utils:2.12.0")
     compileOnly("javax.validation:validation-api:2.0.1.Final")
 
     testImplementation(kotlin("test", "1.6.21"))
     testImplementation("net.mamoe:mirai-slf4j-bridge:1.2.0")
-    testImplementation("xyz.cssxsh.mirai:mirai-selenium-plugin:2.1.1")
+    testImplementation("xyz.cssxsh.mirai:mirai-selenium-plugin:2.2.1")
+}
+
+mirai {
+    jvmTarget = JavaVersion.VERSION_11
 }
 
 tasks {

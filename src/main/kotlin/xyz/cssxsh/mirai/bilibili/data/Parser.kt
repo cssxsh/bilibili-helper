@@ -15,7 +15,7 @@ val DefaultCronParser: CronParser by lazy {
     CronParser(CronDefinitionBuilder.instanceDefinitionFor(type))
 }
 
-internal const val CRON_LOCALE_KEY = "xyz.cssxsh.mirai.admin.bilibili.locale"
+internal const val CRON_LOCALE_KEY = "xyz.cssxsh.mirai.bilibili.locale"
 
 val DefaultCronDescriptor: CronDescriptor by lazy {
     val locale = System.getProperty(CRON_LOCALE_KEY)?.let { Locale.forLanguageTag(it) } ?: Locale.getDefault()
