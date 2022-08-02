@@ -45,13 +45,13 @@ internal var cookies by object : ReadWriteProperty<Any?, List<Cookie>> {
     }
 
     override fun getValue(thisRef: Any?, property: KProperty<*>): List<Cookie> {
-        return BiliClient.Json.decodeFromString<List<EditThisCookie>>(json.readText().ifBlank { "[]" }).mapNotNull {
-            try {
-                it.toCookie()
-            } catch (cause: Throwable) {
-                logger.warning({ "${it.name} 解析错误" }, cause)
-                null
-            }
+        return try {
+            BiliClient.Json
+                .decodeFromString<List<EditThisCookie>>(json.readText().ifBlank { "[]" })
+                .map { it.toCookie() }
+        } catch (cause: Throwable) {
+            logger.warning({ "cookies.json 解析错误" }, cause)
+            emptyList()
         }
     }
 
