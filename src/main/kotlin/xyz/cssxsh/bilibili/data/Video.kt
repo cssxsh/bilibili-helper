@@ -34,7 +34,7 @@ data class BiliVideoInfo(
     @SerialName("bvid")
     override val id: String,
     @SerialName("cid")
-    val cid: Int,
+    val cid: Long? = null,
     @SerialName("copyright")
     val copyright: Int,
     @SerialName("ctime")
