@@ -1,9 +1,9 @@
 plugins {
-    kotlin("jvm") version "1.6.21"
-    kotlin("plugin.serialization") version "1.6.21"
+    kotlin("jvm") version "1.7.10"
+    kotlin("plugin.serialization") version "1.7.10"
 
-    id("net.mamoe.mirai-console") version "2.12.0"
-    id("net.mamoe.maven-central-publish") version "0.7.1"
+    id("net.mamoe.mirai-console") version "2.12.1"
+    id("me.him188.maven-central-publish") version "1.0.0-dev-3"
 }
 
 group = "xyz.cssxsh"
@@ -18,6 +18,8 @@ mavenCentralPublish {
     useCentralS01()
     singleDevGithubProject("cssxsh", "bilibili-helper")
     licenseFromGitHubProject("AGPL-3.0", "master")
+    workingDir = System.getenv("PUBLICATION_TEMP")?.let { file(it).resolve(projectName) }
+        ?: project.buildDir.resolve("publishing-tmp")
     publication {
         artifact(tasks.getByName("buildPlugin"))
     }
@@ -54,14 +56,14 @@ dependencies {
         exclude("org.glassfish")
         exclude("org.javassist")
     }
-    compileOnly("xyz.cssxsh.mirai:mirai-selenium-plugin:2.2.1")
-    compileOnly("net.mamoe:mirai-core:2.12.0")
-    compileOnly("net.mamoe:mirai-core-utils:2.12.0")
+    compileOnly("xyz.cssxsh.mirai:mirai-selenium-plugin:2.2.2")
+    compileOnly("net.mamoe:mirai-core:2.12.1")
+    compileOnly("net.mamoe:mirai-core-utils:2.12.1")
     compileOnly("javax.validation:validation-api:2.0.1.Final")
 
-    testImplementation(kotlin("test", "1.6.21"))
+    testImplementation(kotlin("test"))
     testImplementation("net.mamoe:mirai-slf4j-bridge:1.2.0")
-    testImplementation("xyz.cssxsh.mirai:mirai-selenium-plugin:2.2.1")
+    testImplementation("xyz.cssxsh.mirai:mirai-selenium-plugin:2.2.2")
 }
 
 mirai {

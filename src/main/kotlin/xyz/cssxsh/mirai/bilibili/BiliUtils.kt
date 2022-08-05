@@ -1,6 +1,5 @@
 package xyz.cssxsh.mirai.bilibili
 
-import io.ktor.client.call.*
 import io.ktor.client.network.sockets.*
 import io.ktor.client.request.*
 import io.ktor.http.*
@@ -186,7 +185,7 @@ private suspend fun Url.cache(type: CacheType, path: String, contact: Contact) =
     type.directory.resolve(path).apply {
         if (exists().not()) {
             parentFile.mkdirs()
-            writeBytes(client.useHttpClient { http, _ -> http.get(this@cache).body() })
+            writeBytes(client.useHttpClient { http, _ -> http.prepareGet(this@cache).body() })
         } else {
             setLastModified(System.currentTimeMillis())
         }
