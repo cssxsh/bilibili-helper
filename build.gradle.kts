@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "xyz.cssxsh"
-version = "1.6.2"
+version = "1.6.3"
 
 repositories {
     mavenLocal()
@@ -51,7 +51,7 @@ dependencies {
         exclude(group = "org.jetbrains.kotlinx")
         exclude(group = "org.slf4j")
     }
-    implementation("com.cronutils:cron-utils:9.1.6") {
+    implementation("com.cronutils:cron-utils:9.2.0") {
         exclude("org.slf4j")
         exclude("org.glassfish")
         exclude("org.javassist")

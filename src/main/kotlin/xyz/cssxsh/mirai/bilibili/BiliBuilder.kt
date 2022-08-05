@@ -41,7 +41,8 @@ internal suspend fun SearchResult<*>.toMessage(contact: Contact): Message {
 
 typealias MessageReplier = suspend MessageEvent.(MatchResult) -> Message?
 
-internal val DYNAMIC_REGEX = """(?<=t\.bilibili\.com/(?:h5/dynamic/detail/)?|m\.bilibili\.com/dynamic/)(\d+)""".toRegex()
+internal val DYNAMIC_REGEX =
+    """(?<=t\.bilibili\.com/(?:h5/dynamic/detail/)?|m\.bilibili\.com/dynamic/)(\d+)""".toRegex()
 
 internal val DynamicReplier: MessageReplier = replier@{ result ->
     logger.info { "${sender.render()} 匹配Dynamic(${result.value})" }
