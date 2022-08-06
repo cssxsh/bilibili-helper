@@ -7,10 +7,10 @@ import java.time.*
 internal inline fun <reified T : Entry> DynamicCard.decode(): T {
     if (decode == null) {
         decode = when (val entry = BiliClient.Json.decodeFromString<T>(card)) {
-            is DynamicReply -> entry.copy(detail = detail.origin ?: entry.describe(), display = display?.origin)
-            is DynamicText -> entry.copy(display = display)
-            is DynamicPicture -> entry.copy(display = display)
-            is DynamicSketch -> entry.copy(display = display)
+            is DynamicReply -> entry.copy(detail = detail.origin ?: entry.describe(), display = display, emoji = display?.emoji)
+            is DynamicText -> entry.copy(emoji = display?.emoji)
+            is DynamicPicture -> entry.copy(emoji = display?.emoji)
+            is DynamicSketch -> entry.copy(emoji = display?.emoji)
             is DynamicVideo -> entry.copy(id = detail.bvid ?: "av${entry.aid}")
             else -> entry
         }
@@ -45,7 +45,7 @@ sealed interface DynamicCard : Entry, WithDateTime {
 }
 
 sealed interface DynamicEmojiContent : Entry {
-    val display: DynamicDisplay?
+    val emoji: EmojiInfo?
     val content: String
 }
 
@@ -345,7 +345,7 @@ data class DynamicPicture(
     @SerialName("user")
     val user: UserSimple,
     @Transient
-    override val display: DynamicDisplay? = null
+    override val emoji: EmojiInfo? = null
 ) : DynamicEmojiContent {
     override val content: String get() = detail.description
 }
@@ -394,9 +394,11 @@ data class DynamicReply(
     @SerialName("user")
     val user: UserSimple,
     @Transient
-    override val display: DynamicDisplay? = null,
+    override val emoji: EmojiInfo? = null,
     @Transient
-    override val detail: DynamicDescribe = DynamicDescribe.Empty
+    override val detail: DynamicDescribe = DynamicDescribe.Empty,
+    @Transient
+    override val display: DynamicDisplay? = null
 ) : DynamicCard, DynamicEmojiContent {
     @Transient
     override var decode: Entry? = null
@@ -443,7 +445,7 @@ data class DynamicSketch(
     @SerialName("vest")
     val vest: DynamicSketchVest,
     @Transient
-    override val display: DynamicDisplay? = null
+    override val emoji: EmojiInfo? = null
 ) : Entry, DynamicEmojiContent {
     val title get() = detail.title
     val link get() = detail.target
@@ -480,7 +482,7 @@ data class DynamicText(
     @SerialName("user")
     val user: UserSimple,
     @Transient
-    override val display: DynamicDisplay? = null
+    override val emoji: EmojiInfo? = null
 ) : DynamicEmojiContent {
     override val content: String get() = detail.content
 }

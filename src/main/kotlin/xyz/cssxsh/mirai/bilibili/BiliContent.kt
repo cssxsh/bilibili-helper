@@ -72,7 +72,7 @@ internal suspend fun Entry.screenshot(contact: Contact): Message {
 internal suspend fun DynamicCard.detail(contact: Contact): Message {
     return when (detail.type) {
         DynamicType.NONE -> "不支持的类型${detail.type}".toPlainText()
-        DynamicType.REPLY -> decode<DynamicReply>().content(contact)
+        DynamicType.REPLY -> (decode<DynamicReply>() as Entry).content(contact)
         DynamicType.PICTURE -> decode<DynamicPicture>().content(contact)
         DynamicType.TEXT -> decode<DynamicText>().content(contact)
         DynamicType.VIDEO -> decode<DynamicVideo>().content(contact)
@@ -88,18 +88,18 @@ internal suspend fun DynamicCard.detail(contact: Contact): Message {
 }
 
 internal suspend fun DynamicEmojiContent.content(contact: Contact): Message {
-    val display = this.display ?: return content.toPlainText()
+    val emoji = this.emoji ?: return content.toPlainText()
     return buildMessageChain {
         val last = """\[[^]]+]""".toRegex().findAll(content).fold(0) { pos, match ->
-            val emoji = display.emoji.details.find { it.text == match.value }
+            val detail = emoji.details.find { it.text == match.value }
             val next = match.range.last + 1
-            if (emoji != null) {
+            if (detail != null) {
                 append(content.subSequence(pos, match.range.first))
                 try {
-                    append(emoji.cache(contact))
+                    append(detail.cache(contact))
                 } catch (cause: Throwable) {
-                    logger.warning({ "获取BILI表情${emoji.text}图片失败" }, cause)
-                    append(emoji.text)
+                    logger.warning({ "获取BILI表情${detail.text}图片失败" }, cause)
+                    append(detail.text)
                 }
             } else {
                 append(content.subSequence(pos, next))
