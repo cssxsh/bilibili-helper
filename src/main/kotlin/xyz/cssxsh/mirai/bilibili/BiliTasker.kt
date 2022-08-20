@@ -63,11 +63,10 @@ interface BiliTasker {
 
 sealed class AbstractTasker<T : Entry>(val name: String) : BiliTasker, CoroutineScope {
 
-    override val coroutineContext: CoroutineContext = try {
-        BiliHelperPlugin.childScopeContext(name, Dispatchers.IO)
-    } catch (_: Throwable) {
-        Dispatchers.IO.childScopeContext(name)
-    }
+    override val coroutineContext: CoroutineContext =
+        CoroutineName(name = name) + SupervisorJob() + CoroutineExceptionHandler { context, throwable ->
+            logger.warning({ "$throwable in $context" }, throwable)
+        }
 
     protected val mutex = Mutex()
 

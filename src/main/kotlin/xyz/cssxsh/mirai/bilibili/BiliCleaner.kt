@@ -4,8 +4,14 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.*
 import net.mamoe.mirai.utils.*
 import xyz.cssxsh.mirai.bilibili.data.*
+import kotlin.coroutines.*
 
-object BiliCleaner : CoroutineScope by BiliHelperPlugin.childScope("BiliCleaner") {
+object BiliCleaner : CoroutineScope {
+
+    override val coroutineContext: CoroutineContext =
+        CoroutineName(name = "BiliCleaner") + SupervisorJob() + CoroutineExceptionHandler { context, throwable ->
+            logger.warning({ "$throwable in $context" }, throwable)
+        }
 
     private val interval by BiliCleanerConfig::interval
 
