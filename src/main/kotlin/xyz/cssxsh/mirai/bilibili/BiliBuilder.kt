@@ -49,9 +49,9 @@ internal val DynamicReplier: MessageReplier = replier@{ result ->
     try {
         val (id) = result.destructured
         message.quote() + client.getDynamicInfo(dynamicId = id.toLong()).dynamic.content(subject)
-    } catch (e: Throwable) {
-        logger.warning({ "构建Dynamic(${result.value})信息失败" }, e)
-        e.message?.toPlainText()
+    } catch (cause: Exception) {
+        logger.warning({ "构建Dynamic(${result.value})信息失败" }, cause)
+        cause.message?.toPlainText()
     }
 }
 
@@ -66,9 +66,9 @@ internal val VideoReplier: MessageReplier = replier@{ result ->
             'A', 'a' -> client.getVideoInfo(aid = aid.toLong())
             else -> throw IllegalArgumentException("未知视频ID(${result.value})")
         }.content(contact = subject)
-    } catch (e: Throwable) {
-        logger.warning({ "构建Video(${result.value})信息失败" }, e)
-        e.message?.toPlainText()
+    } catch (cause: Exception) {
+        logger.warning({ "构建Video(${result.value})信息失败" }, cause)
+        cause.message?.toPlainText()
     }
 }
 
@@ -79,9 +79,9 @@ internal val RoomReplier: MessageReplier = replier@{ result ->
     try {
         val (id) = result.destructured
         message.quote() + client.getLiveInfo(roomId = id.toLong()).content(subject)
-    } catch (e: Throwable) {
-        logger.warning({ "构建Room(${result.value})信息失败" }, e)
-        e.message?.toPlainText()
+    } catch (cause: Exception) {
+        logger.warning({ "构建Room(${result.value})信息失败" }, cause)
+        cause.message?.toPlainText()
     }
 }
 
@@ -92,9 +92,9 @@ internal val SpaceReplier: MessageReplier = replier@{ result ->
     try {
         val (id) = result.destructured
         message.quote() + client.getUserInfo(uid = id.toLong()).content(subject)
-    } catch (e: Throwable) {
-        logger.warning({ "构建User(${result.value})信息失败" }, e)
-        e.message?.toPlainText()
+    } catch (cause: Exception) {
+        logger.warning({ "构建User(${result.value})信息失败" }, cause)
+        cause.message?.toPlainText()
     }
 }
 
@@ -105,9 +105,9 @@ internal val SeasonReplier: MessageReplier = replier@{ result ->
     try {
         val (id) = result.destructured
         message.quote() + client.getSeasonInfo(seasonId = id.toLong()).content(subject)
-    } catch (e: Throwable) {
-        logger.warning({ "构建Season(${result.value})信息失败" }, e)
-        e.message?.toPlainText()
+    } catch (cause: Exception) {
+        logger.warning({ "构建Season(${result.value})信息失败" }, cause)
+        cause.message?.toPlainText()
     }
 }
 
@@ -118,9 +118,9 @@ internal val EpisodeReplier: MessageReplier = replier@{ result ->
     try {
         val (id) = result.destructured
         message.quote() + client.getEpisodeInfo(episodeId = id.toLong()).content(subject)
-    } catch (e: Throwable) {
-        logger.warning({ "构建Episode(${result.value})信息失败" }, e)
-        e.message?.toPlainText()
+    } catch (cause: Exception) {
+        logger.warning({ "构建Episode(${result.value})信息失败" }, cause)
+        cause.message?.toPlainText()
     }
 }
 
@@ -131,9 +131,9 @@ internal val MediaReplier: MessageReplier = replier@{ result ->
     try {
         val (id) = result.destructured
         message.quote() + client.getSeasonMedia(mediaId = id.toLong()).media.content(subject)
-    } catch (e: Throwable) {
-        logger.warning({ "构建Media(${result.value})信息失败" }, e)
-        e.message?.toPlainText()
+    } catch (cause: Exception) {
+        logger.warning({ "构建Media(${result.value})信息失败" }, cause)
+        cause.message?.toPlainText()
     }
 }
 
@@ -146,9 +146,9 @@ internal val ArticleReplier: MessageReplier = replier@{ result ->
     try {
         val (id) = result.destructured
         message.quote() + client.getArticleView(cid = id.toLong()).content(subject)
-    } catch (e: Throwable) {
-        logger.warning({ "构建Article(${result.value})信息失败" }, e)
-        e.message?.toPlainText()
+    } catch (cause: Exception) {
+        logger.warning({ "构建Article(${result.value})信息失败" },cause)
+        cause.message?.toPlainText()
     }
 }
 

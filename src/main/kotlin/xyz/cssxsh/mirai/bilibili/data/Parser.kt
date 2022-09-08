@@ -32,7 +32,7 @@ val BiliCommandArgumentContext: CommandArgumentContext = buildCommandArgumentCon
     Cron::class with { text ->
         try {
             DefaultCronParser.parse(text)
-        } catch (cause: Throwable) {
+        } catch (cause: Exception) {
             throw CommandArgumentParserException(
                 message = cause.message ?: "Cron 表达式读取错误，建议找在线表达式生成器生成",
                 cause = cause

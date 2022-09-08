@@ -100,7 +100,7 @@ sealed class AbstractTasker<T : Entry>(val name: String) : BiliTasker, Coroutine
                 try {
                     @Suppress("INVISIBLE_REFERENCE", "INVISIBLE_MEMBER")
                     append(net.mamoe.mirai.internal.message.flags.ForceAsLongMessage)
-                } catch (_: Throwable) {
+                } catch (_: NoClassDefFoundError) {
                     //
                 }
             }
@@ -139,8 +139,8 @@ sealed class AbstractTasker<T : Entry>(val name: String) : BiliTasker, Coroutine
                         else -> contact.sendMessage(message = item.build(contact) + at(group = contact))
                     }
                 }
-            } catch (e: Throwable) {
-                logger.warning({ "对[${delegate}]构建消息失败" }, e)
+            } catch (cause: Exception) {
+                logger.warning({ "对[${delegate}]构建消息失败" }, cause)
                 null
             }
         }
@@ -157,8 +157,8 @@ sealed class AbstractTasker<T : Entry>(val name: String) : BiliTasker, Coroutine
             } catch (cause: SerializationException) {
                 logger.warning({ "$name with $id 数据加载异常，请汇报给开发者" }, cause)
                 slow
-            } catch (e: Throwable) {
-                logger.warning({ "$name with $id fail." }, e)
+            } catch (cause: Exception) {
+                logger.warning({ "$name with $id fail." }, cause)
                 slow
             }
             delay(interval)
@@ -174,7 +174,7 @@ sealed class AbstractTasker<T : Entry>(val name: String) : BiliTasker, Coroutine
     override suspend fun task(id: Long, subject: Contact): String = mutex.withLock {
         val old = try {
             tasks[id] ?: initTask(id)
-        } catch (cause: Throwable) {
+        } catch (cause: Exception) {
             logger.warning(cause)
             return@withLock "发生错误, ${cause.message}"
         }
@@ -258,8 +258,8 @@ sealed class Loader<T : Entry>(name: String) : AbstractTasker<T>(name) {
                         contact.bot at item.time().toEpochSecond().toInt() says item.build(contact)
                     }
                 })
-            } catch (e: Throwable) {
-                logger.warning({ "对[${delegate}]构建消息失败" }, e)
+            } catch (cause: Exception) {
+                logger.warning({ "对[${delegate}]构建消息失败" }, cause)
                 null
             }
         }

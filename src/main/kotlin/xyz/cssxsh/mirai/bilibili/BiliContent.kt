@@ -97,7 +97,7 @@ internal suspend fun DynamicEmojiContent.content(contact: Contact): Message {
                 append(content.subSequence(pos, match.range.first))
                 try {
                     append(detail.cache(contact))
-                } catch (cause: Throwable) {
+                } catch (cause: Exception) {
                     logger.warning({ "获取BILI表情${detail.text}图片失败" }, cause)
                     append(detail.text)
                 }

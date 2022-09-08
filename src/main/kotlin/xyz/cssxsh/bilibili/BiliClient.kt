@@ -72,10 +72,12 @@ open class BiliClient(private val timeout: Long = 15_000L) : Closeable {
     protected open val mutex = BiliApiMutex(10 * 1000L)
 
     suspend fun <T> useHttpClient(block: suspend (HttpClient, BiliApiMutex) -> T): T = supervisorScope {
+        var cause: Throwable? = null
         while (isActive) {
             try {
                 return@supervisorScope block(clients[index], mutex)
             } catch (throwable: Throwable) {
+                cause = throwable
                 if (isActive && ignore(throwable)) {
                     index = (index + 1) % clients.size
                 } else {
@@ -83,6 +85,6 @@ open class BiliClient(private val timeout: Long = 15_000L) : Closeable {
                 }
             }
         }
-        throw CancellationException()
+        throw CancellationException(null, cause)
     }
 }

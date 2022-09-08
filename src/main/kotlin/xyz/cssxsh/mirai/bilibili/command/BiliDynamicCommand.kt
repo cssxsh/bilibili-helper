@@ -43,7 +43,7 @@ object BiliDynamicCommand : CompositeCommand(
                 pattern.toRegex()
                 BiliTaskerConfig.dynamicForbidRegexes.add(pattern)
                 "动态正则屏蔽添加成功"
-            } catch (cause: Throwable) {
+            } catch (cause: Exception) {
                 logger.warning(cause)
                 "动态正则屏蔽添加失败，${cause.message}"
             }

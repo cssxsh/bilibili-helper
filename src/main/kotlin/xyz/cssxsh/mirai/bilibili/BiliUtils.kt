@@ -31,7 +31,7 @@ import kotlin.reflect.*
 internal val logger by lazy {
     try {
         BiliHelperPlugin.logger
-    } catch (_: Throwable) {
+    } catch (_: ExceptionInInitializerError) {
         MiraiLogger.Factory.create(BiliClient::class)
     }
 }
@@ -48,7 +48,7 @@ internal var cookies by object : ReadWriteProperty<Any?, List<Cookie>> {
             BiliClient.Json
                 .decodeFromString<List<EditThisCookie>>(json.readText().ifBlank { "[]" })
                 .map { it.toCookie() }
-        } catch (cause: Throwable) {
+        } catch (cause: Exception) {
             logger.warning({ "cookies.json 解析错误" }, cause)
             emptyList()
         }
@@ -98,8 +98,8 @@ internal val SetupSelenium: Boolean by lazy {
     try {
         logger.info { "正在初始化 mirai-selenium-plugin，请稍后" }
         MiraiSeleniumPlugin.setup()
-    } catch (exception: NoClassDefFoundError) {
-        logger.warning { "相关类加载失败，请安装 https://github.com/cssxsh/mirai-selenium-plugin $exception" }
+    } catch (error: NoClassDefFoundError) {
+        logger.warning { "相关类加载失败，请安装 https://github.com/cssxsh/mirai-selenium-plugin $error" }
         false
     }
 }
@@ -246,7 +246,7 @@ internal suspend fun loadEmoteData() {
     // dynamic
     val dynamic = try {
         client.getEmotePanel(business = EmoteBusiness.dynamic).all
-    } catch (_: Throwable) {
+    } catch (_: Exception) {
         emptyList()
     }
     for (item in dynamic) {
@@ -255,7 +255,7 @@ internal suspend fun loadEmoteData() {
     // reply
     val reply = try {
         client.getEmotePanel(business = EmoteBusiness.reply).all
-    } catch (_: Throwable) {
+    } catch (_: Exception) {
         emptyList()
     }
     for (item in reply) {
@@ -279,8 +279,8 @@ internal suspend fun DynamicInfo.screenshot(contact: Contact, refresh: Boolean =
             refresh = refresh,
             contact = contact
         )
-    } catch (e: Throwable) {
-        logger.warning({ "获取动态${detail.id}快照失败" }, e)
+    } catch (cause: Exception) {
+        logger.warning({ "获取动态${detail.id}快照失败" }, cause)
         "获取动态${detail.id}快照失败".toPlainText()
     }
 }
@@ -293,8 +293,8 @@ internal suspend fun Article.screenshot(contact: Contact, refresh: Boolean = fal
             refresh = refresh,
             contact = contact
         )
-    } catch (e: Throwable) {
-        logger.warning({ "获取专栏${id}快照失败" }, e)
+    } catch (cause: Exception) {
+        logger.warning({ "获取专栏${id}快照失败" }, cause)
         "获取专栏${id}快照失败".toPlainText()
     }
 }

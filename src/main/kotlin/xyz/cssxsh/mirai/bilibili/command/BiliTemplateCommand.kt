@@ -17,7 +17,7 @@ object BiliTemplateCommand : CompositeCommand(
             BiliTaskerConfig.pattern = pattern
             System.setProperty(BiliTemplate.DATE_TIME_PATTERN, pattern)
             "时间日期格式设置成功"
-        } catch (cause: Throwable) {
+        } catch (cause: Exception) {
             cause.message ?: cause.toString()
         }
         sendMessage(message = message)
@@ -28,7 +28,7 @@ object BiliTemplateCommand : CompositeCommand(
         val message = try {
             BiliTemplate.reload()
             "模板加载成功"
-        } catch (cause: Throwable) {
+        } catch (cause: Exception) {
             cause.message ?: cause.toString()
         }
         sendMessage(message = message)
