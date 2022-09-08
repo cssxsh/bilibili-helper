@@ -139,7 +139,7 @@ internal val MediaReplier: MessageReplier = replier@{ result ->
 
 internal val ARTICLE_REGEX = """(?<!\w)cv(\d{4,10})""".toRegex()
 
-internal val ARTICLE_URL_REGEX = """(?<=bilibili\.com/read/mobile\?id=)(\d+)""".toRegex()
+internal val ARTICLE_URL_REGEX = """(?<=bilibili\.com/read/mobile(?:\?id=|/))(\d+)""".toRegex()
 
 internal val ArticleReplier: MessageReplier = replier@{ result ->
     logger.info { "${sender.render()} 匹配Article(${result.value})" }
