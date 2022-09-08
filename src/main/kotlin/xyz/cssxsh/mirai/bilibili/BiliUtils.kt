@@ -194,38 +194,47 @@ private suspend fun Url.cache(type: CacheType, path: String, contact: Contact) =
 
 private suspend fun Url.screenshot(type: CacheType, path: String, refresh: Boolean, contact: Contact) = type.withLock {
     check(SetupSelenium) { "截图模式未启用" }
-    type.directory.resolve(path).apply {
-        if (exists().not() || refresh) {
-            parentFile.mkdirs()
-            when (type) {
-                CacheType.ARTICLE -> useRemoteWebDriver(config = BiliSeleniumConfig.Agent) { driver ->
-                    driver.get(this@screenshot.toString())
-                    driver.findElement(By.cssSelector(".h5-download-bar .close-icon")).click()
-                    driver.findElement(By.cssSelector(".read-more .back-icon")).click()
-                    val start = System.currentTimeMillis()
-                    delay(30_000L)
-                    while (contact.isActive) {
-                        if (driver.isReady()) break
-                        delay(1000L)
-                        val current = System.currentTimeMillis()
-                        if (current - start > 180_000) break
-                    }
-                    val body = driver.findElement(By.cssSelector("body"))
-                    val recommend = driver.findElement(By.cssSelector(".read-recommend-info"))
-                    val comment = driver.findElement(By.cssSelector(".read-comment-box"))
-                    val size = Dimension(body.size.width, body.size.height - recommend.size.height - comment.size.height)
-                    driver.manage().window().size = size
-                    driver.executeScript("window.scrollTo(0, 0)")
-                    writeBytes(driver.getScreenshotAs(OutputType.BYTES))
+    val file = type.directory.resolve(path)
+    if (refresh || file.exists().not()) {
+        file.parentFile.mkdirs()
+        val bytes = when (type) {
+            CacheType.ARTICLE -> useRemoteWebDriver(config = BiliSeleniumConfig.Agent) { driver ->
+                driver.get(this@screenshot.toString())
+
+                driver.findElement(By.cssSelector(".h5-download-bar .close-icon")).click()
+                driver.findElement(By.cssSelector(".read-more .back-icon")).click()
+
+                for (element in driver.findElements(By.cssSelector(".normal-img"))) {
+                    driver.manage().window().position = element.location
                 }
-                else -> useRemoteWebDriver(config = BiliSeleniumConfig.Agent) { driver ->
-                    writeBytes(driver.getScreenshot(url = this@screenshot.toString(), hide = BiliSeleniumConfig.hide))
+
+                val start = System.currentTimeMillis()
+                while (contact.isActive) {
+                    if (driver.isReady()) break
+                    delay(1_000L)
+                    val current = System.currentTimeMillis()
+                    if (current - start > 180_000) break
                 }
+
+                val body = driver.findElement(By.cssSelector("body"))
+                val head = driver.findElement(By.cssSelector(".read-info"))
+                val author = driver.findElement(By.cssSelector(".read-up-info"))
+                val article = driver.findElement(By.cssSelector(".read-article-box"))
+                val size = Dimension(body.size.width, head.size.height + author.size.height + article.size.height)
+                driver.manage().window().size = size
+                // driver.manage().window().position = body.location
+                driver.executeScript("window.scrollTo(0, 0)")
+                driver.getScreenshotAs(OutputType.BYTES)
             }
-        } else {
-            setLastModified(System.currentTimeMillis())
+            else -> useRemoteWebDriver(config = BiliSeleniumConfig.Agent) { driver ->
+                driver.getScreenshot(url = this@screenshot.toString(), hide = BiliSeleniumConfig.hide)
+            }
         }
-    }.uploadAsImage(contact)
+        file.writeBytes(bytes)
+    } else {
+        file.setLastModified(System.currentTimeMillis())
+    }
+    file.uploadAsImage(contact)
 }
 
 private val FULLWIDTH_CHARS = mapOf(
