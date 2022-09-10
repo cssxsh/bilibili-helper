@@ -8,7 +8,7 @@ object BiliTemplateCommand : CompositeCommand(
     owner = BiliHelperPlugin,
     "bili-template", "B模板",
     description = "B站模板配置指令"
-), BiliHelperCommand {
+) {
 
     @SubCommand
     suspend fun CommandSender.datetime(pattern: String) {

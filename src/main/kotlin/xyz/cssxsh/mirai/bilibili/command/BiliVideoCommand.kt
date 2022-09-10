@@ -13,7 +13,7 @@ object BiliVideoCommand : CompositeCommand(
     "bili-video", "B视频",
     description = "B站视频指令",
     overrideContext = BiliCommandArgumentContext
-), BiliHelperCommand, BiliTasker by BiliVideoLoader {
+), BiliTasker by BiliVideoLoader {
 
     @SubCommand("add", "添加")
     suspend fun CommandSender.add(uid: Long, contact: Contact = subject()) = sendMessage(

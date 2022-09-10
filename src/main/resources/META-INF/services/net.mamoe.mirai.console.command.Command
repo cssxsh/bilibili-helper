@@ -1,0 +1,8 @@
+xyz.cssxsh.mirai.bilibili.command.BiliDynamicCommand
+xyz.cssxsh.mirai.bilibili.command.BiliInfoCommand
+xyz.cssxsh.mirai.bilibili.command.BiliLiveCommand
+xyz.cssxsh.mirai.bilibili.command.BiliSearchCommand
+xyz.cssxsh.mirai.bilibili.command.BiliSeasonCommand
+xyz.cssxsh.mirai.bilibili.command.BiliTaskCommand
+xyz.cssxsh.mirai.bilibili.command.BiliTemplateCommand
+xyz.cssxsh.mirai.bilibili.command.BiliVideoCommand

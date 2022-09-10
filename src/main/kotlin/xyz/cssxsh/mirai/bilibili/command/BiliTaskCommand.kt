@@ -10,7 +10,7 @@ object BiliTaskCommand : CompositeCommand(
     owner = BiliHelperPlugin,
     "bili-task", "B任务",
     description = "B站任务列表指令"
-), BiliHelperCommand {
+) {
 
     private fun BiliTasker.render(): String = buildString {
         for ((id, info) in tasks) {

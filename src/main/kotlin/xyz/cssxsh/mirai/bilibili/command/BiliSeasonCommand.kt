@@ -13,7 +13,7 @@ object BiliSeasonCommand : CompositeCommand(
     "bili-season", "B剧集", "B番剧",
     description = "B站剧集指令",
     overrideContext = BiliCommandArgumentContext
-), BiliHelperCommand, BiliTasker by BiliSeasonWaiter {
+), BiliTasker by BiliSeasonWaiter {
 
     @SubCommand("add", "添加")
     suspend fun CommandSender.add(sid: Long, contact: Contact = subject()) = sendMessage(

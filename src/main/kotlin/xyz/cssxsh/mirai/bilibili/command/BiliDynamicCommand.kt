@@ -14,7 +14,7 @@ object BiliDynamicCommand : CompositeCommand(
     "bili-dynamic", "B动态",
     description = "B站动态指令",
     overrideContext = BiliCommandArgumentContext
-), BiliHelperCommand, BiliTasker by BiliDynamicLoader {
+), BiliTasker by BiliDynamicLoader {
 
     @SubCommand("add", "添加")
     suspend fun CommandSender.add(uid: Long, contact: Contact = subject()) = sendMessage(
