@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "xyz.cssxsh"
-version = "1.6.4"
+version = "1.6.5"
 
 repositories {
     mavenLocal()
@@ -19,29 +19,29 @@ mavenCentralPublish {
     singleDevGithubProject("cssxsh", "bilibili-helper")
     licenseFromGitHubProject("AGPL-3.0")
     workingDir = System.getenv("PUBLICATION_TEMP")?.let { file(it).resolve(projectName) }
-        ?: project.buildDir.resolve("publishing-tmp")
+        ?: buildDir.resolve("publishing-tmp")
     publication {
-        artifact(tasks.getByName("buildPlugin"))
+        artifact(tasks["buildPlugin"])
     }
 }
 
 dependencies {
-    implementation("io.ktor:ktor-client-okhttp:2.1.0") {
+    implementation("io.ktor:ktor-client-okhttp:2.1.1") {
         exclude(group = "org.jetbrains.kotlin")
         exclude(group = "org.jetbrains.kotlinx")
         exclude(group = "org.slf4j")
     }
-    implementation("io.ktor:ktor-client-encoding:2.1.0") {
+    implementation("io.ktor:ktor-client-encoding:2.1.1") {
         exclude(group = "org.jetbrains.kotlin")
         exclude(group = "org.jetbrains.kotlinx")
         exclude(group = "org.slf4j")
     }
-    implementation("io.ktor:ktor-client-content-negotiation:2.1.0") {
+    implementation("io.ktor:ktor-client-content-negotiation:2.1.1") {
         exclude(group = "org.jetbrains.kotlin")
         exclude(group = "org.jetbrains.kotlinx")
         exclude(group = "org.slf4j")
     }
-    implementation("io.ktor:ktor-serialization-kotlinx-json:2.1.0") {
+    implementation("io.ktor:ktor-serialization-kotlinx-json:2.1.1") {
         exclude(group = "org.jetbrains.kotlin")
         exclude(group = "org.jetbrains.kotlinx")
         exclude(group = "org.slf4j")
@@ -61,7 +61,8 @@ dependencies {
     compileOnly("javax.validation:validation-api:2.0.1.Final")
 
     testImplementation(kotlin("test"))
-    testImplementation("net.mamoe:mirai-slf4j-bridge:1.2.0")
+    testImplementation("org.slf4j:slf4j-simple:2.0.0")
+    testImplementation("net.mamoe:mirai-logging-slf4j:2.13.0-M1")
     testImplementation("xyz.cssxsh.mirai:mirai-selenium-plugin:2.2.3")
 }
 

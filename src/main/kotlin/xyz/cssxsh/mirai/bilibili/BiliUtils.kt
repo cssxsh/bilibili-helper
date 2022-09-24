@@ -70,6 +70,8 @@ internal val client by lazy {
                     logger.warning { "Ignore ${cause.message}" }
                     true
                 }
+                is java.net.NoRouteToHostException,
+                is java.net.UnknownHostException -> false
                 is java.io.IOException -> {
                     logger.warning { "Ignore $cause" }
                     true
@@ -205,7 +207,8 @@ private suspend fun Url.screenshot(type: CacheType, path: String, refresh: Boole
                 driver.findElement(By.cssSelector(".read-more .back-icon")).click()
 
                 for (element in driver.findElements(By.cssSelector(".normal-img"))) {
-                    driver.manage().window().position = element.location
+                    // driver.manage().window().position = element.location
+                    driver.executeScript("window.scrollTo(${element.location.x}, ${element.location.y})")
                 }
 
                 val start = System.currentTimeMillis()
