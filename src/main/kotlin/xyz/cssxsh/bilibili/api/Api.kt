@@ -84,6 +84,7 @@ internal suspend inline fun <reified T> BiliClient.json(
     mutex.wait(url.encodedPath)
     client.prepareGet(url, block).execute { response ->
         val temp = response.body<TempData>()
+        if (temp.code != 0) throw BiliApiException(temp, response.request.url)
         val element = temp.data ?: temp.result ?: throw BiliApiException(temp, response.request.url)
         try {
             BiliClient.Json.decodeFromJsonElement(element)
