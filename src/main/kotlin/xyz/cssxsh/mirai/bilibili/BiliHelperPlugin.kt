@@ -80,6 +80,7 @@ object BiliHelperPlugin : KotlinPlugin(
         }
 
         launch(SupervisorJob()) {
+            loadCookie()
             loadEmoteData()
         }
     }

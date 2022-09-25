@@ -2,6 +2,7 @@ package xyz.cssxsh.mirai.bilibili
 
 import io.ktor.client.network.sockets.*
 import io.ktor.client.request.*
+import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.http.Cookie
 import kotlinx.coroutines.*
@@ -253,6 +254,21 @@ private val FULLWIDTH_CHARS = mapOf(
 )
 
 internal fun String.fullwidth(): String = fold("") { acc, char -> acc + (FULLWIDTH_CHARS[char] ?: char) }
+
+internal suspend fun loadCookie() {
+    // home
+    try {
+        client.useHttpClient { http, _ -> http.get(INDEX_PAGE).bodyAsText() }
+    } catch (_: Exception) {
+        //
+    }
+    // space
+    try {
+        client.useHttpClient { http, _ -> http.get(SPACE).bodyAsText() }
+    } catch (_: Exception) {
+        //
+    }
+}
 
 internal suspend fun loadEmoteData() {
     // dynamic
