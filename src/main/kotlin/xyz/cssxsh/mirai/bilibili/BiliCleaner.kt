@@ -19,7 +19,7 @@ object BiliCleaner : CoroutineScope {
 
     private const val HOUR = 60 * 60 * 1000L
 
-    private fun clean(type: CacheType, interval: Int, expires: Int) = launch(SupervisorJob()) {
+    private fun clean(type: CacheType, interval: Int, expires: Int) = launch {
         if (interval <= 0) {
             logger.info { "${type}缓存清理跳过" }
             return@launch

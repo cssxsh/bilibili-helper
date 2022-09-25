@@ -150,7 +150,7 @@ sealed class AbstractTasker<T : Entry>(val name: String) : BiliTasker, Coroutine
 
     protected abstract suspend fun listen(id: Long): Long
 
-    protected open fun addListener(id: Long) = launch(SupervisorJob()) {
+    protected open fun addListener(id: Long) = launch {
         while (isActive && !empty(id)) {
             val interval = try {
                 listen(id)
