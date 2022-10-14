@@ -204,20 +204,23 @@ private suspend fun Url.screenshot(type: CacheType, path: String, refresh: Boole
             CacheType.ARTICLE -> useRemoteWebDriver(config = BiliSeleniumConfig.Agent) { driver ->
                 driver.get(this@screenshot.toString())
 
-                driver.findElement(By.cssSelector(".h5-download-bar .close-icon")).click()
-                driver.findElement(By.cssSelector(".read-more .back-icon")).click()
+                val more = driver.findElement(By.cssSelector(".read-more"))
+                driver.executeScript("arguments[0].click()", more)
 
-                for (element in driver.findElements(By.cssSelector(".normal-img"))) {
+                for (element in driver.findElements(By.cssSelector(".img-box"))) {
                     // driver.manage().window().position = element.location
                     driver.executeScript("window.scrollTo(${element.location.x}, ${element.location.y})")
+                    var count = 3
+                    while (count-- > 0) {
+                        if ("loaded" in element.getAttribute("className")) break
+                        delay(1_000)
+                    }
                 }
-
-                val start = System.currentTimeMillis()
-                while (contact.isActive) {
-                    if (driver.isReady()) break
-                    delay(1_000L)
-                    val current = System.currentTimeMillis()
-                    if (current - start > 180_000) break
+                for (element in driver.findElements(By.cssSelector("bili-open-app"))) {
+                    driver.executeScript("arguments[0].style = 'display:none'", element)
+                }
+                for (element in driver.findElements(By.cssSelector(".cover-video-box"))) {
+                    driver.executeScript("arguments[0].style = 'display:none'", element)
                 }
 
                 val body = driver.findElement(By.cssSelector("body"))
