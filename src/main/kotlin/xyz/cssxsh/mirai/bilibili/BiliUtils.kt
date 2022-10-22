@@ -216,22 +216,33 @@ private suspend fun Url.screenshot(type: CacheType, path: String, refresh: Boole
                         delay(1_000)
                     }
                 }
-                for (element in driver.findElements(By.cssSelector("bili-open-app"))) {
-                    driver.executeScript("arguments[0].style = 'display:none'", element)
-                }
-                for (element in driver.findElements(By.cssSelector(".cover-video-box"))) {
+                for (element in driver.findElements(By.cssSelector("bili-open-app, .cover-video-box, .read-recommend-info, .read-comment-box"))) {
                     driver.executeScript("arguments[0].style = 'display:none'", element)
                 }
 
-                val body = driver.findElement(By.cssSelector("body"))
-                val head = driver.findElement(By.cssSelector(".read-info"))
-                val author = driver.findElement(By.cssSelector(".read-up-info"))
-                val article = driver.findElement(By.cssSelector(".read-article-box"))
-                val size = Dimension(body.size.width, head.size.height + author.size.height + article.size.height)
-                driver.manage().window().size = size
-                // driver.manage().window().position = body.location
-                driver.executeScript("window.scrollTo(0, 0)")
-                driver.getScreenshotAs(OutputType.BYTES)
+                val article = driver.findElement(By.cssSelector(".read-app"))
+                driver.manage().window().size = article.size
+                driver.executeScript("window.scrollTo(${article.location.x}, ${article.location.y})")
+                article.getScreenshotAs(OutputType.BYTES)
+            }
+            CacheType.DYNAMIC -> useRemoteWebDriver(config = BiliSeleniumConfig.Agent) { driver ->
+                driver.get(this@screenshot.toString())
+
+                var count = 3
+                while (count-- > 0) {
+                    delay(1_000)
+                    val elements = driver.findElements(By.cssSelector(".open-app, .upper-works"))
+                    if (elements.isEmpty()) continue
+                }
+
+                for (element in driver.findElements(By.cssSelector(".open-app, .upper-works"))) {
+                    driver.executeScript("arguments[0].style = 'display:none'", element)
+                }
+
+                val card = driver.findElement(By.cssSelector(".card"))
+                driver.manage().window().size = card.size
+                driver.executeScript("window.scrollTo(${card.location.x}, ${card.location.y})")
+                card.getScreenshotAs(OutputType.BYTES)
             }
             else -> useRemoteWebDriver(config = BiliSeleniumConfig.Agent) { driver ->
                 driver.getScreenshot(url = this@screenshot.toString(), hide = BiliSeleniumConfig.hide)
