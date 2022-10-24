@@ -1,17 +1,16 @@
 package xyz.cssxsh.mirai.bilibili.data
 
 import net.mamoe.mirai.console.data.*
+import net.mamoe.mirai.console.data.PluginDataExtensions.mapKeys
 import net.mamoe.mirai.console.permission.*
 
 object BiliTaskerConfig : AutoSavePluginConfig("BiliTaskerConfig") {
 
-    private fun <V> permittee(): SerializerAwareValue<MutableMap<PermitteeId, V>> {
-        return with(PluginDataExtensions) {
-            value<MutableMap<String, V>>().mapKeys(
-                oldToNew = AbstractPermitteeId.Companion::parseFromString,
-                newToOld = PermitteeId::asString
-            )
-        }
+    private inline fun <reified V> PluginData.permittee(): SerializerAwareValue<MutableMap<PermitteeId, V>> {
+        return value<MutableMap<String, V>>().mapKeys(
+            oldToNew = AbstractPermitteeId.Companion::parseFromString,
+            newToOld = PermitteeId::asString
+        )
     }
 
     @ValueName("date_time_pattern")
