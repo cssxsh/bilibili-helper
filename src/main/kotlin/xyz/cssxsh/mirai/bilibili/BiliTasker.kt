@@ -157,6 +157,8 @@ sealed class AbstractTasker<T : Entry>(val name: String) : BiliTasker, Coroutine
             } catch (cause: SerializationException) {
                 logger.warning({ "$name with $id 数据加载异常，请汇报给开发者" }, cause)
                 slow
+            } catch (cause: CancellationException) {
+                break
             } catch (cause: Exception) {
                 logger.warning({ "$name with $id fail." }, cause)
                 slow
