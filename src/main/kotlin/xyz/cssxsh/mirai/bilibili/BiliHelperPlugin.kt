@@ -5,6 +5,7 @@ import net.mamoe.mirai.console.MiraiConsole
 import net.mamoe.mirai.console.command.*
 import net.mamoe.mirai.console.command.CommandManager.INSTANCE.register
 import net.mamoe.mirai.console.command.CommandManager.INSTANCE.unregister
+import net.mamoe.mirai.console.data.*
 import net.mamoe.mirai.console.extension.*
 import net.mamoe.mirai.console.plugin.jvm.*
 import net.mamoe.mirai.console.plugin.*
@@ -27,9 +28,7 @@ object BiliHelperPlugin : KotlinPlugin(
         // run after auto login
         runAfterStartup {
             if (BiliHelperSettings.refresh) BiliTasker.refresh()
-            for (task in BiliTasker) {
-                task.start()
-            }
+            for (task in BiliTasker) task.start()
             BiliCleaner.start()
 
             BiliTemplate.selenium() && SetupSelenium
@@ -46,6 +45,9 @@ object BiliHelperPlugin : KotlinPlugin(
     }
 
     private val commands: List<Command> by services()
+    private val data: List<PluginData> by services()
+    private val config: List<PluginConfig> by services()
+    private val listeners: List<ListenerHost> by services()
 
     override fun onEnable() {
         // XXX: mirai console version check
@@ -53,13 +55,8 @@ object BiliHelperPlugin : KotlinPlugin(
             "$name $version 需要 Mirai-Console 版本 >= 2.12.0，目前版本是 ${MiraiConsole.version}"
         }
 
-        BiliTaskData.reload()
-        BiliTaskerConfig.reload()
-        BiliHelperSettings.reload()
-        BiliHelperSettings.save()
-        BiliCleanerConfig.reload()
-        BiliCleanerConfig.save()
-        BiliEmoteData.reload()
+        for (config in config) config.reload()
+        for (data in data) data.reload()
         BiliTemplate.reload(configFolder.resolve("Template"))
 
         System.setProperty(BiliTemplate.DATE_TIME_PATTERN, BiliTaskerConfig.pattern)
@@ -72,12 +69,7 @@ object BiliHelperPlugin : KotlinPlugin(
         logger.info { "如果要B站动态的截图内容，请修改 DynamicInfo.template, 添加 #screenshot" }
         logger.info { "如果要B站专栏的截图内容，请修改 Article.template, 添加 #screenshot" }
 
-        BiliListener.registerTo(globalEventChannel())
-
-        if (BiliTemplate.selenium()) {
-            BiliSeleniumConfig.reload()
-            BiliSeleniumConfig.save()
-        }
+        for (listener in listeners) (listener as SimpleListenerHost).registerTo(globalEventChannel())
 
         launch(SupervisorJob()) {
             loadCookie()
@@ -88,7 +80,7 @@ object BiliHelperPlugin : KotlinPlugin(
     override fun onDisable() {
         for (command in commands) command.unregister()
 
-        BiliListener.cancelAll()
+        for (listener in listeners) (listener as SimpleListenerHost).cancel()
 
         for (task in BiliTasker) task.stop()
         BiliCleaner.stop()

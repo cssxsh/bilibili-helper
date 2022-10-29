@@ -6,7 +6,7 @@ import xyz.cssxsh.selenium.*
 object BiliSeleniumConfig : ReadOnlyPluginConfig("SeleniumConfig") {
     @ValueName("user_agent")
     @ValueDescription("截图UA")
-    val userAgent: String by value(UserAgents.IPAD + " MicroMessenger")
+    val userAgent: String by value("Mozilla/5.0 (iPad; CPU OS 11_0 like Mac OS X) AppleWebKit/604.1.34 (KHTML, like Gecko) Version/11.0 Mobile/15A5341f Safari/604.1 MicroMessenger")
 
     @ValueName("width")
     @ValueDescription("截图宽度")
