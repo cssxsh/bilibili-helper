@@ -1,8 +1,8 @@
 plugins {
-    kotlin("jvm") version "1.7.10"
-    kotlin("plugin.serialization") version "1.7.10"
+    kotlin("jvm") version "1.7.20"
+    kotlin("plugin.serialization") version "1.7.20"
 
-    id("net.mamoe.mirai-console") version "2.13.0-M1"
+    id("net.mamoe.mirai-console") version "2.13.0-RC2"
     id("me.him188.maven-central-publish") version "1.0.0-dev-3"
 }
 
@@ -26,22 +26,22 @@ mavenCentralPublish {
 }
 
 dependencies {
-    implementation("io.ktor:ktor-client-okhttp:2.1.1") {
+    implementation("io.ktor:ktor-client-okhttp:2.1.2") {
         exclude(group = "org.jetbrains.kotlin")
         exclude(group = "org.jetbrains.kotlinx")
         exclude(group = "org.slf4j")
     }
-    implementation("io.ktor:ktor-client-encoding:2.1.1") {
+    implementation("io.ktor:ktor-client-encoding:2.1.2") {
         exclude(group = "org.jetbrains.kotlin")
         exclude(group = "org.jetbrains.kotlinx")
         exclude(group = "org.slf4j")
     }
-    implementation("io.ktor:ktor-client-content-negotiation:2.1.1") {
+    implementation("io.ktor:ktor-client-content-negotiation:2.1.2") {
         exclude(group = "org.jetbrains.kotlin")
         exclude(group = "org.jetbrains.kotlinx")
         exclude(group = "org.slf4j")
     }
-    implementation("io.ktor:ktor-serialization-kotlinx-json:2.1.1") {
+    implementation("io.ktor:ktor-serialization-kotlinx-json:2.1.2") {
         exclude(group = "org.jetbrains.kotlin")
         exclude(group = "org.jetbrains.kotlinx")
         exclude(group = "org.slf4j")
@@ -57,12 +57,12 @@ dependencies {
         exclude("org.javassist")
     }
     compileOnly("xyz.cssxsh.mirai:mirai-selenium-plugin:2.2.3")
-    compileOnly("net.mamoe:mirai-core:2.13.0-M1")
+    compileOnly("net.mamoe:mirai-core:2.13.0-RC2")
     compileOnly("javax.validation:validation-api:2.0.1.Final")
 
     testImplementation(kotlin("test"))
-    testImplementation("org.slf4j:slf4j-simple:2.0.0")
-    testImplementation("net.mamoe:mirai-logging-slf4j:2.13.0-M1")
+    testImplementation("org.slf4j:slf4j-simple:2.0.3")
+    testImplementation("net.mamoe:mirai-logging-slf4j:2.13.0-RC2")
     testImplementation("xyz.cssxsh.mirai:mirai-selenium-plugin:2.2.3")
 }
 
