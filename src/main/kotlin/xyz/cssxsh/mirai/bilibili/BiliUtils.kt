@@ -204,6 +204,13 @@ private suspend fun Url.screenshot(type: CacheType, path: String, refresh: Boole
             CacheType.ARTICLE -> useRemoteWebDriver(config = BiliSeleniumConfig.Agent) { driver ->
                 driver.get(this@screenshot.toString())
 
+                var wait = 10
+                while (wait-- > 0) {
+                    delay(1_000)
+                    val elements = driver.findElements(By.cssSelector(".img-box"))
+                    if (elements.isEmpty()) continue
+                }
+
                 val more = driver.findElement(By.cssSelector(".read-more"))
                 driver.executeScript("arguments[0].click()", more)
 
