@@ -211,8 +211,19 @@ private suspend fun Url.screenshot(type: CacheType, path: String, refresh: Boole
                     if (elements.isEmpty()) continue
                 }
 
-                val more = driver.findElement(By.cssSelector(".read-more"))
-                driver.executeScript("arguments[0].click()", more)
+                try {
+                    val more = driver.findElement(By.cssSelector(".read-more"))
+                    driver.executeScript("arguments[0].click()", more)
+                } catch (cause: WebDriverException) {
+                    //
+                }
+
+                try {
+                    driver.findElement(By.cssSelector(".cancel"))
+                        .click()
+                } catch (cause: WebDriverException) {
+                    //
+                }
 
                 for (element in driver.findElements(By.cssSelector(".img-box"))) {
                     // driver.manage().window().position = element.location
