@@ -214,14 +214,14 @@ private suspend fun Url.screenshot(type: CacheType, path: String, refresh: Boole
                 try {
                     val more = driver.findElement(By.cssSelector(".read-more"))
                     driver.executeScript("arguments[0].click()", more)
-                } catch (cause: WebDriverException) {
+                } catch (cause: RuntimeException) {
                     //
                 }
 
                 try {
                     driver.findElement(By.cssSelector(".cancel"))
                         .click()
-                } catch (cause: WebDriverException) {
+                } catch (cause: RuntimeException) {
                     //
                 }
 
