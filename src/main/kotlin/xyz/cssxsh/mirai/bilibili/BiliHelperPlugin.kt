@@ -16,7 +16,7 @@ import xyz.cssxsh.bilibili.api.*
 import xyz.cssxsh.mirai.bilibili.data.*
 
 object BiliHelperPlugin : KotlinPlugin(
-    JvmPluginDescription(id = "xyz.cssxsh.mirai.plugin.bilibili-helper", version = "1.6.6") {
+    JvmPluginDescription(id = "xyz.cssxsh.mirai.plugin.bilibili-helper", version = "1.6.7") {
         name("bilibili-helper")
         author("cssxsh")
 
@@ -71,7 +71,7 @@ object BiliHelperPlugin : KotlinPlugin(
 
         for (listener in listeners) (listener as SimpleListenerHost).registerTo(globalEventChannel())
 
-        launch(SupervisorJob()) {
+        launch {
             loadCookie()
             loadEmoteData()
         }

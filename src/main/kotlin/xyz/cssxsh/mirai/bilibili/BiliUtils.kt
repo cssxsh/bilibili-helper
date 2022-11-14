@@ -32,7 +32,7 @@ import kotlin.reflect.*
 internal val logger by lazy {
     try {
         BiliHelperPlugin.logger
-    } catch (_: ExceptionInInitializerError) {
+    } catch (_: UninitializedPropertyAccessException) {
         MiraiLogger.Factory.create(BiliClient::class)
     }
 }

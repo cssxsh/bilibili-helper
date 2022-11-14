@@ -3,7 +3,7 @@
 > 基于 [Mirai Console](https://github.com/mamoe/mirai-console) 的 [哔哩哔哩](https://www.bilibili.com/) 订阅插件
 
 [![Release](https://img.shields.io/github/v/release/cssxsh/bilibili-helper)](https://github.com/cssxsh/bilibili-helper/releases)
-[![Downloads](https://img.shields.io/github/downloads/cssxsh/bilibili-helper/total)](https://shields.io/category/downloads)
+[![Downloads](https://img.shields.io/github/downloads/cssxsh/bilibili-helper/total)](https://repo1.maven.org/maven2/xyz/cssxsh/bilibili-helper/)
 [![MiraiForum](https://img.shields.io/badge/post-on%20MiraiForum-yellow)](https://mirai.mamoe.net/topic/287)
 
 **使用前应该查阅的相关文档或项目**
@@ -58,6 +58,7 @@
 | `/<bili-dynamic B动态> <stop 停止> [uid] [contact]?`        | 停止一个b站动态订阅   |
 | `/<bili-dynamic B动态> <time 定时> [uid] [cron]?`           | 设置任务的定时信息    |
 | `/<bili-dynamic B动态> <list 列表> [contact]?`              | 列出当前联系人的动态订阅 |
+| `/<bili-dynamic B动态> <filter 过滤> [type] [add]?`         | 过滤特定类型的动态    |
 | `/<bili-dynamic B动态> <forbid 屏蔽> [pattern] [add]?`      | 添加一个动态正则屏蔽   |
 | `/<bili-dynamic B动态> <sleep 休眠> [target] [start] [end]` | 添加一个休眠时间     |
 | `/<bili-dynamic B动态> <at 艾特> [target] [start] [end]`    | 添加一个艾特时间     |
@@ -125,7 +126,7 @@
 | `/<bili-info B信息> <live> [id]`    | 根据 id 获取直播信息   |
 | `/<bili-info B信息> <user> [id]`    | 根据 id 获取用户信息   |
 
-返回结果包含图片，需要在聊天环境执行指令  
+因为返回结果包含图片，需要在聊天环境执行指令  
 消息中包含 `BV12v411G7dP` `av2` 等等 id 信息时会自动触发解析  
 目前会触发的正则表达式
 
@@ -262,16 +263,16 @@ EditThisCookie 安装地址
 
 ### MCL 指令安装
 
-`./mcl --update-package xyz.cssxsh:bilibili-helper --channel stable --type plugin`
+`./mcl --update-package xyz.cssxsh:bilibili-helper --channel mavne-stable --type plugin`
 
 ### 手动安装
 
-1. 运行 [Mirai Console](https://github.com/mamoe/mirai-console) 生成`plugins`文件夹
-2. 从 [Releases](https://github.com/cssxsh/bilibili-helper/releases) 下载`jar`并将其放入`plugins`文件夹中
+1. 从 [Releases](https://github.com/cssxsh/bilibili-helper/releases) 或者 [Maven](https://repo1.maven.org/maven2/xyz/cssxsh/bilibili-helper/) 下载 `mirai2.jar`
+2. 将其放入 `plugins` 文件夹中
 
 ### 截图前置
 
-`./mcl --update-package xyz.cssxsh.mirai:mirai-selenium-plugin --channel stable --type plugin`
+`./mcl --update-package xyz.cssxsh.mirai:mirai-selenium-plugin --channel mavne-stable --type plugin`
 
 ## TODO
 
