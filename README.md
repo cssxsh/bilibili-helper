@@ -263,7 +263,7 @@ EditThisCookie 安装地址
 
 ### MCL 指令安装
 
-`./mcl --update-package xyz.cssxsh:bilibili-helper --channel mavne-stable --type plugin`
+`./mcl --update-package xyz.cssxsh:bilibili-helper --channel maven-stable --type plugin`
 
 ### 手动安装
 
@@ -272,7 +272,7 @@ EditThisCookie 安装地址
 
 ### 截图前置
 
-`./mcl --update-package xyz.cssxsh.mirai:mirai-selenium-plugin --channel mavne-stable --type plugin`
+`./mcl --update-package xyz.cssxsh.mirai:mirai-selenium-plugin --channel maven-stable --type plugin`
 
 ## TODO
 
