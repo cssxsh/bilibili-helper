@@ -278,3 +278,7 @@ EditThisCookie 安装地址
 
 - [x] 完善剧集订阅
 - [x] 自动清理图片缓存
+
+## [爱发电](https://afdian.net/@cssxsh)
+
+![afdian](.github/afdian.jpg)
