@@ -439,7 +439,7 @@ object BiliLiveWaiter : Waiter<BiliLiveInfo>(name = "LiveWaiter") {
 
     override suspend fun load(id: Long): BiliLiveInfo {
         val roomId = record.getOrPut(id) {
-            requireNotNull(client.getUserInfo(uid = id).liveRoom) { "用户 $id 没有开通直播间" }.roomId
+            client.getUserInfo(uid = id).liveRoom?.roomId ?: id
         }
         return client.getLiveInfo(roomId = roomId)
     }
@@ -462,11 +462,12 @@ object BiliLiveWaiter : Waiter<BiliLiveInfo>(name = "LiveWaiter") {
     override suspend fun initTask(id: Long): BiliTask {
         val live = try {
             client.getUserInfo(uid = id).liveRoom
-                ?: throw NoSuchElementException("Live Room by https://space.bilibili.com/${id}")
+                ?: throw NoSuchElementException("Try Live Room by https://space.bilibili.com/${id}")
         } catch (cause: NoSuchElementException) {
             logger.warning { cause.message }
             client.getLiveInfo(roomId = id)
         }
+        record[id] = id
         return BiliTask(name = live.uname)
     }
 }
