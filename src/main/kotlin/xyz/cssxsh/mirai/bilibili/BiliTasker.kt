@@ -243,7 +243,7 @@ sealed class Loader<T : Entry>(name: String) : AbstractTasker<T>(name) {
 
     protected abstract fun T.time(): OffsetDateTime
 
-    protected abstract fun T.check(): Boolean
+    abstract fun T.check(): Boolean
 
     protected abstract suspend fun List<T>.near(): Boolean
 

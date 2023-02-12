@@ -4,6 +4,7 @@ import com.cronutils.model.*
 import net.mamoe.mirai.console.command.*
 import net.mamoe.mirai.console.permission.*
 import net.mamoe.mirai.contact.*
+import xyz.cssxsh.bilibili.api.*
 import xyz.cssxsh.bilibili.data.*
 import xyz.cssxsh.mirai.bilibili.*
 import xyz.cssxsh.mirai.bilibili.data.*
@@ -105,6 +106,19 @@ object BiliDynamicCommand : CompositeCommand(
         } else {
             at[target] = BiliInterval(start, end)
             sendMessage("艾特时间添加成功")
+        }
+    }
+
+    @SubCommand("test", "测试")
+    suspend fun CommandSender.test(dynamicId: Long) {
+        val dynamic = client.getDynamicInfo(dynamicId = dynamicId).dynamic
+        val match = with(BiliDynamicLoader) {
+            dynamic.check()
+        }
+        if (match) {
+            sendMessage("没有命中")
+        } else {
+            sendMessage("命中过滤")
         }
     }
 }

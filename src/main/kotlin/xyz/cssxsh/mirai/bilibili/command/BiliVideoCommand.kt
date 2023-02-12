@@ -4,6 +4,7 @@ import com.cronutils.model.*
 import net.mamoe.mirai.console.command.*
 import net.mamoe.mirai.console.permission.*
 import net.mamoe.mirai.contact.*
+import xyz.cssxsh.bilibili.api.*
 import xyz.cssxsh.mirai.bilibili.*
 import xyz.cssxsh.mirai.bilibili.data.*
 import java.time.*
@@ -83,6 +84,19 @@ object BiliVideoCommand : CompositeCommand(
         } else {
             at[target] = BiliInterval(start, end)
             sendMessage("艾特时间添加成功")
+        }
+    }
+
+    @SubCommand("test", "测试")
+    suspend fun CommandSender.test(bvid: String) {
+        val video = client.getVideoInfo(bvid = bvid)
+        val match = with(BiliVideoLoader) {
+            video.check()
+        }
+        if (match) {
+            sendMessage("没有命中")
+        } else {
+            sendMessage("命中过滤")
         }
     }
 }
