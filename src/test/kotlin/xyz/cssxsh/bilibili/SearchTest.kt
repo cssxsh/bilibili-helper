@@ -1,6 +1,7 @@
 package xyz.cssxsh.bilibili
 
 import kotlinx.coroutines.*
+import org.junit.jupiter.api.condition.*
 import xyz.cssxsh.bilibili.api.*
 import kotlin.test.*
 
@@ -16,6 +17,7 @@ internal class SearchTest : ApiTest() {
     }
 
     @Test
+    @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
     fun `search bangumi`(): Unit = runBlocking {
         val season = client.searchBangumi(keyword = "SSSS")
             .result.find { season -> season.seasonId == 38233L }
