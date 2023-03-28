@@ -32,6 +32,9 @@ jobs:
       - name: Test Video
         run: ./gradlew test --tests "xyz.cssxsh.bilibili.VideoTest" --scan --info
 
+      - name: Test Season
+        run: ./gradlew test --tests "xyz.cssxsh.bilibili.SeasonTest" --scan --info
+
       - name: Test Search
         run: ./gradlew test --tests "xyz.cssxsh.bilibili.SearchTest" --scan --info
 

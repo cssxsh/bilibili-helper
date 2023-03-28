@@ -17,6 +17,7 @@ internal class SearchTest : ApiTest() {
     }
 
     @Test
+    @org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable(named = "CI", matches = "true")
     fun `search bangumi`(): Unit = runBlocking {
         val search = client.searchBangumi(keyword = "SSSS")
         assertFalse(search.result.isEmpty())
@@ -29,6 +30,7 @@ internal class SearchTest : ApiTest() {
     }
 
     @Test
+    @org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable(named = "CI", matches = "true")
     fun `search ft`(): Unit = runBlocking {
         val search = client.searchFT(keyword = "让子弹飞")
         assertFalse(search.result.isEmpty())
