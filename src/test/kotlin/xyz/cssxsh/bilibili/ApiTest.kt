@@ -1,134 +1,31 @@
 package xyz.cssxsh.bilibili
 
 import io.ktor.client.request.*
-import kotlinx.coroutines.runBlocking
-import kotlinx.serialization.json.JsonPrimitive
-import org.junit.jupiter.api.Test
-import org.slf4j.LoggerFactory
+import io.ktor.client.statement.*
+import kotlinx.coroutines.*
 import xyz.cssxsh.bilibili.api.*
-import xyz.cssxsh.bilibili.data.*
-import java.io.File
 
-internal class ApiTest {
-
-    private val client = BiliClient()
-
-    private inline fun <T> withLog(receiver: T, block: StringBuilder.(info: T) -> Unit) {
-        logger.info("\n" + buildString { block(receiver) })
+internal abstract class ApiTest {
+    init {
+        System.setProperty(EXCEPTION_JSON_CACHE, "./test")
+        System.getProperty(JSON_IGNORE, "false")
     }
 
-    private val logger by lazy { LoggerFactory.getLogger(this::class.java) }
+    protected val client = BiliClient()
 
-    @Test
-    fun article(): Unit = runBlocking {
-        withLog(client.getArticleInfo(cid = 10018100).last) {
-            appendLine(it.title)
-            appendLine(it.images)
+    @org.junit.jupiter.api.BeforeEach
+    fun cookie(): Unit = runBlocking {
+        // home
+        try {
+            client.useHttpClient { http, _ -> http.get(INDEX_PAGE).bodyAsText() }
+        } catch (_: Exception) {
+            //
         }
-    }
-
-    @Test
-    fun dynamic(): Unit = runBlocking {
-        withLog(client.getDynamicInfo(dynamicId = 450055453856015371L).dynamic) {
-            appendLine(it.h5)
-            appendLine(it.images())
-        }
-        withLog(client.getSpaceHistory(uid = 26798384L).dynamics) { list ->
-            list.forEach {
-                appendLine(it.datetime)
-                appendLine(it.images())
-                appendLine("=================")
-            }
-        }
-    }
-
-    @Test
-    fun live(): Unit = runBlocking {
-        client.getRoomInfo(roomId = 10112L)
-
-        client.getRoomInfoOld(uid = 26798384L)
-
-        client.getOffLiveList(roomId = 10112L, count = 10)
-
-        client.getRoundPlayVideo(roomId = 10112L)
-    }
-
-    @Test
-    fun season(): Unit = runBlocking {
-        withLog(client.getSeasonMedia(mediaId = 28233903).media) { info ->
-            appendLine(info)
-        }
-        withLog(client.getSeasonInfo(seasonId = 38234)) { info ->
-            appendLine(info.title)
-        }
-        withLog(client.getEpisodeInfo(episode_id = 395240)) { info ->
-            appendLine(info.title)
-        }
-        withLog(client.getSeasonSection(seasonId = 38221)) { info ->
-            appendLine(info.mainSection.episodes.last())
-        }
-        withLog(client.getSeasonTimeline()) { list ->
-            list.forEach {
-                appendLine(it)
-            }
-        }
-    }
-
-    @Test
-    fun user(): Unit = runBlocking {
-        client.getUserInfo(uid = 26798384L)
-    }
-
-    @Test
-    fun video(): Unit = runBlocking {
-        withLog(client.getVideos(uid = 26798384L).list.videos) { list ->
-            list.forEach {
-                appendLine(it.link)
-                appendLine(it.cover)
-                appendLine("=================")
-            }
-        }
-
-        withLog(client.getVideoInfo(aid = 13502509L)) {
-            appendLine(it.link)
-            appendLine(it.cover)
-        }
-
-        withLog(client.getVideoInfo(bvid = "BV1ex411J7GE")) {
-            appendLine(it.link)
-            appendLine(it.cover)
-        }
-    }
-
-    @Test
-    fun search(): Unit = runBlocking {
-        withLog(client.searchUser(keyword = "瓶子君152").result) {
-            it.forEach { user ->
-                appendLine(user)
-            }
-        }
-        withLog(client.searchBangumi(keyword = "SSSS").result) {
-            it.forEach { season ->
-                appendLine(season.link)
-            }
-        }
-        withLog(client.searchFT(keyword = "让子弹飞").result) {
-            it.forEach { season ->
-                appendLine(season.link)
-            }
-        }
-    }
-
-    @Test
-    fun suit(): Unit = runBlocking {
-        val dir = File("F:\\BilibiliCache\\EMOJI\\")
-        client.getGarbSuit(itemId = 2452).emoji.flatMap { it.items.orEmpty() }.forEach { item ->
-            val image = (item.properties["image"] as JsonPrimitive).content
-            dir.resolve("${item.name}.${image.substringAfterLast('.')}").apply {
-                if (exists().not()) {
-                    writeBytes(client.useHttpClient { it.get(image) })
-                }
-            }
+        // space
+        try {
+            client.useHttpClient { http, _ -> http.get(SPACE).bodyAsText() }
+        } catch (_: Exception) {
+            //
         }
     }
 }

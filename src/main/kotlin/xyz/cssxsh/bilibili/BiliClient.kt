@@ -20,7 +20,7 @@ open class BiliClient(private val timeout: Long = 15_000L) : Closeable {
     companion object {
         val Json = Json {
             prettyPrint = true
-            ignoreUnknownKeys = true
+            ignoreUnknownKeys = System.getProperty(JSON_IGNORE, "true").toBoolean()
             isLenient = true
             allowStructuredMapKeys = true
         }

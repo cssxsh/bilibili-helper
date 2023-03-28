@@ -4,6 +4,7 @@ import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
+import kotlinx.coroutines.*
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 import xyz.cssxsh.bilibili.*
@@ -89,11 +90,14 @@ internal suspend inline fun <reified T> BiliClient.json(
         try {
             BiliClient.Json.decodeFromJsonElement(element)
         } catch (cause: SerializationException) {
-            System.getProperty(EXCEPTION_JSON_CACHE)?.let { path ->
-                val folder = File(path)
-                folder.mkdirs()
-                folder.resolve("exception.${System.currentTimeMillis()}.json")
-                    .writeText(BiliClient.Json.encodeToString(JsonElement.serializer(), element))
+            val path = System.getProperty(EXCEPTION_JSON_CACHE)
+            supervisorScope {
+                if (path != null) launch {
+                    val folder = File(path)
+                    folder.mkdirs()
+                    folder.resolve("exception.${System.currentTimeMillis()}.json")
+                        .writeText(BiliClient.Json.encodeToString(element))
+                }
             }
             throw cause
         }
