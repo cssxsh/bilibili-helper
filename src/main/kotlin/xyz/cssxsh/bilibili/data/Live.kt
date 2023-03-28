@@ -3,6 +3,7 @@ package xyz.cssxsh.bilibili.data
 import kotlinx.serialization.*
 import xyz.cssxsh.bilibili.*
 import java.time.*
+import java.time.format.*
 
 sealed interface Live : Entry, Owner, WithDateTime {
     val roomId: Long
@@ -264,4 +265,61 @@ data class BiliLiveInfo(
 ) : Live by roomInfo {
     override val face get() = anchorInfo.baseInfo.face
     override val uname get() = anchorInfo.baseInfo.uname
+}
+
+@Serializable
+data class SearchLiveRoom(
+    @SerialName("area")
+    val area: Int,
+    @SerialName("attentions")
+    val attentions: Int,
+    @SerialName("cate_name")
+    val cateName: String,
+    @SerialName("cover")
+    override val cover: String,
+    @SerialName("hit_columns")
+    val hitColumns: List<String>,
+    @SerialName("is_live_room_inline")
+    @Serializable(NumberToBooleanSerializer::class)
+    val isLiveRoomInline: Boolean,
+    @SerialName("live_status")
+    @Serializable(NumberToBooleanSerializer::class)
+    override val liveStatus: Boolean,
+    @SerialName("live_time")
+    val liveTime: String,
+    @SerialName("online")
+    override val online: Long = 0,
+    @SerialName("rank_index")
+    val rankIndex: Int,
+    @SerialName("rank_offset")
+    val rankOffset: Int,
+    @SerialName("rank_score")
+    val rankScore: Int,
+    @SerialName("roomid")
+    override val roomId: Long,
+    @SerialName("short_id")
+    val shortId: Int,
+    @SerialName("tags")
+    val tags: String,
+    @SerialName("title")
+    override val title: String,
+    @SerialName("type")
+    val type: String = "",
+    @SerialName("uface")
+    override val face: String,
+    @SerialName("uid")
+    override val uid: Long,
+    @SerialName("uname")
+    override val uname: String,
+    @SerialName("user_cover")
+    val userCover: String
+) : Live {
+    override val link: String get() = if (shortId == 0) "https://space.bilibili.com/${uid}" else "https://live.bilibili.com/${shortId}"
+    override val start: OffsetDateTime? by lazy {
+        try {
+            OffsetDateTime.parse(liveTime)
+        } catch (_: DateTimeParseException) {
+            null
+        }
+    }
 }
