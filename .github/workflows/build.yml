@@ -29,7 +29,10 @@ jobs:
       - name: Assemble
         run: ./gradlew assemble --scan
 
-      - name: SearchTest
+      - name: Test Video
+        run: ./gradlew test --tests "xyz.cssxsh.bilibili.VideoTest" --scan --info
+
+      - name: Test Search
         run: ./gradlew test --tests "xyz.cssxsh.bilibili.SearchTest" --scan --info
 
       - name: BuildPlugin
