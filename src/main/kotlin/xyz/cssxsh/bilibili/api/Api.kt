@@ -77,6 +77,8 @@ data class BiliApiException(
 
 const val EXCEPTION_JSON_CACHE = "xyz.cssxsh.bilibili.api.exception"
 
+const val JSON_IGNORE = "xyz.cssxsh.bilibili.api.ignore"
+
 internal suspend inline fun <reified T> BiliClient.json(
     urlString: String,
     crossinline block: HttpRequestBuilder.() -> Unit

@@ -53,7 +53,9 @@ open class BiliClient(private val timeout: Long = 15_000L) : Closeable {
         install(HttpCookies) {
             storage = this@BiliClient.storage
         }
-        BrowserUserAgent()
+        install(UserAgent) {
+            agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36"
+        }
         ContentEncoding()
         engine {
             config {
