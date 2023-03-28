@@ -8,7 +8,6 @@ import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.cookies.*
 import io.ktor.client.request.*
 import io.ktor.http.*
-import io.ktor.http.Cookie
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.utils.io.core.*
 import io.ktor.utils.io.errors.*
