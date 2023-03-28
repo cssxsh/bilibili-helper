@@ -32,6 +32,9 @@ jobs:
       - name: SearchTest
         run: ./gradlew test --tests "xyz.cssxsh.bilibili.SearchTest" --scan --info
 
+      - name: BuildPlugin
+        run: ./gradlew buildPlugin
+
       - name: Upload
         uses: actions/upload-artifact@v3
         with:
