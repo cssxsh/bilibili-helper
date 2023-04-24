@@ -58,30 +58,30 @@ object BiliDynamicCommand : CompositeCommand(
 
     @SubCommand("filter", "过滤")
     suspend fun CommandSender.filter(type: String, add: Boolean = true) {
-        val tid = when (type) {
-            "回复" -> DynamicType.REPLY
-            "图片" -> DynamicType.PICTURE
-            "文本" -> DynamicType.TEXT
-            "视频" -> DynamicType.VIDEO
-            "专栏" -> DynamicType.ARTICLE
-            "音乐" -> DynamicType.MUSIC
-            "剧集" -> DynamicType.EPISODE
-            "删除" -> DynamicType.DELETE
-            "番剧" -> DynamicType.BANGUMI
-            "电视" -> DynamicType.TV
-            "直播" -> DynamicType.LIVE
+        val keys = when (type) {
+            "回复" -> DynamicType.DYNAMIC_TYPE_FORWARD.keys
+            "图片" -> DynamicType.DYNAMIC_TYPE_DRAW.keys
+            "文本" -> DynamicType.DYNAMIC_TYPE_WORD.keys
+            "视频" -> DynamicType.DYNAMIC_TYPE_AV.keys + DynamicType.DYNAMIC_TYPE_MEDIALIST.keys
+            "专栏" -> DynamicType.DYNAMIC_TYPE_ARTICLE.keys
+            "音乐" -> DynamicType.DYNAMIC_TYPE_MUSIC.keys
+            "剧集" -> DynamicType.DYNAMIC_TYPE_PGC.keys
+            "删除" -> DynamicType.DYNAMIC_TYPE_NONE.keys
+            "番剧" -> setOf(0x0000_0200)
+            "电视" -> setOf(0x0000_1003)
+            "直播" -> DynamicType.DYNAMIC_TYPE_LIVE.keys + DynamicType.DYNAMIC_TYPE_LIVE_RCMD.keys
             else -> {
-                sendMessage(message = "莫得这个选项")
+                sendMessage(message = "莫得这个选项 <$type>")
                 return
             }
         }
 
         if (add) {
-            BiliTaskerConfig.dynamicForbidType.add(tid)
-            sendMessage(message = "动态类型<$tid>屏蔽添加成功")
+            BiliTaskerConfig.dynamicForbidType.addAll(keys)
+            sendMessage(message = "动态类型 $keys 屏蔽添加成功")
         } else {
-            BiliTaskerConfig.dynamicForbidType.remove(tid)
-            sendMessage(message = "动态类型<$tid>屏蔽取消成功")
+            BiliTaskerConfig.dynamicForbidType.removeIf { it in keys }
+            sendMessage(message = "动态类型 $keys 屏蔽取消成功")
         }
     }
 

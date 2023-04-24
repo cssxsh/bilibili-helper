@@ -70,19 +70,20 @@ internal suspend fun Entry.screenshot(contact: Contact): Message {
 }
 
 internal suspend fun DynamicCard.detail(contact: Contact): Message {
-    return when (detail.type) {
-        DynamicType.NONE -> "不支持的类型${detail.type}".toPlainText()
-        DynamicType.REPLY -> (decode<DynamicReply>() as Entry).content(contact)
-        DynamicType.PICTURE -> decode<DynamicPicture>().content(contact)
-        DynamicType.TEXT -> decode<DynamicText>().content(contact)
-        DynamicType.VIDEO -> decode<DynamicVideo>().content(contact)
-        DynamicType.ARTICLE -> decode<DynamicArticle>().content(contact)
-        DynamicType.MUSIC -> decode<DynamicMusic>().content(contact)
-        DynamicType.EPISODE, DynamicType.BANGUMI, DynamicType.TV -> decode<DynamicEpisode>().content(contact)
-        DynamicType.DELETE -> "源动态已被作者删除".toPlainText()
-        DynamicType.SKETCH -> decode<DynamicSketch>().content(contact)
-        DynamicType.LIVE -> decode<DynamicLive>().content(contact)
-        DynamicType.LIVE_END -> "直播结束了".toPlainText()
+    return when(detail.type) {
+        in DynamicType.DYNAMIC_TYPE_NONE -> "源动态已被作者删除".toPlainText()
+        in DynamicType.DYNAMIC_TYPE_FORWARD -> (decode<DynamicReply>() as Entry).content(contact)
+        in DynamicType.DYNAMIC_TYPE_DRAW -> decode<DynamicPicture>().content(contact)
+        in DynamicType.DYNAMIC_TYPE_WORD -> decode<DynamicText>().content(contact)
+        in DynamicType.DYNAMIC_TYPE_AV -> decode<DynamicVideo>().content(contact)
+        in DynamicType.DYNAMIC_TYPE_ARTICLE -> decode<DynamicArticle>().content(contact)
+        in DynamicType.DYNAMIC_TYPE_MUSIC -> decode<DynamicMusic>().content(contact)
+        in DynamicType.DYNAMIC_TYPE_PGC -> decode<DynamicEpisode>().content(contact)
+        in DynamicType.DYNAMIC_TYPE_COMMON_SQUARE -> decode<DynamicSketch>().content(contact)
+        in DynamicType.DYNAMIC_TYPE_LIVE -> decode<DynamicLive>().content(contact)
+        in DynamicType.DYNAMIC_TYPE_MEDIALIST -> decode<DynamicMediaList>().content(contact)
+        in DynamicType.DYNAMIC_TYPE_LIVE_RCMD -> decode<DynamicLiveRoom>().content(contact)
+        in DynamicType.DYNAMIC_TYPE_UGC_SEASON -> decode<DynamicVideo>().content(contact)
         else -> "<${detail.id}>[${detail.type}] 不支持的类型 请联系开发者".toPlainText()
     }
 }

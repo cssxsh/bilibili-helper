@@ -7,11 +7,12 @@ import java.time.*
 internal inline fun <reified T : Entry> DynamicCard.decode(): T {
     if (decode == null) {
         decode = when (val entry = BiliClient.Json.decodeFromString<T>(card)) {
-            is DynamicReply -> entry.copy(detail = detail.origin ?: entry.describe(), display = display, emoji = display?.emoji)
+            is DynamicReply -> entry.copy(detail = detail.origin ?: entry.describe(), display = display)
             is DynamicText -> entry.copy(emoji = display?.emoji)
             is DynamicPicture -> entry.copy(emoji = display?.emoji)
             is DynamicSketch -> entry.copy(emoji = display?.emoji)
             is DynamicVideo -> entry.copy(id = detail.bvid ?: "av${entry.aid}")
+            is DynamicLiveRoom -> entry.copy(uname = profile.user.uname)
             else -> entry
         }
     }
@@ -29,17 +30,17 @@ sealed interface DynamicCard : Entry, WithDateTime {
     var decode: Entry?
 
     fun images(): List<String> = when (detail.type) {
-        DynamicType.PICTURE -> decode<DynamicPicture>().detail.pictures.map { it.source }
+        in DynamicType.DYNAMIC_TYPE_DRAW -> decode<DynamicPicture>().detail.pictures.map { it.source }
         else -> emptyList()
     }
 
     fun username(): String = when (detail.type) {
-        DynamicType.EPISODE, DynamicType.BANGUMI, DynamicType.TV -> decode<DynamicEpisode>().season.title
+        in DynamicType.DYNAMIC_TYPE_PGC -> decode<DynamicEpisode>().season.title
         else -> profile.user.uname
     }
 
     fun uid() = when (detail.type) {
-        DynamicType.EPISODE, DynamicType.BANGUMI, DynamicType.TV -> decode<DynamicEpisode>().season.seasonId
+        in DynamicType.DYNAMIC_TYPE_PGC -> decode<DynamicEpisode>().season.seasonId
         else -> profile.user.uid
     }
 }
@@ -66,21 +67,76 @@ data class BiliDynamicInfo(
     val dynamic: DynamicInfo,
 )
 
-object DynamicType {
-    const val NONE = 0
-    const val REPLY = 1
-    const val PICTURE = 2
-    const val TEXT = 4
-    const val VIDEO = 8
-    const val ARTICLE = 64
-    const val MUSIC = 256
-    const val EPISODE = 512
-    const val DELETE = 1024
-    const val SKETCH = 2048
-    const val BANGUMI = 4101
-    const val TV = 4099
-    const val LIVE = 4200
-    const val LIVE_END = 4308
+enum class DynamicType(vararg pairs: Pair<Int, String>) : Map<Int, String> by mapOf(pairs = pairs) {
+    DYNAMIC_TYPE_NONE(
+        0x0000_0000 to "动态被删除",
+        0x0000_0400 to "动态被删除"
+    ),
+    DYNAMIC_TYPE_FORWARD(
+        0x0000_0001 to "转发动态"
+    ),
+    DYNAMIC_TYPE_DRAW(
+        0x0000_0002 to "动态"
+    ),
+    DYNAMIC_TYPE_WORD(
+        0x0000_0004 to "动态"
+    ),
+    DYNAMIC_TYPE_AV(
+        0x0000_0008 to "投稿视频"
+    ),
+    DYNAMIC_TYPE_ARTICLE(
+        0x0000_0040 to "专栏"
+    ),
+    DYNAMIC_TYPE_MUSIC(
+        0x0000_0100 to "音频"
+    ),
+    DYNAMIC_TYPE_PGC(
+        0x0000_0200 to "番剧",
+        0x0000_1001 to "番剧",
+        0x0000_1002 to "电影",
+        0x0000_1003 to "电视剧",
+        0x0000_1004 to "国创",
+        0x0000_1005 to "纪录片"
+    ),
+    DYNAMIC_TYPE_COMMON_SQUARE(
+        0x0000_0800 to "活动"
+    ),
+    DYNAMIC_TYPE_COMMON_VERTICAL(
+        0x0000_0801 to "2049"
+    ),
+    DYNAMIC_TYPE_LIVE(
+        0x0000_1068 to "直播"
+    ),
+    DYNAMIC_TYPE_COURSES_SEASON(
+        0x0000_10D1 to "4305"
+    ),
+    DYNAMIC_TYPE_MEDIALIST(
+        0x0000_10CC to "收藏"
+    ),
+    DYNAMIC_TYPE_APPLET(
+        0x0000_10CE to "4305"
+    ),
+    DYNAMIC_TYPE_LIVE_RCMD(
+        0x0000_10D4 to "房间"
+    ),
+    DYNAMIC_TYPE_UGC_SEASON(
+        0x0000_10D6 to "合集"
+    ),
+    DYNAMIC_TYPE_SUBSCRIPTION_NEW(
+        0x0000_10D7 to "4311"
+    )
+    ;
+
+    companion object {
+        @JvmStatic
+        @JvmName("valueById")
+        operator fun invoke(id: Int): DynamicType {
+            for (value in values()) {
+                if (id in value) return value
+            }
+            throw IllegalArgumentException("$id for DynamicType")
+        }
+    }
 }
 
 @Serializable
@@ -307,6 +363,62 @@ data class DynamicLive(
 }
 
 @Serializable
+data class DynamicLiveRoom(
+    @SerialName("live_play_info")
+    val play: LiveRoomInfo,
+    @SerialName("live_record_info")
+    val record: LiveRecord?,
+    @SerialName("style")
+    val style: Int,
+    @SerialName("type")
+    val type: Int,
+    @SerialName("uname")
+    override val uname: String = ""
+) : Live by play
+
+@Serializable
+data class LiveRoomInfo(
+    @SerialName("area_id")
+    val areaId: Int,
+    @SerialName("area_name")
+    val areaName: String,
+    @SerialName("cover")
+    override val cover: String,
+    @SerialName("link")
+    override val link: String,
+    @SerialName("live_id")
+    val liveId: Long,
+    @SerialName("live_screen_type")
+    val liveScreenType: Int,
+    @SerialName("live_start_time")
+    val liveStartTime: Long,
+    @SerialName("live_status")
+    @Serializable(NumberToBooleanSerializer::class)
+    override val liveStatus: Boolean,
+    @SerialName("online")
+    override val online: Long,
+    @SerialName("parent_area_id")
+    val parentAreaId: Int,
+    @SerialName("parent_area_name")
+    val parentAreaName: String,
+    @SerialName("play_type")
+    val playType: Int,
+    @SerialName("room_id")
+    override val roomId: Long,
+    @SerialName("room_type")
+    val roomType: Int,
+    @SerialName("title")
+    override val title: String,
+    @SerialName("uid")
+    override val uid: Long,
+    @SerialName("watched_show")
+    val watchedShow: String
+) : Live {
+    override val start: OffsetDateTime get() = timestamp(liveStartTime)
+    override val uname: String get() = title
+}
+
+@Serializable
 data class DynamicMusic(
     @SerialName("author")
     val author: String,
@@ -334,8 +446,12 @@ data class DynamicMusic(
     val upper: String,
     @SerialName("upperAvatar")
     val avatar: String
-) : Entry {
+) : Entry, Owner, WithDateTime {
     val link get() = "https://www.bilibili.com/audio/au$id"
+    override val uid: Long get() = upId
+    override val uname: String get() = author
+    override val face: String get() = author
+    override val datetime: OffsetDateTime get() = timestamp(created / 1_000)
 }
 
 @Serializable
@@ -394,8 +510,6 @@ data class DynamicReply(
     @SerialName("user")
     val user: UserSimple,
     @Transient
-    override val emoji: EmojiInfo? = null,
-    @Transient
     override val detail: DynamicDescribe = DynamicDescribe.Empty,
     @Transient
     override val display: DynamicDisplay? = null
@@ -403,6 +517,7 @@ data class DynamicReply(
     @Transient
     override var decode: Entry? = null
 
+    override val emoji: EmojiInfo? get() = display?.emoji
     override val content get() = item.content
     override val profile: UserProfile get() = originUser
     override val datetime: OffsetDateTime get() = timestamp(detail.timestamp)
@@ -554,4 +669,33 @@ data class DynamicVideo(
     override val isUnionVideo: Boolean get() = rights.isCooperation
     override val isSteinsGate: Boolean get() = rights.isSteinGate
     override val isLivePlayback: Boolean get() = false
+}
+
+@Serializable
+data class DynamicMediaList(
+    @SerialName("cover")
+    val cover: String,
+    @SerialName("cover_type")
+    val coverType: Int,
+    @SerialName("fid")
+    val fid: Long,
+    @SerialName("id")
+    val id: Long,
+    @SerialName("intro")
+    val intro: String = "",
+    @SerialName("media_count")
+    val count: Int,
+    @SerialName("mid")
+    val mid: Long,
+    @SerialName("sharable")
+    val sharable: Boolean,
+    @SerialName("title")
+    val title: String,
+    @SerialName("type")
+    val type: Int,
+    @SerialName("upper")
+    val upper: VideoOwner
+) : Entry, Owner by upper {
+
+    val link get() = "https://www.bilibili.com/medialist/detail/ml${id}"
 }

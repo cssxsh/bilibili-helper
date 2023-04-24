@@ -402,20 +402,23 @@ object BiliDynamicLoader : Loader<DynamicInfo>(name = "DynamicTasker") {
 
     private fun DynamicCard.match(): Boolean {
         // XXX: 检查动态类型，文本 https://github.com/cssxsh/bilibili-helper/issues/82
+        logger.debug { "Dynamic Match Type: $types" }
+        if (detail.type in types) return true
+        logger.debug { "Dynamic Match Regex: $regexes" }
         return when (detail.type) {
-            DynamicType.REPLY -> {
+            in DynamicType.DYNAMIC_TYPE_FORWARD -> {
                 val decode = decode<DynamicReply>()
                 regexes.any { regex -> regex in decode.content } || decode.match()
             }
-            DynamicType.PICTURE -> {
+            in DynamicType.DYNAMIC_TYPE_DRAW -> {
                 val decode = decode<DynamicPicture>()
                 regexes.any { regex -> regex in decode.content }
             }
-            DynamicType.TEXT -> {
+            in DynamicType.DYNAMIC_TYPE_WORD -> {
                 val decode = decode<DynamicText>()
                 regexes.any { regex -> regex in decode.content }
             }
-            else -> detail.type in types
+            else -> false
         }
     }
 
