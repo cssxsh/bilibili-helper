@@ -186,6 +186,12 @@
   * `/B模板 datetime ISO_LOCAL_DATE_TIME`  
   * `/B模板 datetime yyyy-MM-dd`
 
+### 登录指令
+
+| 指令                                     | 描述    |
+|:---------------------------------------|:------|
+| `/<bili-login B登录>`                    | 二维码登录 |
+
 ## 设置
 
 位于`Mirai-Console`运行目录下的`config/xyz.cssxsh.mirai.plugin.bilibili-helper`文件夹下
@@ -258,6 +264,8 @@ EditThisCookie 安装地址
 [Chrome](https://chrome.google.com/webstore/detail/editthiscookie/fngmhnnpilhplaeedifhccceomclgfbg)
 [Firefox](https://addons.mozilla.org/firefox/downloads/file/3449327/editthiscookie2-1.5.0-fx.xpi)
 [Edge](https://microsoftedge.microsoft.com/addons/getproductdetailsbycrxid/ajfboaconbpkglpfanbmlfgojgndmhmc?hl=zh-CN&gl=CN)
+
+现在你可以直接使用登录指令刷新 `cokies`
 
 ## 安装
 
