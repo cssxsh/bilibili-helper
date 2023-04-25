@@ -1,7 +1,7 @@
 package xyz.cssxsh.mirai.bilibili
 
 import kotlinx.coroutines.*
-import net.mamoe.mirai.console.MiraiConsole
+import net.mamoe.mirai.console.*
 import net.mamoe.mirai.console.command.*
 import net.mamoe.mirai.console.command.CommandManager.INSTANCE.register
 import net.mamoe.mirai.console.command.CommandManager.INSTANCE.unregister
@@ -16,7 +16,7 @@ import xyz.cssxsh.bilibili.api.*
 import xyz.cssxsh.mirai.bilibili.data.*
 
 object BiliHelperPlugin : KotlinPlugin(
-    JvmPluginDescription(id = "xyz.cssxsh.mirai.plugin.bilibili-helper", version = "1.6.7") {
+    JvmPluginDescription(id = "xyz.cssxsh.mirai.plugin.bilibili-helper", version = "1.7.0") {
         name("bilibili-helper")
         author("cssxsh")
 
@@ -32,15 +32,6 @@ object BiliHelperPlugin : KotlinPlugin(
             BiliCleaner.start()
 
             BiliTemplate.selenium() && SetupSelenium
-        }
-    }
-
-    @Suppress("INVISIBLE_MEMBER")
-    private inline fun <reified T : Any> services(): Lazy<List<T>> = lazy {
-        with(net.mamoe.mirai.console.internal.util.PluginServiceHelper) {
-            jvmPluginClasspath.pluginClassLoader
-                .findServices<T>()
-                .loadAllServices()
         }
     }
 

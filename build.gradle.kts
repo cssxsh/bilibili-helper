@@ -1,13 +1,13 @@
 plugins {
-    kotlin("jvm") version "1.7.20"
-    kotlin("plugin.serialization") version "1.7.20"
+    kotlin("jvm") version "1.7.22"
+    kotlin("plugin.serialization") version "1.7.22"
 
-    id("net.mamoe.mirai-console") version "2.13.0"
+    id("net.mamoe.mirai-console") version "2.14.0"
     id("me.him188.maven-central-publish") version "1.0.0-dev-3"
 }
 
 group = "xyz.cssxsh"
-version = "1.6.7"
+version = "1.7.0"
 
 repositories {
     mavenLocal()
@@ -26,44 +26,25 @@ mavenCentralPublish {
 }
 
 dependencies {
-    implementation("io.ktor:ktor-client-okhttp:2.1.3") {
-        exclude(group = "org.jetbrains.kotlin")
-        exclude(group = "org.jetbrains.kotlinx")
-        exclude(group = "org.slf4j")
-    }
-    implementation("io.ktor:ktor-client-encoding:2.1.3") {
-        exclude(group = "org.jetbrains.kotlin")
-        exclude(group = "org.jetbrains.kotlinx")
-        exclude(group = "org.slf4j")
-    }
-    implementation("io.ktor:ktor-client-content-negotiation:2.1.3") {
-        exclude(group = "org.jetbrains.kotlin")
-        exclude(group = "org.jetbrains.kotlinx")
-        exclude(group = "org.slf4j")
-    }
-    implementation("io.ktor:ktor-serialization-kotlinx-json:2.1.3") {
-        exclude(group = "org.jetbrains.kotlin")
-        exclude(group = "org.jetbrains.kotlinx")
-        exclude(group = "org.slf4j")
-    }
-    implementation("com.squareup.okhttp3:okhttp:4.10.0") {
-        exclude(group = "org.jetbrains.kotlin")
-        exclude(group = "org.jetbrains.kotlinx")
-        exclude(group = "org.slf4j")
-    }
-    implementation("com.cronutils:cron-utils:9.2.0") {
-        exclude("org.slf4j")
-        exclude("org.glassfish")
-        exclude("org.javassist")
-    }
-    compileOnly("xyz.cssxsh.mirai:mirai-selenium-plugin:2.2.4")
-    compileOnly("net.mamoe:mirai-core:2.13.0")
-    compileOnly("javax.validation:validation-api:2.0.1.Final")
-
+    implementation("com.cronutils:cron-utils:9.2.0")
+    implementation("com.google.zxing:javase:3.5.1")
+    compileOnly("xyz.cssxsh.mirai:mirai-selenium-plugin:2.3.0")
     testImplementation(kotlin("test"))
-    testImplementation("org.slf4j:slf4j-simple:2.0.3")
-    testImplementation("net.mamoe:mirai-logging-slf4j:2.13.0")
-    testImplementation("xyz.cssxsh.mirai:mirai-selenium-plugin:2.2.4")
+    testImplementation("xyz.cssxsh.mirai:mirai-selenium-plugin:2.3.0")
+    //
+    implementation(platform("net.mamoe:mirai-bom:2.14.0"))
+    compileOnly("net.mamoe:mirai-core")
+    compileOnly("net.mamoe:mirai-console-compiler-common")
+    testImplementation("net.mamoe:mirai-logging-slf4j")
+    //
+    implementation(platform("io.ktor:ktor-bom:2.1.3"))
+    implementation("io.ktor:ktor-client-okhttp")
+    implementation("io.ktor:ktor-client-encoding")
+    implementation("io.ktor:ktor-client-content-negotiation")
+    implementation("io.ktor:ktor-serialization-kotlinx-json")
+    //
+    implementation(platform("org.slf4j:slf4j-parent:2.0.6"))
+    testImplementation("org.slf4j:slf4j-simple")
 }
 
 mirai {
