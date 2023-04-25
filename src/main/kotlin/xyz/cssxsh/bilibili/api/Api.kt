@@ -15,6 +15,10 @@ import java.io.*
 const val INDEX_PAGE = "https://www.bilibili.com"
 const val SPACE = "https://space.bilibili.com"
 
+// Login
+const val QRCODE_GENERATE = "https://passport.bilibili.com/x/passport-login/web/qrcode/generate"
+const val QRCODE_POLL = "https://passport.bilibili.com/x/passport-login/web/qrcode/poll"
+
 // User
 const val SPACE_INFO = "https://api.bilibili.com/x/space/acc/info"
 

@@ -6,3 +6,4 @@ xyz.cssxsh.mirai.bilibili.command.BiliSeasonCommand
 xyz.cssxsh.mirai.bilibili.command.BiliTaskCommand
 xyz.cssxsh.mirai.bilibili.command.BiliTemplateCommand
 xyz.cssxsh.mirai.bilibili.command.BiliVideoCommand
+xyz.cssxsh.mirai.bilibili.command.BiliLoginCommand
