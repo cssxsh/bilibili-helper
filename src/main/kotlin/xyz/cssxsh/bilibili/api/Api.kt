@@ -20,7 +20,7 @@ const val QRCODE_GENERATE = "https://passport.bilibili.com/x/passport-login/web/
 const val QRCODE_POLL = "https://passport.bilibili.com/x/passport-login/web/qrcode/poll"
 
 // User
-const val SPACE_INFO = "https://api.bilibili.com/x/space/acc/info"
+const val SPACE_INFO = "https://api.bilibili.com/x/space/wbi/acc/info"
 
 // Video
 const val VIDEO_USER = "https://api.bilibili.com/x/space/wbi/arc/search"
