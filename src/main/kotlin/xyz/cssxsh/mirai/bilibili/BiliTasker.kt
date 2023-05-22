@@ -342,7 +342,7 @@ private fun List<LocalTime>.near(slow: Long, now: LocalTime = LocalTime.now()): 
     return any { abs(it.toSecondOfDay() - now.toSecondOfDay()) * 1000 < slow }
 }
 
-private const val Minute = 60 * 1000L
+private const val MINUTE = 60 * 1000L
 
 object BiliVideoLoader : Loader<Video>(name = "VideoTasker") {
     override val tasks get() = BiliTaskData.video
@@ -353,9 +353,9 @@ object BiliVideoLoader : Loader<Video>(name = "VideoTasker") {
 
     override val limit: Int get() = BiliHelperSettings.max
 
-    override val fast get() = Minute
+    override val fast get() = MINUTE
 
-    override val slow get() = BiliHelperSettings.video * Minute
+    override val slow get() = BiliHelperSettings.video * MINUTE
 
     override suspend fun load(id: Long) = client.getVideos(uid = id).list.videos
 
@@ -386,9 +386,9 @@ object BiliDynamicLoader : Loader<DynamicInfo>(name = "DynamicTasker") {
 
     override val limit: Int get() = BiliHelperSettings.max
 
-    override val fast get() = Minute
+    override val fast get() = MINUTE
 
-    override val slow = BiliHelperSettings.dynamic * Minute
+    override val slow = BiliHelperSettings.dynamic * MINUTE
 
     private val regexes get() = BiliTaskerConfig.dynamicForbidRegexes.asSequence().map { it.toRegex() }
 
@@ -434,9 +434,9 @@ object BiliLiveWaiter : Waiter<BiliLiveInfo>(name = "LiveWaiter") {
 
     override val at get() = BiliTaskerConfig.liveAt
 
-    override val fast get() = Minute
+    override val fast get() = MINUTE
 
-    override val slow get() = BiliHelperSettings.live * Minute
+    override val slow get() = BiliHelperSettings.live * MINUTE
 
     private val record: MutableMap<Long, Long> get() = BiliTaskData.map
 
@@ -482,9 +482,9 @@ object BiliSeasonWaiter : Waiter<BiliSeasonInfo>(name = "SeasonWaiter") {
 
     override val at get() = BiliTaskerConfig.seasonAt
 
-    override val fast get() = Minute
+    override val fast get() = MINUTE
 
-    override val slow = BiliHelperSettings.season * Minute
+    override val slow = BiliHelperSettings.season * MINUTE
 
     private val record: MutableMap<Long, Video> = HashMap()
 
