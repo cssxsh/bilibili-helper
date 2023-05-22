@@ -10,6 +10,7 @@ import kotlinx.serialization.json.*
 import xyz.cssxsh.bilibili.*
 import xyz.cssxsh.bilibili.data.*
 import java.io.*
+import java.security.*
 
 // Base
 const val INDEX_PAGE = "https://www.bilibili.com"
@@ -18,6 +19,10 @@ const val SPACE = "https://space.bilibili.com"
 // Login
 const val QRCODE_GENERATE = "https://passport.bilibili.com/x/passport-login/web/qrcode/generate"
 const val QRCODE_POLL = "https://passport.bilibili.com/x/passport-login/web/qrcode/poll"
+
+// Nav
+
+const val WBI = "https://api.bilibili.com/x/web-interface/nav"
 
 // User
 const val SPACE_INFO = "https://api.bilibili.com/x/space/wbi/acc/info"
@@ -89,7 +94,12 @@ internal suspend inline fun <reified T> BiliClient.json(
 ): T = useHttpClient { client, mutex ->
     val url = Url(urlString)
     mutex.wait(url.encodedPath)
-    client.prepareGet(url, block).execute { response ->
+    client.prepareGet(url) {
+        block.invoke(this)
+        if ("wbi" in url.encodedPath) {
+            encodeWbi(builder = this.url.parameters)
+        }
+    }.execute { response ->
         val temp = response.body<TempData>()
         if (temp.code != 0) throw BiliApiException(temp, response.request.url)
         val element = temp.data ?: temp.result ?: throw BiliApiException(temp, response.request.url)
@@ -108,4 +118,41 @@ internal suspend inline fun <reified T> BiliClient.json(
             throw cause
         }
     }
+}
+
+private fun getMixinKey(ae: String): String {
+    val oe = arrayOf(46, 47, 18, 2, 53, 8, 23, 32, 15, 50, 10, 31, 58, 3, 45, 35, 27, 43, 5, 49, 33, 9, 42, 19, 29, 28, 14, 39, 12, 38, 41, 13, 37, 48, 7, 16, 24, 55, 40, 61, 26, 17, 0, 1, 60, 51, 30, 4, 22, 25, 54, 21, 56, 59, 6, 63, 57, 62, 11, 36, 20, 34, 44, 52)
+    return buildString {
+        for (i in oe) {
+            append(ae[i])
+            if (length >= 32) break
+        }
+    }
+}
+
+internal fun BiliClient.encodeWbi(builder: ParametersBuilder) {
+    val salt = tokens.getOrPut("salt") {
+        val data = runBlocking {
+            val body = useHttpClient { http, _ ->
+                http.get(WBI).body<JsonObject>()
+            }
+            body.getValue("data") as JsonObject
+        }
+        val images = BiliClient.Json.decodeFromJsonElement<WbiImages>(data.getValue("wbi_img"))
+        val a = images.imgUrl.substringAfter("wbi/").substringBefore(".")
+        val b = images.subUrl.substringAfter("wbi/").substringBefore(".")
+
+        getMixinKey(a + b)
+    }
+
+    builder.append("wts", "1684763359")
+
+    val digest = MessageDigest.getInstance("MD5")
+    val parameters = builder.build().entries()
+        .flatMap { e -> e.value.map { e.key to it } }
+        .sortedBy { it.first }.formUrlEncode()
+
+    val md5 = digest.digest((parameters + salt).encodeToByteArray())
+
+    builder.append("w_rid", md5.joinToString("") { "%02x".format(it) })
 }

@@ -14,6 +14,7 @@ import io.ktor.utils.io.errors.*
 import kotlinx.coroutines.*
 import kotlinx.serialization.json.*
 import xyz.cssxsh.bilibili.api.*
+import java.util.*
 
 open class BiliClient(private val timeout: Long = 15_000L) : Closeable {
     companion object {
@@ -34,6 +35,8 @@ open class BiliClient(private val timeout: Long = 15_000L) : Closeable {
     val storage = AcceptAllCookiesStorage()
 
     val AcceptAllCookiesStorage.container: MutableList<Cookie> by reflect()
+
+    val tokens: MutableMap<String, String> = WeakHashMap()
 
     protected open fun client() = HttpClient(OkHttp) {
         defaultRequest {
