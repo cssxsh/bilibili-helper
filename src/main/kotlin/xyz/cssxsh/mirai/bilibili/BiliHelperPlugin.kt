@@ -66,6 +66,16 @@ object BiliHelperPlugin : KotlinPlugin(
             loadCookie()
             loadEmoteData()
         }
+        launch {
+            while (isActive) {
+                try {
+                    client.salt()
+                } catch (_: Throwable) {
+                    // ...
+                }
+                delay( 6 * 60 * 60 * 1000)
+            }
+        }
     }
 
     override fun onDisable() {
@@ -76,5 +86,6 @@ object BiliHelperPlugin : KotlinPlugin(
         for (task in BiliTasker) task.stop()
         BiliCleaner.stop()
         client.save()
+        coroutineContext.cancelChildren()
     }
 }

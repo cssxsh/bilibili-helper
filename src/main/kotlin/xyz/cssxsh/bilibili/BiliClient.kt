@@ -1,6 +1,7 @@
 package xyz.cssxsh.bilibili
 
 import io.ktor.client.*
+import io.ktor.client.call.*
 import io.ktor.client.engine.okhttp.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.compression.*
@@ -14,7 +15,8 @@ import io.ktor.utils.io.errors.*
 import kotlinx.coroutines.*
 import kotlinx.serialization.json.*
 import xyz.cssxsh.bilibili.api.*
-import java.util.*
+import xyz.cssxsh.bilibili.data.*
+import java.util.concurrent.*
 
 open class BiliClient(private val timeout: Long = 15_000L) : Closeable {
     companion object {
@@ -26,6 +28,16 @@ open class BiliClient(private val timeout: Long = 15_000L) : Closeable {
         }
 
         val DefaultIgnore: suspend (Throwable) -> Boolean = { it is IOException }
+
+        internal fun getMixinKey(ae: String): String {
+            val oe = arrayOf(46, 47, 18, 2, 53, 8, 23, 32, 15, 50, 10, 31, 58, 3, 45, 35, 27, 43, 5, 49, 33, 9, 42, 19, 29, 28, 14, 39, 12, 38, 41, 13, 37, 48, 7, 16, 24, 55, 40, 61, 26, 17, 0, 1, 60, 51, 30, 4, 22, 25, 54, 21, 56, 59, 6, 63, 57, 62, 11, 36, 20, 34, 44, 52)
+            return buildString {
+                for (i in oe) {
+                    append(ae[i])
+                    if (length >= 32) break
+                }
+            }
+        }
     }
 
     override fun close() = clients.forEach { it.close() }
@@ -36,7 +48,7 @@ open class BiliClient(private val timeout: Long = 15_000L) : Closeable {
 
     val AcceptAllCookiesStorage.container: MutableList<Cookie> by reflect()
 
-    val tokens: MutableMap<String, String> = WeakHashMap()
+    val salt: CompletableFuture<String> = CompletableFuture()
 
     protected open fun client() = HttpClient(OkHttp) {
         defaultRequest {
@@ -90,5 +102,17 @@ open class BiliClient(private val timeout: Long = 15_000L) : Closeable {
             }
         }
         throw CancellationException(null, cause)
+    }
+
+    suspend fun salt() {
+        val body = useHttpClient { http, _ ->
+            http.get(WBI).body<JsonObject>()
+        }
+        val data = body.getValue("data") as JsonObject
+        val images = Json.decodeFromJsonElement<WbiImages>(data.getValue("wbi_img"))
+        val a = images.imgUrl.substringAfter("wbi/").substringBefore(".")
+        val b = images.subUrl.substringAfter("wbi/").substringBefore(".")
+
+        salt.complete(getMixinKey(a + b))
     }
 }

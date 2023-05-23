@@ -1,6 +1,6 @@
 package xyz.cssxsh.mirai.bilibili
 
-import net.mamoe.mirai.Bot
+import net.mamoe.mirai.*
 import net.mamoe.mirai.console.command.CommandSender.Companion.toCommandSender
 import net.mamoe.mirai.console.permission.PermissionService.Companion.testPermission
 import net.mamoe.mirai.contact.*

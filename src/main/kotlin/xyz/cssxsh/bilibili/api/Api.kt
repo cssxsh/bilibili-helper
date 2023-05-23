@@ -120,39 +120,15 @@ internal suspend inline fun <reified T> BiliClient.json(
     }
 }
 
-private fun getMixinKey(ae: String): String {
-    val oe = arrayOf(46, 47, 18, 2, 53, 8, 23, 32, 15, 50, 10, 31, 58, 3, 45, 35, 27, 43, 5, 49, 33, 9, 42, 19, 29, 28, 14, 39, 12, 38, 41, 13, 37, 48, 7, 16, 24, 55, 40, 61, 26, 17, 0, 1, 60, 51, 30, 4, 22, 25, 54, 21, 56, 59, 6, 63, 57, 62, 11, 36, 20, 34, 44, 52)
-    return buildString {
-        for (i in oe) {
-            append(ae[i])
-            if (length >= 32) break
-        }
-    }
-}
-
 internal fun BiliClient.encodeWbi(builder: ParametersBuilder) {
-    val salt = tokens.getOrPut("salt") {
-        val data = runBlocking {
-            val body = useHttpClient { http, _ ->
-                http.get(WBI).body<JsonObject>()
-            }
-            body.getValue("data") as JsonObject
-        }
-        val images = BiliClient.Json.decodeFromJsonElement<WbiImages>(data.getValue("wbi_img"))
-        val a = images.imgUrl.substringAfter("wbi/").substringBefore(".")
-        val b = images.subUrl.substringAfter("wbi/").substringBefore(".")
-
-        getMixinKey(a + b)
-    }
-
-    builder.append("wts", "1684763359")
+    builder.append("wts", (System.currentTimeMillis() / 1000).toString())
 
     val digest = MessageDigest.getInstance("MD5")
     val parameters = builder.build().entries()
         .flatMap { e -> e.value.map { e.key to it } }
         .sortedBy { it.first }.formUrlEncode()
 
-    val md5 = digest.digest((parameters + salt).encodeToByteArray())
+    val md5 = digest.digest((parameters + salt.get()).encodeToByteArray())
 
     builder.append("w_rid", md5.joinToString("") { "%02x".format(it) })
 }

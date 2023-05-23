@@ -9,6 +9,7 @@ suspend fun BiliClient.getUserInfo(
     url: String = SPACE_INFO
 ): BiliUserInfo = json(url) {
     parameter("mid", uid)
-    parameter("jsonp", "jsonp")
-    parameter("tid", 0)
+    parameter("token", "")
+    parameter("platform", "web")
+    parameter("web_location", 1550101)
 }
