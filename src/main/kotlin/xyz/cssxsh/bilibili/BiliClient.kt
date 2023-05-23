@@ -104,7 +104,7 @@ open class BiliClient(private val timeout: Long = 15_000L) : Closeable {
         throw CancellationException(null, cause)
     }
 
-    suspend fun salt() {
+    suspend fun salt(): String {
         val body = useHttpClient { http, _ ->
             http.get(WBI).body<JsonObject>()
         }
@@ -112,7 +112,10 @@ open class BiliClient(private val timeout: Long = 15_000L) : Closeable {
         val images = Json.decodeFromJsonElement<WbiImages>(data.getValue("wbi_img"))
         val a = images.imgUrl.substringAfter("wbi/").substringBefore(".")
         val b = images.subUrl.substringAfter("wbi/").substringBefore(".")
+        val key = getMixinKey(a + b)
 
-        salt.complete(getMixinKey(a + b))
+        salt.complete(key)
+
+        return key
     }
 }

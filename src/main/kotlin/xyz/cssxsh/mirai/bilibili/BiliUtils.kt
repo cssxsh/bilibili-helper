@@ -39,7 +39,7 @@ internal val logger by lazy {
 
 internal var cookies by object : ReadWriteProperty<Any?, List<Cookie>> {
     private val json by lazy {
-        BiliHelperPlugin.dataFolder.resolve("cookies.json").apply {
+        BiliHelperPlugin.resolveDataFile("cookies.json").apply {
             if (exists().not()) createNewFile()
         }
     }

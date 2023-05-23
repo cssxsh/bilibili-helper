@@ -68,12 +68,14 @@ object BiliHelperPlugin : KotlinPlugin(
         }
         launch {
             while (isActive) {
-                try {
+                val salt = try {
                     client.salt()
                 } catch (_: Throwable) {
-                    // ...
+                    ""
                 }
-                delay( 6 * 60 * 60 * 1000)
+                logger.info("salt refresh : ${salt.ifEmpty { "<empty>" }}")
+                resolveDataFile("salt.txt").writeText(salt)
+                delay(60 * 60 * 1000)
             }
         }
     }
