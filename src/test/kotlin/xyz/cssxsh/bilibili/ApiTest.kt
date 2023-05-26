@@ -27,5 +27,6 @@ internal abstract class ApiTest {
         } catch (_: Exception) {
             //
         }
+        client.salt()
     }
 }
