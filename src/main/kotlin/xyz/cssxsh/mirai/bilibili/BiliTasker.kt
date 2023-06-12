@@ -463,14 +463,11 @@ object BiliLiveWaiter : Waiter<BiliLiveInfo>(name = "LiveWaiter") {
     override suspend fun BiliLiveInfo.last(): OffsetDateTime = datetime
 
     override suspend fun initTask(id: Long): BiliTask {
-        val live = try {
-            client.getUserInfo(uid = id).liveRoom
-                ?: throw NoSuchElementException("Try Live Room by https://space.bilibili.com/${id}")
-        } catch (cause: NoSuchElementException) {
-            logger.warning { cause.message }
+        val live = client.getUserInfo(uid = id).liveRoom ?: kotlin.run {
+            logger.warning { "Try Live Room by https://space.bilibili.com/${id}" }
             client.getLiveInfo(roomId = id)
         }
-        record[id] = id
+        record[id] = live.roomId
         return BiliTask(name = live.uname)
     }
 }
