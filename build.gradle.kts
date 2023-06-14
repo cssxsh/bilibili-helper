@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "xyz.cssxsh"
-version = "1.7.2"
+version = "1.7.3"
 
 repositories {
     mavenLocal()
@@ -26,7 +26,7 @@ mavenCentralPublish {
 }
 
 dependencies {
-    implementation("com.cronutils:cron-utils:9.2.0")
+    implementation("com.cronutils:cron-utils:9.2.1")
     implementation("com.google.zxing:javase:3.5.1")
     compileOnly("xyz.cssxsh.mirai:mirai-selenium-plugin:2.3.0")
     testImplementation(kotlin("test"))
@@ -43,7 +43,7 @@ dependencies {
     implementation("io.ktor:ktor-client-content-negotiation")
     implementation("io.ktor:ktor-serialization-kotlinx-json")
     //
-    implementation(platform("org.slf4j:slf4j-parent:2.0.6"))
+    implementation(platform("org.slf4j:slf4j-parent:2.0.7"))
     testImplementation("org.slf4j:slf4j-simple")
 }
 
