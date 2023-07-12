@@ -64,7 +64,7 @@ data class BiliVideoInfo(
     @SerialName("stat")
     override val status: VideoStatus,
     @SerialName("subtitle")
-    val subtitle: VideoSubtitle,
+    val subtitle: VideoSubtitle? = null,
     @SerialName("tid")
     override val tid: Int,
     @SerialName("title")
