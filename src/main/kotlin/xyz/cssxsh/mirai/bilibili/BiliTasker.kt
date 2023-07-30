@@ -5,7 +5,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.*
 import kotlinx.serialization.*
 import net.mamoe.mirai.console.permission.*
-import net.mamoe.mirai.console.permission.PermitteeId.Companion.allParentsWithSelf
+import net.mamoe.mirai.console.permission.PermitteeId.Companion.hasChild
 import net.mamoe.mirai.console.util.ContactUtils.render
 import net.mamoe.mirai.contact.*
 import net.mamoe.mirai.message.*
@@ -87,12 +87,12 @@ sealed class AbstractTasker<T : Entry>(val name: String) : BiliTasker, Coroutine
         }
 
     protected fun sleep(target: PermitteeId, time: LocalTime = LocalTime.now()): Boolean {
-        return sleep.any { (permitteeId, interval) -> time in interval && permitteeId in target.allParentsWithSelf }
+        return sleep.any { (permitteeId, interval) -> time in interval && target.hasChild(permitteeId) }
     }
 
     protected fun at(group: Group, time: LocalTime = LocalTime.now()): MessageChain = buildMessageChain {
         fun check(target: PermitteeId, time: LocalTime): Boolean {
-            return at.any { (permitteeId, interval) -> time in interval && permitteeId in target.allParentsWithSelf }
+            return at.any { (permitteeId, interval) -> time in interval && target.hasChild(permitteeId) }
         }
         if (check(target = group.permitteeId, time = time)) {
             append(AtAll)
