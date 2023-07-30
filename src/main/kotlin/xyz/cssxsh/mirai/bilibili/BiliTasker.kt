@@ -3,9 +3,12 @@ package xyz.cssxsh.mirai.bilibili
 import com.cronutils.model.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.*
+import kotlinx.serialization.*
 import net.mamoe.mirai.console.permission.*
-import net.mamoe.mirai.console.permission.PermitteeId.Companion.hasChild
+import net.mamoe.mirai.console.permission.PermitteeId.Companion.allParentsWithSelf
+import net.mamoe.mirai.console.util.ContactUtils.render
 import net.mamoe.mirai.contact.*
+import net.mamoe.mirai.message.*
 import net.mamoe.mirai.message.data.*
 import net.mamoe.mirai.utils.*
 import xyz.cssxsh.bilibili.api.*
@@ -14,9 +17,6 @@ import xyz.cssxsh.mirai.bilibili.data.*
 import java.time.*
 import kotlin.coroutines.*
 import kotlin.math.*
-import kotlinx.serialization.*
-import net.mamoe.mirai.console.util.ContactUtils.render
-import net.mamoe.mirai.message.*
 
 interface BiliTasker {
 
@@ -87,12 +87,12 @@ sealed class AbstractTasker<T : Entry>(val name: String) : BiliTasker, Coroutine
         }
 
     protected fun sleep(target: PermitteeId, time: LocalTime = LocalTime.now()): Boolean {
-        return sleep.any { (permitteeId, interval) -> target.hasChild(permitteeId) && time in interval }
+        return sleep.any { (permitteeId, interval) -> time in interval && permitteeId in target.allParentsWithSelf }
     }
 
     protected fun at(group: Group, time: LocalTime = LocalTime.now()): MessageChain = buildMessageChain {
         fun check(target: PermitteeId, time: LocalTime): Boolean {
-            return at.any { (permitteeId, interval) -> target.hasChild(permitteeId) && time in interval }
+            return at.any { (permitteeId, interval) -> time in interval && permitteeId in target.allParentsWithSelf }
         }
         if (check(target = group.permitteeId, time = time)) {
             append(AtAll)
