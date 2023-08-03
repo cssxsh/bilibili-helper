@@ -28,10 +28,8 @@ object BiliCleaner : CoroutineScope {
             logger.info { "${type}缓存清理任务开始运行，间隔${interval}h" }
             type.withLock {
                 val now = System.currentTimeMillis()
-                type.directory.listFiles { folder ->
-                    folder.listFiles().orEmpty()
-                        .all { file -> now - file.lastModified() > expires * HOUR && file.delete() }
-                        && folder.delete()
+                type.directory.walk().onEnter { file ->
+                    now - file.lastModified() > expires * HOUR && file.delete()
                 }
             }
             delay(interval * HOUR)
