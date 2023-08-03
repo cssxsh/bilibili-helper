@@ -32,7 +32,7 @@ object BiliLoginCommand : SimpleCommand(
                             ImageIO.write(image, "PNG", temp)
                         }
                     }
-                    BiliHelperPlugin.logger.info(temp.path)
+                    BiliHelperPlugin.logger.info("qrcode:\n" + temp.toPath().toUri().toASCIIString())
                     val message = temp.toExternalResource().use { subject.uploadImage(it) }
                     subject.sendMessage(message)
                 }.invokeOnCompletion { cause ->
