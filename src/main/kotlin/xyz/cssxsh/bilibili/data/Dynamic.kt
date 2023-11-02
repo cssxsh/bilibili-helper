@@ -509,9 +509,9 @@ data class DynamicReply(
     @SerialName("item")
     val item: DynamicReplyDetail,
     @SerialName("origin")
-    override val card: String,
+    override val card: String = "null",
     @SerialName("origin_user")
-    val originUser: UserProfile,
+    val originUser: UserProfile = UserProfile(),
     @SerialName("user")
     val user: UserSimple,
     @Transient
