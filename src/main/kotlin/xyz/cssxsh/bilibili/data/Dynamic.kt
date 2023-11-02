@@ -6,7 +6,12 @@ import java.time.*
 
 internal inline fun <reified T : Entry> DynamicCard.decode(): T {
     if (decode == null) {
-        decode = when (val entry = BiliClient.Json.decodeFromString<T>(card)) {
+        val entry = try {
+            BiliClient.Json.decodeFromString<T>(card)
+        } catch (cause : SerializationException) {
+            throw IllegalArgumentException("card: ${detail.id}", cause)
+        }
+        decode = when (entry) {
             is DynamicReply -> entry.copy(detail = detail.origin ?: entry.describe(), display = display)
             is DynamicText -> entry.copy(emoji = display?.emoji)
             is DynamicPicture -> entry.copy(emoji = display?.emoji)
