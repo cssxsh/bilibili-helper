@@ -24,7 +24,7 @@ open class BiliClient(private val timeout: Long = 15_000L) : Closeable {
             prettyPrint = true
             ignoreUnknownKeys = System.getProperty(JSON_IGNORE, "true").toBoolean()
             isLenient = true
-            allowStructuredMapKeys = true
+            coerceInputValues = true
         }
 
         val DefaultIgnore: suspend (Throwable) -> Boolean = { it is IOException }

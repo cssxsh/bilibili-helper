@@ -176,7 +176,7 @@ data class DynamicDescribe(
     @SerialName("uid")
     val uid: Long = 0,
     @SerialName("user_profile")
-    val profile: UserProfile = UserProfile(),
+    val profile: UserProfile = UserProfile.Empty,
     @SerialName("view")
     val view: Long = 0
 ) {
@@ -511,7 +511,7 @@ data class DynamicReply(
     @SerialName("origin")
     override val card: String = "null",
     @SerialName("origin_user")
-    val originUser: UserProfile = UserProfile(),
+    val originUser: UserProfile = UserProfile.Empty,
     @SerialName("user")
     val user: UserSimple,
     @Transient

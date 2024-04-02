@@ -29,7 +29,7 @@ const val SPACE_INFO = "https://api.bilibili.com/x/space/wbi/acc/info"
 
 // Video
 const val VIDEO_USER = "https://api.bilibili.com/x/space/wbi/arc/search"
-const val VIDEO_INFO = "https://api.bilibili.com/x/web-interface/view"
+const val VIDEO_INFO = "https://api.bilibili.com/x/web-interface/wbi/view"
 
 // Dynamic
 const val DYNAMIC_HISTORY = "https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/space_history"

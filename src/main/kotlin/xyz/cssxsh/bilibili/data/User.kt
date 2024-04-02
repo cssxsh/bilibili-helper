@@ -57,7 +57,7 @@ data class BiliUserInfo(
     @SerialName("sign")
     override val sign: String,
     @SerialName("top_photo")
-    val topPhoto: String,
+    val topPhoto: String
 ) : UserInfo {
     override val live: String get() = liveRoom?.link ?: "未开通直播间"
 
@@ -91,7 +91,11 @@ data class UserProfile(
     val rank: String? = null,
     @SerialName("sign")
     val sign: String? = null
-)
+) {
+    companion object {
+        val Empty = UserProfile()
+    }
+}
 
 @Serializable
 data class UserOfficial(
