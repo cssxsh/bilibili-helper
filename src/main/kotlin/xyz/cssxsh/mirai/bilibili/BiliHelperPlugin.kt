@@ -1,22 +1,20 @@
 package xyz.cssxsh.mirai.bilibili
 
 import kotlinx.coroutines.*
-import net.mamoe.mirai.console.*
 import net.mamoe.mirai.console.command.*
 import net.mamoe.mirai.console.command.CommandManager.INSTANCE.register
 import net.mamoe.mirai.console.command.CommandManager.INSTANCE.unregister
 import net.mamoe.mirai.console.data.*
 import net.mamoe.mirai.console.extension.*
 import net.mamoe.mirai.console.plugin.jvm.*
-import net.mamoe.mirai.console.plugin.*
-import net.mamoe.mirai.console.util.*
 import net.mamoe.mirai.event.*
 import net.mamoe.mirai.utils.*
 import xyz.cssxsh.bilibili.api.*
 import xyz.cssxsh.mirai.bilibili.data.*
 
-object BiliHelperPlugin : KotlinPlugin(
-    JvmPluginDescription(id = "xyz.cssxsh.mirai.plugin.bilibili-helper", version = "1.7.3") {
+@PublishedApi
+internal object BiliHelperPlugin : KotlinPlugin(
+    JvmPluginDescription(id = "xyz.cssxsh.mirai.plugin.bilibili-helper", version = "1.8.0") {
         name("bilibili-helper")
         author("cssxsh")
 
@@ -41,10 +39,6 @@ object BiliHelperPlugin : KotlinPlugin(
     private val listeners: List<ListenerHost> by services()
 
     override fun onEnable() {
-        // XXX: mirai console version check
-        check(SemVersion.parseRangeRequirement(">= 2.12.0-RC").test(MiraiConsole.version)) {
-            "$name $version 需要 Mirai-Console 版本 >= 2.12.0，目前版本是 ${MiraiConsole.version}"
-        }
 
         for (config in config) config.reload()
         for (data in data) data.reload()
