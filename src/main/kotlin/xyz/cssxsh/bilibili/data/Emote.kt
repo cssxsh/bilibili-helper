@@ -36,8 +36,6 @@ data class EmoteItem(
 data class EmojiDetail(
     @SerialName("id")
     val id: Int,
-    @SerialName("mtime")
-    val mtime: Long,
     @SerialName("package_id")
     val packageId: Int,
     @SerialName("text")

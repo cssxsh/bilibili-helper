@@ -215,7 +215,7 @@ data class DynamicInfo(
     @SerialName("card")
     override val card: String,
     @SerialName("desc")
-    override val detail: DynamicDescribe,
+    override val detail: DynamicDescribe = DynamicDescribe.Empty,
     @SerialName("display")
     override val display: DynamicDisplay? = null
 ) : DynamicCard, Entry {
@@ -230,20 +230,10 @@ data class DynamicInfo(
 
 @Serializable
 data class DynamicArticle(
-    @SerialName("act_id")
-    val actId: Int,
-    @SerialName("apply_time")
-    val apply: String,
     @SerialName("author")
     val author: ArticleAuthor,
-    @SerialName("banner_url")
-    val banner: String,
     @SerialName("categories")
     val categories: List<ArticleCategory>? = null,
-    @SerialName("category")
-    val category: ArticleCategory,
-    @SerialName("check_time")
-    val check: String,
     @SerialName("cover_avid")
     val avid: Long = 0,
     @SerialName("ctime")
@@ -252,32 +242,16 @@ data class DynamicArticle(
     override val id: Long,
     @SerialName("image_urls")
     override val images: List<String>,
-    @SerialName("is_like")
-    val isLike: Boolean,
-    @SerialName("list")
-    val list: ArticleList?,
-    @SerialName("media")
-    val media: ArticleMedia,
     @SerialName("origin_image_urls")
     val originImageUrls: List<String>,
-    @SerialName("original")
-    val original: Int,
     @SerialName("publish_time")
     override val published: Long,
-    @SerialName("reprint")
-    val reprint: Int,
-    @SerialName("state")
-    val state: Int,
     @SerialName("stats")
     override val status: ArticleStatus,
     @SerialName("summary")
     override val summary: String,
-    @SerialName("template_id")
-    val templateId: Int,
     @SerialName("title")
-    override val title: String,
-    @SerialName("words")
-    val words: Int
+    override val title: String
 ) : Article
 
 @Serializable
@@ -473,21 +447,14 @@ data class DynamicPicture(
 
 @Serializable
 data class DynamicPictureDetail(
-    @SerialName("category")
-    val category: String,
     @SerialName("description")
     val description: String,
     @SerialName("id")
     val id: Long,
-    @SerialName("is_fav")
-    @Serializable(NumberToBooleanSerializer::class)
-    val isFavourite: Boolean,
     @SerialName("pictures")
     val pictures: List<DynamicPictureInfo>,
     @SerialName("reply")
     val reply: Long,
-    @SerialName("title")
-    val title: String,
     @SerialName("upload_time")
     val uploaded: Long
 )
@@ -627,8 +594,6 @@ data class DynamicVideo(
     override val id: String = "",
     @SerialName("cid")
     val cid: Int,
-    @SerialName("copyright")
-    val copyright: Int,
     @SerialName("ctime")
     override val created: Long,
     @SerialName("desc")
@@ -660,7 +625,7 @@ data class DynamicVideo(
     @SerialName("season_id")
     override val seasonId: Long? = null,
     @SerialName("rights")
-    val rights: VideoRights
+    val rights: VideoRights = VideoRights.Empty
 ) : Video {
     override val uid: Long get() = owner.mid
     override val uname: String get() = owner.name

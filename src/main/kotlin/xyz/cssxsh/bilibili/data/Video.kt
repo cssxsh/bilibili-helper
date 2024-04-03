@@ -74,7 +74,7 @@ data class BiliVideoInfo(
     @SerialName("videos")
     val videos: Int,
     @SerialName("rights")
-    val rights: VideoRights
+    val rights: VideoRights = VideoRights.Empty
 ) : Video {
     override val uid: Long get() = owner.mid
     override val uname: String get() = owner.name
@@ -196,11 +196,11 @@ data class VideoStatus(
     val favorite: Long,
     @SerialName("his_rank")
     @Serializable(NumberToBooleanSerializer::class)
-    val hisRank: Boolean,
+    val hisRank: Boolean = false,
     @SerialName("like")
     val like: Long,
     @SerialName("now_rank")
-    val nowRank: Int,
+    val nowRank: Int = -1,
     @SerialName("reply")
     val reply: Long,
     @SerialName("share")
@@ -380,4 +380,8 @@ data class VideoRights(
     @SerialName("ugc_pay_preview")
     @Serializable(NumberToBooleanSerializer::class)
     val ugcPayPreview: Boolean = false
-)
+) {
+    companion object {
+        val Empty = VideoRights()
+    }
+}

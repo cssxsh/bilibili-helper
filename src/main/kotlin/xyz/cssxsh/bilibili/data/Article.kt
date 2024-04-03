@@ -97,11 +97,7 @@ data class ArticleAuthor(
     @SerialName("mid")
     val mid: Long,
     @SerialName("name")
-    val name: String,
-    @SerialName("nameplate")
-    val nameplate: UserNameplate,
-    @SerialName("official_verify")
-    val official: UserOfficial
+    val name: String
 ) : Owner {
     override val uid: Long get() = mid
     override val uname: String get() = name
@@ -147,28 +143,6 @@ data class ArticleSimple(
     @SerialName("words")
     val words: Int
 ) : Article
-
-@Serializable
-data class ArticleMedia(
-    @SerialName("area")
-    val area: String,
-    @SerialName("cover")
-    val cover: String,
-    @SerialName("media_id")
-    val mediaId: Long,
-    @SerialName("score")
-    val score: Int,
-    @SerialName("season_id")
-    val seasonId: Long,
-    @SerialName("spoiler")
-    val spoiler: Int,
-    @SerialName("title")
-    val title: String,
-    @SerialName("type_id")
-    val typeId: Int,
-    @SerialName("type_name")
-    val type: String
-)
 
 @Serializable
 data class ArticleList(
