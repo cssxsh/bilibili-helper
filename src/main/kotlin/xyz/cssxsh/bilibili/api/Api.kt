@@ -34,6 +34,8 @@ const val VIDEO_INFO = "https://api.bilibili.com/x/web-interface/wbi/view"
 // Dynamic
 const val DYNAMIC_HISTORY = "https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/space_history"
 const val DYNAMIC_INFO = "https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/get_dynamic_detail"
+const val DYNAMIC_ALL = "https://api.bilibili.com/x/polymer/web-dynamic/v1/feed/all"
+const val DYNAMIC_DETAIL = "https://api.bilibili.com/x/polymer/web-dynamic/v1/detail"
 
 // Live
 const val ROOM_INIT = "https://api.live.bilibili.com/room/v1/Room/room_init"
