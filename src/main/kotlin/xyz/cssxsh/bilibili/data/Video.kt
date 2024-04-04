@@ -41,6 +41,8 @@ data class BiliVideoInfo(
     override val created: Long,
     @SerialName("desc")
     override val description: String,
+    @SerialName("desc_v2")
+    val descriptions: List<VideoDescription> = emptyList(),
     @SerialName("dimension")
     val dimension: VideoDimension,
     @SerialName("duration")
@@ -74,7 +76,22 @@ data class BiliVideoInfo(
     @SerialName("videos")
     val videos: Int,
     @SerialName("rights")
-    val rights: VideoRights = VideoRights.Empty
+    val rights: VideoRights = VideoRights.Empty,
+    @SerialName("is_chargeable_season")
+    val isChargeableSeason: Boolean = false,
+    @SerialName("is_story")
+    val isStory: Boolean = false,
+    @SerialName("is_upower_exclusive")
+    val isUPowerExclusive: Boolean = false,
+    @SerialName("is_upower_play")
+    val isUPowerPlay: Boolean = false,
+    @SerialName("is_upower_preview")
+    val isUPowerPreview: Boolean = false,
+    @SerialName("is_season_display")
+    val isSeasonDisplay: Boolean = false,
+    @SerialName("is_story_play")
+    @Serializable(NumberToBooleanSerializer::class)
+    val isStoryPlay: Boolean = false
 ) : Video {
     override val uid: Long get() = owner.mid
     override val uname: String get() = owner.name
@@ -84,7 +101,7 @@ data class BiliVideoInfo(
         with(Duration.ofSeconds(duration)) { "%02d:%02d".format(toMinutes(), toSecondsPart()) }
     }
 
-    override val isPay: Boolean get() = rights.pay || rights.ugcPay
+    override val isPay: Boolean get() = rights.pay || rights.ugcPay || rights.arcPay
     override val isUnionVideo: Boolean get() = rights.isCooperation
     override val isSteinsGate: Boolean get() = rights.isSteinGate
     override val isLivePlayback: Boolean get() = false
@@ -206,7 +223,13 @@ data class VideoStatus(
     @SerialName("share")
     val share: Long,
     @SerialName("view")
-    val view: Long
+    val view: Long,
+    @SerialName("aid")
+    val aid: Long = 0,
+    @SerialName("evaluation")
+    val evaluation: String = "",
+    @SerialName("vt")
+    val vt: Long = 0
 ) : Entry
 
 @Serializable
@@ -294,7 +317,7 @@ data class VideoPage(
     @SerialName("dimension")
     val dimension: VideoDimension,
     @SerialName("duration")
-    val duration: Int,
+    val duration: Long,
     @SerialName("from")
     val from: String,
     @SerialName("page")
@@ -304,7 +327,9 @@ data class VideoPage(
     @SerialName("vid")
     val bvid: String,
     @SerialName("weblink")
-    val weblink: String
+    val weblink: String,
+    @SerialName("first_frame")
+    val firstFrame: String = ""
 )
 
 @Serializable
@@ -379,9 +404,25 @@ data class VideoRights(
     val ugcPay: Boolean = false,
     @SerialName("ugc_pay_preview")
     @Serializable(NumberToBooleanSerializer::class)
-    val ugcPayPreview: Boolean = false
+    val ugcPayPreview: Boolean = false,
+    @SerialName("arc_pay")
+    @Serializable(NumberToBooleanSerializer::class)
+    val arcPay: Boolean = false,
+    @SerialName("free_watch")
+    @Serializable(NumberToBooleanSerializer::class)
+    val freeWatch: Boolean = false
 ) {
     companion object {
         val Empty = VideoRights()
     }
 }
+
+@Serializable
+data class VideoDescription(
+    @SerialName("raw_text")
+    val raw: String,
+    @SerialName("type")
+    val type: Int,
+    @SerialName("biz_id")
+    val biz: Long
+)

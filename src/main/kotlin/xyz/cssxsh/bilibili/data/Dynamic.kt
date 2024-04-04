@@ -635,7 +635,7 @@ data class DynamicVideo(
         with(Duration.ofSeconds(duration)) { "%02d:%02d".format(toMinutes(), toSecondsPart()) }
     }
 
-    override val isPay: Boolean get() = rights.pay || rights.ugcPay
+    override val isPay: Boolean get() = rights.pay || rights.ugcPay || rights.arcPay
     override val isUnionVideo: Boolean get() = rights.isCooperation
     override val isSteinsGate: Boolean get() = rights.isSteinGate
     override val isLivePlayback: Boolean get() = false

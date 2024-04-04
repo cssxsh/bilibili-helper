@@ -62,7 +62,13 @@ data class SeasonMedia(
     @SerialName("title")
     override val title: String,
     @SerialName("type_name")
-    override val type: String
+    override val type: String,
+    @SerialName("type")
+    val typeId: Long,
+    @SerialName("horizontal_picture")
+    val horizontalPicture: String? = null,
+    @SerialName("areas")
+    val areas: List<SeasonArea> = emptyList()
 ) : Media
 
 @Serializable
@@ -126,7 +132,29 @@ data class SeasonEpisode(
     override val index: String,
     @Contextual
     @SerialName("pub_time")
-    val published: Long? = null
+    val published: Long? = null,
+    @SerialName("dimension")
+    val dimension: VideoDimension? = null,
+    @SerialName("vid")
+    val vid: String? = null,
+    @SerialName("duration")
+    val duration: Long = 0,
+    @SerialName("enable_vt")
+    val enableVT: Boolean = false,
+    @SerialName("ep_id")
+    val epId: Long = 0,
+    @SerialName("is_view_hide")
+    val isViewHide: Boolean = false,
+    @SerialName("link")
+    val link: String? = null,
+    @SerialName("pv")
+    val pv: Long = 0,
+    @SerialName("release_date")
+    val releaseDate: String? = null,
+    @SerialName("short_link")
+    val shortLink: String? = null,
+    @SerialName("subtitle")
+    val subtitle: String? = null
 ) : Episode {
     val datetime: OffsetDateTime? get() = if (published == null) null else timestamp(published)
 }
@@ -166,6 +194,18 @@ data class SeasonTimeline(
     val viewRank: Int,
     @SerialName("weekday")
     val weekday: Int,
+    @SerialName("area")
+    val area: String = "",
+    @SerialName("attention")
+    val attention: Int = 0,
+    @SerialName("bangumi_id")
+    val bangumiId: Long = 0,
+    @SerialName("lastupdate_at")
+    val lastUpdateAt: String? = null,
+    @SerialName("pub_time")
+    val published: String? = null,
+    @SerialName("spid")
+    val spId: Long = 0,
 ) : Season, Episode, WithDateTime {
     override val share: String get() = "https://www.bilibili.com/bangumi/play/ep${episodeId}"
     override val datetime: OffsetDateTime get() = timestamp(last)
@@ -223,5 +263,16 @@ data class SeasonNewEpisode(
     @SerialName("title")
     override val index: String,
     @SerialName("desc")
-    override val show: String
+    override val show: String,
+    @SerialName("is_new")
+    @Serializable(NumberToBooleanSerializer::class)
+    val isNew: Boolean = false
 ) : NewEpisode
+
+@Serializable
+data class SeasonArea(
+    @SerialName("id")
+    val id: Long,
+    @SerialName("name")
+    val name: String
+)
