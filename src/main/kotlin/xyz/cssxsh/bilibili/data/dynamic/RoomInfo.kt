@@ -1,9 +1,6 @@
 package xyz.cssxsh.bilibili.data.dynamic
 
 import kotlinx.serialization.*
-import kotlinx.serialization.descriptors.*
-import kotlinx.serialization.encoding.*
-import kotlinx.serialization.json.*
 
 @Serializable
 data class RoomInfo(
@@ -14,23 +11,7 @@ data class RoomInfo(
     @SerialName("type")
     val type: Int
 ) {
-    object AsStringSerializer : KSerializer<RoomInfo> {
-
-        override val descriptor: SerialDescriptor =
-            PrimitiveSerialDescriptor(this::class.qualifiedName!!, PrimitiveKind.STRING)
-
-        override fun serialize(encoder: Encoder, value: RoomInfo) {
-            val json = Json { serializersModule = encoder.serializersModule }
-            val text = json.encodeToString(serializer = serializer(), value = value)
-            encoder.encodeString(value = text)
-        }
-
-        override fun deserialize(decoder: Decoder): RoomInfo {
-            val json = Json { serializersModule = decoder.serializersModule }
-            val text = decoder.decodeString()
-            return json.decodeFromString(deserializer = serializer(), string = text)
-        }
-    }
+    object AsStringSerializer : KSerializer<RoomInfo> by WarpStringSerializer(original = serializer())
 
     @Serializable
     data class LivePlay(
@@ -58,7 +39,7 @@ data class RoomInfo(
         @SerialName("parent_area_name")
         val parentAreaName: String,
         @SerialName("pendants")
-        val pendants: JsonElement, // TODO
+        val pendants: Pendants,
         @SerialName("play_type")
         val playType: Int,
         @SerialName("room_id")
@@ -72,7 +53,25 @@ data class RoomInfo(
         @SerialName("uid")
         val uid: Long,
         @SerialName("watched_show")
-        val watchedShow: WatchedShow = WatchedShow()
+        val watched: WatchedShow = WatchedShow()
+    )
+
+    @Serializable
+    data class Pendants(
+        @SerialName("list")
+        val list: List<Pendant>?
+    )
+
+    @Serializable
+    data class Pendant(
+        @SerialName("id")
+        val id: Long,
+        @SerialName("name")
+        val name: Long,
+        @SerialName("image")
+        val image: String,
+        @SerialName("jumpUrl")
+        val jumpUrl: String
     )
 
     @Serializable
