@@ -7,8 +7,7 @@ import xyz.cssxsh.bilibili.api.*
 
 internal abstract class ApiTest {
     init {
-        System.setProperty(EXCEPTION_JSON_CACHE, "./test")
-        System.getProperty(JSON_IGNORE, "false")
+        System.setProperty(EXCEPTION_JSON_CACHE, "./run/exception")
     }
 
     protected val client = BiliClient()

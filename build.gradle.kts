@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "xyz.cssxsh"
-version = "1.8.0"
+version = "1.8.1"
 
 repositories {
     mavenLocal()
@@ -43,12 +43,15 @@ dependencies {
     implementation("io.ktor:ktor-client-content-negotiation")
     implementation("io.ktor:ktor-serialization-kotlinx-json")
     //
-    implementation(platform("org.slf4j:slf4j-parent:2.0.12"))
+    implementation(platform("org.slf4j:slf4j-parent:2.0.13"))
     testImplementation("org.slf4j:slf4j-simple")
 }
 
 mirai {
     jvmTarget = JavaVersion.VERSION_11
+    if (System.getenv("CI").toBoolean()) {
+        useTestConsoleFrontEnd = null
+    }
 }
 
 tasks {
