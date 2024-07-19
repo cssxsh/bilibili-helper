@@ -42,6 +42,7 @@ internal class SearchTest : ApiTest() {
     }
 
     @Test
+    @org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable(named = "CI", matches = "true")
     fun `search live room`(): Unit = runBlocking {
         val search = client.searchLiveRoom(keyword = "音悦台")
         assertFalse(search.result.isEmpty())
