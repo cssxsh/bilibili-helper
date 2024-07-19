@@ -593,7 +593,7 @@ data class DynamicVideo(
     @SerialName("bvid")
     override val id: String = "",
     @SerialName("cid")
-    val cid: Int,
+    val cid: Long,
     @SerialName("ctime")
     override val created: Long,
     @SerialName("desc")

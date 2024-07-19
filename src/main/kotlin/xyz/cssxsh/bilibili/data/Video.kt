@@ -23,6 +23,7 @@ sealed interface Video : Entry, Owner, WithDateTime {
     val isSteinsGate: Boolean
     val isLivePlayback: Boolean
 
+    @Suppress("UNUSED")
     val link get() = "https://www.bilibili.com/video/${id}"
     override val datetime: OffsetDateTime get() = timestamp(created)
 }
@@ -313,7 +314,7 @@ data class VideoSimple(
 @Serializable
 data class VideoPage(
     @SerialName("cid")
-    val cid: Int,
+    val cid: Long,
     @SerialName("dimension")
     val dimension: VideoDimension,
     @SerialName("duration")
